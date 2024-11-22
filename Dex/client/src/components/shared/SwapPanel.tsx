@@ -107,7 +107,7 @@ const SwapPanel = () => {
                                         <FaChevronDown className="text-isbjorn-blue text-lg pt-1" />
                                     </div>
                                 </div>
-                                <div className='flex-1 flex flex-row p-2  items-center'>
+                                <div className='flex-1 flex flex-row p-2 items-center'>
                                     <Input
                                         type="number"
                                         placeholder="0.0"
