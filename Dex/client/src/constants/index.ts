@@ -36,6 +36,24 @@ export const sample_token_list: { [address: string]: Token } = {
     decimals: 8,
     rank: "3",
   },
+  "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E": {
+    address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+    name: "USD Coin",
+    ticker: "USDC",
+    imgUrl:
+      "https://static.debank.com/image/coin/logo_url/usdc/e87790bfe0b3f2ea855dc29069b38818.png",
+    decimals: 6,
+    rank: "4",
+  },
+  "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7": {
+    address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+    name: "TetherToken",
+    ticker: "USDT",
+    imgUrl:
+      "https://static.debank.com/image/coin/logo_url/usdt/23af7472292cb41dc39b3f1146ead0fe.png",
+    decimals: 6,
+    rank: "5",
+  },
 };
 
 export const WAVAX_ADDRESS = "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7";
