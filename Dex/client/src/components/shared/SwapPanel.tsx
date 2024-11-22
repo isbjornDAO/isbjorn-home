@@ -27,6 +27,8 @@ const SwapPanel = () => {
 
     const [wasFromLastChanged, setWasFromLastChanged] = useState(true);
 
+    const [isChartLoaded, setIsChartLoaded] = useState(false);
+
 
 
     const switchToAndFrom = () => {
@@ -74,10 +76,20 @@ const SwapPanel = () => {
                     <CardContent className='p-4'>
                         <div className='flex flex-row gap-1'>
                             <div className='flex-1 border border-black text-center rounded-lg'>
-                                CHART HERE
+                                {
+                                    isChartLoaded
+                                        ? (<div>CHART HERE</div>)
+                                        : (
+                                            <img
+                                                src="https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61f5e24f4c389a939113cc19_TRANSPARENCY-p-800.png"
+                                                alt="looking for chart"
+                                                className='h-full w-full'
+                                            />
+                                        )
+                                }
                             </div>
                             <div className='flex-1 flex flex-col px-3'>
-                                <div className='flex-1 flex flex-row p-2'>
+                                <div className='flex-1 flex flex-row p-2 items-center'>
                                     <Input
                                         type="number"
                                         placeholder="0.0"
@@ -95,7 +107,7 @@ const SwapPanel = () => {
                                         <FaChevronDown className="text-isbjorn-blue text-lg pt-1" />
                                     </div>
                                 </div>
-                                <div className='flex-1 flex flex-row p-2'>
+                                <div className='flex-1 flex flex-row p-2  items-center'>
                                     <Input
                                         type="number"
                                         placeholder="0.0"
