@@ -239,7 +239,7 @@ contract Isbjorn is ERC20, Ownable {
     function _swapTokensForAvax(uint256 tokenAmount) private {
         address[] memory path = new address[](2);
         path[0] = address(this);
-        path[1] = joeRouter.WAVAX();
+        path[1] = WAVAX;
 
         _approve(address(this), address(joeRouter), tokenAmount);
 
@@ -254,7 +254,7 @@ contract Isbjorn is ERC20, Ownable {
 
     function _swapAvaxForQuasi(uint256 avaxAmount) private {
         address[] memory path = new address[](2);
-        path[0] = joeRouter.WAVAX();
+        path[0] = WAVAX;
         path[1] = quasi;
 
         joeRouter.swapExactAVAXForTokens{value: avaxAmount}(
