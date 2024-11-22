@@ -107,8 +107,12 @@
     z-index: 1000;
   }
 
+  .go-to-swap-button {
+    @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2 w-[320px];
+  }
+
   .swap-button {
-    @apply bg-isbjorn-blue text-white flex gap-2 w-full;
+    @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2 w-full;
   }
 
   .profile-card-connect-button {

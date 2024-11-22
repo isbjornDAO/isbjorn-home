@@ -22,6 +22,7 @@ module.exports = {
         white: "#ffffff",
         "dodger-blue": "#33393f",
         "isbjorn-blue": "#29b1c7",
+        "isbjorn-blue-hover": "#54c1d2",
         "isbjorn-dark": "#1f4492",
         black: "#1b1f22",
         silver: "#bbb",
