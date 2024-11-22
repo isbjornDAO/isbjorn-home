@@ -69,7 +69,7 @@ contract Isbjorn is ERC20, Ownable {
             WAVAX
         );
 
-        distributor = new Distributor(WAVAX);
+        distributor = new Distributor(quasiLiquidity);
         distributorAddress = address(distributor);
 
         buyTax = 200;
@@ -362,6 +362,4 @@ contract Isbjorn is ERC20, Ownable {
 
         emit DaoRecipientAddressUpdated(daoRecipientAddress);
     }
-
-    function setDistributor(address newDistributor) external onlyOwner {}
 }
