@@ -3,6 +3,7 @@
 pragma solidity >=0.5.0;
 
 import "./SafeMathJoe.sol";
+import "./IJoePair.sol";
 
 library JoeLibrary {
     using SafeMathJoe for uint256;

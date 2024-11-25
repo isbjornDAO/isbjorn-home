@@ -2,6 +2,14 @@
 
 pragma solidity =0.6.12;
 
+import "./IJoeRouter02.sol";
+import "./SafeMathJoe.sol";
+import "./IJoeFactory.sol";
+import "./JoeLibrary.sol";
+import "./TransferHelper.sol";
+import "./IWAVAX.sol";
+import "./IERC20Joe.sol";
+
 contract JoeRouter02 is IJoeRouter02 {
     using SafeMathJoe for uint256;
 
