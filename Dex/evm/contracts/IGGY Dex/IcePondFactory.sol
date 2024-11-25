@@ -54,7 +54,7 @@ contract IcePondFactory is IIcePondFactory {
             bytecode,
             constructorParams
         );
-        bytes32 salt = keccak256(abi.encodePacked(isVolatile, token0, token1));
+        bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(
                 0,
