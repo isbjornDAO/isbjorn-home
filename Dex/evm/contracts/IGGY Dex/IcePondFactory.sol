@@ -10,11 +10,6 @@ contract IcePondFactory is IIcePondFactory {
     address public override feeToSetter;
     address public override migrator;
 
-    enum PoolType {
-        Stable,
-        Volatile
-    }
-
     mapping(bool => mapping(address => mapping(address => address)))
         public
         override getPair;
