@@ -10,7 +10,14 @@ contract IcePondFactory is IIcePondFactory {
     address public override feeToSetter;
     address public override migrator;
 
-    mapping(address => mapping(address => address)) public override getPair;
+    enum PoolType {
+        Stable,
+        Volatile
+    }
+
+    mapping(bool => mapping(address => mapping(address => address)))
+        public
+        override getPair;
     address[] public override allPairs;
 
     event PairCreated(
@@ -33,6 +40,7 @@ contract IcePondFactory is IIcePondFactory {
     }
 
     function createPair(
+        bool isVolatile,
         address tokenA,
         address tokenB
     ) external override returns (address pair) {
@@ -41,17 +49,29 @@ contract IcePondFactory is IIcePondFactory {
             ? (tokenA, tokenB)
             : (tokenB, tokenA);
         require(token0 != address(0), "Isbjorn: ZERO_ADDRESS");
-        require(getPair[token0][token1] == address(0), "Isbjorn: PAIR_EXISTS"); // single check is sufficient
+        require(
+            getPair[isVolatile][token0][token1] == address(0),
+            "Isbjorn: PAIR_EXISTS"
+        ); // single check is sufficient
         bytes memory bytecode = type(IcePond).creationCode;
+        bytes memory constructorParams = abi.encode(isVolatile, token0, token1);
+        bytes memory finalBytecode = abi.encodePacked(
+            bytecode,
+            constructorParams
+        );
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
-            pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
+            pair := create2(
+                0,
+                add(finalBytecode, 32),
+                mload(finalBytecode),
+                salt
+            )
         }
-        IcePond(pair).initialize(token0, token1);
-        getPair[token0][token1] = pair;
-        getPair[token1][token0] = pair; // populate mapping in the reverse direction
+        getPair[isVolatile][token0][token1] = pair;
+        getPair[isVolatile][token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
-        emit PairCreated(token0, token1, pair, allPairs.length);
+        emit PairCreated(isVolatile, token0, token1, pair, allPairs.length);
     }
 
     function setFeeTo(address _feeTo) external override {

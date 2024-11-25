@@ -4,6 +4,7 @@ pragma solidity >=0.5.0;
 
 interface IIcePondFactory {
     event PairCreated(
+        bool isVolatile,
         address indexed token0,
         address indexed token1,
         address pair,
@@ -17,6 +18,7 @@ interface IIcePondFactory {
     function migrator() external view returns (address);
 
     function getPair(
+        bool isVolatile,
         address tokenA,
         address tokenB
     ) external view returns (address pair);
@@ -26,6 +28,7 @@ interface IIcePondFactory {
     function allPairsLength() external view returns (uint256);
 
     function createPair(
+        bool isVolatile,
         address tokenA,
         address tokenB
     ) external returns (address pair);

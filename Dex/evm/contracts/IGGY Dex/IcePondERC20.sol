@@ -6,8 +6,8 @@ import "./SafeMath.sol";
 
 contract IcePondERC20 {
     using SafeMath for uint256;
-    string public constant name = "Isbjorn Ice Pond";
-    string public constant symbol = "IIP";
+    string public name;
+    string public symbol;
     uint8 public constant decimals = 18;
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
@@ -26,7 +26,21 @@ contract IcePondERC20 {
     );
     event Transfer(address indexed from, address indexed to, uint256 value);
 
-    constructor() public {
+    constructor(bool _isVolatile, address _token0, address _token1) public {
+        string memory ticker0 = _getSymbol(_token0);
+        string memory ticker1 = _getSymbol(_token1);
+
+        name = string(
+            abi.encodePacked(
+                ticker0,
+                "-",
+                ticker1,
+                _isVolatile ? " VLP" : " SLP"
+            )
+        );
+
+        symbol = string(_isVolatile ? " IVP" : " ISP");
+
         uint256 chainId;
         assembly {
             chainId := chainid()
@@ -123,5 +137,18 @@ contract IcePondERC20 {
             "Isbjorn: INVALID_SIGNATURE"
         );
         _approve(owner, spender, value);
+    }
+
+    function _getSymbol(address token) internal view returns (string memory) {
+        // Use low-level call to fetch the symbol
+        (bool success, bytes memory data) = token.staticcall(
+            abi.encodeWithSignature("symbol()")
+        );
+        if (success && data.length >= 32) {
+            return abi.decode(data, (string));
+        } else {
+            // Fallback to returning an empty string if the call fails
+            return "";
+        }
     }
 }
