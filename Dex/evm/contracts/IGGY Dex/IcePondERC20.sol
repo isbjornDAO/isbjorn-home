@@ -6,8 +6,8 @@ import "./SafeMath.sol";
 
 contract IcePondERC20 {
     using SafeMath for uint256;
-    string public name;
-    string public symbol;
+    string public name = "Iggy LP Token";
+    string public symbol = "ILP";
     uint8 public constant decimals = 18;
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
@@ -26,21 +26,7 @@ contract IcePondERC20 {
     );
     event Transfer(address indexed from, address indexed to, uint256 value);
 
-    constructor(bool _isVolatile, address _token0, address _token1) public {
-        string memory ticker0 = _getSymbol(_token0);
-        string memory ticker1 = _getSymbol(_token1);
-
-        name = string(
-            abi.encodePacked(
-                ticker0,
-                "-",
-                ticker1,
-                _isVolatile ? " VLP" : " SLP"
-            )
-        );
-
-        symbol = string(_isVolatile ? " IVP" : " ISP");
-
+    constructor() public {
         uint256 chainId;
         assembly {
             chainId := chainid()

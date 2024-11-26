@@ -87,12 +87,17 @@ contract IcePond is IcePondERC20 {
     );
     event Sync(uint112 reserve0, uint112 reserve1);
 
-    constructor(
+    constructor() public IcePondERC20() {
+        factory = msg.sender;
+    }
+
+    // called once by the factory at time of deployment
+    function initialize(
         bool _isVolatile,
         address _token0,
         address _token1
-    ) public IcePondERC20(_isVolatile, _token0, _token1) {
-        factory = msg.sender;
+    ) external {
+        require(msg.sender == factory, "Isbjorn: FORBIDDEN"); // sufficient check
         isVolatile = _isVolatile;
         token0 = _token0;
         token1 = _token1;

@@ -653,6 +653,14 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     }
 
     // **** LIBRARY FUNCTIONS ****
+    function pairFor(
+        bool isVolatile,
+        address tokenA,
+        address tokenB
+    ) public view returns (address) {
+        return IsbjornLibrary.pairFor(factory, isVolatile, tokenA, tokenB);
+    }
+
     function quote(
         bool isVolatile,
         uint256 amountA,

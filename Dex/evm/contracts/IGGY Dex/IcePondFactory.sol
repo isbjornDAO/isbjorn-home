@@ -4,6 +4,7 @@ pragma solidity =0.6.12;
 
 import "./IIcePondFactory.sol";
 import "./IcePond.sol";
+import "./BytesUtil.sol";
 
 contract IcePondFactory is IIcePondFactory {
     address public override feeTo;
@@ -49,20 +50,11 @@ contract IcePondFactory is IIcePondFactory {
             "Isbjorn: PAIR_EXISTS"
         ); // single check is sufficient
         bytes memory bytecode = type(IcePond).creationCode;
-        bytes memory constructorParams = abi.encode(isVolatile, token0, token1);
-        bytes memory finalBytecode = abi.encodePacked(
-            bytecode,
-            constructorParams
-        );
         bytes32 salt = keccak256(abi.encodePacked(isVolatile, token0, token1));
         assembly {
-            pair := create2(
-                0,
-                add(finalBytecode, 32),
-                mload(finalBytecode),
-                salt
-            )
+            pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
+        IcePond(pair).initialize(isVolatile, token0, token1);
         getPair[isVolatile][token0][token1] = pair;
         getPair[isVolatile][token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
