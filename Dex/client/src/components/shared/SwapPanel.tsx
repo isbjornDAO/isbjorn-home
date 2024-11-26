@@ -129,7 +129,7 @@ const SwapPanel = () => {
                                     <TokenChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} />
                                 </div>
                                 <div className='w-full p-2 flex flex-row justify-between'>
-                                    <div className='flex flex-row'>
+                                    <div className='flex flex-row items-center'>
                                         <div className='flex safemode-toggle items-center justify-center mr-1'>Safe Mode </div>
                                         <Switch
                                             className={safeModeEnabled ? "bg-green" : "bg-red"}
