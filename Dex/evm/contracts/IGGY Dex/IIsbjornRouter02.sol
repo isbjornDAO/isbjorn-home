@@ -6,7 +6,6 @@ import "./IIsbjornRouter01.sol";
 
 interface IIsbjornRouter02 is IIsbjornRouter01 {
     function removeLiquidityAVAXSupportingFeeOnTransferTokens(
-        bool isVolatile,
         address token,
         uint256 liquidity,
         uint256 amountTokenMin,
@@ -16,7 +15,6 @@ interface IIsbjornRouter02 is IIsbjornRouter01 {
     ) external returns (uint256 amountAVAX);
 
     function removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens(
-        bool isVolatile,
         address token,
         uint256 liquidity,
         uint256 amountTokenMin,
@@ -30,7 +28,6 @@ interface IIsbjornRouter02 is IIsbjornRouter01 {
     ) external returns (uint256 amountAVAX);
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
-        bool isVolatile,
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,
@@ -39,7 +36,6 @@ interface IIsbjornRouter02 is IIsbjornRouter01 {
     ) external;
 
     function swapExactAVAXForTokensSupportingFeeOnTransferTokens(
-        bool isVolatile,
         uint256 amountOutMin,
         address[] calldata path,
         address to,
@@ -47,7 +43,6 @@ interface IIsbjornRouter02 is IIsbjornRouter01 {
     ) external payable;
 
     function swapExactTokensForAVAXSupportingFeeOnTransferTokens(
-        bool isVolatile,
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,

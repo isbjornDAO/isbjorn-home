@@ -15,7 +15,6 @@ interface IMigrator {
     function desiredLiquidity() external view returns (uint256);
 }
 
-// TODO : ADD Stable Swap Mechanics is isVolatile false
 contract IcePond is IcePondERC20 {
     using SafeMath for uint256;
     using UQ112x112 for uint224;
@@ -26,7 +25,6 @@ contract IcePond is IcePondERC20 {
 
     address public factory;
 
-    bool public isVolatile;
     address public token0;
     address public token1;
 
@@ -92,13 +90,8 @@ contract IcePond is IcePondERC20 {
     }
 
     // called once by the factory at time of deployment
-    function initialize(
-        bool _isVolatile,
-        address _token0,
-        address _token1
-    ) external {
+    function initialize(address _token0, address _token1) external {
         require(msg.sender == factory, "Isbjorn: FORBIDDEN"); // sufficient check
-        isVolatile = _isVolatile;
         token0 = _token0;
         token1 = _token1;
     }

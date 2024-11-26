@@ -50,7 +50,7 @@ export interface IIcePondFactoryInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createPair",
-    values: [boolean, AddressLike, AddressLike]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "feeTo", values?: undefined): string;
   encodeFunctionData(
@@ -59,7 +59,7 @@ export interface IIcePondFactoryInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getPair",
-    values: [boolean, AddressLike, AddressLike]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "migrator", values?: undefined): string;
   encodeFunctionData(
@@ -101,25 +101,22 @@ export interface IIcePondFactoryInterface extends Interface {
 
 export namespace PairCreatedEvent {
   export type InputTuple = [
-    isVolatile: boolean,
     token0: AddressLike,
     token1: AddressLike,
     pair: AddressLike,
-    arg4: BigNumberish
+    arg3: BigNumberish
   ];
   export type OutputTuple = [
-    isVolatile: boolean,
     token0: string,
     token1: string,
     pair: string,
-    arg4: bigint
+    arg3: bigint
   ];
   export interface OutputObject {
-    isVolatile: boolean;
     token0: string;
     token1: string;
     pair: string;
-    arg4: bigint;
+    arg3: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -175,7 +172,7 @@ export interface IIcePondFactory extends BaseContract {
   allPairsLength: TypedContractMethod<[], [bigint], "view">;
 
   createPair: TypedContractMethod<
-    [isVolatile: boolean, tokenA: AddressLike, tokenB: AddressLike],
+    [tokenA: AddressLike, tokenB: AddressLike],
     [string],
     "nonpayable"
   >;
@@ -185,7 +182,7 @@ export interface IIcePondFactory extends BaseContract {
   feeToSetter: TypedContractMethod<[], [string], "view">;
 
   getPair: TypedContractMethod<
-    [isVolatile: boolean, tokenA: AddressLike, tokenB: AddressLike],
+    [tokenA: AddressLike, tokenB: AddressLike],
     [string],
     "view"
   >;
@@ -215,7 +212,7 @@ export interface IIcePondFactory extends BaseContract {
   getFunction(
     nameOrSignature: "createPair"
   ): TypedContractMethod<
-    [isVolatile: boolean, tokenA: AddressLike, tokenB: AddressLike],
+    [tokenA: AddressLike, tokenB: AddressLike],
     [string],
     "nonpayable"
   >;
@@ -228,7 +225,7 @@ export interface IIcePondFactory extends BaseContract {
   getFunction(
     nameOrSignature: "getPair"
   ): TypedContractMethod<
-    [isVolatile: boolean, tokenA: AddressLike, tokenB: AddressLike],
+    [tokenA: AddressLike, tokenB: AddressLike],
     [string],
     "view"
   >;
@@ -254,7 +251,7 @@ export interface IIcePondFactory extends BaseContract {
   >;
 
   filters: {
-    "PairCreated(bool,address,address,address,uint256)": TypedContractEvent<
+    "PairCreated(address,address,address,uint256)": TypedContractEvent<
       PairCreatedEvent.InputTuple,
       PairCreatedEvent.OutputTuple,
       PairCreatedEvent.OutputObject

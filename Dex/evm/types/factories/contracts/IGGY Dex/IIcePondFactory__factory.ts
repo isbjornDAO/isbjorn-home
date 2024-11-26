@@ -13,12 +13,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "bool",
-        name: "isVolatile",
-        type: "bool",
-      },
-      {
         indexed: true,
         internalType: "address",
         name: "token0",
@@ -81,11 +75,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bool",
-        name: "isVolatile",
-        type: "bool",
-      },
-      {
         internalType: "address",
         name: "tokenA",
         type: "address",
@@ -135,11 +124,6 @@ const _abi = [
   },
   {
     inputs: [
-      {
-        internalType: "bool",
-        name: "isVolatile",
-        type: "bool",
-      },
       {
         internalType: "address",
         name: "tokenA",

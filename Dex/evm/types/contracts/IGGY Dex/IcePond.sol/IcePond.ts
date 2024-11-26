@@ -37,7 +37,6 @@ export interface IcePondInterface extends Interface {
       | "factory"
       | "getReserves"
       | "initialize"
-      | "isVolatile"
       | "kLast"
       | "mint"
       | "name"
@@ -99,11 +98,7 @@ export interface IcePondInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [boolean, AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isVolatile",
-    values?: undefined
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "kLast", values?: undefined): string;
   encodeFunctionData(functionFragment: "mint", values: [AddressLike]): string;
@@ -174,7 +169,6 @@ export interface IcePondInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isVolatile", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "kLast", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -414,12 +408,10 @@ export interface IcePond extends BaseContract {
   >;
 
   initialize: TypedContractMethod<
-    [_isVolatile: boolean, _token0: AddressLike, _token1: AddressLike],
+    [_token0: AddressLike, _token1: AddressLike],
     [void],
     "nonpayable"
   >;
-
-  isVolatile: TypedContractMethod<[], [boolean], "view">;
 
   kLast: TypedContractMethod<[], [bigint], "view">;
 
@@ -541,13 +533,10 @@ export interface IcePond extends BaseContract {
   getFunction(
     nameOrSignature: "initialize"
   ): TypedContractMethod<
-    [_isVolatile: boolean, _token0: AddressLike, _token1: AddressLike],
+    [_token0: AddressLike, _token1: AddressLike],
     [void],
     "nonpayable"
   >;
-  getFunction(
-    nameOrSignature: "isVolatile"
-  ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "kLast"
   ): TypedContractMethod<[], [bigint], "view">;

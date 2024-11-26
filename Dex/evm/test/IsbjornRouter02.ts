@@ -65,7 +65,7 @@ describe("IsbjornRouter02", function () {
   });
   describe("Liquidity Functions", function () {
     describe("Add Liquidity", function () {
-      it("should add liquidity for 2 tokens successfully when isVolatile = true", async function () {
+      it("should add liquidity for 2 tokens successfully", async function () {
         const amountADesired = ethers.parseEther("10");
         const amountBDesired = ethers.parseEther("20");
         const amountAMin = ethers.parseEther("9");
@@ -85,7 +85,6 @@ describe("IsbjornRouter02", function () {
         await tokenB.connect(owner).approve(router.target, amountBDesired);
 
         const tx: ContractTransactionResponse = await router.addLiquidity(
-          true, // isVolatile
           tokenA.target,
           tokenB.target,
           amountADesired,
@@ -106,11 +105,7 @@ describe("IsbjornRouter02", function () {
         const newOwnerTokenABalance = await tokenA.balanceOf(ownerAddress);
         const newOwnerTokenBBalance = await tokenB.balanceOf(ownerAddress);
 
-        const pairAddress = await router.pairFor(
-          true,
-          tokenA.target,
-          tokenB.target
-        );
+        const pairAddress = await router.pairFor(tokenA.target, tokenB.target);
 
         const newPairTokenABalance = await tokenA.balanceOf(pairAddress);
         const newPairTokenBBalance = await tokenB.balanceOf(pairAddress);
@@ -128,7 +123,7 @@ describe("IsbjornRouter02", function () {
           ethers.parseEther("18")
         );
       });
-      it("should add liquidity for a token and AVAX successfully when isVolatile = true", async function () {
+      it("should add liquidity for a token and AVAX successfully", async function () {
         const amountADesired = ethers.parseEther("10");
         const amountBDesired = ethers.parseEther("20");
         const amountAMin = ethers.parseEther("9");
@@ -149,7 +144,6 @@ describe("IsbjornRouter02", function () {
         await tokenA.connect(owner).approve(router.target, amountADesired);
 
         const tx: ContractTransactionResponse = await router.addLiquidityAVAX(
-          true, // isVolatile
           tokenA.target,
           amountADesired,
           amountAMin,
@@ -171,11 +165,7 @@ describe("IsbjornRouter02", function () {
           ownerAddress
         );
 
-        const pairAddress = await router.pairFor(
-          true,
-          tokenA.target,
-          WAVAX.target
-        );
+        const pairAddress = await router.pairFor(tokenA.target, WAVAX.target);
 
         const newPairTokenABalance = await tokenA.balanceOf(pairAddress);
         const newPairTokenBBalance = await WAVAX.balanceOf(pairAddress);
@@ -193,7 +183,7 @@ describe("IsbjornRouter02", function () {
           ethers.parseEther("18")
         );
       });
-      it("should add liquidity for a token and WAVAX successfully when isVolatile = true", async function () {
+      it("should add liquidity for a token and WAVAX successfully", async function () {
         const amountADesired = ethers.parseEther("10");
         const amountBDesired = ethers.parseEther("20");
         const amountAMin = ethers.parseEther("9");
@@ -215,7 +205,6 @@ describe("IsbjornRouter02", function () {
         const initialOwnerTokenBBalance = await WAVAX.balanceOf(ownerAddress);
 
         const tx: ContractTransactionResponse = await router.addLiquidity(
-          true, // isVolatile
           tokenA.target,
           WAVAX.target,
           amountADesired,
@@ -236,11 +225,7 @@ describe("IsbjornRouter02", function () {
         const newOwnerTokenABalance = await tokenA.balanceOf(ownerAddress);
         const newOwnerTokenBBalance = await WAVAX.balanceOf(ownerAddress);
 
-        const pairAddress = await router.pairFor(
-          true,
-          tokenA.target,
-          WAVAX.target
-        );
+        const pairAddress = await router.pairFor(tokenA.target, WAVAX.target);
 
         const newPairTokenABalance = await tokenA.balanceOf(pairAddress);
         const newPairTokenBBalance = await WAVAX.balanceOf(pairAddress);
@@ -277,7 +262,6 @@ describe("IsbjornRouter02", function () {
         await tokenB.connect(owner).approve(router.target, amountBDesired);
 
         const tx1: ContractTransactionResponse = await router.addLiquidity(
-          true, // isVolatile
           tokenA.target,
           tokenB.target,
           amountADesired,
@@ -291,7 +275,6 @@ describe("IsbjornRouter02", function () {
         await tokenA.connect(owner).approve(router.target, amountADesired);
 
         const tx2: ContractTransactionResponse = await router.addLiquidityAVAX(
-          true, // isVolatile
           tokenA.target,
           amountADesired,
           amountAMin,
@@ -301,7 +284,7 @@ describe("IsbjornRouter02", function () {
           { value: amountBDesired }
         );
       });
-      it("should remove liquidity for 2 tokens successfully when isVolatile = true", async function () {
+      it("should remove liquidity for 2 tokens successfully", async function () {
         const latestBlock = await ethers.provider.getBlock("latest");
 
         if (!latestBlock) {
@@ -309,11 +292,7 @@ describe("IsbjornRouter02", function () {
         }
 
         const deadline = latestBlock.timestamp + 3600;
-        const pairAddress = await router.pairFor(
-          true,
-          tokenA.target,
-          tokenB.target
-        );
+        const pairAddress = await router.pairFor(tokenA.target, tokenB.target);
 
         const initialOwnerTokenABalance = await tokenA.balanceOf(ownerAddress);
         const initialOwnerTokenBBalance = await tokenB.balanceOf(ownerAddress);
@@ -327,7 +306,6 @@ describe("IsbjornRouter02", function () {
         await pair.connect(owner).approve(router.target, ownerLiquidityBalance);
 
         const tx: ContractTransactionResponse = await router.removeLiquidity(
-          true,
           tokenA.target,
           tokenB.target,
           ownerLiquidityBalance,
@@ -356,7 +334,7 @@ describe("IsbjornRouter02", function () {
           pairTokenBBalance - ethers.parseEther("18")
         );
       });
-      it("should remove liquidity for a token and AVAX successfully when isVolatile = true", async function () {
+      it("should remove liquidity for a token and AVAX successfully", async function () {
         const latestBlock = await ethers.provider.getBlock("latest");
 
         if (!latestBlock) {
@@ -364,11 +342,7 @@ describe("IsbjornRouter02", function () {
         }
 
         const deadline = latestBlock.timestamp + 3600;
-        const pairAddress = await router.pairFor(
-          true,
-          tokenA.target,
-          WAVAX.target
-        );
+        const pairAddress = await router.pairFor(tokenA.target, WAVAX.target);
 
         const initialOwnerTokenABalance = await tokenA.balanceOf(ownerAddress);
         const initialOwnerTokenBBalance = await ethers.provider.getBalance(
@@ -385,7 +359,6 @@ describe("IsbjornRouter02", function () {
 
         const tx: ContractTransactionResponse =
           await router.removeLiquidityAVAX(
-            true,
             tokenA.target,
             ownerLiquidityBalance,
             ethers.parseEther("9"),

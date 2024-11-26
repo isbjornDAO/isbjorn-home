@@ -32,7 +32,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
 
     // **** ADD LIQUIDITY ****
     function _addLiquidity(
-        bool isVolatile,
         address tokenA,
         address tokenB,
         uint256 amountADesired,
@@ -41,15 +40,11 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         uint256 amountBMin
     ) internal virtual returns (uint256 amountA, uint256 amountB) {
         // create the pair if it doesn't exist yet
-        if (
-            IIcePondFactory(factory).getPair(isVolatile, tokenA, tokenB) ==
-            address(0)
-        ) {
-            IIcePondFactory(factory).createPair(isVolatile, tokenA, tokenB);
+        if (IIcePondFactory(factory).getPair(tokenA, tokenB) == address(0)) {
+            IIcePondFactory(factory).createPair(tokenA, tokenB);
         }
         (uint256 reserveA, uint256 reserveB) = IsbjornLibrary.getReserves(
             factory,
-            isVolatile,
             tokenA,
             tokenB
         );
@@ -57,7 +52,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
             (amountA, amountB) = (amountADesired, amountBDesired);
         } else {
             uint256 amountBOptimal = IsbjornLibrary.quote(
-                isVolatile,
                 amountADesired,
                 reserveA,
                 reserveB
@@ -70,7 +64,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
                 (amountA, amountB) = (amountADesired, amountBOptimal);
             } else {
                 uint256 amountAOptimal = IsbjornLibrary.quote(
-                    isVolatile,
                     amountBDesired,
                     reserveB,
                     reserveA
@@ -86,7 +79,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     }
 
     function addLiquidity(
-        bool isVolatile,
         address tokenA,
         address tokenB,
         uint256 amountADesired,
@@ -103,7 +95,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         returns (uint256 amountA, uint256 amountB, uint256 liquidity)
     {
         (amountA, amountB) = _addLiquidity(
-            isVolatile,
             tokenA,
             tokenB,
             amountADesired,
@@ -111,19 +102,13 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
             amountAMin,
             amountBMin
         );
-        address pair = IsbjornLibrary.pairFor(
-            factory,
-            isVolatile,
-            tokenA,
-            tokenB
-        );
+        address pair = IsbjornLibrary.pairFor(factory, tokenA, tokenB);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
         liquidity = IIcePond(pair).mint(to);
     }
 
     function addLiquidityAVAX(
-        bool isVolatile,
         address token,
         uint256 amountTokenDesired,
         uint256 amountTokenMin,
@@ -139,7 +124,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         returns (uint256 amountToken, uint256 amountAVAX, uint256 liquidity)
     {
         (amountToken, amountAVAX) = _addLiquidity(
-            isVolatile,
             token,
             WAVAX,
             amountTokenDesired,
@@ -147,12 +131,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
             amountTokenMin,
             amountAVAXMin
         );
-        address pair = IsbjornLibrary.pairFor(
-            factory,
-            isVolatile,
-            token,
-            WAVAX
-        );
+        address pair = IsbjornLibrary.pairFor(factory, token, WAVAX);
         TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
         IWAVAX(WAVAX).deposit{value: amountAVAX}();
         assert(IWAVAX(WAVAX).transfer(pair, amountAVAX));
@@ -164,7 +143,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
 
     // **** REMOVE LIQUIDITY ****
     function removeLiquidity(
-        bool isVolatile,
         address tokenA,
         address tokenB,
         uint256 liquidity,
@@ -179,12 +157,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         ensure(deadline)
         returns (uint256 amountA, uint256 amountB)
     {
-        address pair = IsbjornLibrary.pairFor(
-            factory,
-            isVolatile,
-            tokenA,
-            tokenB
-        );
+        address pair = IsbjornLibrary.pairFor(factory, tokenA, tokenB);
         IIcePond(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
         (uint256 amount0, uint256 amount1) = IIcePond(pair).burn(to);
         (address token0, ) = IsbjornLibrary.sortTokens(tokenA, tokenB);
@@ -196,7 +169,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     }
 
     function removeLiquidityAVAX(
-        bool isVolatile,
         address token,
         uint256 liquidity,
         uint256 amountTokenMin,
@@ -211,7 +183,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         returns (uint256 amountToken, uint256 amountAVAX)
     {
         (amountToken, amountAVAX) = removeLiquidity(
-            isVolatile,
             token,
             WAVAX,
             liquidity,
@@ -225,9 +196,81 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         TransferHelper.safeTransferAVAX(to, amountAVAX);
     }
 
+    function removeLiquidityWithPermit(
+        address tokenA,
+        address tokenB,
+        uint256 liquidity,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external virtual override returns (uint256 amountA, uint256 amountB) {
+        address pair = IsbjornLibrary.pairFor(factory, tokenA, tokenB);
+        uint256 value = approveMax ? uint256(-1) : liquidity;
+        IIcePond(pair).permit(
+            msg.sender,
+            address(this),
+            value,
+            deadline,
+            v,
+            r,
+            s
+        );
+        (amountA, amountB) = removeLiquidity(
+            tokenA,
+            tokenB,
+            liquidity,
+            amountAMin,
+            amountBMin,
+            to,
+            deadline
+        );
+    }
+
+    function removeLiquidityAVAXWithPermit(
+        address token,
+        uint256 liquidity,
+        uint256 amountTokenMin,
+        uint256 amountAVAXMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    )
+        external
+        virtual
+        override
+        returns (uint256 amountToken, uint256 amountAVAX)
+    {
+        address pair = IsbjornLibrary.pairFor(factory, token, WAVAX);
+        uint256 value = approveMax ? uint256(-1) : liquidity;
+        IIcePond(pair).permit(
+            msg.sender,
+            address(this),
+            value,
+            deadline,
+            v,
+            r,
+            s
+        );
+        (amountToken, amountAVAX) = removeLiquidityAVAX(
+            token,
+            liquidity,
+            amountTokenMin,
+            amountAVAXMin,
+            to,
+            deadline
+        );
+    }
+
     // **** REMOVE LIQUIDITY (supporting fee-on-transfer tokens) ****
     function removeLiquidityAVAXSupportingFeeOnTransferTokens(
-        bool isVolatile,
         address token,
         uint256 liquidity,
         uint256 amountTokenMin,
@@ -236,7 +279,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         uint256 deadline
     ) public virtual override ensure(deadline) returns (uint256 amountAVAX) {
         (, amountAVAX) = removeLiquidity(
-            isVolatile,
             token,
             WAVAX,
             liquidity,
@@ -255,7 +297,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     }
 
     function removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens(
-        bool isVolatile,
         address token,
         uint256 liquidity,
         uint256 amountTokenMin,
@@ -267,12 +308,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         bytes32 r,
         bytes32 s
     ) external virtual override returns (uint256 amountAVAX) {
-        address pair = IsbjornLibrary.pairFor(
-            factory,
-            isVolatile,
-            token,
-            WAVAX
-        );
+        address pair = IsbjornLibrary.pairFor(factory, token, WAVAX);
         uint256 value = approveMax ? uint256(-1) : liquidity;
         IIcePond(pair).permit(
             msg.sender,
@@ -284,7 +320,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
             s
         );
         amountAVAX = removeLiquidityAVAXSupportingFeeOnTransferTokens(
-            isVolatile,
             token,
             liquidity,
             amountTokenMin,
@@ -297,7 +332,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     // **** SWAP ****
     // requires the initial amount to have already been sent to the first pair
     function _swap(
-        bool isVolatile,
         uint256[] memory amounts,
         address[] memory path,
         address _to
@@ -310,20 +344,18 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
                 ? (uint256(0), amountOut)
                 : (amountOut, uint256(0));
             address to = i < path.length - 2
-                ? IsbjornLibrary.pairFor(
-                    factory,
-                    isVolatile,
-                    output,
-                    path[i + 2]
-                )
+                ? IsbjornLibrary.pairFor(factory, output, path[i + 2])
                 : _to;
-            IIcePond(IsbjornLibrary.pairFor(factory, isVolatile, input, output))
-                .swap(amount0Out, amount1Out, to, new bytes(0));
+            IIcePond(IsbjornLibrary.pairFor(factory, input, output)).swap(
+                amount0Out,
+                amount1Out,
+                to,
+                new bytes(0)
+            );
         }
     }
 
     function swapExactTokensForTokens(
-        bool isVolatile,
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,
@@ -336,12 +368,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        amounts = IsbjornLibrary.getAmountsOut(
-            factory,
-            isVolatile,
-            amountIn,
-            path
-        );
+        amounts = IsbjornLibrary.getAmountsOut(factory, amountIn, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
             "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
@@ -349,14 +376,13 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
-        _swap(isVolatile, amounts, path, to);
+        _swap(amounts, path, to);
     }
 
     function swapTokensForExactTokens(
-        bool isVolatile,
         uint256 amountOut,
         uint256 amountInMax,
         address[] calldata path,
@@ -369,12 +395,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        amounts = IsbjornLibrary.getAmountsIn(
-            factory,
-            isVolatile,
-            amountOut,
-            path
-        );
+        amounts = IsbjornLibrary.getAmountsIn(factory, amountOut, path);
         require(
             amounts[0] <= amountInMax,
             "IsbjornRouter: EXCESSIVE_INPUT_AMOUNT"
@@ -382,14 +403,13 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
-        _swap(isVolatile, amounts, path, to);
+        _swap(amounts, path, to);
     }
 
     function swapExactAVAXForTokens(
-        bool isVolatile,
         uint256 amountOutMin,
         address[] calldata path,
         address to,
@@ -403,12 +423,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         returns (uint256[] memory amounts)
     {
         require(path[0] == WAVAX, "IsbjornRouter: INVALID_PATH");
-        amounts = IsbjornLibrary.getAmountsOut(
-            factory,
-            isVolatile,
-            msg.value,
-            path
-        );
+        amounts = IsbjornLibrary.getAmountsOut(factory, msg.value, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
             "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
@@ -416,15 +431,14 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         IWAVAX(WAVAX).deposit{value: amounts[0]}();
         assert(
             IWAVAX(WAVAX).transfer(
-                IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+                IsbjornLibrary.pairFor(factory, path[0], path[1]),
                 amounts[0]
             )
         );
-        _swap(isVolatile, amounts, path, to);
+        _swap(amounts, path, to);
     }
 
     function swapTokensForExactAVAX(
-        bool isVolatile,
         uint256 amountOut,
         uint256 amountInMax,
         address[] calldata path,
@@ -438,12 +452,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         returns (uint256[] memory amounts)
     {
         require(path[path.length - 1] == WAVAX, "IsbjornRouter: INVALID_PATH");
-        amounts = IsbjornLibrary.getAmountsIn(
-            factory,
-            isVolatile,
-            amountOut,
-            path
-        );
+        amounts = IsbjornLibrary.getAmountsIn(factory, amountOut, path);
         require(
             amounts[0] <= amountInMax,
             "IsbjornRouter: EXCESSIVE_INPUT_AMOUNT"
@@ -451,16 +460,15 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
-        _swap(isVolatile, amounts, path, address(this));
+        _swap(amounts, path, address(this));
         IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1]);
         TransferHelper.safeTransferAVAX(to, amounts[amounts.length - 1]);
     }
 
     function swapExactTokensForAVAX(
-        bool isVolatile,
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,
@@ -474,12 +482,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         returns (uint256[] memory amounts)
     {
         require(path[path.length - 1] == WAVAX, "IsbjornRouter: INVALID_PATH");
-        amounts = IsbjornLibrary.getAmountsOut(
-            factory,
-            isVolatile,
-            amountIn,
-            path
-        );
+        amounts = IsbjornLibrary.getAmountsOut(factory, amountIn, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
             "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
@@ -487,16 +490,15 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
-        _swap(isVolatile, amounts, path, address(this));
+        _swap(amounts, path, address(this));
         IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1]);
         TransferHelper.safeTransferAVAX(to, amounts[amounts.length - 1]);
     }
 
     function swapAVAXForExactTokens(
-        bool isVolatile,
         uint256 amountOut,
         address[] calldata path,
         address to,
@@ -510,12 +512,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         returns (uint256[] memory amounts)
     {
         require(path[0] == WAVAX, "IsbjornRouter: INVALID_PATH");
-        amounts = IsbjornLibrary.getAmountsIn(
-            factory,
-            isVolatile,
-            amountOut,
-            path
-        );
+        amounts = IsbjornLibrary.getAmountsIn(factory, amountOut, path);
         require(
             amounts[0] <= msg.value,
             "IsbjornRouter: EXCESSIVE_INPUT_AMOUNT"
@@ -523,11 +520,11 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         IWAVAX(WAVAX).deposit{value: amounts[0]}();
         assert(
             IWAVAX(WAVAX).transfer(
-                IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+                IsbjornLibrary.pairFor(factory, path[0], path[1]),
                 amounts[0]
             )
         );
-        _swap(isVolatile, amounts, path, to);
+        _swap(amounts, path, to);
         // refund dust eth, if any
         if (msg.value > amounts[0])
             TransferHelper.safeTransferAVAX(msg.sender, msg.value - amounts[0]);
@@ -536,7 +533,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     // **** SWAP (supporting fee-on-transfer tokens) ****
     // requires the initial amount to have already been sent to the first pair
     function _swapSupportingFeeOnTransferTokens(
-        bool isVolatile,
         address[] memory path,
         address _to
     ) internal virtual {
@@ -544,7 +540,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
             (address input, address output) = (path[i], path[i + 1]);
             (address token0, ) = IsbjornLibrary.sortTokens(input, output);
             IIcePond pair = IIcePond(
-                IsbjornLibrary.pairFor(factory, isVolatile, input, output)
+                IsbjornLibrary.pairFor(factory, input, output)
             );
             uint256 amountInput;
             uint256 amountOutput;
@@ -558,7 +554,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
                     reserveInput
                 );
                 amountOutput = IsbjornLibrary.getAmountOut(
-                    isVolatile,
                     amountInput,
                     reserveInput,
                     reserveOutput
@@ -568,19 +563,13 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
                 ? (uint256(0), amountOutput)
                 : (amountOutput, uint256(0));
             address to = i < path.length - 2
-                ? IsbjornLibrary.pairFor(
-                    factory,
-                    isVolatile,
-                    output,
-                    path[i + 2]
-                )
+                ? IsbjornLibrary.pairFor(factory, output, path[i + 2])
                 : _to;
             pair.swap(amount0Out, amount1Out, to, new bytes(0));
         }
     }
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
-        bool isVolatile,
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,
@@ -590,11 +579,11 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amountIn
         );
         uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
-        _swapSupportingFeeOnTransferTokens(isVolatile, path, to);
+        _swapSupportingFeeOnTransferTokens(path, to);
         require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >=
                 amountOutMin,
@@ -603,7 +592,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     }
 
     function swapExactAVAXForTokensSupportingFeeOnTransferTokens(
-        bool isVolatile,
         uint256 amountOutMin,
         address[] calldata path,
         address to,
@@ -614,12 +602,12 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         IWAVAX(WAVAX).deposit{value: amountIn}();
         assert(
             IWAVAX(WAVAX).transfer(
-                IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+                IsbjornLibrary.pairFor(factory, path[0], path[1]),
                 amountIn
             )
         );
         uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
-        _swapSupportingFeeOnTransferTokens(isVolatile, path, to);
+        _swapSupportingFeeOnTransferTokens(path, to);
         require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >=
                 amountOutMin,
@@ -628,7 +616,6 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     }
 
     function swapExactTokensForAVAXSupportingFeeOnTransferTokens(
-        bool isVolatile,
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,
@@ -639,10 +626,10 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            IsbjornLibrary.pairFor(factory, isVolatile, path[0], path[1]),
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amountIn
         );
-        _swapSupportingFeeOnTransferTokens(isVolatile, path, address(this));
+        _swapSupportingFeeOnTransferTokens(path, address(this));
         uint256 amountOut = IERC20(WAVAX).balanceOf(address(this));
         require(
             amountOut >= amountOutMin,
@@ -654,67 +641,47 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
 
     // **** LIBRARY FUNCTIONS ****
     function pairFor(
-        bool isVolatile,
         address tokenA,
         address tokenB
-    ) public view returns (address) {
-        return IsbjornLibrary.pairFor(factory, isVolatile, tokenA, tokenB);
+    ) external view returns (address) {
+        return IsbjornLibrary.pairFor(factory, tokenA, tokenB);
     }
 
     function quote(
-        bool isVolatile,
         uint256 amountA,
         uint256 reserveA,
         uint256 reserveB
     ) public pure virtual override returns (uint256 amountB) {
-        return IsbjornLibrary.quote(isVolatile, amountA, reserveA, reserveB);
+        return IsbjornLibrary.quote(amountA, reserveA, reserveB);
     }
 
     function getAmountOut(
-        bool isVolatile,
         uint256 amountIn,
         uint256 reserveIn,
         uint256 reserveOut
     ) public pure virtual override returns (uint256 amountOut) {
-        return
-            IsbjornLibrary.getAmountOut(
-                isVolatile,
-                amountIn,
-                reserveIn,
-                reserveOut
-            );
+        return IsbjornLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
     }
 
     function getAmountIn(
-        bool isVolatile,
         uint256 amountOut,
         uint256 reserveIn,
         uint256 reserveOut
     ) public pure virtual override returns (uint256 amountIn) {
-        return
-            IsbjornLibrary.getAmountIn(
-                isVolatile,
-                amountOut,
-                reserveIn,
-                reserveOut
-            );
+        return IsbjornLibrary.getAmountIn(amountOut, reserveIn, reserveOut);
     }
 
     function getAmountsOut(
-        bool isVolatile,
         uint256 amountIn,
         address[] memory path
     ) public view virtual override returns (uint256[] memory amounts) {
-        return
-            IsbjornLibrary.getAmountsOut(factory, isVolatile, amountIn, path);
+        return IsbjornLibrary.getAmountsOut(factory, amountIn, path);
     }
 
     function getAmountsIn(
-        bool isVolatile,
         uint256 amountOut,
         address[] memory path
     ) public view virtual override returns (uint256[] memory amounts) {
-        return
-            IsbjornLibrary.getAmountsIn(factory, isVolatile, amountOut, path);
+        return IsbjornLibrary.getAmountsIn(factory, amountOut, path);
     }
 }

@@ -8,7 +8,6 @@ interface IIsbjornRouter01 {
     function WAVAX() external pure returns (address);
 
     function addLiquidity(
-        bool isVolatile,
         address tokenA,
         address tokenB,
         uint256 amountADesired,
@@ -20,7 +19,6 @@ interface IIsbjornRouter01 {
     ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
 
     function addLiquidityAVAX(
-        bool isVolatile,
         address token,
         uint256 amountTokenDesired,
         uint256 amountTokenMin,
@@ -33,7 +31,6 @@ interface IIsbjornRouter01 {
         returns (uint256 amountToken, uint256 amountAVAX, uint256 liquidity);
 
     function removeLiquidity(
-        bool isVolatile,
         address tokenA,
         address tokenB,
         uint256 liquidity,
@@ -44,7 +41,6 @@ interface IIsbjornRouter01 {
     ) external returns (uint256 amountA, uint256 amountB);
 
     function removeLiquidityAVAX(
-        bool isVolatile,
         address token,
         uint256 liquidity,
         uint256 amountTokenMin,
@@ -53,8 +49,34 @@ interface IIsbjornRouter01 {
         uint256 deadline
     ) external returns (uint256 amountToken, uint256 amountAVAX);
 
+    function removeLiquidityWithPermit(
+        address tokenA,
+        address tokenB,
+        uint256 liquidity,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external returns (uint256 amountA, uint256 amountB);
+
+    function removeLiquidityAVAXWithPermit(
+        address token,
+        uint256 liquidity,
+        uint256 amountTokenMin,
+        uint256 amountAVAXMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external returns (uint256 amountToken, uint256 amountAVAX);
+
     function swapExactTokensForTokens(
-        bool isVolatile,
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,
@@ -63,7 +85,6 @@ interface IIsbjornRouter01 {
     ) external returns (uint256[] memory amounts);
 
     function swapTokensForExactTokens(
-        bool isVolatile,
         uint256 amountOut,
         uint256 amountInMax,
         address[] calldata path,
@@ -72,7 +93,6 @@ interface IIsbjornRouter01 {
     ) external returns (uint256[] memory amounts);
 
     function swapExactAVAXForTokens(
-        bool isVolatile,
         uint256 amountOutMin,
         address[] calldata path,
         address to,
@@ -80,7 +100,6 @@ interface IIsbjornRouter01 {
     ) external payable returns (uint256[] memory amounts);
 
     function swapTokensForExactAVAX(
-        bool isVolatile,
         uint256 amountOut,
         uint256 amountInMax,
         address[] calldata path,
@@ -89,7 +108,6 @@ interface IIsbjornRouter01 {
     ) external returns (uint256[] memory amounts);
 
     function swapExactTokensForAVAX(
-        bool isVolatile,
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,
@@ -98,7 +116,6 @@ interface IIsbjornRouter01 {
     ) external returns (uint256[] memory amounts);
 
     function swapAVAXForExactTokens(
-        bool isVolatile,
         uint256 amountOut,
         address[] calldata path,
         address to,
@@ -106,34 +123,29 @@ interface IIsbjornRouter01 {
     ) external payable returns (uint256[] memory amounts);
 
     function quote(
-        bool isVolatile,
         uint256 amountA,
         uint256 reserveA,
         uint256 reserveB
     ) external pure returns (uint256 amountB);
 
     function getAmountOut(
-        bool isVolatile,
         uint256 amountIn,
         uint256 reserveIn,
         uint256 reserveOut
     ) external pure returns (uint256 amountOut);
 
     function getAmountIn(
-        bool isVolatile,
         uint256 amountOut,
         uint256 reserveIn,
         uint256 reserveOut
     ) external pure returns (uint256 amountIn);
 
     function getAmountsOut(
-        bool isVolatile,
         uint256 amountIn,
         address[] calldata path
     ) external view returns (uint256[] memory amounts);
 
     function getAmountsIn(
-        bool isVolatile,
         uint256 amountOut,
         address[] calldata path
     ) external view returns (uint256[] memory amounts);

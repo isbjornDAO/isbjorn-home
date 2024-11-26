@@ -36,7 +36,9 @@ export interface IIsbjornRouter02Interface extends Interface {
       | "removeLiquidity"
       | "removeLiquidityAVAX"
       | "removeLiquidityAVAXSupportingFeeOnTransferTokens"
+      | "removeLiquidityAVAXWithPermit"
       | "removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens"
+      | "removeLiquidityWithPermit"
       | "swapAVAXForExactTokens"
       | "swapExactAVAXForTokens"
       | "swapExactAVAXForTokensSupportingFeeOnTransferTokens"
@@ -52,7 +54,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "addLiquidity",
     values: [
-      boolean,
       AddressLike,
       AddressLike,
       BigNumberish,
@@ -66,7 +67,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "addLiquidityAVAX",
     values: [
-      boolean,
       AddressLike,
       BigNumberish,
       BigNumberish,
@@ -78,28 +78,27 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getAmountIn",
-    values: [boolean, BigNumberish, BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getAmountOut",
-    values: [boolean, BigNumberish, BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getAmountsIn",
-    values: [boolean, BigNumberish, AddressLike[]]
+    values: [BigNumberish, AddressLike[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getAmountsOut",
-    values: [boolean, BigNumberish, AddressLike[]]
+    values: [BigNumberish, AddressLike[]]
   ): string;
   encodeFunctionData(
     functionFragment: "quote",
-    values: [boolean, BigNumberish, BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "removeLiquidity",
     values: [
-      boolean,
       AddressLike,
       AddressLike,
       BigNumberish,
@@ -112,7 +111,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "removeLiquidityAVAX",
     values: [
-      boolean,
       AddressLike,
       BigNumberish,
       BigNumberish,
@@ -124,7 +122,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "removeLiquidityAVAXSupportingFeeOnTransferTokens",
     values: [
-      boolean,
       AddressLike,
       BigNumberish,
       BigNumberish,
@@ -134,9 +131,39 @@ export interface IIsbjornRouter02Interface extends Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "removeLiquidityAVAXWithPermit",
+    values: [
+      AddressLike,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      AddressLike,
+      BigNumberish,
+      boolean,
+      BigNumberish,
+      BytesLike,
+      BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens",
     values: [
+      AddressLike,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      AddressLike,
+      BigNumberish,
       boolean,
+      BigNumberish,
+      BytesLike,
+      BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeLiquidityWithPermit",
+    values: [
+      AddressLike,
       AddressLike,
       BigNumberish,
       BigNumberish,
@@ -151,20 +178,19 @@ export interface IIsbjornRouter02Interface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "swapAVAXForExactTokens",
-    values: [boolean, BigNumberish, AddressLike[], AddressLike, BigNumberish]
+    values: [BigNumberish, AddressLike[], AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "swapExactAVAXForTokens",
-    values: [boolean, BigNumberish, AddressLike[], AddressLike, BigNumberish]
+    values: [BigNumberish, AddressLike[], AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "swapExactAVAXForTokensSupportingFeeOnTransferTokens",
-    values: [boolean, BigNumberish, AddressLike[], AddressLike, BigNumberish]
+    values: [BigNumberish, AddressLike[], AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "swapExactTokensForAVAX",
     values: [
-      boolean,
       BigNumberish,
       BigNumberish,
       AddressLike[],
@@ -175,7 +201,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "swapExactTokensForAVAXSupportingFeeOnTransferTokens",
     values: [
-      boolean,
       BigNumberish,
       BigNumberish,
       AddressLike[],
@@ -186,7 +211,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "swapExactTokensForTokens",
     values: [
-      boolean,
       BigNumberish,
       BigNumberish,
       AddressLike[],
@@ -197,7 +221,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "swapExactTokensForTokensSupportingFeeOnTransferTokens",
     values: [
-      boolean,
       BigNumberish,
       BigNumberish,
       AddressLike[],
@@ -208,7 +231,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "swapTokensForExactAVAX",
     values: [
-      boolean,
       BigNumberish,
       BigNumberish,
       AddressLike[],
@@ -219,7 +241,6 @@ export interface IIsbjornRouter02Interface extends Interface {
   encodeFunctionData(
     functionFragment: "swapTokensForExactTokens",
     values: [
-      boolean,
       BigNumberish,
       BigNumberish,
       AddressLike[],
@@ -268,7 +289,15 @@ export interface IIsbjornRouter02Interface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "removeLiquidityAVAXWithPermit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeLiquidityWithPermit",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -356,7 +385,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   addLiquidity: TypedContractMethod<
     [
-      isVolatile: boolean,
       tokenA: AddressLike,
       tokenB: AddressLike,
       amountADesired: BigNumberish,
@@ -378,7 +406,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   addLiquidityAVAX: TypedContractMethod<
     [
-      isVolatile: boolean,
       token: AddressLike,
       amountTokenDesired: BigNumberish,
       amountTokenMin: BigNumberish,
@@ -400,7 +427,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   getAmountIn: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOut: BigNumberish,
       reserveIn: BigNumberish,
       reserveOut: BigNumberish
@@ -410,42 +436,31 @@ export interface IIsbjornRouter02 extends BaseContract {
   >;
 
   getAmountOut: TypedContractMethod<
-    [
-      isVolatile: boolean,
-      amountIn: BigNumberish,
-      reserveIn: BigNumberish,
-      reserveOut: BigNumberish
-    ],
+    [amountIn: BigNumberish, reserveIn: BigNumberish, reserveOut: BigNumberish],
     [bigint],
     "view"
   >;
 
   getAmountsIn: TypedContractMethod<
-    [isVolatile: boolean, amountOut: BigNumberish, path: AddressLike[]],
+    [amountOut: BigNumberish, path: AddressLike[]],
     [bigint[]],
     "view"
   >;
 
   getAmountsOut: TypedContractMethod<
-    [isVolatile: boolean, amountIn: BigNumberish, path: AddressLike[]],
+    [amountIn: BigNumberish, path: AddressLike[]],
     [bigint[]],
     "view"
   >;
 
   quote: TypedContractMethod<
-    [
-      isVolatile: boolean,
-      amountA: BigNumberish,
-      reserveA: BigNumberish,
-      reserveB: BigNumberish
-    ],
+    [amountA: BigNumberish, reserveA: BigNumberish, reserveB: BigNumberish],
     [bigint],
     "view"
   >;
 
   removeLiquidity: TypedContractMethod<
     [
-      isVolatile: boolean,
       tokenA: AddressLike,
       tokenB: AddressLike,
       liquidity: BigNumberish,
@@ -460,7 +475,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   removeLiquidityAVAX: TypedContractMethod<
     [
-      isVolatile: boolean,
       token: AddressLike,
       liquidity: BigNumberish,
       amountTokenMin: BigNumberish,
@@ -474,7 +488,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   removeLiquidityAVAXSupportingFeeOnTransferTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       token: AddressLike,
       liquidity: BigNumberish,
       amountTokenMin: BigNumberish,
@@ -486,9 +499,25 @@ export interface IIsbjornRouter02 extends BaseContract {
     "nonpayable"
   >;
 
+  removeLiquidityAVAXWithPermit: TypedContractMethod<
+    [
+      token: AddressLike,
+      liquidity: BigNumberish,
+      amountTokenMin: BigNumberish,
+      amountAVAXMin: BigNumberish,
+      to: AddressLike,
+      deadline: BigNumberish,
+      approveMax: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike
+    ],
+    [[bigint, bigint] & { amountToken: bigint; amountAVAX: bigint }],
+    "nonpayable"
+  >;
+
   removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       token: AddressLike,
       liquidity: BigNumberish,
       amountTokenMin: BigNumberish,
@@ -504,9 +533,26 @@ export interface IIsbjornRouter02 extends BaseContract {
     "nonpayable"
   >;
 
+  removeLiquidityWithPermit: TypedContractMethod<
+    [
+      tokenA: AddressLike,
+      tokenB: AddressLike,
+      liquidity: BigNumberish,
+      amountAMin: BigNumberish,
+      amountBMin: BigNumberish,
+      to: AddressLike,
+      deadline: BigNumberish,
+      approveMax: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike
+    ],
+    [[bigint, bigint] & { amountA: bigint; amountB: bigint }],
+    "nonpayable"
+  >;
+
   swapAVAXForExactTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOut: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
@@ -518,7 +564,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   swapExactAVAXForTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOutMin: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
@@ -530,7 +575,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   swapExactAVAXForTokensSupportingFeeOnTransferTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOutMin: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
@@ -542,7 +586,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   swapExactTokensForAVAX: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
@@ -555,7 +598,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   swapExactTokensForAVAXSupportingFeeOnTransferTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
@@ -568,7 +610,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   swapExactTokensForTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
@@ -581,7 +622,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   swapExactTokensForTokensSupportingFeeOnTransferTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
@@ -594,7 +634,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   swapTokensForExactAVAX: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOut: BigNumberish,
       amountInMax: BigNumberish,
       path: AddressLike[],
@@ -607,7 +646,6 @@ export interface IIsbjornRouter02 extends BaseContract {
 
   swapTokensForExactTokens: TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOut: BigNumberish,
       amountInMax: BigNumberish,
       path: AddressLike[],
@@ -629,7 +667,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "addLiquidity"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       tokenA: AddressLike,
       tokenB: AddressLike,
       amountADesired: BigNumberish,
@@ -652,7 +689,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "addLiquidityAVAX"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       token: AddressLike,
       amountTokenDesired: BigNumberish,
       amountTokenMin: BigNumberish,
@@ -676,7 +712,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "getAmountIn"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOut: BigNumberish,
       reserveIn: BigNumberish,
       reserveOut: BigNumberish
@@ -687,38 +722,28 @@ export interface IIsbjornRouter02 extends BaseContract {
   getFunction(
     nameOrSignature: "getAmountOut"
   ): TypedContractMethod<
-    [
-      isVolatile: boolean,
-      amountIn: BigNumberish,
-      reserveIn: BigNumberish,
-      reserveOut: BigNumberish
-    ],
+    [amountIn: BigNumberish, reserveIn: BigNumberish, reserveOut: BigNumberish],
     [bigint],
     "view"
   >;
   getFunction(
     nameOrSignature: "getAmountsIn"
   ): TypedContractMethod<
-    [isVolatile: boolean, amountOut: BigNumberish, path: AddressLike[]],
+    [amountOut: BigNumberish, path: AddressLike[]],
     [bigint[]],
     "view"
   >;
   getFunction(
     nameOrSignature: "getAmountsOut"
   ): TypedContractMethod<
-    [isVolatile: boolean, amountIn: BigNumberish, path: AddressLike[]],
+    [amountIn: BigNumberish, path: AddressLike[]],
     [bigint[]],
     "view"
   >;
   getFunction(
     nameOrSignature: "quote"
   ): TypedContractMethod<
-    [
-      isVolatile: boolean,
-      amountA: BigNumberish,
-      reserveA: BigNumberish,
-      reserveB: BigNumberish
-    ],
+    [amountA: BigNumberish, reserveA: BigNumberish, reserveB: BigNumberish],
     [bigint],
     "view"
   >;
@@ -726,7 +751,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "removeLiquidity"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       tokenA: AddressLike,
       tokenB: AddressLike,
       liquidity: BigNumberish,
@@ -742,7 +766,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "removeLiquidityAVAX"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       token: AddressLike,
       liquidity: BigNumberish,
       amountTokenMin: BigNumberish,
@@ -757,7 +780,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "removeLiquidityAVAXSupportingFeeOnTransferTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       token: AddressLike,
       liquidity: BigNumberish,
       amountTokenMin: BigNumberish,
@@ -769,10 +791,27 @@ export interface IIsbjornRouter02 extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "removeLiquidityAVAXWithPermit"
+  ): TypedContractMethod<
+    [
+      token: AddressLike,
+      liquidity: BigNumberish,
+      amountTokenMin: BigNumberish,
+      amountAVAXMin: BigNumberish,
+      to: AddressLike,
+      deadline: BigNumberish,
+      approveMax: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike
+    ],
+    [[bigint, bigint] & { amountToken: bigint; amountAVAX: bigint }],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       token: AddressLike,
       liquidity: BigNumberish,
       amountTokenMin: BigNumberish,
@@ -788,10 +827,28 @@ export interface IIsbjornRouter02 extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "removeLiquidityWithPermit"
+  ): TypedContractMethod<
+    [
+      tokenA: AddressLike,
+      tokenB: AddressLike,
+      liquidity: BigNumberish,
+      amountAMin: BigNumberish,
+      amountBMin: BigNumberish,
+      to: AddressLike,
+      deadline: BigNumberish,
+      approveMax: boolean,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike
+    ],
+    [[bigint, bigint] & { amountA: bigint; amountB: bigint }],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "swapAVAXForExactTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOut: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
@@ -804,7 +861,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "swapExactAVAXForTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOutMin: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
@@ -817,7 +873,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "swapExactAVAXForTokensSupportingFeeOnTransferTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOutMin: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
@@ -830,7 +885,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "swapExactTokensForAVAX"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
@@ -844,7 +898,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "swapExactTokensForAVAXSupportingFeeOnTransferTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
@@ -858,7 +911,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "swapExactTokensForTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
@@ -872,7 +924,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "swapExactTokensForTokensSupportingFeeOnTransferTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
@@ -886,7 +937,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "swapTokensForExactAVAX"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOut: BigNumberish,
       amountInMax: BigNumberish,
       path: AddressLike[],
@@ -900,7 +950,6 @@ export interface IIsbjornRouter02 extends BaseContract {
     nameOrSignature: "swapTokensForExactTokens"
   ): TypedContractMethod<
     [
-      isVolatile: boolean,
       amountOut: BigNumberish,
       amountInMax: BigNumberish,
       path: AddressLike[],

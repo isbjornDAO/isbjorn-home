@@ -39,11 +39,7 @@ export interface IcePondFactoryInterface extends Interface {
       | "setMigrator"
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic:
-      | "PairCreated(address,address,address,uint256)"
-      | "PairCreated(bool,address,address,address,uint256)"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PairCreated"): EventFragment;
 
   encodeFunctionData(
     functionFragment: "allPairs",
@@ -55,7 +51,7 @@ export interface IcePondFactoryInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createPair",
-    values: [boolean, AddressLike, AddressLike]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "feeTo", values?: undefined): string;
   encodeFunctionData(
@@ -64,7 +60,7 @@ export interface IcePondFactoryInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getPair",
-    values: [boolean, AddressLike, AddressLike]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "migrator", values?: undefined): string;
   encodeFunctionData(
@@ -112,7 +108,7 @@ export interface IcePondFactoryInterface extends Interface {
   ): Result;
 }
 
-export namespace PairCreated_address_address_address_uint256_Event {
+export namespace PairCreatedEvent {
   export type InputTuple = [
     token0: AddressLike,
     token1: AddressLike,
@@ -130,34 +126,6 @@ export namespace PairCreated_address_address_address_uint256_Event {
     token1: string;
     pair: string;
     arg3: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace PairCreated_bool_address_address_address_uint256_Event {
-  export type InputTuple = [
-    isVolatile: boolean,
-    token0: AddressLike,
-    token1: AddressLike,
-    pair: AddressLike,
-    arg4: BigNumberish
-  ];
-  export type OutputTuple = [
-    isVolatile: boolean,
-    token0: string,
-    token1: string,
-    pair: string,
-    arg4: bigint
-  ];
-  export interface OutputObject {
-    isVolatile: boolean;
-    token0: string;
-    token1: string;
-    pair: string;
-    arg4: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -213,7 +181,7 @@ export interface IcePondFactory extends BaseContract {
   allPairsLength: TypedContractMethod<[], [bigint], "view">;
 
   createPair: TypedContractMethod<
-    [isVolatile: boolean, tokenA: AddressLike, tokenB: AddressLike],
+    [tokenA: AddressLike, tokenB: AddressLike],
     [string],
     "nonpayable"
   >;
@@ -223,7 +191,7 @@ export interface IcePondFactory extends BaseContract {
   feeToSetter: TypedContractMethod<[], [string], "view">;
 
   getPair: TypedContractMethod<
-    [arg0: boolean, arg1: AddressLike, arg2: AddressLike],
+    [arg0: AddressLike, arg1: AddressLike],
     [string],
     "view"
   >;
@@ -259,7 +227,7 @@ export interface IcePondFactory extends BaseContract {
   getFunction(
     nameOrSignature: "createPair"
   ): TypedContractMethod<
-    [isVolatile: boolean, tokenA: AddressLike, tokenB: AddressLike],
+    [tokenA: AddressLike, tokenB: AddressLike],
     [string],
     "nonpayable"
   >;
@@ -272,7 +240,7 @@ export interface IcePondFactory extends BaseContract {
   getFunction(
     nameOrSignature: "getPair"
   ): TypedContractMethod<
-    [arg0: boolean, arg1: AddressLike, arg2: AddressLike],
+    [arg0: AddressLike, arg1: AddressLike],
     [string],
     "view"
   >;
@@ -293,30 +261,23 @@ export interface IcePondFactory extends BaseContract {
   ): TypedContractMethod<[_migrator: AddressLike], [void], "nonpayable">;
 
   getEvent(
-    key: "PairCreated(address,address,address,uint256)"
+    key: "PairCreated"
   ): TypedContractEvent<
-    PairCreated_address_address_address_uint256_Event.InputTuple,
-    PairCreated_address_address_address_uint256_Event.OutputTuple,
-    PairCreated_address_address_address_uint256_Event.OutputObject
-  >;
-  getEvent(
-    key: "PairCreated(bool,address,address,address,uint256)"
-  ): TypedContractEvent<
-    PairCreated_bool_address_address_address_uint256_Event.InputTuple,
-    PairCreated_bool_address_address_address_uint256_Event.OutputTuple,
-    PairCreated_bool_address_address_address_uint256_Event.OutputObject
+    PairCreatedEvent.InputTuple,
+    PairCreatedEvent.OutputTuple,
+    PairCreatedEvent.OutputObject
   >;
 
   filters: {
     "PairCreated(address,address,address,uint256)": TypedContractEvent<
-      PairCreated_address_address_address_uint256_Event.InputTuple,
-      PairCreated_address_address_address_uint256_Event.OutputTuple,
-      PairCreated_address_address_address_uint256_Event.OutputObject
+      PairCreatedEvent.InputTuple,
+      PairCreatedEvent.OutputTuple,
+      PairCreatedEvent.OutputObject
     >;
-    "PairCreated(bool,address,address,address,uint256)": TypedContractEvent<
-      PairCreated_bool_address_address_address_uint256_Event.InputTuple,
-      PairCreated_bool_address_address_address_uint256_Event.OutputTuple,
-      PairCreated_bool_address_address_address_uint256_Event.OutputObject
+    PairCreated: TypedContractEvent<
+      PairCreatedEvent.InputTuple,
+      PairCreatedEvent.OutputTuple,
+      PairCreatedEvent.OutputObject
     >;
   };
 }
