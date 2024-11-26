@@ -3,10 +3,11 @@ import { FaChevronDown } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Loader, TokenChooser } from '@/components/shared';
+import { Loader, SlippageInput, TokenChooser } from '@/components/shared';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from "@/components/ui/switch"
 import BN from 'bn.js';
-import { QUASI_ADDRESS, sample_token_list, WAVAX_ADDRESS } from '@/constants';
+import { defaultSlippage, QUASI_ADDRESS, safeModeEnabledMaxSlippage, sample_token_list, WAVAX_ADDRESS } from '@/constants';
 import { Token } from '@/types';
 import { useUserContext } from '@/context/AuthContext';
 import { useHandleConnectWallet } from '@/lib/wallet';
@@ -25,9 +26,12 @@ const SwapPanel = () => {
     const [lastToToken, setLastToToken] = useState<Token>(toToken);
     const [toAmount, setToAmount] = useState();
 
-    const [wasFromLastChanged, setWasFromLastChanged] = useState(true);
+    const [wasFromLastChanged, setWasFromLastChanged] = useState<boolean>(true);
 
-    const [isChartLoaded, setIsChartLoaded] = useState(false);
+    const [isChartLoaded, setIsChartLoaded] = useState<boolean>(false);
+
+    const [allowedSlippage, setAllowedSlippage] = useState<number>(defaultSlippage);
+    const [safeModeEnabled, setSafeModeEnabled] = useState<boolean>(true);
 
 
 
@@ -68,6 +72,14 @@ const SwapPanel = () => {
             }
         }
     }, [fromToken, toToken]);
+
+    useEffect(() => {
+        if (safeModeEnabled) {
+            if (allowedSlippage > safeModeEnabledMaxSlippage) {
+                setAllowedSlippage(safeModeEnabledMaxSlippage);
+            }
+        }
+    }, [safeModeEnabled]);
 
     return (
         <div className='flex flex-col gap-1 items-center justify-start'>
@@ -115,6 +127,19 @@ const SwapPanel = () => {
                                         autoComplete="off"
                                     />
                                     <TokenChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} />
+                                </div>
+                                <div className='w-full p-2 flex flex-row justify-between'>
+                                    <div className='flex flex-row'>
+                                        <div className='flex safemode-toggle items-center justify-center mr-1'>Safe Mode </div>
+                                        <Switch
+                                            className={safeModeEnabled ? "bg-green" : "bg-red"}
+                                            checked={safeModeEnabled}
+                                            onCheckedChange={setSafeModeEnabled} />
+                                    </div>
+                                    <div className='flex flex-row'>
+                                        <div className='flex slippage-input items-center justify-center mr-1'>Slippage </div>
+                                        <SlippageInput allowedSlippage={allowedSlippage} setAllowedSlippage={setAllowedSlippage} safeModeEnabled={safeModeEnabled} />
+                                    </div>
                                 </div>
                                 <div className='w-full p-2'>
                                     <Button className="swap-button" onClick={() => {

@@ -124,3 +124,15 @@ export const avvy_resolver_abi = [
     type: "function",
   },
 ];
+
+const USE_TESTNET = import.meta.env.VITE_USE_TESTNET;
+
+export const chain_id = USE_TESTNET === "1" ? 43113 : 43114;
+
+export const defaultSlippage = 0.5;
+
+export const safeModeEnabledMaxSlippage = 5;
+
+export const safeModeDisabledMaxSlippage = 99.99;
+
+export const minSlippage = 0.01;

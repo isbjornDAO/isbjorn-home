@@ -10,6 +10,8 @@ contract IcePondFactory is IIcePondFactory {
     address public override feeToSetter;
     address public override migrator;
 
+    uint32 public constant lpFeeBasisPoints = 30;
+
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
 

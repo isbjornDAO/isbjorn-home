@@ -4,6 +4,7 @@ import BN from "bn.js";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Account } from "@/types";
 import { getCachedAccount, getDomainName, initializeWeb3 } from "@/lib/wallet";
+import { chain_id } from "@/constants";
 
 
 export const INITIAL_ACCOUNT = {
@@ -16,7 +17,7 @@ const INITIAL_STATE = {
     setAccount: () => { },
     isConnected: false,
     setIsConnected: () => { },
-    currentChainId: 43114,
+    currentChainId: chain_id,
     setCurrentChainId: () => { },
     switchNetwork: async (chainId: number) => { }
 }
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isConnected, setIsConnected] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const [currentChainId, setCurrentChainId] = useState<number>(43114);
+    const [currentChainId, setCurrentChainId] = useState<number>(chain_id);
 
     const switchNetwork = async (chainId: number) => {
         if (!window.ethereum) {
@@ -109,8 +110,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             window.ethereum.on("chainChanged", (chainId: string) => {
                 const newChainId = parseInt(chainId, 16);
                 setCurrentChainId(newChainId);
-                if (newChainId !== 43114) {
-                    switchNetwork(43114);
+                if (newChainId !== chain_id) {
+                    switchNetwork(chain_id);
                 }
             });
             window.ethereum.on("accountsChanged", handleAccountsChanged);

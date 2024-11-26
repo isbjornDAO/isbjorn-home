@@ -32,6 +32,7 @@ export interface IcePondFactoryInterface extends Interface {
       | "feeTo"
       | "feeToSetter"
       | "getPair"
+      | "lpFeeBasisPoints"
       | "migrator"
       | "pairCodeHash"
       | "setFeeTo"
@@ -61,6 +62,10 @@ export interface IcePondFactoryInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getPair",
     values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lpFeeBasisPoints",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "migrator", values?: undefined): string;
   encodeFunctionData(
@@ -92,6 +97,10 @@ export interface IcePondFactoryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getPair", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lpFeeBasisPoints",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "migrator", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pairCodeHash",
@@ -196,6 +205,8 @@ export interface IcePondFactory extends BaseContract {
     "view"
   >;
 
+  lpFeeBasisPoints: TypedContractMethod<[], [bigint], "view">;
+
   migrator: TypedContractMethod<[], [string], "view">;
 
   pairCodeHash: TypedContractMethod<[], [string], "view">;
@@ -244,6 +255,9 @@ export interface IcePondFactory extends BaseContract {
     [string],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "lpFeeBasisPoints"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "migrator"
   ): TypedContractMethod<[], [string], "view">;

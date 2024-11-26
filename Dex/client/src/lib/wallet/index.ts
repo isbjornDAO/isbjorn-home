@@ -6,7 +6,7 @@ import { INITIAL_ACCOUNT, useUserContext } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { Account } from "@/types";
 import { getCookie, isAddress, setCookie } from "../utils";
-import { avvy_resolver_abi, avvy_resolver_addr } from "@/constants";
+import { avvy_resolver_abi, avvy_resolver_addr, chain_id } from "@/constants";
 
 export const initializeWeb3 = async () => {
   let provider: any;
@@ -85,7 +85,7 @@ export const getDomainName = async (
     if (!isAddress(address)) {
       throw new Error(`${address} is not a valid EVM address`);
     }
-    const avvyResolverContract = new window.w3.eth.Contract(
+    const avvyResolverContract = new window.avvyW3.eth.Contract(
       avvy_resolver_abi,
       avvy_resolver_addr
     );
@@ -133,7 +133,7 @@ export const useHandleConnectWallet = () => {
         const domainName = getDomainName(address);
         setAccount(cachedAccount);
         setIsConnected(true);
-        switchNetwork(43114);
+        switchNetwork(chain_id);
       }
 
       const connectedAddress = await connectUser();
@@ -150,7 +150,7 @@ export const useHandleConnectWallet = () => {
           name: domainName,
         });
 
-        switchNetwork(43114);
+        switchNetwork(chain_id);
       }
     } catch (err) {
       console.error("Failed to connect wallet:", err);

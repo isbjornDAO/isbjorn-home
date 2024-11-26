@@ -132,4 +132,12 @@
   .no-arrows {
     -moz-appearance: textfield;
   }
+
+  .slippage-input {
+    @apply text-xxs font-semibold;
+  }
+
+  .safemode-toggle {
+    @apply text-xxs font-semibold;
+  }
 }
