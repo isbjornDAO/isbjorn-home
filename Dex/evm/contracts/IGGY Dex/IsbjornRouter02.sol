@@ -501,8 +501,12 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
             amounts[0]
         );
         _swap(amounts, path, address(this));
-        IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1]);
-        TransferHelper.safeTransferAVAX(to, amounts[amounts.length - 1]);
+        uint256 feeTaken = amounts[amounts.length - 1] / 1000;
+        IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1] - feeTaken);
+        TransferHelper.safeTransferAVAX(
+            to,
+            amounts[amounts.length - 1] - feeTaken
+        );
     }
 
     function swapAVAXForExactTokens(

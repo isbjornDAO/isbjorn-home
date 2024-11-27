@@ -98,8 +98,8 @@ library IsbjornLibrary {
             reserveIn > 0 && reserveOut > 0,
             "IsbjornLibrary: INSUFFICIENT_LIQUIDITY"
         );
-        uint256 numerator = reserveIn.mul(amountOut).mul(10000);
-        uint256 denominator = reserveOut.sub(amountOut).mul(9960);
+        uint256 numerator = reserveIn.mul(amountOut).mul(1000);
+        uint256 denominator = reserveOut.sub(amountOut).mul(996);
         amountIn = (numerator / denominator).add(1);
     }
 

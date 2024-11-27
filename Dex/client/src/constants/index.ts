@@ -26,8 +26,8 @@ export const sample_token_list: { [address: string]: Token } =
           decimals: 18,
           rank: "1",
         },
-        "0xAad4e95eBa93381ac2A438E8fac3BB846fB893d0": {
-          address: "0xAad4e95eBa93381ac2A438E8fac3BB846fB893d0",
+        "0x4634A2B4767d906e8FAc20b2CB03C8a3E9Ce4e10": {
+          address: "0x4634A2B4767d906e8FAc20b2CB03C8a3E9Ce4e10",
           name: "Wrapped AVAX",
           ticker: "WAVAX",
           imgUrl:
@@ -35,8 +35,8 @@ export const sample_token_list: { [address: string]: Token } =
           decimals: 18,
           rank: "1",
         },
-        "0xd3E9b3fc30a358eAF3224091f31C284e1d6D1709": {
-          address: "0xd3E9b3fc30a358eAF3224091f31C284e1d6D1709",
+        "0x31fA8c1589c7989b33eEFa1220E2b517bd321F54": {
+          address: "0x31fA8c1589c7989b33eEFa1220E2b517bd321F54",
           name: "Quasi",
           ticker: "QUASI",
           imgUrl:
@@ -114,18 +114,18 @@ export const minSlippage = 0.01;
 
 //ADDRESSES
 export const Router_address =
-  USE_TESTNET === "1" ? "0x3daC93622bFcf753713D1CE5FB64b302cCF4b857" : "";
+  USE_TESTNET === "1" ? "0x37E2910Ebf392C2AA883F77c39B6a9D7Feb12Bb5" : "";
 
 export const Factory_address =
-  USE_TESTNET === "1" ? "0x8800a16a4a3403877bcFfE23294D0A535b32784A" : "";
+  USE_TESTNET === "1" ? "0x183623Bc30d996bf207C21Fad70fbF9109823ab3" : "";
 
 export const WAVAX_ADDRESS =
   USE_TESTNET === "1"
-    ? "0xAad4e95eBa93381ac2A438E8fac3BB846fB893d0"
+    ? "0x4634A2B4767d906e8FAc20b2CB03C8a3E9Ce4e10"
     : "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7";
 export const QUASI_ADDRESS =
   USE_TESTNET === "1"
-    ? "0xd3E9b3fc30a358eAF3224091f31C284e1d6D1709"
+    ? "0x31fA8c1589c7989b33eEFa1220E2b517bd321F54"
     : "0xc970D70234895dD6033f984Fd00909623C666e66";
 
 export const avvy_resolver_addr = "0xBf49Da93bE8879A912838B1457922A78a81D6ee3";
