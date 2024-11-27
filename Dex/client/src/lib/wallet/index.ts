@@ -11,6 +11,11 @@ import {
   avvy_resolver_addr,
   chain_id,
   erc20_abi,
+  factory_abi,
+  Factory_address,
+  pair_abi,
+  router_abi,
+  Router_address,
 } from "@/constants";
 
 export const initializeWeb3 = async () => {
@@ -277,9 +282,69 @@ export const approveERC20Amount = async (
   }
 };
 
-export const getAmountOut = async (): Promise<BN | null> => {
+export const getAmountOut = async (
+  tokenInAddress: string,
+  tokenOutAddress: string,
+  tokenInAmount: BN
+): Promise<BN | null> => {
   let amountOut: BN | null = null;
-  //TODO
+  const tokens = [tokenInAddress, tokenOutAddress].sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase())
+  );
+  try {
+    const factoryContract = new window.w3.eth.Contract(
+      factory_abi,
+      Factory_address
+    );
+    const pairContractAddress = await factoryContract.methods
+      .getPair(tokenInAddress, tokenOutAddress)
+      .call();
+    let pairAddress;
+    if (pairContractAddress) {
+      pairAddress = pairContractAddress.toString();
+    } else {
+      throw new Error("Error: getAmountOut() could not retrive pair address!");
+    }
+    const pairContract = new window.w3.eth.Contract(pair_abi, pairAddress);
+
+    const reserveResult = await pairContract.methods.getReserves().call();
+    let reserve0: BN, reserve1: BN, last: number;
+    if (reserveResult) {
+      reserve0 = new BN(reserveResult[0]);
+      reserve1 = new BN(reserveResult[1]);
+      last = Number(reserveResult[2]);
+    } else {
+      throw new Error("Error: getAmountOut() could not retrive pair reserves!");
+    }
+    let reserveIn: BN, reserveOut: BN;
+    if (tokens[0].toLowerCase() === tokenInAddress.toLowerCase()) {
+      reserveIn = reserve0;
+      reserveOut = reserve1;
+    } else {
+      reserveIn = reserve1;
+      reserveOut = reserve0;
+    }
+    const routerContract = new window.w3.eth.Contract(
+      router_abi,
+      Router_address
+    );
+    const quoteResult = await routerContract.methods
+      .quote(
+        tokenInAmount.toString(),
+        reserveIn.toString(),
+        reserveOut.toString()
+      )
+      .call();
+    if (quoteResult) {
+      amountOut = new BN(quoteResult.toString())
+        .mul(new BN(996))
+        .div(new BN(1000)); //adjust for 0.4% fee
+    } else {
+      throw new Error("Error: getAmountOut() could not retrive quote!");
+    }
+  } catch (error) {
+    console.log(error);
+  }
   return amountOut;
 };
 

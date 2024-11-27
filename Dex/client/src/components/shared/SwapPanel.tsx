@@ -10,7 +10,8 @@ import BN from 'bn.js';
 import { defaultSlippage, QUASI_ADDRESS, safeModeEnabledMaxSlippage, sample_token_list, WAVAX_ADDRESS } from '@/constants';
 import { Token } from '@/types';
 import { useUserContext } from '@/context/AuthContext';
-import { useHandleConnectWallet } from '@/lib/wallet';
+import { getAmountOut, useHandleConnectWallet } from '@/lib/wallet';
+import { formatBN, scaleToBN } from '@/lib/utils';
 
 
 const SwapPanel = () => {
@@ -20,11 +21,13 @@ const SwapPanel = () => {
 
     const [fromToken, setFromToken] = useState<Token>(sample_token_list[WAVAX_ADDRESS]);
     const [lastFromToken, setLastFromToken] = useState<Token>(fromToken);
-    const [fromAmount, setFromAmount] = useState();
+    const [fromAmount, setFromAmount] = useState<BN>(new BN(0));
+    const [fromAmountInputValue, setFromAmountInputValue] = useState<string>('');
 
     const [toToken, setToToken] = useState<Token>(sample_token_list[QUASI_ADDRESS]);
     const [lastToToken, setLastToToken] = useState<Token>(toToken);
-    const [toAmount, setToAmount] = useState();
+    const [toAmount, setToAmount] = useState<BN>(new BN(0));
+    const [toAmountInputValue, setToAmountInputValue] = useState<string>('');
 
     const [wasFromLastChanged, setWasFromLastChanged] = useState<boolean>(true);
 
@@ -32,6 +35,31 @@ const SwapPanel = () => {
 
     const [allowedSlippage, setAllowedSlippage] = useState<number>(defaultSlippage);
     const [safeModeEnabled, setSafeModeEnabled] = useState<boolean>(true);
+
+    const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+
+    const [isLoadingToAmount, setIsLoadingToAmount] = useState<boolean>(false);
+
+    const handleFromInputChange = (value: string) => {
+        if (!isNaN(Number(value)) || value === '') {
+            setFromAmountInputValue(value);
+            if (value === '') {
+                setFromAmount(new BN(0));
+                return;
+            }
+        }
+
+        if (debounceTimer) {
+            clearTimeout(debounceTimer);
+        }
+        const newTimer = setTimeout(async () => {
+            if (!isNaN(Number(value)) && value !== '') {
+                setFromAmount(scaleToBN(value, fromToken.decimals))
+            }
+        }, 1000);
+
+        setDebounceTimer(newTimer);
+    };
 
 
 
@@ -81,6 +109,22 @@ const SwapPanel = () => {
         }
     }, [safeModeEnabled]);
 
+    useEffect(() => {
+        const getOutputAmount = async () => {
+            console.log(fromAmount.toString())
+            if (fromAmount.gt(new BN(0))) {
+                const amountOut = await getAmountOut(fromToken.address, toToken.address, fromAmount);
+                console.log(amountOut.toString());
+                if (amountOut !== null) {
+                    setToAmountInputValue(formatBN(amountOut, fromToken.decimals));
+                }
+            } else {
+
+            }
+        };
+        getOutputAmount();
+    }, [fromAmount])
+
     return (
         <div className='flex flex-col gap-1 items-center justify-start'>
             <div>
@@ -107,6 +151,8 @@ const SwapPanel = () => {
                                         placeholder="0.0"
                                         className='text-dodger-blue bg-white no-arrows mr-2'
                                         autoComplete="off"
+                                        value={fromAmountInputValue}
+                                        onChange={(e) => handleFromInputChange(e.target.value)}
                                     />
                                     <TokenChooser startSelected={fromToken} available={sample_token_list} onSelection={onFromTokenChange} />
                                 </div>
@@ -125,6 +171,7 @@ const SwapPanel = () => {
                                         placeholder="0.0"
                                         className='text-dodger-blue bg-white no-arrows mr-2'
                                         autoComplete="off"
+                                        value={toAmountInputValue}
                                     />
                                     <TokenChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} />
                                 </div>
