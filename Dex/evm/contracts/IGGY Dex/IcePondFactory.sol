@@ -5,6 +5,9 @@ pragma solidity =0.6.12;
 import "./IIcePondFactory.sol";
 import "./IcePond.sol";
 
+// import "hardhat/console.sol";
+// import "./BytesUtil.sol";
+
 contract IcePondFactory is IIcePondFactory {
     address public override feeTo;
     address public override feeToSetter;
@@ -45,6 +48,13 @@ contract IcePondFactory is IIcePondFactory {
         require(token0 != address(0), "Isbjorn: ZERO_ADDRESS");
         require(getPair[token0][token1] == address(0), "Isbjorn: PAIR_EXISTS"); // single check is sufficient
         bytes memory bytecode = type(IcePond).creationCode;
+        /*
+        // Calculate the keccak256 hash of the bytecode
+        bytes32 bytecodeHash = keccak256(bytecode);
+
+        // Convert the hash to a hex string and print it
+        console.log(BytesUtil.bytesToHexString(abi.encodePacked(bytecodeHash)));
+        */
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)

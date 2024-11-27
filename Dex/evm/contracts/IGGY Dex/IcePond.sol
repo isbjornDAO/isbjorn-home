@@ -241,8 +241,13 @@ contract IcePond is IcePondERC20 {
             address _token0 = token0;
             address _token1 = token1;
             require(to != _token0 && to != _token1, "Isbjorn: INVALID_TO");
-            if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
-            if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
+            address feeTo = IIcePondFactory(factory).feeTo();
+            if (amount0Out > 0) {
+                _handleTokenOut(_token0, amount0Out, to, feeTo);
+            }
+            if (amount1Out > 0) {
+                _handleTokenOut(_token1, amount1Out, to, feeTo);
+            }
             if (data.length > 0)
                 IIsbjornCallee(to).isbjornCall(
                     msg.sender,
@@ -276,6 +281,21 @@ contract IcePond is IcePondERC20 {
 
         _update(balance0, balance1, _reserve0, _reserve1);
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
+    }
+
+    function _handleTokenOut(
+        address _token,
+        uint256 amountOut,
+        address to,
+        address feeTo
+    ) internal {
+        if (feeTo != address(0)) {
+            uint256 feeAmount = amountOut / 1000;
+            _safeTransfer(_token, feeTo, feeAmount);
+            _safeTransfer(_token, to, amountOut - feeAmount);
+        } else {
+            _safeTransfer(_token, to, amountOut);
+        }
     }
 
     // force balances to match reserves

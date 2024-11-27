@@ -34,7 +34,7 @@ library IsbjornLibrary {
                         hex"ff",
                         factory,
                         keccak256(abi.encodePacked(token0, token1)),
-                        hex"ef005d41ec87a7daf2da9d0caca9737871ac92db772f54941fc5045184e4a5f9"
+                        hex"7dbf49854216dfebece4252c891b99191c607ff342c047f99faa397bf49b014f"
                     )
                 )
             )
@@ -81,7 +81,7 @@ library IsbjornLibrary {
             reserveIn > 0 && reserveOut > 0,
             "IsbjornLibrary: INSUFFICIENT_LIQUIDITY"
         );
-        uint256 amountInWithFee = amountIn.mul(997);
+        uint256 amountInWithFee = amountIn.mul(996);
         uint256 numerator = amountInWithFee.mul(reserveOut);
         uint256 denominator = reserveIn.mul(1000).add(amountInWithFee);
         amountOut = numerator / denominator;
@@ -99,7 +99,7 @@ library IsbjornLibrary {
             "IsbjornLibrary: INSUFFICIENT_LIQUIDITY"
         );
         uint256 numerator = reserveIn.mul(amountOut).mul(1000);
-        uint256 denominator = reserveOut.sub(amountOut).mul(997);
+        uint256 denominator = reserveOut.sub(amountOut).mul(996);
         amountIn = (numerator / denominator).add(1);
     }
 

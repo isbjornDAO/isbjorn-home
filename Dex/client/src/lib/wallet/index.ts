@@ -6,7 +6,12 @@ import { INITIAL_ACCOUNT, useUserContext } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { Account } from "@/types";
 import { getCookie, isAddress, setCookie } from "../utils";
-import { avvy_resolver_abi, avvy_resolver_addr, chain_id } from "@/constants";
+import {
+  avvy_resolver_abi,
+  avvy_resolver_addr,
+  chain_id,
+  erc20_abi,
+} from "@/constants";
 
 export const initializeWeb3 = async () => {
   let provider: any;
@@ -19,6 +24,7 @@ export const initializeWeb3 = async () => {
   }
 
   window.w3 = new Web3(provider);
+  window.avvyW3 = new Web3("https://avalanche-c-chain-rpc.publicnode.com");
 };
 
 export const connectWallet = async (): Promise<string | null> => {
@@ -189,4 +195,21 @@ export const useHandleConnectWallet = () => {
   };
 
   return { handleConnectWallet, isLoading };
+};
+
+export const getERC20Balance = async (
+  accountAddress: string,
+  tokenAddress: string
+): Promise<BN | null> => {
+  let balance: BN | null = null;
+  const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
+  try {
+    let result = await contract.methods.balanceOf(accountAddress).call();
+    if (result) {
+      balance = new BN(result.toString());
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return balance;
 };

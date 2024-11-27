@@ -17,6 +17,6 @@ declare global {
     ethereum?: EthereumProvider;
     w3?: Web3;
     // just have dedicated web3 for Avvy so when using testnet on window.w3 still works
-    avvyW3: Web3 = new Web3("https://avalanche-c-chain-rpc.publicnode.com");
+    avvyW3: Web3;
   }
 }
