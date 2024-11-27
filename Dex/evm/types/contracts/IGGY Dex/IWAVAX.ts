@@ -23,9 +23,13 @@ import type {
 
 export interface IWAVAXInterface extends Interface {
   getFunction(
-    nameOrSignature: "deposit" | "transfer" | "withdraw"
+    nameOrSignature: "balanceOf" | "deposit" | "transfer" | "withdraw"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "balanceOf",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transfer",
@@ -36,6 +40,7 @@ export interface IWAVAXInterface extends Interface {
     values: [BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
@@ -84,6 +89,12 @@ export interface IWAVAX extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  balanceOf: TypedContractMethod<
+    [account: AddressLike],
+    [bigint],
+    "nonpayable"
+  >;
+
   deposit: TypedContractMethod<[], [void], "payable">;
 
   transfer: TypedContractMethod<
@@ -98,6 +109,9 @@ export interface IWAVAX extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "balanceOf"
+  ): TypedContractMethod<[account: AddressLike], [bigint], "nonpayable">;
   getFunction(
     nameOrSignature: "deposit"
   ): TypedContractMethod<[], [void], "payable">;

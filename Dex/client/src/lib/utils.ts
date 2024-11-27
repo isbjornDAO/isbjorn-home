@@ -49,23 +49,27 @@ export const eraseCookie = (name: string) => {
   document.cookie = name + "=; Max-Age=-99999999;";
 };
 
-export const scaleToBN = (amount: string, decimals: number): BN => {
+export const scaleToBN = (amount: string | number, decimals: number): BN => {
+  // Convert the number input to a string
+  if (typeof amount === "number") {
+    amount = amount.toString();
+  }
+
   if (typeof amount !== "string") {
-    throw new Error("Amount must be a string.");
+    throw new Error("Amount must be a string or number.");
   }
 
   const trimmedAmount = amount.trim();
-  const regex = /^(\d+)(\.(\d+))?$/;
-  const match = trimmedAmount.match(regex);
 
-  if (!match) {
+  // Updated regex to handle cases like ".3" or "0.3"
+  const regex = /^(?:0|[1-9]\d*)?(\.\d+)?$/;
+  if (!regex.test(trimmedAmount)) {
     throw new Error(
-      `Invalid amount format: "${amount}". Expected a numeric string.`
+      `Invalid amount format: "${amount}". Expected a numeric string or number.`
     );
   }
 
-  const wholePart = match[1];
-  const fractionPart = match[3] || "";
+  const [wholePart = "0", fractionPart = ""] = trimmedAmount.split(".");
 
   let normalizedFraction = fractionPart;
 

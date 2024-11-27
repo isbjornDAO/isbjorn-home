@@ -98,8 +98,11 @@ const SwapPanel = () => {
     };
 
     const handleSwapButtonClick = async () => {
-        setIsLoading(true);
         if (fromTokenAllowance.gte(fromAmount)) {
+            if (fromAmount.isZero()) {
+                return;
+            }
+            setIsLoading(true);
             const isFromExact = true;
             const result = await createSwapTransaction(account.address, fromToken.address, toToken.address, isFromExact, fromAmount, amountOutComputed, allowedSlippage);
             if (result.success) {
@@ -109,6 +112,7 @@ const SwapPanel = () => {
                 showToast("Swap failed", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
             }
         } else {
+            setIsLoading(true);
             const result = await approveERC20Amount(account.address, Router_address, fromToken.address, fromAmount);
             if (result.success) {
                 showToast("Approved tokens for swap", "success", explorer_url + "/tx/" + result.txHash);
@@ -144,7 +148,7 @@ const SwapPanel = () => {
     useEffect(() => {
         const getOutputAmount = async () => {
             if (fromAmount.gt(new BN(0))) {
-                const amountOut = await getAmountOut(fromToken.address, toToken.address, fromAmount);
+                const amountOut = await getAmountOut(fromToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : fromToken.address, toToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : toToken.address, fromAmount);
                 if (amountOut !== null) {
                     setToAmountInputValue(formatBN(amountOut, fromToken.decimals));
                     setAmountOutComputed(amountOut);
@@ -159,11 +163,13 @@ const SwapPanel = () => {
 
     useEffect(() => {
         const getFromTokenAllowance = async () => {
-            if (fromAmount.gt(new BN(0))) {
+            if (fromToken.address !== "0xAVAX" && fromAmount.gt(new BN(0))) {
                 const allowance = await getERC20Allowance(account.address, Router_address, fromToken.address);
                 if (allowance !== null) {
                     setFromTokenAllowance(allowance);
                 }
+            } else if (fromToken.address === "0xAVAX") {
+                setFromTokenAllowance(new BN("720000000000000000000000000"));
             }
         };
         getFromTokenAllowance();

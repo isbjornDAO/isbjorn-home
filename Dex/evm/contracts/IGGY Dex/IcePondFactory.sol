@@ -6,6 +6,7 @@ import "./IIcePondFactory.sol";
 import "./IcePond.sol";
 
 import "./BytesUtil.sol";
+import "hardhat/console.sol";
 
 contract IcePondFactory is IIcePondFactory {
     address public override feeTo;
@@ -53,6 +54,8 @@ contract IcePondFactory is IIcePondFactory {
         require(token0 != address(0), "Isbjorn: ZERO_ADDRESS");
         require(getPair[token0][token1] == address(0), "Isbjorn: PAIR_EXISTS"); // single check is sufficient
         bytes memory bytecode = type(IcePond).creationCode;
+        //bytes32 bytecodeHash = keccak256(bytecode);
+        //console.log(BytesUtil.bytesToHexString(abi.encodePacked(bytecodeHash)));
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)

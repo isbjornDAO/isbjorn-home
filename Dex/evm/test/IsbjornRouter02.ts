@@ -593,4 +593,238 @@ describe("IsbjornRouter02", function () {
       });
     });
   });
+  describe("Swap Functions", function () {
+    beforeEach(async function () {
+      // Add initial liquidity to the tokenA/tokenB pool
+      const amountADesired = ethers.parseEther("100");
+      const amountBDesired = ethers.parseEther("200");
+      const amountAMin = ethers.parseEther("90");
+      const amountBMin = ethers.parseEther("180");
+      const latestBlock = await ethers.provider.getBlock("latest");
+
+      if (!latestBlock) {
+        throw new Error("Failed to fetch the latest block.");
+      }
+
+      const deadline = latestBlock.timestamp + 3600;
+
+      // Approve tokenA and tokenB for router
+      await tokenA.connect(owner).approve(router.target, amountADesired);
+      await tokenB.connect(owner).approve(router.target, amountBDesired);
+
+      // Add liquidity for tokenA/tokenB pair
+      await router.addLiquidity(
+        tokenA.target,
+        tokenB.target,
+        amountADesired,
+        amountBDesired,
+        amountAMin,
+        amountBMin,
+        ownerAddress,
+        deadline
+      );
+
+      // Add initial liquidity to the tokenA/WAVAX pool
+      const amountAVAXDesired = ethers.parseEther("100");
+      const amountTokenDesired = ethers.parseEther("50");
+      const amountAVAXMin = ethers.parseEther("90");
+      const amountTokenMin = ethers.parseEther("45");
+
+      // Approve tokenA for router
+      await tokenA.connect(owner).approve(router.target, amountTokenDesired);
+
+      // Deposit WAVAX and approve it for router
+      await WAVAX.connect(owner).deposit({ value: amountAVAXDesired });
+      await WAVAX.connect(owner).approve(router.target, amountAVAXDesired);
+
+      // Add liquidity for tokenA/WAVAX pair
+      await router.addLiquidity(
+        tokenA.target,
+        WAVAX.target,
+        amountTokenDesired,
+        amountAVAXDesired,
+        amountTokenMin,
+        amountAVAXMin,
+        ownerAddress,
+        deadline
+      );
+
+      // Add initial liquidity to the tokenB/WAVAX pool
+      const amountTokenBDesired = ethers.parseEther("70");
+      const amountAVAXBDesired = ethers.parseEther("140");
+      const amountTokenBMin = ethers.parseEther("63");
+      const amountAVAXBMin = ethers.parseEther("126");
+
+      // Approve tokenB for router
+      await tokenB.connect(owner).approve(router.target, amountTokenBDesired);
+
+      // Deposit WAVAX and approve it for router
+      await WAVAX.connect(owner).deposit({ value: amountAVAXBDesired });
+      await WAVAX.connect(owner).approve(router.target, amountAVAXBDesired);
+
+      // Add liquidity for tokenB/WAVAX pair
+      await router.addLiquidity(
+        tokenB.target,
+        WAVAX.target,
+        amountTokenBDesired,
+        amountAVAXBDesired,
+        amountTokenBMin,
+        amountAVAXBMin,
+        ownerAddress,
+        deadline
+      );
+    });
+
+    it("should swap exact tokens for tokens successfully", async function () {
+      const swapAmount = ethers.parseEther("10");
+      const amountOutMin = ethers.parseEther("18");
+      const latestBlock = await ethers.provider.getBlock("latest");
+
+      if (!latestBlock) {
+        throw new Error("Failed to fetch the latest block.");
+      }
+
+      const deadline = latestBlock.timestamp + 3600;
+      await tokenA.connect(owner).transfer(user1Address, swapAmount);
+      await tokenA.connect(owner).transfer(user1Address, swapAmount);
+      await tokenA.connect(user1).approve(router.target, swapAmount);
+
+      const initialUser1TokenBBalance = await tokenB.balanceOf(user1Address);
+
+      await router
+        .connect(user1)
+        .swapExactTokensForTokens(
+          swapAmount,
+          amountOutMin,
+          [tokenA.target, tokenB.target],
+          user1Address,
+          deadline
+        );
+
+      const finalUser1TokenBBalance = await tokenB.balanceOf(user1Address);
+
+      expect(finalUser1TokenBBalance).to.be.greaterThan(
+        initialUser1TokenBBalance
+      );
+    });
+
+    it("should swap tokens for exact tokens successfully", async function () {
+      const amountOut = ethers.parseEther("1");
+      const amountInMax = ethers.parseEther("2.1");
+      const latestBlock = await ethers.provider.getBlock("latest");
+
+      if (!latestBlock) {
+        throw new Error("Failed to fetch the latest block.");
+      }
+
+      const deadline = latestBlock.timestamp + 3600;
+
+      await tokenB.connect(owner).transfer(user1Address, amountInMax);
+      await tokenB.connect(user1).approve(router.target, amountInMax);
+
+      const initialUser1TokenABalance = await tokenA.balanceOf(user1Address);
+
+      await router
+        .connect(user1)
+        .swapTokensForExactTokens(
+          amountOut,
+          amountInMax,
+          [tokenB.target, tokenA.target],
+          user1Address,
+          deadline
+        );
+
+      const finalUser1TokenABalance = await tokenA.balanceOf(user1Address);
+
+      expect(finalUser1TokenABalance).to.be.greaterThan(
+        initialUser1TokenABalance
+      );
+    });
+
+    it("should swap exact AVAX for tokens successfully", async function () {
+      const amountOutMin = ethers.parseEther("4.5");
+      const swapAmount = ethers.parseEther("10");
+      const latestBlock = await ethers.provider.getBlock("latest");
+
+      if (!latestBlock) {
+        throw new Error("Failed to fetch the latest block.");
+      }
+
+      const deadline = latestBlock.timestamp + 3600;
+
+      const initialUser1TokenBBalance = await tokenB.balanceOf(user1Address);
+
+      await router
+        .connect(user1)
+        .swapExactAVAXForTokens(
+          amountOutMin,
+          [WAVAX.target, tokenB.target],
+          user1Address,
+          deadline,
+          { value: swapAmount }
+        );
+
+      const finalUser1TokenBBalance = await tokenB.balanceOf(user1Address);
+
+      expect(finalUser1TokenBBalance).to.be.greaterThan(
+        initialUser1TokenBBalance
+      );
+    });
+
+    it("should swap tokens for exact AVAX successfully", async function () {
+      const amountOut = ethers.parseEther("5");
+      const amountInMax = ethers.parseEther("2.7");
+      const latestBlock = await ethers.provider.getBlock("latest");
+
+      if (!latestBlock) {
+        throw new Error("Failed to fetch the latest block.");
+      }
+
+      const deadline = latestBlock.timestamp + 3600;
+
+      await tokenA.connect(owner).transfer(user1Address, amountInMax);
+      await tokenA.connect(user1).approve(router.target, amountInMax);
+
+      const initialUser1Balance = await ethers.provider.getBalance(
+        user1Address
+      );
+      await router
+        .connect(user1)
+        .swapTokensForExactAVAX(
+          amountOut,
+          amountInMax,
+          [tokenA.target, WAVAX.target],
+          user1Address,
+          deadline
+        );
+
+      const finalUser1Balance = await ethers.provider.getBalance(user1Address);
+
+      expect(finalUser1Balance).to.be.greaterThan(initialUser1Balance);
+    });
+
+    it("should fail if swap path is invalid", async function () {
+      const swapAmount = ethers.parseEther("10");
+      const amountOutMin = ethers.parseEther("15");
+      const latestBlock = await ethers.provider.getBlock("latest");
+
+      if (!latestBlock) {
+        throw new Error("Failed to fetch the latest block.");
+      }
+
+      const deadline = latestBlock.timestamp + 3600;
+
+      await tokenA.connect(owner).approve(router.target, swapAmount);
+
+      await expect(
+        router.swapExactTokensForTokens(
+          swapAmount,
+          amountOutMin,
+          [tokenA.target, tokenA.target], // Invalid path
+          ownerAddress,
+          deadline
+        )
+      ).to.be.revertedWith("IsbjornLibrary: IDENTICAL_ADDRESSES");
+    });
+  });
 });

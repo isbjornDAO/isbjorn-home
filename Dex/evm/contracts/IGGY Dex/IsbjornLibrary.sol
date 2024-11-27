@@ -47,9 +47,9 @@ library IsbjornLibrary {
         address tokenA,
         address tokenB
     ) internal view returns (uint256 reserveA, uint256 reserveB) {
-        (address token0, ) = sortTokens(tokenA, tokenB);
+        (address token0, address token1) = sortTokens(tokenA, tokenB);
         (uint256 reserve0, uint256 reserve1, ) = IIcePond(
-            pairFor(factory, tokenA, tokenB)
+            pairFor(factory, token0, token1)
         ).getReserves();
         (reserveA, reserveB) = tokenA == token0
             ? (reserve0, reserve1)
@@ -98,8 +98,8 @@ library IsbjornLibrary {
             reserveIn > 0 && reserveOut > 0,
             "IsbjornLibrary: INSUFFICIENT_LIQUIDITY"
         );
-        uint256 numerator = reserveIn.mul(amountOut).mul(1000);
-        uint256 denominator = reserveOut.sub(amountOut).mul(996);
+        uint256 numerator = reserveIn.mul(amountOut).mul(10000);
+        uint256 denominator = reserveOut.sub(amountOut).mul(9960);
         amountIn = (numerator / denominator).add(1);
     }
 

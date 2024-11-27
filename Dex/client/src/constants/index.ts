@@ -17,6 +17,15 @@ export const isbjorn_head_w_text_logo_url =
 export const sample_token_list: { [address: string]: Token } =
   USE_TESTNET === "1"
     ? {
+        "0xAVAX": {
+          address: "0xAVAX",
+          name: "AVAX",
+          ticker: "AVAX",
+          imgUrl:
+            "https://lfj.gg/static/media/avalanche.7c81486190237e87e238c029fd746008.svg",
+          decimals: 18,
+          rank: "1",
+        },
         "0xAad4e95eBa93381ac2A438E8fac3BB846fB893d0": {
           address: "0xAad4e95eBa93381ac2A438E8fac3BB846fB893d0",
           name: "Wrapped AVAX",
@@ -37,6 +46,15 @@ export const sample_token_list: { [address: string]: Token } =
         },
       }
     : {
+        "0xAVAX": {
+          address: "0xAVAX",
+          name: "AVAX",
+          ticker: "AVAX",
+          imgUrl:
+            "https://lfj.gg/static/media/avalanche.7c81486190237e87e238c029fd746008.svg",
+          decimals: 18,
+          rank: "1",
+        },
         "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7": {
           address: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
           name: "Wrapped AVAX",

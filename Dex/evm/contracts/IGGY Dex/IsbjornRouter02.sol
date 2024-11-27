@@ -10,6 +10,8 @@ import "./TransferHelper.sol";
 import "./IWAVAX.sol";
 import "./IERC20.sol";
 
+import "hardhat/console.sol";
+
 contract IsbjornRouter02 is IIsbjornRouter02 {
     using SafeMath for uint256;
 
@@ -453,6 +455,7 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
     {
         require(path[path.length - 1] == WAVAX, "IsbjornRouter: INVALID_PATH");
         amounts = IsbjornLibrary.getAmountsIn(factory, amountOut, path);
+
         require(
             amounts[0] <= amountInMax,
             "IsbjornRouter: EXCESSIVE_INPUT_AMOUNT"
@@ -464,8 +467,12 @@ contract IsbjornRouter02 is IIsbjornRouter02 {
             amounts[0]
         );
         _swap(amounts, path, address(this));
-        IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1]);
-        TransferHelper.safeTransferAVAX(to, amounts[amounts.length - 1]);
+        uint256 feeTaken = amounts[amounts.length - 1] / 1000;
+        IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1] - feeTaken);
+        TransferHelper.safeTransferAVAX(
+            to,
+            amounts[amounts.length - 1] - feeTaken
+        );
     }
 
     function swapExactTokensForAVAX(

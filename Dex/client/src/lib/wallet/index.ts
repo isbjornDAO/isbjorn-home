@@ -16,7 +16,9 @@ import {
   pair_abi,
   router_abi,
   Router_address,
+  WAVAX_ADDRESS,
 } from "@/constants";
+import { Value } from "@radix-ui/react-select";
 
 export const initializeWeb3 = async () => {
   let provider: any;
@@ -417,24 +419,53 @@ export const createSwapTransaction = async (
         .div(new BN(100));
       console.log(amountIn.toString());
       console.log(amountOutMin.toString());
-      data = await contract.methods
-        .swapExactTokensForTokens(
-          amountIn.toString(),
-          amountOutMin.toString(),
-          [tokenInAddress, tokenOutAddress],
-          accountAddress,
-          deadline
-        )
-        .encodeABI();
+      if (tokenInAddress === "0xAVAX") {
+        data = await contract.methods
+          .swapExactAVAXForTokens(
+            amountOutMin.toString(),
+            [WAVAX_ADDRESS.toString(), tokenOutAddress],
+            accountAddress,
+            deadline
+          )
+          .encodeABI();
+      } else if (tokenOutAddress === "0xAVAX") {
+        data = await contract.methods
+          .swapExactTokensForAVAX(
+            amountIn.toString(),
+            0,
+            [tokenInAddress, WAVAX_ADDRESS.toString()],
+            accountAddress,
+            deadline
+          )
+          .encodeABI();
+      } else {
+        data = await contract.methods
+          .swapExactTokensForTokens(
+            amountIn.toString(),
+            amountOutMin.toString(),
+            [tokenInAddress, WAVAX_ADDRESS.toString()],
+            accountAddress,
+            deadline
+          )
+          .encodeABI();
+      }
     } else {
       // to amount exact
     }
 
-    const txParams = {
-      to: Router_address,
-      from: accountAddress,
-      data: data,
-    };
+    const txParams =
+      tokenInAddress === "0xAVAX"
+        ? {
+            to: Router_address,
+            from: accountAddress,
+            data,
+            value: amountIn.toString(16),
+          }
+        : {
+            to: Router_address,
+            from: accountAddress,
+            data,
+          };
     console.log(txParams);
 
     const txHash = await window.ethereum?.request({
