@@ -392,3 +392,67 @@ export const waitForTransactionReceipt = async (
 
   return receipt;
 };
+
+export const createSwapTransaction = async (
+  accountAddress: string,
+  tokenInAddress: string,
+  tokenOutAddress: string,
+  isFromExact: boolean,
+  amountIn: BN,
+  amountOut: BN,
+  slippage: number
+): Promise<{
+  success: boolean;
+  txHash?: string;
+  error?: unknown;
+}> => {
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const deadline = currentTimestamp + 300;
+  let data;
+  try {
+    const contract = new window.w3.eth.Contract(router_abi, Router_address);
+    if (isFromExact) {
+      const amountOutMin = amountOut
+        .mul(new BN(100 - slippage))
+        .div(new BN(100));
+      console.log(amountIn.toString());
+      console.log(amountOutMin.toString());
+      data = await contract.methods
+        .swapExactTokensForTokens(
+          amountIn.toString(),
+          amountOutMin.toString(),
+          [tokenInAddress, tokenOutAddress],
+          accountAddress,
+          deadline
+        )
+        .encodeABI();
+    } else {
+      // to amount exact
+    }
+
+    const txParams = {
+      to: Router_address,
+      from: accountAddress,
+      data: data,
+    };
+    console.log(txParams);
+
+    const txHash = await window.ethereum?.request({
+      method: "eth_sendTransaction",
+      params: [txParams],
+    });
+
+    const receipt = await waitForTransactionReceipt(txHash);
+
+    if (receipt && receipt.status) {
+      console.log("Transaction successful:", receipt);
+      return { success: true, txHash };
+    } else {
+      console.error("Transaction failed:", receipt);
+      return { success: false, txHash };
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: error };
+  }
+};

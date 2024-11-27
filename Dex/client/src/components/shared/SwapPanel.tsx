@@ -10,7 +10,7 @@ import BN from 'bn.js';
 import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, safeModeEnabledMaxSlippage, sample_token_list, WAVAX_ADDRESS } from '@/constants';
 import { Token } from '@/types';
 import { useUserContext } from '@/context/AuthContext';
-import { approveERC20Amount, getAmountOut, getERC20Allowance, useHandleConnectWallet } from '@/lib/wallet';
+import { approveERC20Amount, createSwapTransaction, getAmountOut, getERC20Allowance, useHandleConnectWallet } from '@/lib/wallet';
 import { formatBN, scaleToBN } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 
@@ -34,6 +34,8 @@ const SwapPanel = () => {
     const [toAmount, setToAmount] = useState<BN>(new BN(0));
     const [toAmountInputValue, setToAmountInputValue] = useState<string>('');
 
+    const [amountOutComputed, setAmountOutComputed] = useState<BN>(new BN(0));
+
     const [wasFromLastChanged, setWasFromLastChanged] = useState<boolean>(true);
 
     const [isChartLoaded, setIsChartLoaded] = useState<boolean>(false);
@@ -43,8 +45,15 @@ const SwapPanel = () => {
 
     const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
 
+    const clearPanel = () => {
+        setFromAmountInputValue('');
+        setToAmountInputValue('');
+    }
+
 
     const handleFromInputChange = (value: string) => {
+        setIsLoading(true);
+        setToAmount(new BN(0));
         if (!isNaN(Number(value)) || value === '') {
             setFromAmountInputValue(value);
             if (value === '') {
@@ -91,7 +100,14 @@ const SwapPanel = () => {
     const handleSwapButtonClick = async () => {
         setIsLoading(true);
         if (fromTokenAllowance.gte(fromAmount)) {
-            // swap tx
+            const isFromExact = true;
+            const result = await createSwapTransaction(account.address, fromToken.address, toToken.address, isFromExact, fromAmount, amountOutComputed, allowedSlippage);
+            if (result.success) {
+                showToast("Swap executed", "success", explorer_url + "/tx/" + result.txHash);
+                clearPanel();
+            } else {
+                showToast("Swap failed", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
+            }
         } else {
             const result = await approveERC20Amount(account.address, Router_address, fromToken.address, fromAmount);
             if (result.success) {
@@ -127,29 +143,31 @@ const SwapPanel = () => {
 
     useEffect(() => {
         const getOutputAmount = async () => {
-            console.log(fromAmount.toString())
             if (fromAmount.gt(new BN(0))) {
                 const amountOut = await getAmountOut(fromToken.address, toToken.address, fromAmount);
-                console.log(amountOut.toString());
                 if (amountOut !== null) {
                     setToAmountInputValue(formatBN(amountOut, fromToken.decimals));
+                    setAmountOutComputed(amountOut);
                 }
             } else {
 
             }
+            setIsLoading(false);
         };
         getOutputAmount();
     }, [fromAmount])
 
     useEffect(() => {
         const getFromTokenAllowance = async () => {
-            const allowance = await getERC20Allowance(account.address, Router_address, fromToken.address);
-            if (allowance !== null) {
-                setFromTokenAllowance(allowance);
+            if (fromAmount.gt(new BN(0))) {
+                const allowance = await getERC20Allowance(account.address, Router_address, fromToken.address);
+                if (allowance !== null) {
+                    setFromTokenAllowance(allowance);
+                }
             }
         };
         getFromTokenAllowance();
-    }, [account])
+    }, [account, fromAmount, fromToken])
 
     return (
         <div className='flex flex-col gap-1 items-center justify-start'>
