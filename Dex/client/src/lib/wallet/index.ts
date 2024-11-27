@@ -214,6 +214,26 @@ export const getERC20Balance = async (
   return balance;
 };
 
+export const getERC20Allowance = async (
+  accountAddress: string,
+  spenderAddress: string,
+  tokenAddress: string
+): Promise<BN | null> => {
+  let allowance: BN | null = null;
+  try {
+    const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
+    let result = await contract.methods
+      .allowance(accountAddress, spenderAddress)
+      .call();
+    if (result) {
+      allowance = new BN(result.toString());
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return allowance;
+};
+
 export const approveERC20Amount = async (
   accountAddress: string,
   spenderAddress: string,
@@ -255,6 +275,12 @@ export const approveERC20Amount = async (
     console.log(error);
     return { success: false, error: error };
   }
+};
+
+export const getAmountOut = async (): Promise<BN | null> => {
+  let amountOut: BN | null = null;
+  //TODO
+  return amountOut;
 };
 
 export const waitForTransactionReceipt = async (
