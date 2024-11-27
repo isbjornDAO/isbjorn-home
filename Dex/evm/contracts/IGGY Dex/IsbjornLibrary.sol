@@ -34,7 +34,7 @@ library IsbjornLibrary {
                         hex"ff",
                         factory,
                         keccak256(abi.encodePacked(token0, token1)),
-                        hex"7dbf49854216dfebece4252c891b99191c607ff342c047f99faa397bf49b014f"
+                        hex"f21cc5910ef5e5b2f387c3c982c8a8fe1176000ee5c75d958966f217f53dfdc9"
                     )
                 )
             )

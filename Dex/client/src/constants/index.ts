@@ -91,10 +91,10 @@ export const minSlippage = 0.01;
 
 //ADDRESSES
 export const Router_address =
-  USE_TESTNET === "1" ? "0xef459ADa6D9358c060998950807A24c2748435D1" : "";
+  USE_TESTNET === "1" ? "0xeC371D93CCF5d0CCaD39aA59ADbAD3d694094bc4" : "";
 
 export const Factory_address =
-  USE_TESTNET === "1" ? "0x6CA3EC5EDbeE2EB526C429A3D87bb3e81F1E4392" : "";
+  USE_TESTNET === "1" ? "0x990332763c9C334c5E520e953952B72800525c3e" : "";
 
 export const WAVAX_ADDRESS =
   USE_TESTNET === "1"

@@ -202,8 +202,8 @@ export const getERC20Balance = async (
   tokenAddress: string
 ): Promise<BN | null> => {
   let balance: BN | null = null;
-  const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
   try {
+    const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
     let result = await contract.methods.balanceOf(accountAddress).call();
     if (result) {
       balance = new BN(result.toString());
@@ -212,4 +212,91 @@ export const getERC20Balance = async (
     console.log(error);
   }
   return balance;
+};
+
+export const approveERC20Amount = async (
+  accountAddress: string,
+  spenderAddress: string,
+  tokenAddress: string,
+  amount: BN
+): Promise<{
+  success: boolean;
+  txHash?: string;
+  error?: unknown;
+}> => {
+  try {
+    const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
+    const data = await contract.methods
+      .approve(spenderAddress, amount.toString())
+      .encodeABI();
+
+    const txParams = {
+      to: tokenAddress,
+      from: accountAddress,
+      data: data,
+    };
+    console.log(txParams);
+
+    const txHash = await window.ethereum?.request({
+      method: "eth_sendTransaction",
+      params: [txParams],
+    });
+
+    const receipt = await waitForTransactionReceipt(txHash);
+
+    if (receipt && receipt.status) {
+      console.log("Transaction successful:", receipt);
+      return { success: true, txHash };
+    } else {
+      console.error("Transaction failed:", receipt);
+      return { success: false, txHash };
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: error };
+  }
+};
+
+export const waitForTransactionReceipt = async (
+  txHash: string,
+  initialDelay: number = 5000,
+  pollingInterval: number = 2500,
+  maxRetries: number = 10 // Add a maxRetries parameter to limit the number of retries
+): Promise<any> => {
+  console.log(
+    `Waiting for ${initialDelay / 1000} seconds before polling for receipt...`
+  );
+  await new Promise((resolve) => setTimeout(resolve, initialDelay));
+
+  let receipt = null;
+  let attempt = 0;
+
+  while (receipt === null && attempt < maxRetries) {
+    try {
+      receipt = await window.w3.eth.getTransactionReceipt(txHash);
+      if (receipt === null) {
+        console.log(
+          `Waiting for transaction to be mined... Attempt ${attempt + 1}`
+        );
+        attempt++;
+        await new Promise((resolve) => setTimeout(resolve, pollingInterval)); // Wait before checking again
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching transaction receipt: ${error}. Retrying... (${
+          attempt + 1
+        }/${maxRetries})`
+      );
+      attempt++;
+      await new Promise((resolve) => setTimeout(resolve, pollingInterval)); // Wait before retrying
+    }
+  }
+
+  if (receipt === null && attempt >= maxRetries) {
+    throw new Error(
+      `Failed to retrieve transaction receipt after ${maxRetries} attempts.`
+    );
+  }
+
+  return receipt;
 };
