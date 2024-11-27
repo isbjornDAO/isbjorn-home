@@ -29,6 +29,9 @@ module.exports = {
         light: "#b3e7f0",
         red: "#d26669",
         green: "#99ff9f",
+        success: "#1e9827",
+        error: "#ab2c21",
+        neutral: "#565454",
       },
       screens: {
         xs: "480px",

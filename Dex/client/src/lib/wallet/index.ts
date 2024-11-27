@@ -116,7 +116,8 @@ export const getDomainName = async (
 export const useHandleConnectWallet = () => {
   const { setAccount, setIsConnected, currentChainId, switchNetwork } =
     useUserContext();
-  const { mutateAsync: connectUser, isLoading } = useAccountConnect();
+  const { mutateAsync: connectUser, isLoading: isWalletLoading } =
+    useAccountConnect();
 
   const handleConnectWallet = async () => {
     try {
@@ -199,7 +200,7 @@ export const useHandleConnectWallet = () => {
     console.log(`Chain changed to ${parseInt(chainId)}`);
   };
 
-  return { handleConnectWallet, isLoading };
+  return { handleConnectWallet, isWalletLoading };
 };
 
 export const getERC20Balance = async (

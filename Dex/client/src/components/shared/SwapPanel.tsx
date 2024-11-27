@@ -7,22 +7,27 @@ import { Loader, SlippageInput, TokenChooser } from '@/components/shared';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from "@/components/ui/switch"
 import BN from 'bn.js';
-import { defaultSlippage, QUASI_ADDRESS, safeModeEnabledMaxSlippage, sample_token_list, WAVAX_ADDRESS } from '@/constants';
+import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, safeModeEnabledMaxSlippage, sample_token_list, WAVAX_ADDRESS } from '@/constants';
 import { Token } from '@/types';
 import { useUserContext } from '@/context/AuthContext';
-import { getAmountOut, useHandleConnectWallet } from '@/lib/wallet';
+import { approveERC20Amount, getAmountOut, getERC20Allowance, useHandleConnectWallet } from '@/lib/wallet';
 import { formatBN, scaleToBN } from '@/lib/utils';
+import { useToast } from '@/context/ToastContext';
 
 
 const SwapPanel = () => {
 
     const { account, isConnected } = useUserContext();
-    const { handleConnectWallet, isLoading } = useHandleConnectWallet();
+    const { handleConnectWallet, isWalletLoading } = useHandleConnectWallet();
+    const { showToast } = useToast();
+
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [fromToken, setFromToken] = useState<Token>(sample_token_list[WAVAX_ADDRESS]);
     const [lastFromToken, setLastFromToken] = useState<Token>(fromToken);
     const [fromAmount, setFromAmount] = useState<BN>(new BN(0));
     const [fromAmountInputValue, setFromAmountInputValue] = useState<string>('');
+    const [fromTokenAllowance, setFromTokenAllowance] = useState<BN>(new BN(0));
 
     const [toToken, setToToken] = useState<Token>(sample_token_list[QUASI_ADDRESS]);
     const [lastToToken, setLastToToken] = useState<Token>(toToken);
@@ -38,7 +43,6 @@ const SwapPanel = () => {
 
     const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
 
-    const [isLoadingToAmount, setIsLoadingToAmount] = useState<boolean>(false);
 
     const handleFromInputChange = (value: string) => {
         if (!isNaN(Number(value)) || value === '') {
@@ -84,8 +88,20 @@ const SwapPanel = () => {
         setWasFromLastChanged(false);
     };
 
-    const handleSwap = () => {
-        console.log("Swap");
+    const handleSwapButtonClick = async () => {
+        setIsLoading(true);
+        if (fromTokenAllowance.gte(fromAmount)) {
+            // swap tx
+        } else {
+            const result = await approveERC20Amount(account.address, Router_address, fromToken.address, fromAmount);
+            if (result.success) {
+                showToast("Approved tokens for swap", "success", explorer_url + "/tx/" + result.txHash);
+                setFromTokenAllowance(fromAmount);
+            } else {
+                showToast("Failed to approve tokens", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
+            }
+        }
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -124,6 +140,16 @@ const SwapPanel = () => {
         };
         getOutputAmount();
     }, [fromAmount])
+
+    useEffect(() => {
+        const getFromTokenAllowance = async () => {
+            const allowance = await getERC20Allowance(account.address, Router_address, fromToken.address);
+            if (allowance !== null) {
+                setFromTokenAllowance(allowance);
+            }
+        };
+        getFromTokenAllowance();
+    }, [account])
 
     return (
         <div className='flex flex-col gap-1 items-center justify-start'>
@@ -189,19 +215,27 @@ const SwapPanel = () => {
                                     </div>
                                 </div>
                                 <div className='w-full p-2'>
-                                    <Button className="swap-button" onClick={() => {
-                                        if (isConnected) {
-                                            handleSwap();
-                                        } else {
-                                            handleConnectWallet();
-                                        }
-                                    }}>{isLoading && !isConnected ? (
-                                        <Loader />
-                                    ) : account.address ? (
-                                        "Swap"
-                                    ) : (
-                                        "Connect"
-                                    )}</Button>
+                                    <Button
+                                        disabled={isWalletLoading || isLoading}
+                                        className="swap-button"
+                                        onClick={() => {
+                                            if (isConnected) {
+                                                handleSwapButtonClick();
+                                            } else {
+                                                handleConnectWallet();
+                                            }
+                                        }}>{isWalletLoading || isLoading ? (
+                                            <Loader />
+                                        ) : account.address ? (
+                                            fromTokenAllowance.gte(fromAmount) ? (
+                                                "Swap"
+                                            ) : (
+                                                "Approve"
+                                            )
+
+                                        ) : (
+                                            "Connect"
+                                        )}</Button>
                                 </div>
 
                             </div>

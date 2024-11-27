@@ -140,4 +140,16 @@
   .safemode-toggle {
     @apply text-xxs font-semibold;
   }
+
+  .toast-success {
+    @apply bg-green text-black border border-success;
+  }
+
+  .toast-error {
+    @apply bg-red text-black border border-error;
+  }
+
+  .toast-neutral {
+    @apply bg-gray-500 text-black border border-neutral;
+  }
 }

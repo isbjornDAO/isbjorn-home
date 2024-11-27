@@ -3,6 +3,11 @@ import { Token } from "@/types";
 
 export const main_site_url = "https://isbjorn.co.nz/";
 
+export const explorer_url =
+  USE_TESTNET === "1"
+    ? "https://testnet.snowscan.xyz/"
+    : "https://snowscan.xyz";
+
 export const isbjorn_head_logo_url =
   "https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dc99fa55b6632e77070b_Isbjorn%20PNG%20(3).png";
 
