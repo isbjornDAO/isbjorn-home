@@ -351,6 +351,73 @@ export const getAmountOut = async (
   return amountOut;
 };
 
+export const getAmountIn = async (
+  tokenInAddress: string,
+  tokenOutAddress: string,
+  tokenOutAmount: BN
+): Promise<BN | null> => {
+  let amountIn: BN | null = null;
+  const tokens = [tokenInAddress, tokenOutAddress].sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase())
+  );
+  try {
+    const factoryContract = new window.w3.eth.Contract(
+      factory_abi,
+      Factory_address
+    );
+    const pairContractAddress = await factoryContract.methods
+      .getPair(tokenInAddress, tokenOutAddress)
+      .call();
+    let pairAddress;
+    if (pairContractAddress) {
+      pairAddress = pairContractAddress.toString();
+    } else {
+      throw new Error("Error: getAmountOut() could not retrive pair address!");
+    }
+    const pairContract = new window.w3.eth.Contract(pair_abi, pairAddress);
+
+    const reserveResult = await pairContract.methods.getReserves().call();
+    let reserve0: BN, reserve1: BN, last: number;
+    if (reserveResult) {
+      reserve0 = new BN(reserveResult[0]);
+      reserve1 = new BN(reserveResult[1]);
+      last = Number(reserveResult[2]);
+    } else {
+      throw new Error("Error: getAmountOut() could not retrive pair reserves!");
+    }
+    let reserveIn: BN, reserveOut: BN;
+    if (tokens[0].toLowerCase() === tokenInAddress.toLowerCase()) {
+      reserveIn = reserve0;
+      reserveOut = reserve1;
+    } else {
+      reserveIn = reserve1;
+      reserveOut = reserve0;
+    }
+    const routerContract = new window.w3.eth.Contract(
+      router_abi,
+      Router_address
+    );
+    const quoteResult = await routerContract.methods
+      .getAmountIn(
+        tokenOutAmount.toString(),
+        reserveIn.toString(),
+        reserveOut.toString()
+      )
+      .call();
+    if (quoteResult) {
+      amountIn = new BN(quoteResult.toString())
+        .mul(new BN(996))
+        .div(new BN(1000)); //adjust for 0.4% fee
+    } else {
+      throw new Error("Error: getAmountOut() could not retrive quote!");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  console.log(amountIn);
+  return amountIn;
+};
+
 export const waitForTransactionReceipt = async (
   txHash: string,
   initialDelay: number = 5000,
@@ -410,9 +477,10 @@ export const createSwapTransaction = async (
 }> => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const deadline = currentTimestamp + 300;
-  let data;
+  let data, amountInMax;
   try {
     const contract = new window.w3.eth.Contract(router_abi, Router_address);
+    console.log(isFromExact);
     if (isFromExact) {
       const amountOutMin = amountOut
         .mul(new BN(100 - slippage))
@@ -451,6 +519,39 @@ export const createSwapTransaction = async (
       }
     } else {
       // to amount exact
+      amountInMax = amountIn.mul(new BN(100 + slippage)).div(new BN(100));
+      console.log(amountOut.toString());
+      console.log(amountInMax.toString());
+      if (tokenInAddress === "0xAVAX") {
+        data = await contract.methods
+          .swapAVAXForExactTokens(
+            amountOut.toString(),
+            [WAVAX_ADDRESS.toString(), tokenOutAddress],
+            accountAddress,
+            deadline
+          )
+          .encodeABI();
+      } else if (tokenOutAddress === "0xAVAX") {
+        data = await contract.methods
+          .swapTokensForExactAVAX(
+            amountOut.toString(),
+            amountInMax.toString(),
+            [tokenInAddress, WAVAX_ADDRESS.toString()],
+            accountAddress,
+            deadline
+          )
+          .encodeABI();
+      } else {
+        data = await contract.methods
+          .swapTokensForExactTokens(
+            amountOut.toString(),
+            amountInMax.toString(),
+            [tokenInAddress, tokenOutAddress],
+            accountAddress,
+            deadline
+          )
+          .encodeABI();
+      }
     }
 
     const txParams =
@@ -459,7 +560,9 @@ export const createSwapTransaction = async (
             to: Router_address,
             from: accountAddress,
             data,
-            value: amountIn.toString(16),
+            value: isFromExact
+              ? amountIn.toString(16)
+              : amountInMax.toString(16),
           }
         : {
             to: Router_address,

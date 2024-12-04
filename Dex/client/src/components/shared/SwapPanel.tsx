@@ -10,7 +10,7 @@ import BN from 'bn.js';
 import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, safeModeEnabledMaxSlippage, sample_token_list, WAVAX_ADDRESS } from '@/constants';
 import { Token } from '@/types';
 import { useUserContext } from '@/context/AuthContext';
-import { approveERC20Amount, createSwapTransaction, getAmountOut, getERC20Allowance, useHandleConnectWallet } from '@/lib/wallet';
+import { approveERC20Amount, createSwapTransaction, getAmountIn, getAmountOut, getERC20Allowance, useHandleConnectWallet } from '@/lib/wallet';
 import { formatBN, scaleToBN } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 
@@ -35,8 +35,11 @@ const SwapPanel = () => {
     const [toAmountInputValue, setToAmountInputValue] = useState<string>('');
 
     const [amountOutComputed, setAmountOutComputed] = useState<BN>(new BN(0));
+    const [amountInComputed, setAmountInComputed] = useState<BN>(new BN(0));
 
     const [wasFromLastChanged, setWasFromLastChanged] = useState<boolean>(true);
+
+    const [isFromAmountExact, setIsFromAmountExact] = useState<boolean>(true);
 
     const [isChartLoaded, setIsChartLoaded] = useState<boolean>(false);
 
@@ -58,8 +61,11 @@ const SwapPanel = () => {
             setFromAmountInputValue(value);
             if (value === '') {
                 setFromAmount(new BN(0));
+                setToAmountInputValue('');
+                setIsLoading(false);
                 return;
             }
+            setIsFromAmountExact(true);
         }
 
         if (debounceTimer) {
@@ -67,7 +73,36 @@ const SwapPanel = () => {
         }
         const newTimer = setTimeout(async () => {
             if (!isNaN(Number(value)) && value !== '') {
-                setFromAmount(scaleToBN(value, fromToken.decimals))
+                setFromAmount(scaleToBN(value, fromToken.decimals));
+            }
+        }, 1000);
+
+        setDebounceTimer(newTimer);
+    };
+
+    const handleToInputChange = (value: string) => {
+        setIsLoading(true);
+        setFromAmount(new BN(0));
+        if (!isNaN(Number(value)) || value === '') {
+            setToAmountInputValue(value);
+            if (value === '') {
+                setToAmount(new BN(0));
+                setFromAmountInputValue('');
+                setIsLoading(false);
+                return;
+            }
+            setIsFromAmountExact(false);
+        }
+
+        if (debounceTimer) {
+            clearTimeout(debounceTimer);
+        }
+        const newTimer = setTimeout(async () => {
+            if (!isNaN(Number(value)) && value !== '') {
+                console.log("HELLO??");
+                console.log(value);
+                console.log(scaleToBN(value, toToken.decimals).toString());
+                setToAmount(scaleToBN(value, toToken.decimals));
             }
         }, 1000);
 
@@ -98,16 +133,19 @@ const SwapPanel = () => {
     };
 
     const handleSwapButtonClick = async () => {
-        console.log(fromToken);
-        console.log(toToken);
-
-        if (fromTokenAllowance.gte(fromAmount)) {
-            if (fromAmount.isZero()) {
+        console.log(fromAmount.toString());
+        console.log(fromTokenAllowance.toString());
+        if ((fromTokenAllowance.gte(fromAmount) && isFromAmountExact) || (fromTokenAllowance.gte(amountInComputed.mul(new BN(100 + allowedSlippage)).div(new BN(100))) && !isFromAmountExact)) {
+            if (fromAmount.isZero() && toAmount.isZero()) {
                 return;
             }
             setIsLoading(true);
-            const isFromExact = true;
-            const result = await createSwapTransaction(account.address, fromToken.address, toToken.address, isFromExact, fromAmount, amountOutComputed, allowedSlippage);
+            let result;
+            if (isFromAmountExact) {
+                result = await createSwapTransaction(account.address, fromToken.address, toToken.address, true, fromAmount, amountOutComputed, allowedSlippage);
+            } else {
+                result = await createSwapTransaction(account.address, fromToken.address, toToken.address, false, amountInComputed, toAmount, allowedSlippage);
+            }
             if (result.success) {
                 showToast("Swap executed", "success", explorer_url + "/tx/" + result.txHash);
                 clearPanel();
@@ -116,10 +154,10 @@ const SwapPanel = () => {
             }
         } else {
             setIsLoading(true);
-            const result = await approveERC20Amount(account.address, Router_address, fromToken.address, fromAmount);
+            const result = await approveERC20Amount(account.address, Router_address, fromToken.address, isFromAmountExact ? fromAmount : amountInComputed.mul(new BN(100 + allowedSlippage)).div(new BN(100)));
             if (result.success) {
                 showToast("Approved tokens for swap", "success", explorer_url + "/tx/" + result.txHash);
-                setFromTokenAllowance(fromAmount);
+                setFromTokenAllowance(isFromAmountExact ? fromAmount : amountInComputed.mul(new BN(100 + allowedSlippage)).div(new BN(100)));
             } else {
                 showToast("Failed to approve tokens", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
             }
@@ -153,16 +191,38 @@ const SwapPanel = () => {
             if (fromAmount.gt(new BN(0))) {
                 const amountOut = await getAmountOut(fromToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : fromToken.address, toToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : toToken.address, fromAmount);
                 if (amountOut !== null) {
-                    setToAmountInputValue(formatBN(amountOut, fromToken.decimals));
+                    setToAmountInputValue(formatBN(amountOut, toToken.decimals));
                     setAmountOutComputed(amountOut);
                 }
             } else {
-
+                setToAmount(new BN(0));
+                return;
             }
             setIsLoading(false);
         };
-        getOutputAmount();
-    }, [fromAmount])
+        if (isFromAmountExact) {
+            getOutputAmount();
+        }
+    }, [fromAmount]);
+
+    useEffect(() => {
+        const getInAmount = async () => {
+            if (toAmount.gt(new BN(0))) {
+                const amountIn = await getAmountIn(fromToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : fromToken.address, toToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : toToken.address, toAmount);
+                if (amountIn !== null) {
+                    setFromAmountInputValue(formatBN(amountIn, fromToken.decimals));
+                    setAmountInComputed(amountIn);
+                }
+            } else {
+                setFromAmount(new BN(0));
+                return;
+            }
+            setIsLoading(false);
+        };
+        if (!isFromAmountExact) {
+            getInAmount();
+        }
+    }, [toAmount]);
 
     useEffect(() => {
         const getFromTokenAllowance = async () => {
@@ -225,6 +285,7 @@ const SwapPanel = () => {
                                         className='text-dodger-blue bg-white no-arrows mr-2'
                                         autoComplete="off"
                                         value={toAmountInputValue}
+                                        onChange={(e) => handleToInputChange(e.target.value)}
                                     />
                                     <TokenChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} />
                                 </div>
@@ -254,7 +315,7 @@ const SwapPanel = () => {
                                         }}>{isWalletLoading || isLoading ? (
                                             <Loader />
                                         ) : account.address ? (
-                                            fromTokenAllowance.gte(fromAmount) ? (
+                                            (fromTokenAllowance.gte(fromAmount) && isFromAmountExact) || (fromTokenAllowance.gte(amountInComputed.mul(new BN(100 + allowedSlippage)).div(new BN(100))) && !isFromAmountExact) ? (
                                                 "Swap"
                                             ) : (
                                                 "Approve"

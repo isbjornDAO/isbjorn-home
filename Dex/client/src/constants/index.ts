@@ -113,7 +113,7 @@ export const sample_token_list: { [address: string]: Token } =
 
 export const chain_id = USE_TESTNET === "1" ? 43113 : 43114;
 
-export const defaultSlippage = 0.5;
+export const defaultSlippage = 1;
 
 export const safeModeEnabledMaxSlippage = 5;
 
