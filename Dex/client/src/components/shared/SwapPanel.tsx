@@ -98,6 +98,9 @@ const SwapPanel = () => {
     };
 
     const handleSwapButtonClick = async () => {
+        console.log(fromToken);
+        console.log(toToken);
+
         if (fromTokenAllowance.gte(fromAmount)) {
             if (fromAmount.isZero()) {
                 return;

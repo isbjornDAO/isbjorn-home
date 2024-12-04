@@ -443,7 +443,7 @@ export const createSwapTransaction = async (
           .swapExactTokensForTokens(
             amountIn.toString(),
             amountOutMin.toString(),
-            [tokenInAddress, WAVAX_ADDRESS.toString()],
+            [tokenInAddress, tokenOutAddress],
             accountAddress,
             deadline
           )

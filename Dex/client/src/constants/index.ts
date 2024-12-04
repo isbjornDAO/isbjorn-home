@@ -44,6 +44,15 @@ export const sample_token_list: { [address: string]: Token } =
           decimals: 18,
           rank: "2",
         },
+        "0xA5e4D1f2e6d1Cdbd81dd4f5b0224845defBD2448": {
+          address: "0xA5e4D1f2e6d1Cdbd81dd4f5b0224845defBD2448",
+          name: "Yes",
+          ticker: "YES",
+          imgUrl:
+            "https://static.debank.com/image/avax_token/logo_url/0x6ec18092ee47fcc8f1fe15899156ff20c64ab3d7/a7eb5b0371e2286366f2f8bf8f144933.png",
+          decimals: 18,
+          rank: "3",
+        },
       }
     : {
         "0xAVAX": {
