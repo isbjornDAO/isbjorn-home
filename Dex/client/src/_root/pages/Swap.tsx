@@ -1,5 +1,5 @@
-import { SwapPanel } from '@/components/shared'
-import React from 'react'
+import { SwapPanel } from '@/components/shared';
+import React from 'react';
 
 const Swap = () => {
     return (
@@ -9,6 +9,6 @@ const Swap = () => {
             </div>
         </div>
     )
-}
+};
 
-export default Swap
+export default Swap;

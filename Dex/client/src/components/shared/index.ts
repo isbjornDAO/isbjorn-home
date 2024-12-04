@@ -1,3 +1,4 @@
+export { default as LiquidityPanel } from "./LiquidityPanel";
 export { default as Loader } from "./Loader";
 export { default as ProfileCard } from "./ProfileCard";
 export { default as SlippageInput } from "./SlippageInput";
