@@ -115,6 +115,10 @@
     @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2 w-full;
   }
 
+  .add-liq-button {
+    @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2 w-full;
+  }
+
   .profile-card-connect-button {
     @apply bg-white border border-isbjorn-dark text-dodger-blue;
   }
@@ -151,5 +155,19 @@
 
   .toast-neutral {
     @apply bg-gray-500 text-black border border-neutral;
+  }
+
+  .tab-trigger[data-state="active"] {
+    @apply bg-light text-dodger-blue; /* Example: background color for active tab */
+  }
+
+  .tab-trigger {
+    @apply bg-white border border-isbjorn-blue rounded-full;
+    padding: 8px 16px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .tab-trigger:hover {
+    @apply bg-isbjorn-blue-hover; /* Hover effect */
   }
 }
