@@ -332,7 +332,7 @@ export const getAmountOut = async (
       Router_address
     );
     const quoteResult = await routerContract.methods
-      .quote(
+      .getAmountOut(
         tokenInAmount.toString(),
         reserveIn.toString(),
         reserveOut.toString()
