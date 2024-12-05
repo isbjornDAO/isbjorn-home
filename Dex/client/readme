@@ -16,6 +16,7 @@ npx shadcn@latest add popover
 npx shadcn@latest add select
 npx shadcn@latest add separator
 npx shadcn@latest add switch
+npx shadcn@latest add tabs
 npx shadcn@latest add toast
 npx shadcn@latest add tooltip
 

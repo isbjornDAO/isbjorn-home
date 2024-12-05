@@ -590,3 +590,201 @@ export const createSwapTransaction = async (
     return { success: false, error: error };
   }
 };
+
+const createAddLiquidityTransaction = async (
+  accountAddress: string,
+  token0Address: string,
+  token1Address: string,
+  amount0: BN,
+  amount1: BN,
+  slippage: number
+): Promise<{
+  success: boolean;
+  txHash?: string;
+  error?: unknown;
+}> => {
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const deadline = currentTimestamp + 300;
+  const minAmount0 = amount0.mul(new BN(100 - slippage)).div(new BN(100));
+  const minAmount1 = amount1.mul(new BN(100 - slippage)).div(new BN(100));
+  let data;
+  try {
+    const contract = new window.w3.eth.Contract(router_abi, Router_address);
+
+    if (token0Address === "0xAVAX") {
+      data = contract.methods
+        .addLiquidityAVAX(
+          token1Address,
+          amount1,
+          minAmount1,
+          minAmount0,
+          accountAddress,
+          deadline
+        )
+        .encodeABI();
+    } else if (token1Address === "0xAVAX") {
+      data = contract.methods
+        .addLiquidityAVAX(
+          token0Address,
+          amount0,
+          minAmount0,
+          minAmount1,
+          accountAddress,
+          deadline
+        )
+        .encodeABI();
+    } else {
+      data = contract.methods
+        .addLiquidity(
+          token0Address,
+          token1Address,
+          amount0,
+          amount1,
+          minAmount0,
+          minAmount1,
+          accountAddress,
+          deadline
+        )
+        .encodeABI();
+    }
+
+    const txParams =
+      token0Address === "0xAVAX"
+        ? {
+            to: Router_address,
+            from: accountAddress,
+            data,
+            value: amount0.toString(16),
+          }
+        : token1Address === "0xAVAX"
+        ? {
+            to: Router_address,
+            from: accountAddress,
+            data,
+            value: amount1.toString(16),
+          }
+        : {
+            to: Router_address,
+            from: accountAddress,
+            data,
+          };
+    console.log(txParams);
+
+    const txHash = await window.ethereum?.request({
+      method: "eth_sendTransaction",
+      params: [txParams],
+    });
+
+    const receipt = await waitForTransactionReceipt(txHash);
+
+    if (receipt && receipt.status) {
+      console.log("Transaction successful:", receipt);
+      return { success: true, txHash };
+    } else {
+      console.error("Transaction failed:", receipt);
+      return { success: false, txHash };
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: error };
+  }
+};
+
+const createRemoveLiquidityTransaction = async (
+  accountAddress: string,
+  token0Address: string,
+  token1Address: string,
+  amount0: BN,
+  amount1: BN,
+  slippage: number
+): Promise<{
+  success: boolean;
+  txHash?: string;
+  error?: unknown;
+}> => {
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const deadline = currentTimestamp + 300;
+  const minAmount0 = amount0.mul(new BN(100 - slippage)).div(new BN(100));
+  const minAmount1 = amount1.mul(new BN(100 - slippage)).div(new BN(100));
+  let data;
+  try {
+    const contract = new window.w3.eth.Contract(router_abi, Router_address);
+
+    if (token0Address === "0xAVAX") {
+      data = contract.methods
+        .removeLiquidityAVAX(
+          token1Address,
+          amount1,
+          minAmount1,
+          minAmount0,
+          accountAddress,
+          deadline
+        )
+        .encodeABI();
+    } else if (token1Address === "0xAVAX") {
+      data = contract.methods
+        .removeLiquidityAVAX(
+          token0Address,
+          amount0,
+          minAmount0,
+          minAmount1,
+          accountAddress,
+          deadline
+        )
+        .encodeABI();
+    } else {
+      data = contract.methods
+        .removeLiquidity(
+          token0Address,
+          token1Address,
+          amount0,
+          amount1,
+          minAmount0,
+          minAmount1,
+          accountAddress,
+          deadline
+        )
+        .encodeABI();
+    }
+
+    const txParams =
+      token0Address === "0xAVAX"
+        ? {
+            to: Router_address,
+            from: accountAddress,
+            data,
+            value: amount0.toString(16),
+          }
+        : token1Address === "0xAVAX"
+        ? {
+            to: Router_address,
+            from: accountAddress,
+            data,
+            value: amount1.toString(16),
+          }
+        : {
+            to: Router_address,
+            from: accountAddress,
+            data,
+          };
+    console.log(txParams);
+
+    const txHash = await window.ethereum?.request({
+      method: "eth_sendTransaction",
+      params: [txParams],
+    });
+
+    const receipt = await waitForTransactionReceipt(txHash);
+
+    if (receipt && receipt.status) {
+      console.log("Transaction successful:", receipt);
+      return { success: true, txHash };
+    } else {
+      console.error("Transaction failed:", receipt);
+      return { success: false, txHash };
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: error };
+  }
+};
