@@ -14,6 +14,7 @@ import { Switch } from '../ui/switch';
 import { Loader, SlippageInput } from '.';
 import { useHandleConnectWallet } from '@/lib/wallet';
 import BN from 'bn.js';
+import { formatBN } from '@/lib/utils';
 
 const LiquidityPanel = () => {
     const { account, isConnected } = useUserContext();
@@ -35,6 +36,12 @@ const LiquidityPanel = () => {
 
     const [wasToken0LastChanged, setWasToken0LastChanged] = useState<boolean>(true);
 
+    const [percentToRemove, setPercentToRemove] = useState<number>(0);
+    const [percentToRemoveInputValue, setPercentToRemoveInputValue] = useState<string>('');
+
+    const [token0AmountToRemove, setToken0AmountToRemove] = useState<BN>(new BN(0));
+    const [token1AmountToRemove, setToken1AmountToRemove] = useState<BN>(new BN(0));
+
     const [allowedSlippage, setAllowedSlippage] = useState<number>(defaultSlippage);
     const [safeModeEnabled, setSafeModeEnabled] = useState<boolean>(true);
 
@@ -51,9 +58,44 @@ const LiquidityPanel = () => {
         setWasToken0LastChanged(false);
     };
 
-    const handleToken0InputChange = (value: string) => { };
+    const handleToken0InputChange = (value: string) => {
+        setIsLoading(true);
+        if (!isNaN(Number(value)) || value === '') {
+            setToken0InputValue(value);
+            if (value === '') {
+                setToken0Amount(new BN(0));
+                setToken1InputValue('');
+                setIsLoading(false);
+                return;
+            }
+        }
+    };
 
-    const handleToken1InputChange = (value: string) => { };
+    const handleToken1InputChange = (value: string) => {
+        setIsLoading(true);
+        if (!isNaN(Number(value)) || value === '') {
+            setToken1InputValue(value);
+            if (value === '') {
+                setToken1Amount(new BN(0));
+                setToken0InputValue('');
+                setIsLoading(false);
+                return;
+            }
+        }
+    };
+
+    const handlePercentToRemoveInputChange = (value: string) => {
+        setIsLoading(true);
+        if (!isNaN(Number(value)) || value === '') {
+            setPercentToRemoveInputValue(value);
+            if (value === '') {
+                setToken0AmountToRemove(new BN(0));
+                setToken1AmountToRemove(new BN(0));
+                setIsLoading(false);
+                return;
+            }
+        }
+    };
 
     useEffect(() => {
         // if to or from token changed to same token, force update using last token
@@ -103,7 +145,7 @@ const LiquidityPanel = () => {
                                     <div
                                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center text-center justify-center border border-isbjorn-blue"
                                     >
-                                        <FaPlus className="text-isbjorn-blue text-lg pl-[1px] pt-[1px]" />
+                                        <FaPlus className="text-isbjorn-blue text-lg pt-[1px]" />
                                     </div>
                                 </div>
                                 <div className='flex-1 flex flex-row p-2 items-center'>
@@ -159,8 +201,85 @@ const LiquidityPanel = () => {
                     </CardHeader>
                     <CardContent>
                         <div className="w-full flex flex-row">
-                            <div className="flex-1 text-center flex flex-col"></div>
-                            <div className="flex-1 flex flex-col"></div>
+                            <div className="flex-1 text-center flex flex-col">
+                                <div className='flex-1'></div>
+                                SAME STATS HERE
+                                <div className='flex-1'></div>
+                            </div>
+                            <div className="flex-1 flex flex-col">
+                                <div className="flex-1 flex flex-col items-center ">
+                                    <div className='flex-1 flex flex-row p-2 items-center'>
+                                        <Input
+                                            disabled={true}
+                                            type="number"
+                                            placeholder="0.0"
+                                            className='text-dodger-blue bg-white no-arrows mr-2'
+                                            autoComplete="off"
+                                            value={token0AmountToRemove.isZero() ? '' : formatBN(token0AmountToRemove, token0.decimals)}
+                                        />
+                                        <TokenChooser startSelected={token0} available={sample_token_list} onSelection={onToken0Change} />
+                                    </div>
+                                    <div className='relative w-full'>
+                                        <Separator className='my-4 bg-isbjorn-blue seperator' />
+                                        <div
+                                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center text-center justify-center border border-isbjorn-blue"
+                                        >
+                                            <FaPlus className="text-isbjorn-blue text-lg pt-[1px]" />
+                                        </div>
+                                    </div>
+                                    <div className='flex-1 flex flex-row p-2 items-center'>
+                                        <Input
+                                            disabled={true}
+                                            type="number"
+                                            placeholder="0.0"
+                                            className='text-dodger-blue bg-white no-arrows mr-2'
+                                            autoComplete="off"
+                                            value={token1AmountToRemove.isZero() ? '' : formatBN(token1AmountToRemove, token1.decimals)}
+                                        />
+                                        <TokenChooser startSelected={token1} available={sample_token_list} onSelection={onToken1Change} />
+                                    </div>
+                                </div>
+                                <div className="w-full flex flex-col gap-1 p-2 items-start justify-center">
+                                    <p className="text-xxs ml-[2px]">Percent to remove</p>
+                                    <Input
+                                        type="number"
+                                        placeholder="0.0"
+                                        className='text-dodger-blue bg-white no-arrows mr-2'
+                                        autoComplete="off"
+                                        value={percentToRemoveInputValue}
+                                        onChange={(e) => handlePercentToRemoveInputChange(e.target.value)}
+                                    />
+                                </div>
+                                <div className='flex-1 p-2 flex flex-row justify-between'>
+                                    <div className='flex flex-row items-center'>
+                                        <div className='flex safemode-toggle items-center justify-center mr-1'>Safe Mode </div>
+                                        <Switch
+                                            className={safeModeEnabled ? "bg-green" : "bg-red"}
+                                            checked={safeModeEnabled}
+                                            onCheckedChange={setSafeModeEnabled} />
+                                    </div>
+                                    <div className='flex flex-row'>
+                                        <div className='flex slippage-input items-center justify-center mr-1'>Slippage </div>
+                                        <SlippageInput allowedSlippage={allowedSlippage} setAllowedSlippage={setAllowedSlippage} safeModeEnabled={safeModeEnabled} />
+                                    </div>
+                                </div>
+                                <div className='w-full p-2'>
+                                    <Button
+                                        className="remove-liq-button"
+                                        disabled={isWalletLoading || isLoading}>{isWalletLoading || isLoading ? (
+                                            <Loader />
+                                        ) : isConnected && account.address ? (
+                                            true ? (
+                                                "Remove Liquidty"
+                                            ) : (
+                                                "Approve"
+                                            )
+
+                                        ) : (
+                                            "Connect"
+                                        )}</Button>
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

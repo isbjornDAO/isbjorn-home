@@ -314,7 +314,7 @@ const SwapPanel = () => {
                                             }
                                         }}>{isWalletLoading || isLoading ? (
                                             <Loader />
-                                        ) : account.address ? (
+                                        ) : isConnected && account.address ? (
                                             (fromTokenAllowance.gte(fromAmount) && isFromAmountExact) || (fromTokenAllowance.gte(amountInComputed.mul(new BN(100 + allowedSlippage)).div(new BN(100))) && !isFromAmountExact) ? (
                                                 "Swap"
                                             ) : (
