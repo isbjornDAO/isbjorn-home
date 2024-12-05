@@ -3,13 +3,14 @@ import BN from "bn.js";
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { Account } from "@/types";
-import { getCachedAccount, getDomainName, initializeWeb3 } from "@/lib/wallet";
-import { chain_id } from "@/constants";
+import { cacheAccount, getCachedAccount, getDomainName, getERC20Balance, initializeWeb3 } from "@/lib/wallet";
+import { chain_id, sample_token_list } from "@/constants";
 
 
 export const INITIAL_ACCOUNT = {
     address: null,
-    name: null
+    name: null,
+    balances: {}
 }
 
 const INITIAL_STATE = {
@@ -19,7 +20,8 @@ const INITIAL_STATE = {
     setIsConnected: () => { },
     currentChainId: chain_id,
     setCurrentChainId: () => { },
-    switchNetwork: async (chainId: number) => { }
+    switchNetwork: async (chainId: number) => { },
+    getUserTokenBal: async (address: string) => { return null; }
 }
 
 type IContextType = {
@@ -30,12 +32,14 @@ type IContextType = {
     currentChainId: number;
     setCurrentChainId: React.Dispatch<React.SetStateAction<number>>;
     switchNetwork: (chainId: number) => Promise<void>;
+    getUserTokenBal: (address: string) => Promise<BN | null>;
 }
 
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [account, setAccount] = useState<Account>(INITIAL_ACCOUNT);
+    const [balancesFetched, setBalancesFetched] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -66,12 +70,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const domainName = await getDomainName(address);
                 const cachedAccount = getCachedAccount(address);
                 if (cachedAccount) {
-                    setAccount({ address: cachedAccount.address, name: domainName || cachedAccount.name });
+                    setAccount({ address: cachedAccount.address, name: domainName || cachedAccount.name, balances: cachedAccount.balances });
                     setIsConnected(true);
                     setIsLoading(false);
                     return;
                 } else {
-                    setAccount({ address: accounts[0], name: domainName });
+                    setAccount({ address: accounts[0], name: domainName, balances: {} });
                     setIsConnected(true);
                     setIsLoading(false);
                     return;
@@ -90,13 +94,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setAccount(cachedAccount);
                 setIsConnected(true);
             } else {
-                setAccount({ address: address, name: await getDomainName(address) });
+                setBalancesFetched(false);
+                setAccount({ address: address, name: await getDomainName(address), balances: {} });
                 setIsConnected(true);
             }
         } else {
-            setAccount({ address: null, name: null });
+            setAccount({ address: null, name: null, balances: {} });
             setIsConnected(false);
+            setBalancesFetched(false);
         }
+    };
+
+    const getUserTokenBal = async (address: string) => {
+        const result = await getERC20Balance(account.address, address);
+        setAccount((prevAccount) => ({
+            ...prevAccount,
+            balances: {
+                ...prevAccount.balances,
+                [address.toLowerCase()]: result,
+            },
+        }));
+        cacheAccount(account);
+        return result;
+    };
+
+
+    const getAllUserTokenBals = async () => {
+        const balances: { [key: string]: BN } = {};
+
+        const balancePromises = Object.keys(sample_token_list)
+            .filter((address) => address !== "0xAVAX")
+            .map(async (address) => {
+                const result = await getERC20Balance(account.address, address);
+                balances[address.toLowerCase()] = result;
+            });
+
+        await Promise.all(balancePromises);
+
+        setAccount((prevAccount) => ({
+            ...prevAccount,
+            balances: {
+                ...prevAccount.balances,
+                ...balances,
+            },
+        }));
+        cacheAccount(account);
     };
 
     useEffect(() => {
@@ -131,6 +173,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
     }, []);
 
+    useEffect(() => {
+        if (account.address && !balancesFetched) {
+            getAllUserTokenBals();
+            setBalancesFetched(true);
+        }
+    }, [account]);
+
+    useEffect(() => {
+        console.log("Updated balances:", account.balances);
+    }, [account.balances]);
+
+
     const value = {
         account,
         setAccount,
@@ -138,7 +192,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsConnected,
         currentChainId,
         setCurrentChainId,
-        switchNetwork
+        switchNetwork,
+        getUserTokenBal
     };
 
     return (

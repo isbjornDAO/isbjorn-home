@@ -1,6 +1,9 @@
+import BN from "bn.js";
+
 export type Account = {
   address: string | null;
   name: string | null;
+  balances: { [address: string]: BN };
 };
 
 export type Token = {

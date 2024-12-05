@@ -74,7 +74,28 @@ export const getCachedAccount = (address: string): Account | null => {
   const cachedAccount = cachedAccounts[address.toLowerCase()] || null;
 
   if (cachedAccount && cachedAccount.address) {
-    return cachedAccount;
+    // Convert hex strings in balances back to BN objects
+    const convertedBalances = Object.entries(cachedAccount.balances).reduce(
+      (acc, [tokenAddress, balance]) => {
+        if (typeof balance !== "string") {
+          console.warn(
+            `Unexpected balance format for ${tokenAddress}:`,
+            balance
+          );
+          return acc; // Skip invalid balance
+        }
+        return {
+          ...acc,
+          [tokenAddress]: new BN(balance, 16), // Convert valid balance string to BN
+        };
+      },
+      {} as { [key: string]: BN }
+    );
+
+    return {
+      ...cachedAccount,
+      balances: convertedBalances,
+    };
   }
   return null;
 };
@@ -144,7 +165,6 @@ export const useHandleConnectWallet = () => {
 
       const cachedAccount = getCachedAccount(address);
       if (cachedAccount) {
-        const domainName = getDomainName(address);
         setAccount(cachedAccount);
         setIsConnected(true);
         switchNetwork(chain_id);
@@ -157,11 +177,13 @@ export const useHandleConnectWallet = () => {
         setAccount({
           address: connectedAddress,
           name: domainName,
+          balances: {},
         });
 
         cacheAccount({
           address: connectedAddress,
           name: domainName,
+          balances: {},
         });
 
         switchNetwork(chain_id);
@@ -213,8 +235,8 @@ export const getERC20Balance = async (
   try {
     const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
     let result = await contract.methods.balanceOf(accountAddress).call();
-    if (result) {
-      balance = new BN(result.toString());
+    if (result || (result as unknown as bigint) === 0n) {
+      balance = new BN((result as unknown).toString());
     }
   } catch (error) {
     console.log(error);
@@ -283,6 +305,28 @@ export const approveERC20Amount = async (
     console.log(error);
     return { success: false, error: error };
   }
+};
+
+export const getPairAddress = async (
+  token0Address: string,
+  token1Address: string
+): Promise<string | null> => {
+  let pairAddress: string | null = null;
+  try {
+    const contract = new window.w3.eth.Contract(factory_abi, Factory_address);
+    let result = await contract.methods
+      .getPair(
+        token0Address === "0xAVAX" ? WAVAX_ADDRESS : token0Address,
+        token1Address === "0xAVAX" ? WAVAX_ADDRESS : token1Address
+      )
+      .call();
+    if (result) {
+      pairAddress = result.toString();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return pairAddress;
 };
 
 export const getAmountOut = async (

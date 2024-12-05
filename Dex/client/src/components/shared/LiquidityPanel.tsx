@@ -12,12 +12,12 @@ import { defaultSlippage, QUASI_ADDRESS, sample_token_list, WAVAX_ADDRESS } from
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import { Loader, SlippageInput } from '.';
-import { useHandleConnectWallet } from '@/lib/wallet';
+import { getPairAddress, useHandleConnectWallet } from '@/lib/wallet';
 import BN from 'bn.js';
 import { formatBN } from '@/lib/utils';
 
 const LiquidityPanel = () => {
-    const { account, isConnected } = useUserContext();
+    const { account, isConnected, getUserTokenBal } = useUserContext();
     const { handleConnectWallet, isWalletLoading } = useHandleConnectWallet();
     const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +45,8 @@ const LiquidityPanel = () => {
     const [allowedSlippage, setAllowedSlippage] = useState<number>(defaultSlippage);
     const [safeModeEnabled, setSafeModeEnabled] = useState<boolean>(true);
 
+    const [pairAddress, setPairAddress] = useState<string>('');
+    const [pairBalance, setPairBalance] = useState<BN>(new BN(0));
 
     const onToken0Change = (value: Token) => {
         setLastToken0(token0);
@@ -98,16 +100,27 @@ const LiquidityPanel = () => {
     };
 
     useEffect(() => {
-        // if to or from token changed to same token, force update using last token
-        if (token0 === token1) {
-            if (wasToken0LastChanged) {
-                setLastToken1(token1);
-                setToken1(lastToken0);
+        const handleTokenChanges = async () => {
+            // if to or from token changed to same token, force update using last token
+            if (token0 === token1) {
+                if (wasToken0LastChanged) {
+                    setLastToken1(token1);
+                    setToken1(lastToken0);
+                } else {
+                    setLastToken0(token0);
+                    setToken0(lastToken1);
+                }
             } else {
-                setLastToken0(token0);
-                setToken0(lastToken1);
+                const newPairAddress = await getPairAddress(token0.address, token1.address);
+                console.log(newPairAddress);
+                if (newPairAddress) {
+                    const newPairBalance = await getUserTokenBal(newPairAddress);
+                    setPairAddress(newPairAddress);
+                    setPairBalance(newPairBalance);
+                }
             }
-        }
+        };
+        handleTokenChanges();
     }, [token0, token1]);
 
     return (
