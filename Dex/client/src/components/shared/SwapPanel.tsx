@@ -10,7 +10,7 @@ import BN from 'bn.js';
 import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, safeModeEnabledMaxSlippage, sample_token_list, WAVAX_ADDRESS } from '@/constants';
 import { Token } from '@/types';
 import { useUserContext } from '@/context/AuthContext';
-import { approveERC20Amount, createSwapTransaction, getAmountIn, getAmountOut, getERC20Allowance, useHandleConnectWallet } from '@/lib/wallet';
+import { approveERC20Amount, createSwapTransaction, createUnwrapAvaxTransaction, createWrapAvaxTransaction, getAmountIn, getAmountOut, getERC20Allowance, useHandleConnectWallet } from '@/lib/wallet';
 import { formatBN, scaleToBN } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 
@@ -101,9 +101,6 @@ const SwapPanel = () => {
         }
         const newTimer = setTimeout(async () => {
             if (!isNaN(Number(value)) && value !== '') {
-                console.log("HELLO??");
-                console.log(value);
-                console.log(scaleToBN(value, toToken.decimals).toString());
                 setToAmount(scaleToBN(value, toToken.decimals));
             }
         }, 1000);
@@ -143,7 +140,11 @@ const SwapPanel = () => {
             }
             setIsLoading(true);
             let result;
-            if (isFromAmountExact) {
+            if (fromToken.address === "0xAVAX" && toToken.address === WAVAX_ADDRESS) {
+                result = await createWrapAvaxTransaction(account.address, fromAmount);
+            } else if (fromToken.address === WAVAX_ADDRESS && toToken.address === "0xAVAX") {
+                result = await createUnwrapAvaxTransaction(account.address, fromAmount);
+            } else if (isFromAmountExact) {
                 result = await createSwapTransaction(account.address, fromToken.address, toToken.address, true, fromAmount, amountOutComputed, allowedSlippage);
             } else {
                 result = await createSwapTransaction(account.address, fromToken.address, toToken.address, false, amountInComputed, toAmount, allowedSlippage);
@@ -189,7 +190,13 @@ const SwapPanel = () => {
     }, [safeModeEnabled]);
 
     useEffect(() => {
+        const isWrapping = fromToken.address === "0xAVAX" && toToken.address === WAVAX_ADDRESS;
+        const isUnwrapping = toToken.address === "0xAVAX" && fromToken.address === WAVAX_ADDRESS;
         const getOutputAmount = async () => {
+            if ((isWrapping || isUnwrapping) && fromAmount.gt(new BN(0))) {
+                setToAmountInputValue(formatBN(fromAmount, fromToken.decimals));
+                setAmountOutComputed(fromAmount);
+            }
             if (fromAmount.gt(new BN(0))) {
                 const amountOut = await getAmountOut(fromToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : fromToken.address, toToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : toToken.address, fromAmount);
                 if (amountOut !== null) {
@@ -202,7 +209,7 @@ const SwapPanel = () => {
             }
             setIsLoading(false);
         };
-        if (isFromAmountExact) {
+        if (isFromAmountExact || isWrapping || isUnwrapping) {
             getOutputAmount();
         }
     }, [fromAmount]);

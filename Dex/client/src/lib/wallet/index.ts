@@ -16,6 +16,7 @@ import {
   pair_abi,
   router_abi,
   Router_address,
+  wavax_abi,
   WAVAX_ADDRESS,
 } from "@/constants";
 
@@ -817,6 +818,87 @@ const createRemoveLiquidityTransaction = async (
             from: accountAddress,
             data,
           };
+    console.log(txParams);
+
+    const txHash = await window.ethereum?.request({
+      method: "eth_sendTransaction",
+      params: [txParams],
+    });
+
+    const receipt = await waitForTransactionReceipt(txHash);
+
+    if (receipt && receipt.status) {
+      console.log("Transaction successful:", receipt);
+      return { success: true, txHash };
+    } else {
+      console.error("Transaction failed:", receipt);
+      return { success: false, txHash };
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: error };
+  }
+};
+
+export const createWrapAvaxTransaction = async (
+  accountAddress: string,
+  amount: BN
+): Promise<{
+  success: boolean;
+  txHash?: string;
+  error?: unknown;
+}> => {
+  try {
+    const contract = new window.w3.eth.Contract(wavax_abi, WAVAX_ADDRESS);
+
+    const data = contract.methods.deposit().encodeABI();
+
+    const txParams = {
+      to: WAVAX_ADDRESS,
+      from: accountAddress,
+      data,
+      value: amount.toString(16),
+    };
+    console.log(txParams);
+
+    const txHash = await window.ethereum?.request({
+      method: "eth_sendTransaction",
+      params: [txParams],
+    });
+
+    const receipt = await waitForTransactionReceipt(txHash);
+
+    if (receipt && receipt.status) {
+      console.log("Transaction successful:", receipt);
+      return { success: true, txHash };
+    } else {
+      console.error("Transaction failed:", receipt);
+      return { success: false, txHash };
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: error };
+  }
+};
+
+export const createUnwrapAvaxTransaction = async (
+  accountAddress: string,
+  amount: BN
+): Promise<{
+  success: boolean;
+  txHash?: string;
+  error?: unknown;
+}> => {
+  try {
+    const contract = new window.w3.eth.Contract(wavax_abi, WAVAX_ADDRESS);
+
+    const data = contract.methods.withdraw(amount.toString()).encodeABI();
+
+    const txParams = {
+      to: WAVAX_ADDRESS,
+      from: accountAddress,
+      data,
+    };
     console.log(txParams);
 
     const txHash = await window.ethereum?.request({
