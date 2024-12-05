@@ -123,7 +123,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const balances: { [key: string]: BN } = {};
 
         const balancePromises = Object.keys(sample_token_list)
-            .filter((address) => address !== "0xAVAX")
             .map(async (address) => {
                 const result = await getERC20Balance(account.address, address);
                 balances[address.toLowerCase()] = result;

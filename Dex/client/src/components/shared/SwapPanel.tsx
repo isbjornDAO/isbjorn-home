@@ -28,11 +28,13 @@ const SwapPanel = () => {
     const [fromAmount, setFromAmount] = useState<BN>(new BN(0));
     const [fromAmountInputValue, setFromAmountInputValue] = useState<string>('');
     const [fromTokenAllowance, setFromTokenAllowance] = useState<BN>(new BN(0));
+    const [fromBalance, setFromTokenBalance] = useState<BN>(new BN(0));
 
     const [toToken, setToToken] = useState<Token>(sample_token_list[QUASI_ADDRESS]);
     const [lastToToken, setLastToToken] = useState<Token>(toToken);
     const [toAmount, setToAmount] = useState<BN>(new BN(0));
     const [toAmountInputValue, setToAmountInputValue] = useState<string>('');
+    const [toBalance, setToTokenBalance] = useState<BN>(new BN(0));
 
     const [amountOutComputed, setAmountOutComputed] = useState<BN>(new BN(0));
     const [amountInComputed, setAmountInComputed] = useState<BN>(new BN(0));
@@ -236,7 +238,23 @@ const SwapPanel = () => {
             }
         };
         getFromTokenAllowance();
-    }, [account, fromAmount, fromToken])
+    }, [account, fromAmount, fromToken]);
+
+    useEffect(() => {
+        if (account.balances) {
+            if (account.balances[fromToken.address.toLowerCase()]) {
+                setFromTokenBalance(account.balances[fromToken.address.toLowerCase()]);
+            }
+        }
+    }, [fromToken, account.balances]);
+
+    useEffect(() => {
+        if (account.balances) {
+            if (account.balances[toToken.address.toLowerCase()]) {
+                setToTokenBalance(account.balances[toToken.address.toLowerCase()]);
+            }
+        }
+    }, [toToken, account.balances]);
 
     return (
         <div className='flex flex-col gap-1 items-center justify-start'>
@@ -258,7 +276,7 @@ const SwapPanel = () => {
                                 }
                             </div>
                             <div className='flex-1 flex flex-col px-3'>
-                                <div className='flex-1 flex flex-row p-2 items-center'>
+                                <div className='flex-1 flex flex-row p-2 pb-0 items-center'>
                                     <Input
                                         type="number"
                                         placeholder="0.0"
@@ -268,6 +286,9 @@ const SwapPanel = () => {
                                         onChange={(e) => handleFromInputChange(e.target.value)}
                                     />
                                     <TokenChooser startSelected={fromToken} available={sample_token_list} onSelection={onFromTokenChange} />
+                                </div>
+                                <div className="p-2 pt-0 text-xxs font-semibold">
+                                    <p className='ml-2'>{`wallet: ${Number(formatBN(fromBalance, fromToken.decimals)).toLocaleString()}`}</p>
                                 </div>
                                 <div className='relative'>
                                     <Separator className='my-4 bg-isbjorn-blue seperator' />
@@ -288,6 +309,9 @@ const SwapPanel = () => {
                                         onChange={(e) => handleToInputChange(e.target.value)}
                                     />
                                     <TokenChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} />
+                                </div>
+                                <div className="p-2 pt-0 text-xxs font-semibold">
+                                    <p className='ml-2'>{`wallet: ${Number(formatBN(toBalance, toToken.decimals)).toLocaleString()}`}</p>
                                 </div>
                                 <div className='w-full p-2 flex flex-row justify-between'>
                                     <div className='flex flex-row items-center'>

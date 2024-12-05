@@ -18,7 +18,6 @@ import {
   Router_address,
   WAVAX_ADDRESS,
 } from "@/constants";
-import { Value } from "@radix-ui/react-select";
 
 export const initializeWeb3 = async () => {
   let provider: any;
@@ -233,10 +232,17 @@ export const getERC20Balance = async (
 ): Promise<BN | null> => {
   let balance: BN | null = null;
   try {
-    const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
-    let result = await contract.methods.balanceOf(accountAddress).call();
-    if (result || (result as unknown as bigint) === 0n) {
-      balance = new BN((result as unknown).toString());
+    if (tokenAddress.toLowerCase() === "0xAVAX".toLowerCase()) {
+      let result = await window.w3.eth.getBalance(accountAddress);
+      if (result || (result as unknown as bigint) === 0n) {
+        balance = new BN((result as unknown).toString());
+      }
+    } else {
+      const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
+      let result = await contract.methods.balanceOf(accountAddress).call();
+      if (result || (result as unknown as bigint) === 0n) {
+        balance = new BN((result as unknown).toString());
+      }
     }
   } catch (error) {
     console.log(error);
