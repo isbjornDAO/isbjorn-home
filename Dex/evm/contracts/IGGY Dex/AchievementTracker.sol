@@ -52,25 +52,29 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         isbjornRouter = _isbjbornRouter;
     }
 
-    function recordSwap(
+    function recordSwapIn(
         address account,
         address tokenIn,
+        uint256 amountIn
+    ) external override onlyIsbjorn {
+        globalSwapStats.tokenStats[tokenIn].sold += amountIn;
+        globalSwapStats.tokenStats[tokenIn].cumulativeVolume += amountIn;
+
+        userSwapStats[account].tokenStats[tokenIn].sold += amountIn;
+        userSwapStats[account].tokenStats[tokenIn].cumulativeVolume += amountIn;
+    }
+
+    function recordSwapOut(
+        address account,
         address tokenOut,
-        uint256 amountIn,
         uint256 amountOut
     ) external override onlyIsbjorn {
-        // Update global stats
-        globalSwapStats.totalSwaps++;
-        globalSwapStats.tokenStats[tokenIn].sold += amountIn;
+        globalSwapStats.totalSwaps++; //only count on out so no double count
         globalSwapStats.tokenStats[tokenOut].bought += amountOut;
-        globalSwapStats.tokenStats[tokenIn].cumulativeVolume += amountIn;
         globalSwapStats.tokenStats[tokenOut].cumulativeVolume += amountOut;
 
-        // Update user stats
-        userSwapStats[account].totalSwaps++;
-        userSwapStats[account].tokenStats[tokenIn].sold += amountIn;
+        userSwapStats[account].totalSwaps++; //only count on out so no double count
         userSwapStats[account].tokenStats[tokenOut].bought += amountOut;
-        userSwapStats[account].tokenStats[tokenIn].cumulativeVolume += amountIn;
         userSwapStats[account]
             .tokenStats[tokenOut]
             .cumulativeVolume += amountOut;

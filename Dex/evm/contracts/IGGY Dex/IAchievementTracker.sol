@@ -3,11 +3,15 @@
 pragma solidity =0.6.12;
 
 interface IAchievementTracker {
-    function recordSwap(
+    function recordSwapIn(
         address account,
         address tokenIn,
+        uint256 amountIn
+    ) external;
+
+    function recordSwapOut(
+        address account,
         address tokenOut,
-        uint256 amountIn,
         uint256 amountOut
     ) external;
 

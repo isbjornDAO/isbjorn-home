@@ -10,6 +10,7 @@ import "./TransferHelper.sol";
 import "./IWAVAX.sol";
 import "./IERC20.sol";
 import "./Ownable.sol";
+import "./IAchievementTracker.sol";
 
 import "hardhat/console.sol";
 
@@ -26,7 +27,7 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
         _;
     }
 
-    constructor(address _factory, address _WAVAX) public ownable(msg.sender) {
+    constructor(address _factory, address _WAVAX) public Ownable(msg.sender) {
         factory = _factory;
         WAVAX = _WAVAX;
     }
@@ -86,6 +87,15 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
                 );
                 (amountA, amountB) = (amountAOptimal, amountBDesired);
             }
+        }
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordAddLiquidity(
+                msg.sender,
+                tokenA,
+                tokenB,
+                amountA,
+                amountB
+            );
         }
     }
 
@@ -177,6 +187,15 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             : (amount1, amount0);
         require(amountA >= amountAMin, "IsbjornRouter: INSUFFICIENT_A_AMOUNT");
         require(amountB >= amountBMin, "IsbjornRouter: INSUFFICIENT_B_AMOUNT");
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordRemoveLiquidity(
+                msg.sender,
+                tokenA,
+                tokenB,
+                amountA,
+                amountB
+            );
+        }
     }
 
     function removeLiquidityAVAX(
@@ -363,6 +382,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
                 to,
                 new bytes(0)
             );
+            if (achievementTracker != address(0)) {
+                IAchievementTracker(achievementTracker).recordSwapOut(
+                    msg.sender,
+                    output,
+                    amountOut
+                );
+            }
         }
     }
 
@@ -390,6 +416,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapOut(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
         _swap(amounts, path, to);
     }
 
@@ -417,6 +450,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapOut(
+                msg.sender,
+                path[0],
+                amounts[0]
+            );
+        }
         _swap(amounts, path, to);
     }
 
@@ -446,6 +486,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
                 amounts[0]
             )
         );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapOut(
+                msg.sender,
+                path[0],
+                amounts[0]
+            );
+        }
         _swap(amounts, path, to);
     }
 
@@ -475,6 +522,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapOut(
+                msg.sender,
+                path[0],
+                amounts[0]
+            );
+        }
         _swap(amounts, path, address(this));
         uint256 feeTaken = amounts[amounts.length - 1] / 1000;
         IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1] - feeTaken);
@@ -509,6 +563,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapOut(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
         _swap(amounts, path, address(this));
         uint256 feeTaken = amounts[amounts.length - 1] / 1000;
         IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1] - feeTaken);
@@ -544,6 +605,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
                 amounts[0]
             )
         );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapOut(
+                msg.sender,
+                path[0],
+                amounts[0]
+            );
+        }
         _swap(amounts, path, to);
         // refund dust eth, if any
         if (msg.value > amounts[0])
