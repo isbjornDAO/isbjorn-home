@@ -181,10 +181,12 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
         address pair = IsbjornLibrary.pairFor(factory, tokenA, tokenB);
         IIcePond(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
         (uint256 amount0, uint256 amount1) = IIcePond(pair).burn(to);
-        (address token0, ) = IsbjornLibrary.sortTokens(tokenA, tokenB);
-        (amountA, amountB) = tokenA == token0
-            ? (amount0, amount1)
-            : (amount1, amount0);
+        {
+            (address token0, ) = IsbjornLibrary.sortTokens(tokenA, tokenB);
+            (amountA, amountB) = tokenA == token0
+                ? (amount0, amount1)
+                : (amount1, amount0);
+        }
         require(amountA >= amountAMin, "IsbjornRouter: INSUFFICIENT_A_AMOUNT");
         require(amountB >= amountBMin, "IsbjornRouter: INSUFFICIENT_B_AMOUNT");
         if (achievementTracker != address(0)) {
@@ -417,7 +419,7 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             amounts[0]
         );
         if (achievementTracker != address(0)) {
-            IAchievementTracker(achievementTracker).recordSwapOut(
+            IAchievementTracker(achievementTracker).recordSwapIn(
                 msg.sender,
                 path[0],
                 amountIn
@@ -451,7 +453,7 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             amounts[0]
         );
         if (achievementTracker != address(0)) {
-            IAchievementTracker(achievementTracker).recordSwapOut(
+            IAchievementTracker(achievementTracker).recordSwapIn(
                 msg.sender,
                 path[0],
                 amounts[0]
@@ -487,7 +489,7 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             )
         );
         if (achievementTracker != address(0)) {
-            IAchievementTracker(achievementTracker).recordSwapOut(
+            IAchievementTracker(achievementTracker).recordSwapIn(
                 msg.sender,
                 path[0],
                 amounts[0]
@@ -523,7 +525,7 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             amounts[0]
         );
         if (achievementTracker != address(0)) {
-            IAchievementTracker(achievementTracker).recordSwapOut(
+            IAchievementTracker(achievementTracker).recordSwapIn(
                 msg.sender,
                 path[0],
                 amounts[0]
@@ -564,7 +566,7 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             amounts[0]
         );
         if (achievementTracker != address(0)) {
-            IAchievementTracker(achievementTracker).recordSwapOut(
+            IAchievementTracker(achievementTracker).recordSwapIn(
                 msg.sender,
                 path[0],
                 amountIn
@@ -606,7 +608,7 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             )
         );
         if (achievementTracker != address(0)) {
-            IAchievementTracker(achievementTracker).recordSwapOut(
+            IAchievementTracker(achievementTracker).recordSwapIn(
                 msg.sender,
                 path[0],
                 amounts[0]
@@ -654,6 +656,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
                 ? IsbjornLibrary.pairFor(factory, output, path[i + 2])
                 : _to;
             pair.swap(amount0Out, amount1Out, to, new bytes(0));
+            if (achievementTracker != address(0)) {
+                IAchievementTracker(achievementTracker).recordSwapOut(
+                    msg.sender,
+                    output,
+                    amountOutput
+                );
+            }
         }
     }
 
@@ -671,6 +680,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             amountIn
         );
         uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
         _swapSupportingFeeOnTransferTokens(path, to);
         require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >=
@@ -695,6 +711,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             )
         );
         uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
         _swapSupportingFeeOnTransferTokens(path, to);
         require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >=
@@ -717,6 +740,13 @@ contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
             IsbjornLibrary.pairFor(factory, path[0], path[1]),
             amountIn
         );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
         _swapSupportingFeeOnTransferTokens(path, address(this));
         uint256 amountOut = IERC20(WAVAX).balanceOf(address(this));
         require(
