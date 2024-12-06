@@ -17,7 +17,7 @@ import { useToast } from '@/context/ToastContext';
 
 const SwapPanel = () => {
 
-    const { account, isConnected } = useUserContext();
+    const { account, isConnected, update, refresh } = useUserContext();
     const { handleConnectWallet, isWalletLoading } = useHandleConnectWallet();
     const { showToast } = useToast();
 
@@ -165,6 +165,7 @@ const SwapPanel = () => {
             }
         }
         setIsLoading(false);
+        update();
     };
 
     useEffect(() => {
@@ -248,7 +249,7 @@ const SwapPanel = () => {
             }
         };
         getFromTokenAllowance();
-    }, [account, fromAmount, fromToken]);
+    }, [account, fromAmount, fromToken, refresh]);
 
     useEffect(() => {
         if (account.balances) {
