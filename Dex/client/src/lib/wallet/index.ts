@@ -764,6 +764,7 @@ export const createRemoveLiquidityTransaction = async (
     const contract = new window.w3.eth.Contract(router_abi, Router_address);
 
     if (token0Address === "0xAVAX") {
+      console.log(token1Address);
       data = contract.methods
         .removeLiquidityAVAX(
           token1Address,
@@ -775,6 +776,7 @@ export const createRemoveLiquidityTransaction = async (
         )
         .encodeABI();
     } else if (token1Address === "0xAVAX") {
+      console.log(token0Address);
       data = contract.methods
         .removeLiquidityAVAX(
           token0Address,
@@ -799,26 +801,11 @@ export const createRemoveLiquidityTransaction = async (
         .encodeABI();
     }
 
-    const txParams =
-      token0Address === "0xAVAX"
-        ? {
-            to: Router_address,
-            from: accountAddress,
-            data,
-            value: amount0.toString(16),
-          }
-        : token1Address === "0xAVAX"
-        ? {
-            to: Router_address,
-            from: accountAddress,
-            data,
-            value: amount1.toString(16),
-          }
-        : {
-            to: Router_address,
-            from: accountAddress,
-            data,
-          };
+    const txParams = {
+      to: Router_address,
+      from: accountAddress,
+      data,
+    };
     console.log(txParams);
 
     const txHash = await window.ethereum?.request({
