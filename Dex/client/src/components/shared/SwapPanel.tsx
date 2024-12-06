@@ -50,6 +50,8 @@ const SwapPanel = () => {
 
     const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
 
+    const [pairExists, setPairExists] = useState<boolean>(true);
+
     const clearPanel = () => {
         setFromAmountInputValue('');
         setToAmountInputValue('');
@@ -194,10 +196,9 @@ const SwapPanel = () => {
         const isUnwrapping = toToken.address === "0xAVAX" && fromToken.address === WAVAX_ADDRESS;
         const getOutputAmount = async () => {
             if ((isWrapping || isUnwrapping) && fromAmount.gt(new BN(0))) {
-                setToAmountInputValue(formatBN(fromAmount, fromToken.decimals));
+                setToAmountInputValue(formatBN(fromAmount, 18)); // always 18 for WAVAX or AVAX
                 setAmountOutComputed(fromAmount);
-            }
-            if (fromAmount.gt(new BN(0))) {
+            } else if (fromAmount.gt(new BN(0))) {
                 const amountOut = await getAmountOut(fromToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : fromToken.address, toToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : toToken.address, fromAmount);
                 if (amountOut !== null) {
                     setToAmountInputValue(formatBN(amountOut, toToken.decimals));
@@ -212,11 +213,16 @@ const SwapPanel = () => {
         if (isFromAmountExact || isWrapping || isUnwrapping) {
             getOutputAmount();
         }
-    }, [fromAmount]);
+    }, [fromAmount, toToken, fromToken]);
 
     useEffect(() => {
+        const isWrapping = fromToken.address === "0xAVAX" && toToken.address === WAVAX_ADDRESS;
+        const isUnwrapping = toToken.address === "0xAVAX" && fromToken.address === WAVAX_ADDRESS;
         const getInAmount = async () => {
-            if (toAmount.gt(new BN(0))) {
+            if ((isWrapping || isUnwrapping) && toAmount.gt(new BN(0))) {
+                setFromAmountInputValue(formatBN(toAmount, 18)); // always 18 for WAVAX or AVAX
+                setAmountInComputed(toAmount);
+            } else if (toAmount.gt(new BN(0))) {
                 const amountIn = await getAmountIn(fromToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : fromToken.address, toToken.address === "0xAVAX" ? WAVAX_ADDRESS.toString() : toToken.address, toAmount);
                 if (amountIn !== null) {
                     setFromAmountInputValue(formatBN(amountIn, fromToken.decimals));
@@ -231,7 +237,7 @@ const SwapPanel = () => {
         if (!isFromAmountExact) {
             getInAmount();
         }
-    }, [toAmount]);
+    }, [toAmount, toToken, fromToken]);
 
     useEffect(() => {
         const getFromTokenAllowance = async () => {
