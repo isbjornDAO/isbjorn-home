@@ -106,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const getUserTokenBal = async (address: string) => {
+        if (account.address === null) return new BN(0);
         const result = await getERC20Balance(account.address, address);
         setAccount((prevAccount) => ({
             ...prevAccount,
@@ -114,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 [address.toLowerCase()]: result,
             },
         }));
+        console.log(account);
         cacheAccount(account);
         return result;
     };

@@ -12,7 +12,7 @@ import { defaultSlippage, QUASI_ADDRESS, sample_token_list, WAVAX_ADDRESS } from
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import { Loader, SlippageInput } from '.';
-import { getPairAddress, useHandleConnectWallet } from '@/lib/wallet';
+import { getPairAddress, getTokenAmountsOnRemoveLiquidity, initializeWeb3, useHandleConnectWallet } from '@/lib/wallet';
 import BN from 'bn.js';
 import { formatBN } from '@/lib/utils';
 
@@ -89,7 +89,21 @@ const LiquidityPanel = () => {
     const handlePercentToRemoveInputChange = (value: string) => {
         setIsLoading(true);
         if (!isNaN(Number(value)) || value === '') {
-            setPercentToRemoveInputValue(value);
+            if (value === '') {
+                setPercentToRemoveInputValue(value);
+            } else {
+                const numValue = Number(value);
+                if (numValue > 100) {
+                    setPercentToRemoveInputValue("100");
+                    setPercentToRemove(100);
+                } else if (numValue < 0) {
+                    setPercentToRemoveInputValue("0.1");
+                    setPercentToRemove(0.1);
+                } else {
+                    setPercentToRemoveInputValue(value);
+                    setPercentToRemove(numValue);
+                }
+            }
             if (value === '') {
                 setToken0AmountToRemove(new BN(0));
                 setToken1AmountToRemove(new BN(0));
@@ -98,6 +112,31 @@ const LiquidityPanel = () => {
             }
         }
     };
+
+    useEffect(() => {
+        const getInitialPair = async () => {
+            const newPairAddress = await getPairAddress(token0.address, token1.address);
+            console.log(newPairAddress);
+            if (newPairAddress) {
+                setPairAddress(newPairAddress);
+            }
+        }
+        getInitialPair();
+    }, []);
+
+    useEffect(() => {
+        const getPairBal = async () => {
+            if (pairAddress !== '') {
+                const newPairBalance = await getUserTokenBal(pairAddress);
+                if (newPairBalance !== null) {
+                    setPairBalance(newPairBalance);
+                } else {
+                    setPairBalance(new BN(0));
+                }
+            }
+        }
+        getPairBal();
+    }, [pairAddress]);
 
     useEffect(() => {
         const handleTokenChanges = async () => {
@@ -114,14 +153,32 @@ const LiquidityPanel = () => {
                 const newPairAddress = await getPairAddress(token0.address, token1.address);
                 console.log(newPairAddress);
                 if (newPairAddress) {
-                    const newPairBalance = await getUserTokenBal(newPairAddress);
                     setPairAddress(newPairAddress);
-                    setPairBalance(newPairBalance);
                 }
             }
         };
         handleTokenChanges();
     }, [token0, token1]);
+
+    useEffect(() => {
+        const handlePercentChange = async () => {
+            if (percentToRemove > 0) {
+                const token0Address = token0.address === "0xAVAX" ? WAVAX_ADDRESS : token0.address;
+                const token1Address = token1.address === "0xAVAX" ? WAVAX_ADDRESS : token1.address;
+                const liquidityToRemove = pairBalance.mul(new BN(percentToRemove)).div(new BN(100));
+                const amounts = await getTokenAmountsOnRemoveLiquidity(token0Address, token1Address, liquidityToRemove);
+                if (token0Address > token1Address) {
+                    setToken0AmountToRemove(amounts[0]);
+                    setToken1AmountToRemove(amounts[1]);
+                } else {
+                    setToken0AmountToRemove(amounts[1]);
+                    setToken1AmountToRemove(amounts[0]);
+                }
+                setIsLoading(false);
+            }
+        };
+        handlePercentChange();
+    }, [percentToRemove, token0, token1]);
 
     return (
         <Tabs defaultValue="add" className="w-[640px]">
@@ -252,16 +309,25 @@ const LiquidityPanel = () => {
                                         <TokenChooser startSelected={token1} available={sample_token_list} onSelection={onToken1Change} />
                                     </div>
                                 </div>
-                                <div className="w-full flex flex-col gap-1 p-2 items-start justify-center">
+                                <div className="w-full flex flex-col gap-1 p-2 pb-0 items-start justify-center">
                                     <p className="text-xxs ml-[2px]">Percent to remove</p>
                                     <Input
                                         type="number"
-                                        placeholder="0.0"
+                                        placeholder="0.0%"
                                         className='text-dodger-blue bg-white no-arrows mr-2'
                                         autoComplete="off"
                                         value={percentToRemoveInputValue}
                                         onChange={(e) => handlePercentToRemoveInputChange(e.target.value)}
                                     />
+                                </div>
+                                <div className="p-2 pt-[1px] text-xxs font-semibold hover:cursor-pointer">
+                                    <p
+                                        onClick={() => {
+                                            setPercentToRemove(100);
+                                            setPercentToRemoveInputValue("100");
+                                        }}
+                                        className='ml-2'>{`wallet: ${Number(formatBN(pairBalance, 18)).toLocaleString()}`}
+                                    </p>
                                 </div>
                                 <div className='flex-1 p-2 flex flex-row justify-between'>
                                     <div className='flex flex-row items-center'>

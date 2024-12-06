@@ -142,3 +142,28 @@ export const formatBN = (
 
   return formatted;
 };
+
+export const sqrtBN = (value: BN) => {
+  if (value.isZero()) return new BN(0);
+  if (value.isNeg())
+    throw new Error("Square root of negative numbers is not supported");
+
+  let low = new BN(1);
+  let high = value;
+  let mid;
+
+  while (low.lt(high)) {
+    mid = low.add(high).div(new BN(2));
+    const midSquared = mid.mul(mid);
+
+    if (midSquared.eq(value)) {
+      return mid;
+    } else if (midSquared.lt(value)) {
+      low = mid.add(new BN(1));
+    } else {
+      high = mid;
+    }
+  }
+
+  return high.sub(new BN(1));
+};

@@ -5,7 +5,7 @@ import { useAccountConnect } from "@/lib/react-query/queriesAndMutations";
 import { INITIAL_ACCOUNT, useUserContext } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { Account } from "@/types";
-import { getCookie, isAddress, setCookie } from "../utils";
+import { getCookie, isAddress, setCookie, sqrtBN } from "../utils";
 import {
   avvy_resolver_abi,
   avvy_resolver_addr,
@@ -13,6 +13,7 @@ import {
   erc20_abi,
   factory_abi,
   Factory_address,
+  ice_pond_abi,
   pair_abi,
   router_abi,
   Router_address,
@@ -29,7 +30,6 @@ export const initializeWeb3 = async () => {
   } else {
     throw new Error("No wallet provider.");
   }
-
   window.w3 = new Web3(provider);
   window.avvyW3 = new Web3("https://avalanche-c-chain-rpc.publicnode.com");
 };
@@ -318,6 +318,7 @@ export const getPairAddress = async (
   token0Address: string,
   token1Address: string
 ): Promise<string | null> => {
+  await initializeWeb3();
   let pairAddress: string | null = null;
   try {
     const contract = new window.w3.eth.Contract(factory_abi, Factory_address);
@@ -919,4 +920,63 @@ export const createUnwrapAvaxTransaction = async (
     console.log(error);
     return { success: false, error: error };
   }
+};
+
+export const getTokenAmountsOnRemoveLiquidity = async (
+  token0Address: string,
+  token1Address: string,
+  liquidity: BN
+): Promise<BN[] | null> => {
+  let amounts: BN[] | null = null;
+  try {
+    const factoryContract = new window.w3.eth.Contract(
+      factory_abi,
+      Factory_address
+    );
+    const pairContractAddress = await factoryContract.methods
+      .getPair(token0Address, token1Address)
+      .call();
+    let pairAddress;
+    if (pairContractAddress) {
+      pairAddress = pairContractAddress.toString();
+    } else {
+      throw new Error("Error: getAmountOut() could not retrive pair address!");
+    }
+    const token0Contract = new window.w3.eth.Contract(erc20_abi, token0Address);
+    const token1Contract = new window.w3.eth.Contract(erc20_abi, token1Address);
+    const pairContract = new window.w3.eth.Contract(ice_pond_abi, pairAddress);
+    const lastK = new BN(await pairContract.methods.kLast().call());
+    const reserveData: { _reserve0: string; _reserve1: string } =
+      await pairContract.methods.getReserves().call();
+    const _reserve0 = new BN(reserveData._reserve0);
+    const _reserve1 = new BN(reserveData._reserve1);
+    const balance0: BN = new BN(
+      await token0Contract.methods.balanceOf(pairAddress).call()
+    );
+    const balance1: BN = new BN(
+      await token1Contract.methods.balanceOf(pairAddress).call()
+    );
+    const totalSupply: BN = new BN(
+      await pairContract.methods.totalSupply().call()
+    );
+
+    const rootK = sqrtBN(_reserve0.mul(_reserve1));
+    const rootKLast = sqrtBN(lastK);
+
+    let newSupply = totalSupply;
+    if (rootK > rootKLast) {
+      const numerator = totalSupply.mul(rootK.sub(rootKLast));
+      const denominator = rootK.mul(new BN(5)).add(rootKLast);
+      const liquidity = numerator.div(denominator);
+      newSupply = newSupply.add(liquidity);
+    }
+
+    const amount0 = liquidity.mul(balance0).div(newSupply);
+    const amount1 = liquidity.mul(balance1).div(newSupply);
+
+    amounts = [amount0, amount1];
+  } catch (error) {
+    console.log(error);
+  }
+  return amounts;
 };
