@@ -12,9 +12,9 @@ import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, sample_to
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import { Loader, SlippageInput } from '.';
-import { approveERC20Amount, createRemoveLiquidityTransaction, getERC20Allowance, getPairAddress, getTokenAmountsOnRemoveLiquidity, initializeWeb3, useHandleConnectWallet } from '@/lib/wallet';
+import { approveERC20Amount, createAddLiquidityTransaction, createRemoveLiquidityTransaction, getERC20Allowance, getPairAddress, getTokenAmountForAddLiquidity, getTokenAmountsOnRemoveLiquidity, initializeWeb3, useHandleConnectWallet } from '@/lib/wallet';
 import BN from 'bn.js';
-import { formatBN } from '@/lib/utils';
+import { formatBN, scaleToBN } from '@/lib/utils';
 
 const LiquidityPanel = () => {
     const { account, isConnected, getUserTokenBal } = useUserContext();
@@ -27,6 +27,8 @@ const LiquidityPanel = () => {
 
     const [token0Amount, setToken0Amount] = useState<BN>(new BN(0));
     const [token1Amount, setToken1Amount] = useState<BN>(new BN(0));
+
+    const [token0Inputted, setToken0Inputted] = useState(true);
 
     const [token0Balance, setToken0Balance] = useState<BN>(new BN(0));
     const [token1Balance, setToken1Balance] = useState<BN>(new BN(0));
@@ -55,6 +57,8 @@ const LiquidityPanel = () => {
     const [pairBalance, setPairBalance] = useState<BN>(new BN(0));
     const [redeemLPAllowance, setRedeemLPAllowance] = useState<BN>(new BN(0));
 
+    const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+
     const onToken0Change = (value: Token) => {
         setLastToken0(token0);
         setToken0(value);
@@ -72,10 +76,22 @@ const LiquidityPanel = () => {
         if (!isNaN(Number(value)) || value === '') {
             setToken0InputValue(value);
             if (value === '') {
+                setToken1Amount(new BN(0));
                 setToken0Amount(new BN(0));
+                setToken0InputValue('');
                 setToken1InputValue('');
                 setIsLoading(false);
                 return;
+            } else {
+                setToken0Inputted(true);
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+                const newTimer = setTimeout(async () => {
+                    setToken0Amount(scaleToBN(value, token0.decimals));
+                }, 1000);
+
+                setDebounceTimer(newTimer);
             }
         }
     };
@@ -86,9 +102,21 @@ const LiquidityPanel = () => {
             setToken1InputValue(value);
             if (value === '') {
                 setToken1Amount(new BN(0));
+                setToken0Amount(new BN(0));
                 setToken0InputValue('');
+                setToken1InputValue('');
                 setIsLoading(false);
                 return;
+            } else {
+                setToken0Inputted(false);
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+                const newTimer = setTimeout(async () => {
+                    setToken1Amount(scaleToBN(value, token1.decimals));
+                }, 1000);
+
+                setDebounceTimer(newTimer);
             }
         }
     };
@@ -98,24 +126,29 @@ const LiquidityPanel = () => {
         if (!isNaN(Number(value)) || value === '') {
             if (value === '') {
                 setPercentToRemoveInputValue(value);
-            } else {
-                const numValue = Number(value);
-                if (numValue > 100) {
-                    setPercentToRemoveInputValue("100");
-                    setPercentToRemove(100);
-                } else if (numValue < 0) {
-                    setPercentToRemoveInputValue("0.1");
-                    setPercentToRemove(0.1);
-                } else {
-                    setPercentToRemoveInputValue(value);
-                    setPercentToRemove(numValue);
-                }
-            }
-            if (value === '') {
                 setToken0AmountToRemove(new BN(0));
                 setToken1AmountToRemove(new BN(0));
                 setIsLoading(false);
                 return;
+            } else {
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+                const newTimer = setTimeout(async () => {
+                    const numValue = Number(value);
+                    if (numValue > 100) {
+                        setPercentToRemoveInputValue("100");
+                        setPercentToRemove(100);
+                    } else if (numValue < 0) {
+                        setPercentToRemoveInputValue("0.1");
+                        setPercentToRemove(0.1);
+                    } else {
+                        setPercentToRemoveInputValue(value);
+                        setPercentToRemove(numValue);
+                    }
+                }, 1000);
+
+                setDebounceTimer(newTimer);
             }
         }
     };
@@ -126,7 +159,43 @@ const LiquidityPanel = () => {
     };
 
 
-    const handleAddLiqButtonClick = async () => { };
+    const handleAddLiqButtonClick = async () => {
+        if (token0Allowance.gte(token0Amount) && token1Allowance.gte(token1Amount)) {
+            if (token0Amount.isZero() && token1Amount.isZero()) {
+                return;
+            }
+            setIsLoading(true);
+            const result = await createAddLiquidityTransaction(account.address, token0.address, token1.address, token0Amount, token1Amount, allowedSlippage);
+            if (result.success) {
+                showToast("Liquidity Added", "success", explorer_url + "/tx/" + result.txHash);
+                clearPanel();
+            } else {
+                showToast("Failed to Add Liquidity", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
+            }
+        } else {
+            setIsLoading(true);
+            if (!token0Allowance.gte(token0Amount)) {
+                const result = await approveERC20Amount(account.address, Router_address, token0.address, token0Amount);
+                if (result.success) {
+                    showToast("Approved tokens to supply LP", "success", explorer_url + "/tx/" + result.txHash);
+                    setToken0Allowance(token0Amount);
+                } else {
+                    showToast("Failed to approve tokens to supply LP", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
+                }
+            }
+            if (!token1Allowance.gte(token1Amount)) {
+                const result = await approveERC20Amount(account.address, Router_address, token1.address, token1Amount);
+                if (result.success) {
+                    showToast("Approved tokens to supply LP", "success", explorer_url + "/tx/" + result.txHash);
+                    setToken0Allowance(token0Amount);
+                } else {
+                    showToast("Failed to approve tokens to supply LP", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
+                }
+            }
+        }
+        setIsLoading(false);
+
+    };
 
 
     const handleRemoveLiqButtonClick = async () => {
@@ -159,7 +228,6 @@ const LiquidityPanel = () => {
     useEffect(() => {
         const getInitialPair = async () => {
             const newPairAddress = await getPairAddress(token0.address, token1.address);
-            console.log(newPairAddress);
             if (newPairAddress) {
                 setPairAddress(newPairAddress);
             }
@@ -179,7 +247,7 @@ const LiquidityPanel = () => {
             }
         }
         const getPairAllowance = async () => {
-            if (pairAddress !== '') {
+            if (pairAddress !== '' && account.address !== null) {
                 const newPairAllowance = await getERC20Allowance(account.address, Router_address, pairAddress);
                 if (newPairAllowance !== null) {
                     setRedeemLPAllowance(newPairAllowance);
@@ -197,28 +265,32 @@ const LiquidityPanel = () => {
             if (token0.address === "0xAVAX") {
                 setToken0Allowance(new BN("720000000000000000000000000"));
             } else {
-                const allowance = await getERC20Allowance(account.address, Router_address, token0.address);
-                if (allowance !== null) {
-                    setToken0Allowance(allowance);
+                if (account.address !== null) {
+                    const allowance = await getERC20Allowance(account.address, Router_address, token0.address);
+                    if (allowance !== null) {
+                        setToken0Allowance(allowance);
+                    }
                 }
             }
         };
         getToken0Allowance();
-    }, [token0]);
+    }, [account, token0]);
 
     useEffect(() => {
         const getToken1Allowance = async () => {
             if (token1.address === "0xAVAX") {
                 setToken1Allowance(new BN("720000000000000000000000000"));
             } else {
-                const allowance = await getERC20Allowance(account.address, Router_address, token1.address);
-                if (allowance !== null) {
-                    setToken1Allowance(allowance);
+                if (account.address !== null) {
+                    const allowance = await getERC20Allowance(account.address, Router_address, token1.address);
+                    if (allowance !== null) {
+                        setToken1Allowance(allowance);
+                    }
                 }
             }
         };
         getToken1Allowance();
-    }, [token1]);
+    }, [account, token1]);
 
 
     useEffect(() => {
@@ -243,7 +315,6 @@ const LiquidityPanel = () => {
                 }
             } else {
                 const newPairAddress = await getPairAddress(token0.address, token1.address);
-                console.log(newPairAddress);
                 if (newPairAddress) {
                     setPairAddress(newPairAddress);
                 }
@@ -287,6 +358,38 @@ const LiquidityPanel = () => {
             }
         }
     }, [token1, account.balances]);
+
+    useEffect(() => {
+        const handleToken0AmountChange = async () => {
+            if (token0Amount.gt(new BN(0))) {
+                const token0Address = token0.address === "0xAVAX" ? WAVAX_ADDRESS : token0.address;
+                const token1Address = token1.address === "0xAVAX" ? WAVAX_ADDRESS : token1.address;
+                const token1AmountToPair = await getTokenAmountForAddLiquidity(token0Address, token1Address, true, token0Amount);
+                setToken1Amount(token1AmountToPair);
+                setToken1InputValue(formatBN(token1AmountToPair, token1.decimals));
+            }
+            setIsLoading(false);
+        };
+        if (token0Inputted) {
+            handleToken0AmountChange();
+        }
+    }, [token0, token0Amount]);
+
+    useEffect(() => {
+        const handleToken1AmountChange = async () => {
+            if (token1Amount.gt(new BN(0))) {
+                const token0Address = token0.address === "0xAVAX" ? WAVAX_ADDRESS : token0.address;
+                const token1Address = token1.address === "0xAVAX" ? WAVAX_ADDRESS : token1.address;
+                const token0AmountToPair = await getTokenAmountForAddLiquidity(token0Address, token1Address, false, token1Amount);
+                setToken0Amount(token0AmountToPair);
+                setToken0InputValue(formatBN(token0AmountToPair, token0.decimals));
+            }
+            setIsLoading(false);
+        };
+        if (!token0Inputted) {
+            handleToken1AmountChange();
+        }
+    }, [token1, token1Amount]);
 
     return (
         <Tabs defaultValue="add" className="w-[640px]">

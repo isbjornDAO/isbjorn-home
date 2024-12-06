@@ -209,7 +209,7 @@ const SwapPanel = () => {
             }
             setIsLoading(false);
         };
-        if (isFromAmountExact || isWrapping || isUnwrapping) {
+        if (isFromAmountExact) {
             getOutputAmount();
         }
     }, [fromAmount, toToken, fromToken]);

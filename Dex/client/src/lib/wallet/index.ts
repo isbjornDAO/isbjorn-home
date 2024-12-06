@@ -256,6 +256,7 @@ export const getERC20Allowance = async (
   spenderAddress: string,
   tokenAddress: string
 ): Promise<BN | null> => {
+  await initializeWeb3();
   let allowance: BN | null = null;
   try {
     const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
@@ -643,7 +644,7 @@ export const createSwapTransaction = async (
   }
 };
 
-const createAddLiquidityTransaction = async (
+export const createAddLiquidityTransaction = async (
   accountAddress: string,
   token0Address: string,
   token1Address: string,
@@ -667,9 +668,9 @@ const createAddLiquidityTransaction = async (
       data = contract.methods
         .addLiquidityAVAX(
           token1Address,
-          amount1,
-          minAmount1,
-          minAmount0,
+          amount1.toString(),
+          minAmount1.toString(),
+          minAmount0.toString(),
           accountAddress,
           deadline
         )
@@ -678,9 +679,9 @@ const createAddLiquidityTransaction = async (
       data = contract.methods
         .addLiquidityAVAX(
           token0Address,
-          amount0,
-          minAmount0,
-          minAmount1,
+          amount0.toString(),
+          minAmount0.toString(),
+          minAmount1.toString(),
           accountAddress,
           deadline
         )
@@ -690,10 +691,10 @@ const createAddLiquidityTransaction = async (
         .addLiquidity(
           token0Address,
           token1Address,
-          amount0,
-          amount1,
-          minAmount0,
-          minAmount1,
+          amount0.toString(),
+          amount1.toString(),
+          minAmount0.toString(),
+          minAmount1.toString(),
           accountAddress,
           deadline
         )
@@ -966,4 +967,48 @@ export const getTokenAmountsOnRemoveLiquidity = async (
     console.log(error);
   }
   return amounts;
+};
+
+export const getTokenAmountForAddLiquidity = async (
+  token0Address: string,
+  token1Address: string,
+  isToken0Amount: boolean,
+  tokenAmount: BN
+): Promise<BN | null> => {
+  let amount: BN | null = null;
+  try {
+    const factoryContract = new window.w3.eth.Contract(
+      factory_abi,
+      Factory_address
+    );
+    const pairContractAddress = await factoryContract.methods
+      .getPair(token0Address, token1Address)
+      .call();
+    let pairAddress;
+    if (pairContractAddress) {
+      pairAddress = pairContractAddress.toString();
+    } else {
+      throw new Error("Error: getAmountOut() could not retrive pair address!");
+    }
+    const pairContract = new window.w3.eth.Contract(ice_pond_abi, pairAddress);
+    const reserveData: { _reserve0: string; _reserve1: string } =
+      await pairContract.methods.getReserves().call();
+    const _reserve0 = new BN(reserveData._reserve0);
+    const _reserve1 = new BN(reserveData._reserve1);
+
+    const routerContract = new window.w3.eth.Contract(
+      router_abi,
+      Router_address
+    );
+    const reserveA = isToken0Amount ? _reserve1 : _reserve0;
+    const reserveB = isToken0Amount ? _reserve0 : _reserve1;
+
+    const optimalAmount: string = await routerContract.methods
+      .quote(tokenAmount.toString(), reserveA.toString(), reserveB.toString())
+      .call();
+    amount = new BN(optimalAmount);
+  } catch (error) {
+    console.log(error);
+  }
+  return amount;
 };
