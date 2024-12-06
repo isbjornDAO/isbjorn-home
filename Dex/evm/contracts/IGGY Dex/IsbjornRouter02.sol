@@ -9,23 +9,32 @@ import "./IsbjornLibrary.sol";
 import "./TransferHelper.sol";
 import "./IWAVAX.sol";
 import "./IERC20.sol";
+import "./Ownable.sol";
 
 import "hardhat/console.sol";
 
-contract IsbjornRouter02 is IIsbjornRouter02 {
+contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
     using SafeMath for uint256;
 
     address public immutable override factory;
     address public immutable override WAVAX;
+
+    address public achievementTracker;
 
     modifier ensure(uint256 deadline) {
         require(deadline >= block.timestamp, "IsbjornRouter: EXPIRED");
         _;
     }
 
-    constructor(address _factory, address _WAVAX) public {
+    constructor(address _factory, address _WAVAX) public ownable(msg.sender) {
         factory = _factory;
         WAVAX = _WAVAX;
+    }
+
+    function setAchievementTrackerAddress(
+        address _achievementTracker
+    ) external onlyOwner {
+        achievementTracker = _achievementTracker;
     }
 
     receive() external payable {
