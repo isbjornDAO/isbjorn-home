@@ -467,7 +467,6 @@ export const getAmountIn = async (
   } catch (error) {
     console.log(error);
   }
-  console.log(amountIn);
   return amountIn;
 };
 
@@ -533,13 +532,10 @@ export const createSwapTransaction = async (
   let data, amountInMax;
   try {
     const contract = new window.w3.eth.Contract(router_abi, Router_address);
-    console.log(isFromExact);
     if (isFromExact) {
       const amountOutMin = amountOut
         .mul(new BN(100 - slippage))
         .div(new BN(100));
-      console.log(amountIn.toString());
-      console.log(amountOutMin.toString());
       if (tokenInAddress === "0xAVAX") {
         data = await contract.methods
           .swapExactAVAXForTokens(
@@ -573,8 +569,6 @@ export const createSwapTransaction = async (
     } else {
       // to amount exact
       amountInMax = amountIn.mul(new BN(100 + slippage)).div(new BN(100));
-      console.log(amountOut.toString());
-      console.log(amountInMax.toString());
       if (tokenInAddress === "0xAVAX") {
         data = await contract.methods
           .swapAVAXForExactTokens(
@@ -765,7 +759,6 @@ export const createRemoveLiquidityTransaction = async (
     const contract = new window.w3.eth.Contract(router_abi, Router_address);
 
     if (token0Address === "0xAVAX") {
-      console.log(token1Address);
       data = contract.methods
         .removeLiquidityAVAX(
           token1Address,
@@ -777,7 +770,6 @@ export const createRemoveLiquidityTransaction = async (
         )
         .encodeABI();
     } else if (token1Address === "0xAVAX") {
-      console.log(token0Address);
       data = contract.methods
         .removeLiquidityAVAX(
           token0Address,
@@ -1000,8 +992,14 @@ export const getTokenAmountForAddLiquidity = async (
       router_abi,
       Router_address
     );
-    const reserveA = isToken0Amount ? _reserve1 : _reserve0;
-    const reserveB = isToken0Amount ? _reserve0 : _reserve1;
+    let reserveA, reserveB;
+    if (token0Address > token1Address) {
+      reserveA = isToken0Amount ? _reserve1 : _reserve0;
+      reserveB = isToken0Amount ? _reserve0 : _reserve1;
+    } else {
+      reserveA = isToken0Amount ? _reserve0 : _reserve1;
+      reserveB = isToken0Amount ? _reserve1 : _reserve0;
+    }
 
     const optimalAmount: string = await routerContract.methods
       .quote(tokenAmount.toString(), reserveA.toString(), reserveB.toString())

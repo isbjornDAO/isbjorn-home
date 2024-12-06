@@ -156,6 +156,10 @@ const LiquidityPanel = () => {
     const clearPanel = () => {
         setPercentToRemoveInputValue('');
         setPercentToRemove(0);
+        setToken0Amount(new BN(0));
+        setToken0InputValue('');
+        setToken1Amount(new BN(0));
+        setToken1InputValue('');
     };
 
 
@@ -296,6 +300,7 @@ const LiquidityPanel = () => {
     useEffect(() => {
         const handleTokenChanges = async () => {
             // if to or from token changed to same token, force update using last token
+            clearPanel();
             if (token0 === token1) {
                 if (wasToken0LastChanged) {
                     setLastToken1(token1);
@@ -361,12 +366,14 @@ const LiquidityPanel = () => {
 
     useEffect(() => {
         const handleToken0AmountChange = async () => {
-            if (token0Amount.gt(new BN(0))) {
+            if (token0Amount.gt(new BN(0)) && token0.address !== token1.address) {
                 const token0Address = token0.address === "0xAVAX" ? WAVAX_ADDRESS : token0.address;
                 const token1Address = token1.address === "0xAVAX" ? WAVAX_ADDRESS : token1.address;
                 const token1AmountToPair = await getTokenAmountForAddLiquidity(token0Address, token1Address, true, token0Amount);
-                setToken1Amount(token1AmountToPair);
-                setToken1InputValue(formatBN(token1AmountToPair, token1.decimals));
+                if (token1AmountToPair !== null) {
+                    setToken1Amount(token1AmountToPair);
+                    setToken1InputValue(formatBN(token1AmountToPair, token1.decimals));
+                }
             }
             setIsLoading(false);
         };
@@ -377,12 +384,14 @@ const LiquidityPanel = () => {
 
     useEffect(() => {
         const handleToken1AmountChange = async () => {
-            if (token1Amount.gt(new BN(0))) {
+            if (token1Amount.gt(new BN(0)) && token0.address !== token1.address) {
                 const token0Address = token0.address === "0xAVAX" ? WAVAX_ADDRESS : token0.address;
                 const token1Address = token1.address === "0xAVAX" ? WAVAX_ADDRESS : token1.address;
                 const token0AmountToPair = await getTokenAmountForAddLiquidity(token0Address, token1Address, false, token1Amount);
-                setToken0Amount(token0AmountToPair);
-                setToken0InputValue(formatBN(token0AmountToPair, token0.decimals));
+                if (token0AmountToPair !== null) {
+                    setToken0Amount(token0AmountToPair);
+                    setToken0InputValue(formatBN(token0AmountToPair, token0.decimals));
+                }
             }
             setIsLoading(false);
         };
@@ -482,7 +491,7 @@ const LiquidityPanel = () => {
                                         }}>{isWalletLoading || isLoading ? (
                                             <Loader />
                                         ) : isConnected && account.address ? (
-                                            token0Allowance.gte(token0Amount) && token1Allowance.gte(token1Amount) ? (
+                                            token0Allowance !== null && token0Allowance.gte(token0Amount) && token1Allowance !== null && token1Allowance.gte(token1Amount) ? (
                                                 "Add Liquidty"
                                             ) : (
                                                 "Approve"
