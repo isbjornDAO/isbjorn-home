@@ -57,7 +57,6 @@ const SwapPanel = () => {
         setToAmountInputValue('');
     }
 
-
     const handleFromInputChange = (value: string) => {
         setIsLoading(true);
         setToAmount(new BN(0));
@@ -300,8 +299,13 @@ const SwapPanel = () => {
                                     />
                                     <TokenChooser startSelected={fromToken} available={sample_token_list} onSelection={onFromTokenChange} />
                                 </div>
-                                <div className="p-2 pt-0 text-xxs font-semibold">
-                                    <p className='ml-2'>{`wallet: ${Number(formatBN(fromBalance, fromToken.decimals)).toLocaleString()}`}</p>
+                                <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer">
+                                    <p
+                                        onClick={() => {
+                                            setFromAmount(fromBalance);
+                                            setFromAmountInputValue(formatBN(fromBalance, fromToken.decimals));
+                                        }}
+                                        className='ml-2'>{`wallet: ${Number(formatBN(fromBalance, fromToken.decimals)).toLocaleString()}`}</p>
                                 </div>
                                 <div className='relative'>
                                     <Separator className='my-4 bg-isbjorn-blue seperator' />
