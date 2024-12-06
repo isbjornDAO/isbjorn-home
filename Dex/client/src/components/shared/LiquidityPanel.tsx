@@ -28,6 +28,9 @@ const LiquidityPanel = () => {
     const [token0Amount, setToken0Amount] = useState<BN>(new BN(0));
     const [token1Amount, setToken1Amount] = useState<BN>(new BN(0));
 
+    const [token0Balance, setToken0Balance] = useState<BN>(new BN(0));
+    const [token1Balance, setToken1Balance] = useState<BN>(new BN(0));
+
     const [token0InputValue, setToken0InputValue] = useState<string>('');
     const [token1InputValue, setToken1InputValue] = useState<string>('');
 
@@ -225,6 +228,22 @@ const LiquidityPanel = () => {
         handlePercentChange();
     }, [percentToRemove, token0, token1]);
 
+    useEffect(() => {
+        if (account.balances) {
+            if (account.balances[token0.address.toLowerCase()]) {
+                setToken0Balance(account.balances[token0.address.toLowerCase()]);
+            }
+        }
+    }, [token0, account.balances]);
+
+    useEffect(() => {
+        if (account.balances) {
+            if (account.balances[token1.address.toLowerCase()]) {
+                setToken1Balance(account.balances[token1.address.toLowerCase()]);
+            }
+        }
+    }, [token1, account.balances]);
+
     return (
         <Tabs defaultValue="add" className="w-[640px]">
             <TabsList className="grid w-full grid-cols-2 gap-1 px-[2px]">
@@ -244,7 +263,7 @@ const LiquidityPanel = () => {
                                 <div className='flex-1'></div>
                             </div>
                             <div className="flex-1 flex flex-col">
-                                <div className='flex-1 flex flex-row p-2 items-center'>
+                                <div className='flex-1 flex flex-row p-2 pb-0 items-center'>
                                     <Input
                                         type="number"
                                         placeholder="0.0"
@@ -255,6 +274,14 @@ const LiquidityPanel = () => {
                                     />
                                     <TokenChooser startSelected={token0} available={sample_token_list} onSelection={onToken0Change} />
                                 </div>
+                                <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer">
+                                    <p
+                                        onClick={() => {
+                                            setToken0Amount(token0Balance);
+                                            setToken0InputValue(formatBN(token0Balance, token0.decimals));
+                                        }}
+                                        className='ml-2'>{`wallet: ${Number(formatBN(token0Balance, token0.decimals)).toLocaleString()}`}</p>
+                                </div>
                                 <div className='relative'>
                                     <Separator className='my-4 bg-isbjorn-blue seperator' />
                                     <div
@@ -263,7 +290,7 @@ const LiquidityPanel = () => {
                                         <FaPlus className="text-isbjorn-blue text-lg pt-[1px]" />
                                     </div>
                                 </div>
-                                <div className='flex-1 flex flex-row p-2 items-center'>
+                                <div className='flex-1 flex flex-row p-2 pb-0 items-center'>
                                     <Input
                                         type="number"
                                         placeholder="0.0"
@@ -273,6 +300,14 @@ const LiquidityPanel = () => {
                                         onChange={(e) => handleToken1InputChange(e.target.value)}
                                     />
                                     <TokenChooser startSelected={token1} available={sample_token_list} onSelection={onToken1Change} />
+                                </div>
+                                <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer">
+                                    <p
+                                        onClick={() => {
+                                            setToken1Amount(token1Balance);
+                                            setToken1InputValue(formatBN(token1Balance, token1.decimals));
+                                        }}
+                                        className='ml-2'>{`wallet: ${Number(formatBN(token1Balance, token1.decimals)).toLocaleString()}`}</p>
                                 </div>
                                 <div className='w-full p-2 flex flex-row justify-between'>
                                     <div className='flex flex-row items-center'>
@@ -330,7 +365,7 @@ const LiquidityPanel = () => {
                             </div>
                             <div className="flex-1 flex flex-col">
                                 <div className="flex-1 flex flex-col items-center ">
-                                    <div className='flex-1 flex flex-row p-2 items-center'>
+                                    <div className='flex-1 flex flex-row p-2 pb-0 items-center'>
                                         <Input
                                             disabled={true}
                                             type="number"
@@ -341,6 +376,9 @@ const LiquidityPanel = () => {
                                         />
                                         <TokenChooser startSelected={token0} available={sample_token_list} onSelection={onToken0Change} />
                                     </div>
+                                    <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer w-full">
+                                        <p className='ml-2'>{`wallet: ${Number(formatBN(token0Balance, token0.decimals)).toLocaleString()}`}</p>
+                                    </div>
                                     <div className='relative w-full'>
                                         <Separator className='my-4 bg-isbjorn-blue seperator' />
                                         <div
@@ -349,7 +387,7 @@ const LiquidityPanel = () => {
                                             <FaPlus className="text-isbjorn-blue text-lg pt-[1px]" />
                                         </div>
                                     </div>
-                                    <div className='flex-1 flex flex-row p-2 items-center'>
+                                    <div className='flex-1 flex flex-row p-2 pb-0 items-center'>
                                         <Input
                                             disabled={true}
                                             type="number"
@@ -359,6 +397,9 @@ const LiquidityPanel = () => {
                                             value={token1AmountToRemove.isZero() ? '' : formatBN(token1AmountToRemove, token1.decimals)}
                                         />
                                         <TokenChooser startSelected={token1} available={sample_token_list} onSelection={onToken1Change} />
+                                    </div>
+                                    <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer  w-full">
+                                        <p className='ml-2'>{`wallet: ${Number(formatBN(token1Balance, token1.decimals)).toLocaleString()}`}</p>
                                     </div>
                                 </div>
                                 <div className="w-full flex flex-col gap-1 p-2 pb-0 items-start justify-center">
