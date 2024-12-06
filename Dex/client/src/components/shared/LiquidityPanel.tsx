@@ -31,6 +31,9 @@ const LiquidityPanel = () => {
     const [token0Balance, setToken0Balance] = useState<BN>(new BN(0));
     const [token1Balance, setToken1Balance] = useState<BN>(new BN(0));
 
+    const [token0Allowance, setToken0Allowance] = useState<BN>(new BN(0));
+    const [token1Allowance, setToken1Allowance] = useState<BN>(new BN(0));
+
     const [token0InputValue, setToken0InputValue] = useState<string>('');
     const [token1InputValue, setToken1InputValue] = useState<string>('');
 
@@ -118,11 +121,14 @@ const LiquidityPanel = () => {
     };
 
     const clearPanel = () => {
-
+        setPercentToRemoveInputValue('');
+        setPercentToRemove(0);
     };
 
 
     const handleAddLiqButtonClick = async () => { };
+
+
     const handleRemoveLiqButtonClick = async () => {
         const amountToRemove = pairBalance.mul(new BN(percentToRemove)).div(new BN(100));
         if (redeemLPAllowance.gte(amountToRemove)) {
@@ -187,9 +193,47 @@ const LiquidityPanel = () => {
     }, [pairAddress]);
 
     useEffect(() => {
+        const getToken0Allowance = async () => {
+            if (token0.address === "0xAVAX") {
+                setToken0Allowance(new BN("720000000000000000000000000"));
+            } else {
+                const allowance = await getERC20Allowance(account.address, Router_address, token0.address);
+                if (allowance !== null) {
+                    setToken0Allowance(allowance);
+                }
+            }
+        };
+        getToken0Allowance();
+    }, [token0]);
+
+    useEffect(() => {
+        const getToken1Allowance = async () => {
+            if (token1.address === "0xAVAX") {
+                setToken1Allowance(new BN("720000000000000000000000000"));
+            } else {
+                const allowance = await getERC20Allowance(account.address, Router_address, token1.address);
+                if (allowance !== null) {
+                    setToken1Allowance(allowance);
+                }
+            }
+        };
+        getToken1Allowance();
+    }, [token1]);
+
+
+    useEffect(() => {
         const handleTokenChanges = async () => {
             // if to or from token changed to same token, force update using last token
             if (token0 === token1) {
+                if (wasToken0LastChanged) {
+                    setLastToken1(token1);
+                    setToken1(lastToken0);
+                } else {
+                    setLastToken0(token0);
+                    setToken0(lastToken1);
+                }
+            }
+            else if ((token0.address === "0xAVAX" && token1.address === WAVAX_ADDRESS) || (token1.address === "0xAVAX" && token0.address === WAVAX_ADDRESS)) {
                 if (wasToken0LastChanged) {
                     setLastToken1(token1);
                     setToken1(lastToken0);
@@ -335,7 +379,7 @@ const LiquidityPanel = () => {
                                         }}>{isWalletLoading || isLoading ? (
                                             <Loader />
                                         ) : isConnected && account.address ? (
-                                            true ? (
+                                            token0Allowance.gte(token0Amount) && token1Allowance.gte(token1Amount) ? (
                                                 "Add Liquidty"
                                             ) : (
                                                 "Approve"
