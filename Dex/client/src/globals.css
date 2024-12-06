@@ -174,4 +174,8 @@
   .tab-trigger:hover {
     @apply bg-isbjorn-blue-hover; /* Hover effect */
   }
+
+  .blue-link {
+    @apply text-isbjorn-blue underline hover:text-isbjorn-blue-hover;
+  }
 }
