@@ -8,11 +8,11 @@ import TokenChooser from './TokenChooser';
 import { FaPlus } from 'react-icons/fa';
 import { Separator } from '../ui/separator';
 import { Token } from '@/types';
-import { defaultSlippage, QUASI_ADDRESS, sample_token_list, WAVAX_ADDRESS } from '@/constants';
+import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, sample_token_list, WAVAX_ADDRESS } from '@/constants';
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import { Loader, SlippageInput } from '.';
-import { getPairAddress, getTokenAmountsOnRemoveLiquidity, initializeWeb3, useHandleConnectWallet } from '@/lib/wallet';
+import { approveERC20Amount, createRemoveLiquidityTransaction, getERC20Allowance, getPairAddress, getTokenAmountsOnRemoveLiquidity, initializeWeb3, useHandleConnectWallet } from '@/lib/wallet';
 import BN from 'bn.js';
 import { formatBN } from '@/lib/utils';
 
@@ -47,6 +47,7 @@ const LiquidityPanel = () => {
 
     const [pairAddress, setPairAddress] = useState<string>('');
     const [pairBalance, setPairBalance] = useState<BN>(new BN(0));
+    const [redeemLPAllowance, setRedeemLPAllowance] = useState<BN>(new BN(0));
 
     const onToken0Change = (value: Token) => {
         setLastToken0(token0);
@@ -113,6 +114,39 @@ const LiquidityPanel = () => {
         }
     };
 
+    const clearPanel = () => {
+
+    };
+
+
+    const handleAddLiqButtonClick = async () => { };
+    const handleRemoveLiqButtonClick = async () => {
+        const amountToRemove = pairBalance.mul(new BN(percentToRemove)).div(new BN(100));
+        if (redeemLPAllowance.gte(amountToRemove)) {
+            if (amountToRemove.isZero()) {
+                return;
+            }
+            setIsLoading(true);
+            const result = await createRemoveLiquidityTransaction(account.address, token0.address, token1.address, amountToRemove, token0AmountToRemove, token1AmountToRemove, allowedSlippage);
+            if (result.success) {
+                showToast("Liquidity Removed", "success", explorer_url + "/tx/" + result.txHash);
+                clearPanel();
+            } else {
+                showToast("Failed to Remove Liquidity", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
+            }
+        } else {
+            setIsLoading(true);
+            const result = await approveERC20Amount(account.address, Router_address, pairAddress, amountToRemove);
+            if (result.success) {
+                showToast("Approved LP tokens for remove", "success", explorer_url + "/tx/" + result.txHash);
+                setRedeemLPAllowance(amountToRemove);
+            } else {
+                showToast("Failed to approve LP tokens", "error", result?.txHash ? (explorer_url + "/tx/" + result.txHash) : undefined);
+            }
+        }
+        setIsLoading(false);
+    };
+
     useEffect(() => {
         const getInitialPair = async () => {
             const newPairAddress = await getPairAddress(token0.address, token1.address);
@@ -135,7 +169,18 @@ const LiquidityPanel = () => {
                 }
             }
         }
+        const getPairAllowance = async () => {
+            if (pairAddress !== '') {
+                const newPairAllowance = await getERC20Allowance(account.address, Router_address, pairAddress);
+                if (newPairAllowance !== null) {
+                    setRedeemLPAllowance(newPairAllowance);
+                } else {
+                    setRedeemLPAllowance(new BN(0));
+                }
+            }
+        };
         getPairBal();
+        getPairAllowance();
     }, [pairAddress]);
 
     useEffect(() => {
@@ -244,8 +289,15 @@ const LiquidityPanel = () => {
                                 </div>
                                 <div className='w-full p-2'>
                                     <Button
+                                        disabled={isWalletLoading || isLoading}
                                         className="add-liq-button"
-                                        disabled={isWalletLoading || isLoading}>{isWalletLoading || isLoading ? (
+                                        onClick={() => {
+                                            if (isConnected) {
+                                                handleAddLiqButtonClick();
+                                            } else {
+                                                handleConnectWallet();
+                                            }
+                                        }}>{isWalletLoading || isLoading ? (
                                             <Loader />
                                         ) : isConnected && account.address ? (
                                             true ? (
@@ -344,11 +396,18 @@ const LiquidityPanel = () => {
                                 </div>
                                 <div className='w-full p-2'>
                                     <Button
+                                        disabled={isWalletLoading || isLoading}
                                         className="remove-liq-button"
-                                        disabled={isWalletLoading || isLoading}>{isWalletLoading || isLoading ? (
+                                        onClick={() => {
+                                            if (isConnected) {
+                                                handleRemoveLiqButtonClick();
+                                            } else {
+                                                handleConnectWallet();
+                                            }
+                                        }}>{isWalletLoading || isLoading ? (
                                             <Loader />
                                         ) : isConnected && account.address ? (
-                                            true ? (
+                                            redeemLPAllowance.gte(pairBalance.mul(new BN(percentToRemove)).div(new BN(100))) ? (
                                                 "Remove Liquidty"
                                             ) : (
                                                 "Approve"

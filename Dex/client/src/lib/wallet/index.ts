@@ -742,10 +742,11 @@ const createAddLiquidityTransaction = async (
   }
 };
 
-const createRemoveLiquidityTransaction = async (
+export const createRemoveLiquidityTransaction = async (
   accountAddress: string,
   token0Address: string,
   token1Address: string,
+  liquidity: BN,
   amount0: BN,
   amount1: BN,
   slippage: number
@@ -766,9 +767,9 @@ const createRemoveLiquidityTransaction = async (
       data = contract.methods
         .removeLiquidityAVAX(
           token1Address,
-          amount1,
-          minAmount1,
-          minAmount0,
+          liquidity.toString(),
+          minAmount1.toString(),
+          minAmount0.toString(),
           accountAddress,
           deadline
         )
@@ -777,9 +778,9 @@ const createRemoveLiquidityTransaction = async (
       data = contract.methods
         .removeLiquidityAVAX(
           token0Address,
-          amount0,
-          minAmount0,
-          minAmount1,
+          liquidity.toString(),
+          minAmount0.toString(),
+          minAmount1.toString(),
           accountAddress,
           deadline
         )
@@ -789,10 +790,9 @@ const createRemoveLiquidityTransaction = async (
         .removeLiquidity(
           token0Address,
           token1Address,
-          amount0,
-          amount1,
-          minAmount0,
-          minAmount1,
+          liquidity.toString(),
+          minAmount0.toString(),
+          minAmount1.toString(),
           accountAddress,
           deadline
         )
