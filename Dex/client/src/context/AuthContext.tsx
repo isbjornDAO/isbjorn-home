@@ -21,7 +21,9 @@ const INITIAL_STATE = {
     currentChainId: chain_id,
     setCurrentChainId: () => { },
     switchNetwork: async (chainId: number) => { },
-    getUserTokenBal: async (address: string) => { return null; }
+    getUserTokenBal: async (address: string) => { return null; },
+    refresh: 0,
+    update: () => { },
 }
 
 type IContextType = {
@@ -33,6 +35,8 @@ type IContextType = {
     setCurrentChainId: React.Dispatch<React.SetStateAction<number>>;
     switchNetwork: (chainId: number) => Promise<void>;
     getUserTokenBal: (address: string) => Promise<BN | null>;
+    refresh: number;
+    update: () => void;
 }
 
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
@@ -44,6 +48,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(false);
 
     const [currentChainId, setCurrentChainId] = useState<number>(chain_id);
+
+    const [refresh, setRefresh] = useState(0);
+
+    const update = () => {
+        setRefresh(prev => prev + 1);
+    }
 
     const switchNetwork = async (chainId: number) => {
         if (!window.ethereum) {
@@ -175,11 +185,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     useEffect(() => {
+        setBalancesFetched(false);
+    }, [refresh])
+
+    useEffect(() => {
         if (account.address && !balancesFetched) {
             getAllUserTokenBals();
             setBalancesFetched(true);
         }
-    }, [account]);
+    }, [account, refresh]);
 
     useEffect(() => {
         console.log("Updated balances:", account.balances);
@@ -194,7 +208,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentChainId,
         setCurrentChainId,
         switchNetwork,
-        getUserTokenBal
+        getUserTokenBal,
+        refresh,
+        update,
     };
 
     return (

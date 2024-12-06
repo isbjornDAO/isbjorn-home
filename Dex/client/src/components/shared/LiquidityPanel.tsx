@@ -17,7 +17,7 @@ import BN from 'bn.js';
 import { formatBN, scaleToBN } from '@/lib/utils';
 
 const LiquidityPanel = () => {
-    const { account, isConnected, getUserTokenBal } = useUserContext();
+    const { account, isConnected, getUserTokenBal, update, refresh } = useUserContext();
     const { handleConnectWallet, isWalletLoading } = useHandleConnectWallet();
     const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
@@ -198,6 +198,7 @@ const LiquidityPanel = () => {
             }
         }
         setIsLoading(false);
+        update();
 
     };
 
@@ -227,6 +228,7 @@ const LiquidityPanel = () => {
             }
         }
         setIsLoading(false);
+        update();
     };
 
     useEffect(() => {
@@ -262,7 +264,7 @@ const LiquidityPanel = () => {
         };
         getPairBal();
         getPairAllowance();
-    }, [pairAddress]);
+    }, [pairAddress, refresh]);
 
     useEffect(() => {
         const getToken0Allowance = async () => {
@@ -278,7 +280,7 @@ const LiquidityPanel = () => {
             }
         };
         getToken0Allowance();
-    }, [account, token0]);
+    }, [account, token0, refresh]);
 
     useEffect(() => {
         const getToken1Allowance = async () => {
@@ -294,7 +296,7 @@ const LiquidityPanel = () => {
             }
         };
         getToken1Allowance();
-    }, [account, token1]);
+    }, [account, token1, refresh]);
 
 
     useEffect(() => {

@@ -133,8 +133,6 @@ const SwapPanel = () => {
     };
 
     const handleSwapButtonClick = async () => {
-        console.log(fromAmount.toString());
-        console.log(fromTokenAllowance.toString());
         if ((fromTokenAllowance.gte(fromAmount) && isFromAmountExact) || (fromTokenAllowance.gte(amountInComputed.mul(new BN(100 + allowedSlippage)).div(new BN(100))) && !isFromAmountExact)) {
             if (fromAmount.isZero() && toAmount.isZero()) {
                 return;
