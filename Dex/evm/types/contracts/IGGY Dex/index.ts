@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as icePondSol from "./IcePond.sol";
 export type { icePondSol };
+export type { AchievementTracker } from "./AchievementTracker";
+export type { IAchievementTracker } from "./IAchievementTracker";
 export type { IERC20 } from "./IERC20";
 export type { IIcePond } from "./IIcePond";
 export type { IIcePondFactory } from "./IIcePondFactory";
@@ -13,3 +15,4 @@ export type { IWAVAX } from "./IWAVAX";
 export type { IcePondERC20 } from "./IcePondERC20";
 export type { IcePondFactory } from "./IcePondFactory";
 export type { IsbjornRouter02 } from "./IsbjornRouter02";
+export type { Ownable } from "./Ownable";

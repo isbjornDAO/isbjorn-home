@@ -111,4 +111,74 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         userLiquidityStats[account].tokenStats[token0].totalRemoved += amount0;
         userLiquidityStats[account].tokenStats[token1].totalRemoved += amount1;
     }
+
+    function getGlobalTokenSwapStats(
+        address token
+    )
+        external
+        view
+        returns (uint256 bought, uint256 sold, uint256 cumulativeVolume)
+    {
+        TokenSwapStats storage stats = globalSwapStats.tokenStats[token];
+        return (stats.bought, stats.sold, stats.cumulativeVolume);
+    }
+
+    function getGlobalTotalSwaps() external view returns (uint256) {
+        return globalSwapStats.totalSwaps;
+    }
+
+    function getGlobalTokenLiquidityStats(
+        address token
+    ) external view returns (uint256 totalSupplied, uint256 totalRemoved) {
+        TokenLiquidityStats storage stats = globalLiquidityStats.tokenStats[
+            token
+        ];
+        return (stats.totalSupplied, stats.totalRemoved);
+    }
+
+    function getGlobalLiquidityActions()
+        external
+        view
+        returns (uint256 totalAdds, uint256 totalRemovals)
+    {
+        return (
+            globalLiquidityStats.totalLiquidityAdds,
+            globalLiquidityStats.totalLiquidityRemovals
+        );
+    }
+
+    function getUserTokenSwapStats(
+        address user,
+        address token
+    )
+        external
+        view
+        returns (uint256 bought, uint256 sold, uint256 cumulativeVolume)
+    {
+        TokenSwapStats storage stats = userSwapStats[user].tokenStats[token];
+        return (stats.bought, stats.sold, stats.cumulativeVolume);
+    }
+
+    function getUserTotalSwaps(address user) external view returns (uint256) {
+        return userSwapStats[user].totalSwaps;
+    }
+
+    function getUserTokenLiquidityStats(
+        address user,
+        address token
+    ) external view returns (uint256 totalSupplied, uint256 totalRemoved) {
+        TokenLiquidityStats storage stats = userLiquidityStats[user].tokenStats[
+            token
+        ];
+        return (stats.totalSupplied, stats.totalRemoved);
+    }
+
+    function getUserLiquidityActions(
+        address user
+    ) external view returns (uint256 totalAdds, uint256 totalRemovals) {
+        return (
+            userLiquidityStats[user].totalLiquidityAdds,
+            userLiquidityStats[user].totalLiquidityRemovals
+        );
+    }
 }

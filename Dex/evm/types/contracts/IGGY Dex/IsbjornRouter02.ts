@@ -8,6 +8,7 @@ import type {
   FunctionFragment,
   Result,
   Interface,
+  EventFragment,
   AddressLike,
   ContractRunner,
   ContractMethod,
@@ -17,6 +18,7 @@ import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
+  TypedLogDescription,
   TypedListener,
   TypedContractMethod,
 } from "../../common";
@@ -25,6 +27,7 @@ export interface IsbjornRouter02Interface extends Interface {
   getFunction(
     nameOrSignature:
       | "WAVAX"
+      | "achievementTracker"
       | "addLiquidity"
       | "addLiquidityAVAX"
       | "factory"
@@ -32,6 +35,7 @@ export interface IsbjornRouter02Interface extends Interface {
       | "getAmountOut"
       | "getAmountsIn"
       | "getAmountsOut"
+      | "owner"
       | "pairFor"
       | "quote"
       | "removeLiquidity"
@@ -40,6 +44,8 @@ export interface IsbjornRouter02Interface extends Interface {
       | "removeLiquidityAVAXWithPermit"
       | "removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens"
       | "removeLiquidityWithPermit"
+      | "revokeOwnership"
+      | "setAchievementTrackerAddress"
       | "swapAVAXForExactTokens"
       | "swapExactAVAXForTokens"
       | "swapExactAVAXForTokensSupportingFeeOnTransferTokens"
@@ -49,9 +55,16 @@ export interface IsbjornRouter02Interface extends Interface {
       | "swapExactTokensForTokensSupportingFeeOnTransferTokens"
       | "swapTokensForExactAVAX"
       | "swapTokensForExactTokens"
+      | "transferOwnership"
   ): FunctionFragment;
 
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+
   encodeFunctionData(functionFragment: "WAVAX", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "achievementTracker",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "addLiquidity",
     values: [
@@ -93,6 +106,7 @@ export interface IsbjornRouter02Interface extends Interface {
     functionFragment: "getAmountsOut",
     values: [BigNumberish, AddressLike[]]
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pairFor",
     values: [AddressLike, AddressLike]
@@ -182,6 +196,14 @@ export interface IsbjornRouter02Interface extends Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "revokeOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAchievementTrackerAddress",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "swapAVAXForExactTokens",
     values: [BigNumberish, AddressLike[], AddressLike, BigNumberish]
   ): string;
@@ -253,8 +275,16 @@ export interface IsbjornRouter02Interface extends Interface {
       BigNumberish
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [AddressLike]
+  ): string;
 
   decodeFunctionResult(functionFragment: "WAVAX", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "achievementTracker",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "addLiquidity",
     data: BytesLike
@@ -280,6 +310,7 @@ export interface IsbjornRouter02Interface extends Interface {
     functionFragment: "getAmountsOut",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pairFor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "quote", data: BytesLike): Result;
   decodeFunctionResult(
@@ -307,6 +338,14 @@ export interface IsbjornRouter02Interface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "revokeOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAchievementTrackerAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "swapAVAXForExactTokens",
     data: BytesLike
   ): Result;
@@ -342,6 +381,23 @@ export interface IsbjornRouter02Interface extends Interface {
     functionFragment: "swapTokensForExactTokens",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+}
+
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [user: AddressLike, newOwner: AddressLike];
+  export type OutputTuple = [user: string, newOwner: string];
+  export interface OutputObject {
+    user: string;
+    newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export interface IsbjornRouter02 extends BaseContract {
@@ -388,6 +444,8 @@ export interface IsbjornRouter02 extends BaseContract {
   ): Promise<this>;
 
   WAVAX: TypedContractMethod<[], [string], "view">;
+
+  achievementTracker: TypedContractMethod<[], [string], "view">;
 
   addLiquidity: TypedContractMethod<
     [
@@ -458,6 +516,8 @@ export interface IsbjornRouter02 extends BaseContract {
     [bigint[]],
     "view"
   >;
+
+  owner: TypedContractMethod<[], [string], "view">;
 
   pairFor: TypedContractMethod<
     [tokenA: AddressLike, tokenB: AddressLike],
@@ -560,6 +620,14 @@ export interface IsbjornRouter02 extends BaseContract {
       s: BytesLike
     ],
     [[bigint, bigint] & { amountA: bigint; amountB: bigint }],
+    "nonpayable"
+  >;
+
+  revokeOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  setAchievementTrackerAddress: TypedContractMethod<
+    [_achievementTracker: AddressLike],
+    [void],
     "nonpayable"
   >;
 
@@ -668,12 +736,21 @@ export interface IsbjornRouter02 extends BaseContract {
     "nonpayable"
   >;
 
+  transferOwnership: TypedContractMethod<
+    [_owner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
     nameOrSignature: "WAVAX"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "achievementTracker"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "addLiquidity"
@@ -752,6 +829,9 @@ export interface IsbjornRouter02 extends BaseContract {
     [bigint[]],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "pairFor"
   ): TypedContractMethod<
@@ -862,6 +942,16 @@ export interface IsbjornRouter02 extends BaseContract {
       s: BytesLike
     ],
     [[bigint, bigint] & { amountA: bigint; amountB: bigint }],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "revokeOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setAchievementTrackerAddress"
+  ): TypedContractMethod<
+    [_achievementTracker: AddressLike],
+    [void],
     "nonpayable"
   >;
   getFunction(
@@ -978,6 +1068,28 @@ export interface IsbjornRouter02 extends BaseContract {
     [bigint[]],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[_owner: AddressLike], [void], "nonpayable">;
 
-  filters: {};
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
+  >;
+
+  filters: {
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+  };
 }

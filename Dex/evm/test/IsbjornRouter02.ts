@@ -827,4 +827,239 @@ describe("IsbjornRouter02", function () {
       ).to.be.revertedWith("IsbjornLibrary: IDENTICAL_ADDRESSES");
     });
   });
+  describe("Achievement Tracking", function () {
+    let achievementTracker: any;
+
+    beforeEach(async function () {
+      const AchievementTracker = await ethers.getContractFactory(
+        "AchievementTracker"
+      );
+      achievementTracker = await AchievementTracker.deploy();
+      await achievementTracker.waitForDeployment();
+
+      await achievementTracker.setIsbjornRouter(router.target);
+      await router.setAchievementTrackerAddress(achievementTracker.target);
+
+      // Add initial liquidity
+      const amountADesired = ethers.parseEther("100");
+      const amountBDesired = ethers.parseEther("200");
+      const latestBlock = await ethers.provider.getBlock("latest");
+      if (!latestBlock) throw new Error("Failed to fetch the latest block.");
+      const deadline = latestBlock.timestamp + 3600;
+
+      await tokenA.connect(owner).approve(router.target, amountADesired);
+      await tokenB.connect(owner).approve(router.target, amountBDesired);
+
+      await router.addLiquidity(
+        tokenA.target,
+        tokenB.target,
+        amountADesired,
+        amountBDesired,
+        amountADesired,
+        amountBDesired,
+        ownerAddress,
+        deadline
+      );
+    });
+
+    it("should track liquidity adds successfully", async function () {
+      const latestBlock = await ethers.provider.getBlock("latest");
+      if (!latestBlock) throw new Error("Failed to fetch block");
+      const deadline = latestBlock.timestamp + 3600;
+
+      const amountADesired = ethers.parseEther("10");
+      const amountBDesired = ethers.parseEther("20");
+      const amountAMin = ethers.parseEther("9");
+      const amountBMin = ethers.parseEther("18");
+
+      await tokenA.connect(owner).approve(router.target, amountADesired);
+      await tokenB.connect(owner).approve(router.target, amountBDesired);
+
+      await router.addLiquidity(
+        tokenA.target,
+        tokenB.target,
+        amountADesired,
+        amountBDesired,
+        amountAMin,
+        amountBMin,
+        ownerAddress,
+        deadline
+      );
+
+      const globalStats = await achievementTracker.globalLiquidityStats();
+      expect(globalStats.totalLiquidityAdds).to.equal(2n);
+
+      const userStats = await achievementTracker.userLiquidityStats(
+        ownerAddress
+      );
+      expect(userStats.totalLiquidityAdds).to.equal(2n);
+    });
+
+    it("should track swaps successfully", async function () {
+      const swapAmount = ethers.parseEther("10");
+      const latestBlock = await ethers.provider.getBlock("latest");
+      if (!latestBlock) throw new Error("Failed to fetch block");
+      const deadline = latestBlock.timestamp + 3600;
+
+      await tokenA.connect(owner).transfer(user1Address, swapAmount);
+      await tokenA.connect(user1).approve(router.target, swapAmount);
+
+      const tx = await router
+        .connect(user1)
+        .swapExactTokensForTokens(
+          swapAmount,
+          0,
+          [tokenA.target, tokenB.target],
+          user1Address,
+          deadline
+        );
+      await tx.wait();
+
+      const userStatsAfter = await achievementTracker.userSwapStats(
+        user1Address
+      );
+      expect(userStatsAfter).to.equal(1n);
+    });
+
+    it("should track liquidity removes successfully", async function () {
+      const latestBlock = await ethers.provider.getBlock("latest");
+      if (!latestBlock) throw new Error("Failed to fetch block");
+      const deadline = latestBlock.timestamp + 3600;
+
+      const pairAddress = await router.pairFor(tokenA.target, tokenB.target);
+      const pair = pairTokenFactory.attach(pairAddress) as IcePond;
+      const liquidity = await pair.balanceOf(ownerAddress);
+
+      await pair.connect(owner).approve(router.target, liquidity);
+
+      await router.removeLiquidity(
+        tokenA.target,
+        tokenB.target,
+        liquidity,
+        0,
+        0,
+        ownerAddress,
+        deadline
+      );
+
+      const globalStats = await achievementTracker.globalLiquidityStats();
+      expect(globalStats.totalLiquidityRemovals).to.equal(1n);
+
+      const userStats = await achievementTracker.userLiquidityStats(
+        ownerAddress
+      );
+      expect(userStats.totalLiquidityRemovals).to.equal(1n);
+    });
+
+    it("should track individual token amounts in global liquidity stats", async function () {
+      // Initial add liquidity
+      const amountA = ethers.parseEther("50");
+      const amountB = ethers.parseEther("100");
+      const deadline =
+        (await ethers.provider.getBlock("latest"))!.timestamp + 3600;
+
+      await tokenA.connect(owner).approve(router.target, amountA);
+      await tokenB.connect(owner).approve(router.target, amountB);
+
+      await router.addLiquidity(
+        tokenA.target,
+        tokenB.target,
+        amountA,
+        amountB,
+        0,
+        0,
+        ownerAddress,
+        deadline
+      );
+
+      const globalStatsA =
+        await achievementTracker.getGlobalTokenLiquidityStats(
+          tokenA.target.toString()
+        );
+      const globalStatsB =
+        await achievementTracker.getGlobalTokenLiquidityStats(
+          tokenB.target.toString()
+        );
+      const tokenASupplied = globalStatsA.totalSupplied;
+      const tokenBSupplied = globalStatsB.totalSupplied;
+
+      // Initial liquidity (100A:200B) + new liquidity (50A:100B)
+      expect(tokenASupplied).to.equal(ethers.parseEther("150"));
+      expect(tokenBSupplied).to.equal(ethers.parseEther("300"));
+    });
+
+    it("should track individual token amounts in user swap stats", async function () {
+      const swapAmount = ethers.parseEther("10");
+      const deadline =
+        (await ethers.provider.getBlock("latest"))!.timestamp + 3600;
+
+      await tokenA.connect(owner).transfer(user1Address, swapAmount);
+      await tokenA.connect(user1).approve(router.target, swapAmount);
+
+      await router
+        .connect(user1)
+        .swapExactTokensForTokens(
+          swapAmount,
+          0,
+          [tokenA.target, tokenB.target],
+          user1Address,
+          deadline
+        );
+
+      const userStatsA = await achievementTracker.getUserTokenSwapStats(
+        user1Address,
+        tokenA.target.toString()
+      );
+      const userStatsB = await achievementTracker.getUserTokenSwapStats(
+        user1Address,
+        tokenB.target.toString()
+      );
+      expect(userStatsA.sold).to.equal(swapAmount);
+      expect(userStatsA.bought).to.equal(0n);
+      expect(userStatsB.bought).to.be.greaterThan(0n);
+      expect(userStatsB.sold).to.equal(0n);
+    });
+
+    it("should track cumulative volumes per token correctly", async function () {
+      // Setup two swaps in opposite directions
+      const swapAmount = ethers.parseEther("10");
+      const deadline =
+        (await ethers.provider.getBlock("latest"))!.timestamp + 3600;
+
+      // First swap: A -> B
+      await tokenA.connect(owner).transfer(user1Address, swapAmount);
+      await tokenA.connect(user1).approve(router.target, swapAmount);
+      await router
+        .connect(user1)
+        .swapExactTokensForTokens(
+          swapAmount,
+          0,
+          [tokenA.target, tokenB.target],
+          user1Address,
+          deadline
+        );
+
+      // Second swap: B -> A
+      const tokenBBalance = await tokenB.balanceOf(user1Address);
+      await tokenB.connect(user1).approve(router.target, tokenBBalance);
+      await router
+        .connect(user1)
+        .swapExactTokensForTokens(
+          tokenBBalance,
+          0,
+          [tokenB.target, tokenA.target],
+          user1Address,
+          deadline
+        );
+
+      const globalStatsA = await achievementTracker.getGlobalTokenSwapStats(
+        tokenA.target.toString()
+      );
+      const globalStatsB = await achievementTracker.getGlobalTokenSwapStats(
+        tokenB.target.toString()
+      );
+      expect(globalStatsA.cumulativeVolume).to.be.greaterThan(swapAmount);
+      expect(globalStatsB.cumulativeVolume).to.be.greaterThan(0n);
+    });
+  });
 });

@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as icePondSol from "./IcePond.sol";
+export { AchievementTracker__factory } from "./AchievementTracker__factory";
+export { IAchievementTracker__factory } from "./IAchievementTracker__factory";
 export { IERC20__factory } from "./IERC20__factory";
 export { IIcePond__factory } from "./IIcePond__factory";
 export { IIcePondFactory__factory } from "./IIcePondFactory__factory";
@@ -12,3 +14,4 @@ export { IWAVAX__factory } from "./IWAVAX__factory";
 export { IcePondERC20__factory } from "./IcePondERC20__factory";
 export { IcePondFactory__factory } from "./IcePondFactory__factory";
 export { IsbjornRouter02__factory } from "./IsbjornRouter02__factory";
+export { Ownable__factory } from "./Ownable__factory";

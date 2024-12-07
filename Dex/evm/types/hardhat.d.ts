@@ -38,6 +38,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "AchievementTracker",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AchievementTracker__factory>;
+    getContractFactory(
+      name: "IAchievementTracker",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAchievementTracker__factory>;
+    getContractFactory(
       name: "IcePond",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IcePond__factory>;
@@ -85,6 +93,10 @@ declare module "hardhat/types/runtime" {
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWAVAX__factory>;
+    getContractFactory(
+      name: "Ownable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Ownable__factory>;
     getContractFactory(
       name: "Distributor",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -186,30 +198,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IJoeFactory__factory>;
     getContractFactory(
-      name: "JoeERC20",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.JoeERC20__factory>;
-    getContractFactory(
-      name: "JoeFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.JoeFactory__factory>;
-    getContractFactory(
-      name: "IMigrator",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IMigrator__factory>;
-    getContractFactory(
-      name: "JoePair",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.JoePair__factory>;
-    getContractFactory(
-      name: "IERC20Joe",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC20Joe__factory>;
-    getContractFactory(
-      name: "IJoeFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IJoeFactory__factory>;
-    getContractFactory(
       name: "IJoePair",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IJoePair__factory>;
@@ -225,6 +213,22 @@ declare module "hardhat/types/runtime" {
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWAVAX__factory>;
+    getContractFactory(
+      name: "JoeERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.JoeERC20__factory>;
+    getContractFactory(
+      name: "JoeFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.JoeFactory__factory>;
+    getContractFactory(
+      name: "IMigrator",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMigrator__factory>;
+    getContractFactory(
+      name: "JoePair",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.JoePair__factory>;
     getContractFactory(
       name: "JoeRouter02",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -269,6 +273,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
+      name: "AchievementTracker",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AchievementTracker>;
+    getContractAt(
+      name: "IAchievementTracker",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAchievementTracker>;
+    getContractAt(
       name: "IcePond",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -328,6 +342,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IWAVAX>;
+    getContractAt(
+      name: "Ownable",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Ownable>;
     getContractAt(
       name: "Distributor",
       address: string | ethers.Addressable,
@@ -454,36 +473,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IJoeFactory>;
     getContractAt(
-      name: "JoeERC20",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.JoeERC20>;
-    getContractAt(
-      name: "JoeFactory",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.JoeFactory>;
-    getContractAt(
-      name: "IMigrator",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IMigrator>;
-    getContractAt(
-      name: "JoePair",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.JoePair>;
-    getContractAt(
-      name: "IERC20Joe",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC20Joe>;
-    getContractAt(
-      name: "IJoeFactory",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IJoeFactory>;
-    getContractAt(
       name: "IJoePair",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -503,6 +492,26 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IWAVAX>;
+    getContractAt(
+      name: "JoeERC20",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.JoeERC20>;
+    getContractAt(
+      name: "JoeFactory",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.JoeFactory>;
+    getContractAt(
+      name: "IMigrator",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMigrator>;
+    getContractAt(
+      name: "JoePair",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.JoePair>;
     getContractAt(
       name: "JoeRouter02",
       address: string | ethers.Addressable,
@@ -544,6 +553,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
+      name: "AchievementTracker",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.AchievementTracker>;
+    deployContract(
+      name: "IAchievementTracker",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IAchievementTracker>;
+    deployContract(
       name: "IcePond",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IcePond>;
@@ -591,6 +608,10 @@ declare module "hardhat/types/runtime" {
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWAVAX>;
+    deployContract(
+      name: "Ownable",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Ownable>;
     deployContract(
       name: "Distributor",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -692,30 +713,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IJoeFactory>;
     deployContract(
-      name: "JoeERC20",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.JoeERC20>;
-    deployContract(
-      name: "JoeFactory",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.JoeFactory>;
-    deployContract(
-      name: "IMigrator",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IMigrator>;
-    deployContract(
-      name: "JoePair",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.JoePair>;
-    deployContract(
-      name: "IERC20Joe",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IERC20Joe>;
-    deployContract(
-      name: "IJoeFactory",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IJoeFactory>;
-    deployContract(
       name: "IJoePair",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IJoePair>;
@@ -731,6 +728,22 @@ declare module "hardhat/types/runtime" {
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWAVAX>;
+    deployContract(
+      name: "JoeERC20",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.JoeERC20>;
+    deployContract(
+      name: "JoeFactory",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.JoeFactory>;
+    deployContract(
+      name: "IMigrator",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMigrator>;
+    deployContract(
+      name: "JoePair",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.JoePair>;
     deployContract(
       name: "JoeRouter02",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -775,6 +788,16 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
+      name: "AchievementTracker",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.AchievementTracker>;
+    deployContract(
+      name: "IAchievementTracker",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IAchievementTracker>;
+    deployContract(
       name: "IcePond",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -834,6 +857,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWAVAX>;
+    deployContract(
+      name: "Ownable",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.Ownable>;
     deployContract(
       name: "Distributor",
       args: any[],
@@ -960,36 +988,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IJoeFactory>;
     deployContract(
-      name: "JoeERC20",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.JoeERC20>;
-    deployContract(
-      name: "JoeFactory",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.JoeFactory>;
-    deployContract(
-      name: "IMigrator",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IMigrator>;
-    deployContract(
-      name: "JoePair",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.JoePair>;
-    deployContract(
-      name: "IERC20Joe",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IERC20Joe>;
-    deployContract(
-      name: "IJoeFactory",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IJoeFactory>;
-    deployContract(
       name: "IJoePair",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1009,6 +1007,26 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWAVAX>;
+    deployContract(
+      name: "JoeERC20",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.JoeERC20>;
+    deployContract(
+      name: "JoeFactory",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.JoeFactory>;
+    deployContract(
+      name: "IMigrator",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMigrator>;
+    deployContract(
+      name: "JoePair",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.JoePair>;
     deployContract(
       name: "JoeRouter02",
       args: any[],
