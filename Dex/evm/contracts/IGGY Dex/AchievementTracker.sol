@@ -29,8 +29,6 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         mapping(address => TokenLiquidityStats) tokenStats;
     }
 
-    SoulboundAchievments public achievements;
-
     // Global Stats
     SwapStats public globalSwapStats;
     LiquidityStats public globalLiquidityStats;
@@ -40,6 +38,38 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     mapping(address => LiquidityStats) public userLiquidityStats;
 
     address public isbjornRouter;
+
+    SoulboundAchievments public achievements;
+
+    uint256 SWAP_1 = 1; // 1 swap
+    uint256 SWAP_10 = 2; // 10 swaps
+    uint256 SWAP_100 = 3; // 100 swaps
+    uint256 SWAP_1K = 4; // 1,000 swaps
+    uint256 SWAP_10K = 5; // 10,000 swaps
+    uint256 SWAP_100K = 6; // 100,000 swaps
+    uint256 SWAP_1M = 7; // 1,000,000 swaps
+
+    uint256 AVAX_SWAP_VOL_1 = 8; // 1 AVAX swap volume
+    uint256 AVAX_SWAP_VOL_10 = 9; // 10 AVAX swap volume
+    uint256 AVAX_SWAP_VOL_100 = 10; // 100 AVAX swap volume
+    uint256 AVAX_SWAP_VOL_1k = 11; // 1,000 AVAX swap volume
+    uint256 AVAX_SWAP_VOL_10k = 12; // 10,000 AVAX swap volume
+    uint256 AVAX_SWAP_VOL_100k = 13; // 100,000 AVAX swap volume
+
+    uint256 LIQUIDITY_1 = 101; // First liquidity add
+    uint256 LIQUIDITY_10 = 102; // 10 liquidity adds
+    uint256 LIQUIDITY_100 = 103; // 100 liquidity adds
+    uint256 LIQUIDITY_1K = 104; // 1,000 liquidity adds
+    uint256 LIQUIDITY_10K = 105; // 10,000 liquidity adds
+    uint256 LIQUIDITY_100K = 106; // 100,000 liquidity adds
+    uint256 LIQUIDITY_1M = 107; // 1,000,000 liquidity adds
+
+    uint256 AVAX_LIQ_ADD_1 = 108; // 1 AVAX liquidity added
+    uint256 AVAX_LIQ_ADD_10 = 109; // 10 AVAX liquidity added
+    uint256 AVAX_LIQ_ADD_100 = 110; // 100 AVAX liquidity added
+    uint256 AVAX_LIQ_ADD_1k = 111; // 1,000 AVAX liquidity added
+    uint256 AVAX_LIQ_ADD_10k = 112; // 10,000 AVAX liquidity added
+    uint256 AVAX_LIQ_ADD_100k = 113; // 100,000 AVAX liquidity added
 
     modifier onlyIsbjorn() {
         require(
@@ -60,11 +90,15 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         address tokenIn,
         uint256 amountIn
     ) external override onlyIsbjorn {
+        globalSwapStats.totalSwaps++; //only count on in so no double count
         globalSwapStats.tokenStats[tokenIn].sold += amountIn;
         globalSwapStats.tokenStats[tokenIn].cumulativeVolume += amountIn;
 
+        userSwapStats[account].totalSwaps++; //only count on in so no double count
         userSwapStats[account].tokenStats[tokenIn].sold += amountIn;
         userSwapStats[account].tokenStats[tokenIn].cumulativeVolume += amountIn;
+
+        _checkAndIssueSwapAchievement(account);
     }
 
     function recordSwapOut(
@@ -72,15 +106,15 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         address tokenOut,
         uint256 amountOut
     ) external override onlyIsbjorn {
-        globalSwapStats.totalSwaps++; //only count on out so no double count
         globalSwapStats.tokenStats[tokenOut].bought += amountOut;
         globalSwapStats.tokenStats[tokenOut].cumulativeVolume += amountOut;
 
-        userSwapStats[account].totalSwaps++; //only count on out so no double count
         userSwapStats[account].tokenStats[tokenOut].bought += amountOut;
         userSwapStats[account]
             .tokenStats[tokenOut]
             .cumulativeVolume += amountOut;
+
+        _checkAndIssueSwapAchievement(account);
     }
 
     function recordAddLiquidity(
@@ -97,6 +131,8 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         userLiquidityStats[account].totalLiquidityAdds++;
         userLiquidityStats[account].tokenStats[token0].totalSupplied += amount0;
         userLiquidityStats[account].tokenStats[token1].totalSupplied += amount1;
+
+        _checkAndIssueLiqAchievement(account);
     }
 
     function recordRemoveLiquidity(
@@ -113,6 +149,16 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         userLiquidityStats[account].totalLiquidityRemovals++;
         userLiquidityStats[account].tokenStats[token0].totalRemoved += amount0;
         userLiquidityStats[account].tokenStats[token1].totalRemoved += amount1;
+
+        _checkAndIssueLiqAchievement(account);
+    }
+
+    function _checkAndIssueSwapAchievement(address account) private {
+        //logic to issue souldbound swap achievments
+    }
+
+    function _checkAndIssueLiqAchievement(address account) private {
+        //logic to issue souldbound liq achievments
     }
 
     function getGlobalTokenSwapStats(

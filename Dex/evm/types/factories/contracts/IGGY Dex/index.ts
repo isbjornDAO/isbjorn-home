@@ -3,7 +3,6 @@
 /* eslint-disable */
 export * as icePondSol from "./IcePond.sol";
 export * as soulBoundAchievementsSol from "./SoulBoundAchievements.sol";
-export * as soulBoundNftSol from "./SoulBoundNFT.sol";
 export { AchievementTracker__factory } from "./AchievementTracker__factory";
 export { IAchievementTracker__factory } from "./IAchievementTracker__factory";
 export { IERC20__factory } from "./IERC20__factory";

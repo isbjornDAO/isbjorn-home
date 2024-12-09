@@ -48,8 +48,6 @@ export type { Ownable } from "./contracts/IGGY Dex/Ownable";
 export { Ownable__factory } from "./factories/contracts/IGGY Dex/Ownable__factory";
 export type { SoulboundAchievments } from "./contracts/IGGY Dex/SoulBoundAchievements.sol/SoulboundAchievments";
 export { SoulboundAchievments__factory } from "./factories/contracts/IGGY Dex/SoulBoundAchievements.sol/SoulboundAchievments__factory";
-export type { SoulboundERC1155 } from "./contracts/IGGY Dex/SoulBoundNFT.sol/SoulboundERC1155";
-export { SoulboundERC1155__factory } from "./factories/contracts/IGGY Dex/SoulBoundNFT.sol/SoulboundERC1155__factory";
 export type { Distributor } from "./contracts/IGGY Token/Distributor.sol/Distributor";
 export { Distributor__factory } from "./factories/contracts/IGGY Token/Distributor.sol/Distributor__factory";
 export type { IDistributor } from "./contracts/IGGY Token/Distributor.sol/IDistributor";

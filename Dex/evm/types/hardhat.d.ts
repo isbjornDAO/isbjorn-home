@@ -102,10 +102,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SoulboundAchievments__factory>;
     getContractFactory(
-      name: "SoulboundERC1155",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.SoulboundERC1155__factory>;
-    getContractFactory(
       name: "Distributor",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Distributor__factory>;
@@ -361,11 +357,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.SoulboundAchievments>;
     getContractAt(
-      name: "SoulboundERC1155",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.SoulboundERC1155>;
-    getContractAt(
       name: "Distributor",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -635,10 +626,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SoulboundAchievments>;
     deployContract(
-      name: "SoulboundERC1155",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.SoulboundERC1155>;
-    deployContract(
       name: "Distributor",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Distributor>;
@@ -893,11 +880,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SoulboundAchievments>;
-    deployContract(
-      name: "SoulboundERC1155",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.SoulboundERC1155>;
     deployContract(
       name: "Distributor",
       args: any[],
