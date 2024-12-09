@@ -4,6 +4,7 @@ pragma solidity =0.6.12;
 
 import "./IAchievementTracker.sol";
 import "./Ownable.sol";
+import "./SoulBoundAchievements.sol";
 
 contract AchievementTracker is IAchievementTracker, Ownable {
     struct TokenSwapStats {
@@ -27,6 +28,8 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         uint256 totalLiquidityRemovals;
         mapping(address => TokenLiquidityStats) tokenStats;
     }
+
+    SoulboundAchievments public achievements;
 
     // Global Stats
     SwapStats public globalSwapStats;

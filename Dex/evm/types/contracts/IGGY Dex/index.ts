@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as icePondSol from "./IcePond.sol";
 export type { icePondSol };
+import type * as soulBoundAchievementsSol from "./SoulBoundAchievements.sol";
+export type { soulBoundAchievementsSol };
 import type * as soulBoundNftSol from "./SoulBoundNFT.sol";
 export type { soulBoundNftSol };
 export type { AchievementTracker } from "./AchievementTracker";
