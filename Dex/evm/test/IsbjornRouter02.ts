@@ -1129,6 +1129,34 @@ describe("IsbjornRouter02", function () {
         );
         expect(achievementBalance).to.be.equal(1n);
       });
+      it("should issue an achievement for 1 AVAX volume of liquidity adds", async function () {
+        const latestBlock = await ethers.provider.getBlock("latest");
+        if (!latestBlock) throw new Error("Failed to fetch block");
+        const deadline = latestBlock.timestamp + 3600;
+
+        const amountADesired = ethers.parseEther("10");
+        const amountBDesired = ethers.parseEther("20");
+        const amountAMin = ethers.parseEther("9");
+        const amountBMin = ethers.parseEther("18");
+
+        await tokenA.connect(owner).approve(router.target, amountADesired);
+
+        await router.addLiquidityAVAX(
+          tokenA.target,
+          amountADesired,
+          amountAMin,
+          amountBMin,
+          ownerAddress,
+          deadline,
+          { value: amountBDesired }
+        );
+
+        const achievementBalance = await souldBoundAchievements.balanceOf(
+          owner,
+          108
+        );
+        expect(achievementBalance).to.be.equal(1n);
+      });
     });
   });
 });

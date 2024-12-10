@@ -332,17 +332,17 @@ contract AchievementTracker is IAchievementTracker, Ownable {
             .totalSupplied;
         if (
             achievements.balanceOf(account, AVAX_LIQ_ADD_1) == 0 &&
-            accountAvaxAddVol == 1 * (10 ** 18)
+            accountAvaxAddVol <= 1 * (10 ** 18)
         ) {
             achievements.mint(account, AVAX_LIQ_ADD_1, 1, AVAX_LIQ_ADD_1_URI);
         } else if (
             achievements.balanceOf(account, AVAX_LIQ_ADD_10) == 0 &&
-            accountAvaxAddVol == 10 * (10 ** 18)
+            accountAvaxAddVol <= 10 * (10 ** 18)
         ) {
             achievements.mint(account, AVAX_LIQ_ADD_10, 1, AVAX_LIQ_ADD_10_URI);
         } else if (
             achievements.balanceOf(account, AVAX_LIQ_ADD_100) == 0 &&
-            accountAvaxAddVol == 100 * (10 ** 18)
+            accountAvaxAddVol <= 100 * (10 ** 18)
         ) {
             achievements.mint(
                 account,
@@ -352,12 +352,12 @@ contract AchievementTracker is IAchievementTracker, Ownable {
             );
         } else if (
             achievements.balanceOf(account, AVAX_LIQ_ADD_1K) == 0 &&
-            accountAvaxAddVol == 1000 * (10 ** 18)
+            accountAvaxAddVol <= 1000 * (10 ** 18)
         ) {
             achievements.mint(account, AVAX_LIQ_ADD_1K, 1, AVAX_LIQ_ADD_1K_URI);
         } else if (
             achievements.balanceOf(account, AVAX_LIQ_ADD_10K) == 0 &&
-            accountAvaxAddVol == 10000 * (10 ** 18)
+            accountAvaxAddVol <= 10000 * (10 ** 18)
         ) {
             achievements.mint(
                 account,
@@ -367,7 +367,7 @@ contract AchievementTracker is IAchievementTracker, Ownable {
             );
         } else if (
             achievements.balanceOf(account, AVAX_LIQ_ADD_100K) == 0 &&
-            accountAvaxAddVol == 100000 * (10 ** 18)
+            accountAvaxAddVol <= 100000 * (10 ** 18)
         ) {
             achievements.mint(
                 account,
