@@ -2,6 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as joePairSol from "./JoePair.sol";
+export * as masterChefJoeV2Sol from "./MasterChefJoeV2.sol";
+export { ERC20__factory } from "./ERC20__factory";
+export { IERC20__factory } from "./IERC20__factory";
 export { IERC20Joe__factory } from "./IERC20Joe__factory";
 export { IJoeCallee__factory } from "./IJoeCallee__factory";
 export { IJoeFactory__factory } from "./IJoeFactory__factory";
@@ -12,3 +15,5 @@ export { IWAVAX__factory } from "./IWAVAX__factory";
 export { JoeERC20__factory } from "./JoeERC20__factory";
 export { JoeFactory__factory } from "./JoeFactory__factory";
 export { JoeRouter02__factory } from "./JoeRouter02__factory";
+export { JoeToken__factory } from "./JoeToken__factory";
+export { Ownable__factory } from "./Ownable__factory";

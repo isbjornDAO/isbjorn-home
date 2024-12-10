@@ -3,6 +3,10 @@
 /* eslint-disable */
 import type * as joePairSol from "./JoePair.sol";
 export type { joePairSol };
+import type * as masterChefJoeV2Sol from "./MasterChefJoeV2.sol";
+export type { masterChefJoeV2Sol };
+export type { ERC20 } from "./ERC20";
+export type { IERC20 } from "./IERC20";
 export type { IERC20Joe } from "./IERC20Joe";
 export type { IJoeCallee } from "./IJoeCallee";
 export type { IJoeFactory } from "./IJoeFactory";
@@ -13,3 +17,5 @@ export type { IWAVAX } from "./IWAVAX";
 export type { JoeERC20 } from "./JoeERC20";
 export type { JoeFactory } from "./JoeFactory";
 export type { JoeRouter02 } from "./JoeRouter02";
+export type { JoeToken } from "./JoeToken";
+export type { Ownable } from "./Ownable";

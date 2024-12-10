@@ -102,6 +102,12 @@ export type { JoePair } from "./contracts/LFJ (for reference)/JoePair.sol/JoePai
 export { JoePair__factory } from "./factories/contracts/LFJ (for reference)/JoePair.sol/JoePair__factory";
 export type { JoeRouter02 } from "./contracts/LFJ (for reference)/JoeRouter02";
 export { JoeRouter02__factory } from "./factories/contracts/LFJ (for reference)/JoeRouter02__factory";
+export type { JoeToken } from "./contracts/LFJ (for reference)/JoeToken";
+export { JoeToken__factory } from "./factories/contracts/LFJ (for reference)/JoeToken__factory";
+export type { IRewarder } from "./contracts/LFJ (for reference)/MasterChefJoeV2.sol/IRewarder";
+export { IRewarder__factory } from "./factories/contracts/LFJ (for reference)/MasterChefJoeV2.sol/IRewarder__factory";
+export type { MasterChefJoeV2 } from "./contracts/LFJ (for reference)/MasterChefJoeV2.sol/MasterChefJoeV2";
+export { MasterChefJoeV2__factory } from "./factories/contracts/LFJ (for reference)/MasterChefJoeV2.sol/MasterChefJoeV2__factory";
 export type { ERC20Mock } from "./contracts/test/ERC20Mock";
 export { ERC20Mock__factory } from "./factories/contracts/test/ERC20Mock__factory";
 export type { WAVAXMock } from "./contracts/test/WAVAXMock";
