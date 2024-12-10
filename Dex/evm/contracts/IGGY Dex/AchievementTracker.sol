@@ -38,6 +38,7 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     mapping(address => LiquidityStats) public userLiquidityStats;
 
     address public isbjornRouter;
+    address public WAVAX;
 
     SoulboundAchievments public achievements;
 
@@ -49,12 +50,28 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     uint256 SWAP_100K = 6; // 100,000 swaps
     uint256 SWAP_1M = 7; // 1,000,000 swaps
 
+    string SWAP_1_URI = "";
+    string SWAP_10_URI = "";
+    string SWAP_100_URI = "";
+    string SWAP_1K_URI = "";
+    string SWAP_10K_URI = "";
+    string SWAP_100K_URI = "";
+    string SWAP_1M_URI = "";
+
     uint256 AVAX_SWAP_VOL_1 = 8; // 1 AVAX swap volume
     uint256 AVAX_SWAP_VOL_10 = 9; // 10 AVAX swap volume
     uint256 AVAX_SWAP_VOL_100 = 10; // 100 AVAX swap volume
-    uint256 AVAX_SWAP_VOL_1k = 11; // 1,000 AVAX swap volume
-    uint256 AVAX_SWAP_VOL_10k = 12; // 10,000 AVAX swap volume
-    uint256 AVAX_SWAP_VOL_100k = 13; // 100,000 AVAX swap volume
+    uint256 AVAX_SWAP_VOL_1K = 11; // 1,000 AVAX swap volume
+    uint256 AVAX_SWAP_VOL_10K = 12; // 10,000 AVAX swap volume
+    uint256 AVAX_SWAP_VOL_100K = 13; // 100,000 AVAX swap volume
+
+    string AVAX_SWAP_VOL_1_URI = "";
+    string AVAX_SWAP_VOL_10_URI = "";
+    string AVAX_SWAP_VOL_100_URI = "";
+    string AVAX_SWAP_VOL_1K_URI = "";
+    string AVAX_SWAP_VOL_10K_URI = "";
+    string AVAX_SWAP_VOL_100K_URI = "";
+    string AVAX_SWAP_VOL_1M_URI = "";
 
     uint256 LIQUIDITY_1 = 101; // First liquidity add
     uint256 LIQUIDITY_10 = 102; // 10 liquidity adds
@@ -64,12 +81,28 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     uint256 LIQUIDITY_100K = 106; // 100,000 liquidity adds
     uint256 LIQUIDITY_1M = 107; // 1,000,000 liquidity adds
 
+    string LIQUIDITY_1_URI = "";
+    string LIQUIDITY_10_URI = "";
+    string LIQUIDITY_100_URI = "";
+    string LIQUIDITY_1K_URI = "";
+    string LIQUIDITY_10K_URI = "";
+    string LIQUIDITY_100K_URI = "";
+    string LIQUIDITY_1M_URI = "";
+
     uint256 AVAX_LIQ_ADD_1 = 108; // 1 AVAX liquidity added
     uint256 AVAX_LIQ_ADD_10 = 109; // 10 AVAX liquidity added
     uint256 AVAX_LIQ_ADD_100 = 110; // 100 AVAX liquidity added
-    uint256 AVAX_LIQ_ADD_1k = 111; // 1,000 AVAX liquidity added
-    uint256 AVAX_LIQ_ADD_10k = 112; // 10,000 AVAX liquidity added
-    uint256 AVAX_LIQ_ADD_100k = 113; // 100,000 AVAX liquidity added
+    uint256 AVAX_LIQ_ADD_1K = 111; // 1,000 AVAX liquidity added
+    uint256 AVAX_LIQ_ADD_10K = 112; // 10,000 AVAX liquidity added
+    uint256 AVAX_LIQ_ADD_100K = 113; // 100,000 AVAX liquidity added
+
+    string AVAX_LIQ_ADD_1_URI = "";
+    string AVAX_LIQ_ADD_10_URI = "";
+    string AVAX_LIQ_ADD_100_URI = "";
+    string AVAX_LIQ_ADD_1K_URI = "";
+    string AVAX_LIQ_ADD_10K_URI = "";
+    string AVAX_LIQ_ADD_100K_URI = "";
+    string AVAX_LIQ_ADD_1M_URI = "";
 
     modifier onlyIsbjorn() {
         require(
@@ -79,10 +112,16 @@ contract AchievementTracker is IAchievementTracker, Ownable {
         _;
     }
 
-    constructor() public Ownable(msg.sender) {}
+    constructor(string memory _baseUri) public Ownable(msg.sender) {
+        achievements = new SoulboundAchievments(_baseUri);
+    }
 
-    function setIsbjornRouter(address _isbjbornRouter) external onlyOwner {
+    function setIsbjornRouter(
+        address _isbjbornRouter,
+        address _WAVAX
+    ) external onlyOwner {
         isbjornRouter = _isbjbornRouter;
+        WAVAX = _WAVAX;
     }
 
     function recordSwapIn(
@@ -154,11 +193,189 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     }
 
     function _checkAndIssueSwapAchievement(address account) private {
-        //logic to issue souldbound swap achievments
+        uint256 accountSwaps = userSwapStats[account].totalSwaps;
+        if (achievements.balanceOf(account, SWAP_1) == 0 && accountSwaps == 1) {
+            achievements.mint(account, SWAP_1, 1, SWAP_1_URI);
+        } else if (
+            achievements.balanceOf(account, SWAP_10) == 0 && accountSwaps == 10
+        ) {
+            achievements.mint(account, SWAP_10, 1, SWAP_10_URI);
+        } else if (
+            achievements.balanceOf(account, SWAP_100) == 0 &&
+            accountSwaps == 100
+        ) {
+            achievements.mint(account, SWAP_100, 1, SWAP_100_URI);
+        } else if (
+            achievements.balanceOf(account, SWAP_1K) == 0 &&
+            accountSwaps == 1000
+        ) {
+            achievements.mint(account, SWAP_1K, 1, SWAP_1K_URI);
+        } else if (
+            achievements.balanceOf(account, SWAP_10K) == 0 &&
+            accountSwaps == 10000
+        ) {
+            achievements.mint(account, SWAP_10K, 1, SWAP_10K_URI);
+        } else if (
+            achievements.balanceOf(account, SWAP_100K) == 0 &&
+            accountSwaps == 100000
+        ) {
+            achievements.mint(account, SWAP_100K, 1, SWAP_100K_URI);
+        } else if (
+            achievements.balanceOf(account, SWAP_1M) == 0 &&
+            accountSwaps == 1000000
+        ) {
+            achievements.mint(account, SWAP_1M, 1, SWAP_1M_URI);
+        }
+
+        uint256 accountAvaxVol = userSwapStats[account]
+            .tokenStats[WAVAX]
+            .cumulativeVolume;
+        if (
+            achievements.balanceOf(account, AVAX_SWAP_VOL_1) == 0 &&
+            accountAvaxVol == 1 * (10 ** 18)
+        ) {
+            achievements.mint(account, AVAX_SWAP_VOL_1, 1, AVAX_SWAP_VOL_1_URI);
+        } else if (
+            achievements.balanceOf(account, AVAX_SWAP_VOL_10) == 0 &&
+            accountAvaxVol == 10 * (10 ** 18)
+        ) {
+            achievements.mint(
+                account,
+                AVAX_SWAP_VOL_10,
+                1,
+                AVAX_SWAP_VOL_10_URI
+            );
+        } else if (
+            achievements.balanceOf(account, AVAX_SWAP_VOL_100) == 0 &&
+            accountAvaxVol == 100 * (10 ** 18)
+        ) {
+            achievements.mint(
+                account,
+                AVAX_SWAP_VOL_100,
+                1,
+                AVAX_SWAP_VOL_100_URI
+            );
+        } else if (
+            achievements.balanceOf(account, AVAX_SWAP_VOL_1K) == 0 &&
+            accountAvaxVol == 1000 * (10 ** 18)
+        ) {
+            achievements.mint(
+                account,
+                AVAX_SWAP_VOL_1K,
+                1,
+                AVAX_SWAP_VOL_1K_URI
+            );
+        } else if (
+            achievements.balanceOf(account, AVAX_SWAP_VOL_10K) == 0 &&
+            accountAvaxVol == 10000 * (10 ** 18)
+        ) {
+            achievements.mint(
+                account,
+                AVAX_SWAP_VOL_10K,
+                1,
+                AVAX_SWAP_VOL_10K_URI
+            );
+        } else if (
+            achievements.balanceOf(account, AVAX_SWAP_VOL_100K) == 0 &&
+            accountAvaxVol == 100000 * (10 ** 18)
+        ) {
+            achievements.mint(
+                account,
+                AVAX_SWAP_VOL_100K,
+                1,
+                AVAX_SWAP_VOL_100K_URI
+            );
+        }
     }
 
     function _checkAndIssueLiqAchievement(address account) private {
-        //logic to issue souldbound liq achievments
+        uint256 accountLiqAdds = userLiquidityStats[account].totalLiquidityAdds;
+        if (
+            achievements.balanceOf(account, LIQUIDITY_1) == 0 &&
+            accountLiqAdds == 1
+        ) {
+            achievements.mint(account, LIQUIDITY_1, 1, LIQUIDITY_1_URI);
+        } else if (
+            achievements.balanceOf(account, LIQUIDITY_10) == 0 &&
+            accountLiqAdds == 10
+        ) {
+            achievements.mint(account, LIQUIDITY_10, 1, LIQUIDITY_10_URI);
+        } else if (
+            achievements.balanceOf(account, LIQUIDITY_100) == 0 &&
+            accountLiqAdds == 100
+        ) {
+            achievements.mint(account, LIQUIDITY_100, 1, LIQUIDITY_100_URI);
+        } else if (
+            achievements.balanceOf(account, LIQUIDITY_1K) == 0 &&
+            accountLiqAdds == 1000
+        ) {
+            achievements.mint(account, LIQUIDITY_1K, 1, LIQUIDITY_1K_URI);
+        } else if (
+            achievements.balanceOf(account, LIQUIDITY_10K) == 0 &&
+            accountLiqAdds == 10000
+        ) {
+            achievements.mint(account, LIQUIDITY_10K, 1, LIQUIDITY_10K_URI);
+        } else if (
+            achievements.balanceOf(account, LIQUIDITY_100K) == 0 &&
+            accountLiqAdds == 100000
+        ) {
+            achievements.mint(account, LIQUIDITY_100K, 1, LIQUIDITY_100K_URI);
+        } else if (
+            achievements.balanceOf(account, LIQUIDITY_1M) == 0 &&
+            accountLiqAdds == 1000000
+        ) {
+            achievements.mint(account, LIQUIDITY_1M, 1, LIQUIDITY_1M_URI);
+        }
+
+        uint256 accountAvaxAddVol = userLiquidityStats[account]
+            .tokenStats[WAVAX]
+            .totalSupplied;
+        if (
+            achievements.balanceOf(account, AVAX_LIQ_ADD_1) == 0 &&
+            accountAvaxAddVol == 1 * (10 ** 18)
+        ) {
+            achievements.mint(account, AVAX_LIQ_ADD_1, 1, AVAX_LIQ_ADD_1_URI);
+        } else if (
+            achievements.balanceOf(account, AVAX_LIQ_ADD_10) == 0 &&
+            accountAvaxAddVol == 10 * (10 ** 18)
+        ) {
+            achievements.mint(account, AVAX_LIQ_ADD_10, 1, AVAX_LIQ_ADD_10_URI);
+        } else if (
+            achievements.balanceOf(account, AVAX_LIQ_ADD_100) == 0 &&
+            accountAvaxAddVol == 100 * (10 ** 18)
+        ) {
+            achievements.mint(
+                account,
+                AVAX_LIQ_ADD_100,
+                1,
+                AVAX_LIQ_ADD_100_URI
+            );
+        } else if (
+            achievements.balanceOf(account, AVAX_LIQ_ADD_1K) == 0 &&
+            accountAvaxAddVol == 1000 * (10 ** 18)
+        ) {
+            achievements.mint(account, AVAX_LIQ_ADD_1K, 1, AVAX_LIQ_ADD_1K_URI);
+        } else if (
+            achievements.balanceOf(account, AVAX_LIQ_ADD_10K) == 0 &&
+            accountAvaxAddVol == 10000 * (10 ** 18)
+        ) {
+            achievements.mint(
+                account,
+                AVAX_LIQ_ADD_10K,
+                1,
+                AVAX_LIQ_ADD_10K_URI
+            );
+        } else if (
+            achievements.balanceOf(account, AVAX_LIQ_ADD_100K) == 0 &&
+            accountAvaxAddVol == 100000 * (10 ** 18)
+        ) {
+            achievements.mint(
+                account,
+                AVAX_LIQ_ADD_100K,
+                1,
+                AVAX_LIQ_ADD_100K_URI
+            );
+        }
     }
 
     function getGlobalTokenSwapStats(
