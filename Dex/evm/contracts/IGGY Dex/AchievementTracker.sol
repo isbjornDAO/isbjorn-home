@@ -50,6 +50,7 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     uint256 SWAP_100K = 6; // 100,000 swaps
     uint256 SWAP_1M = 7; // 1,000,000 swaps
 
+    // TODO: assign URI's
     string SWAP_1_URI = "";
     string SWAP_10_URI = "";
     string SWAP_100_URI = "";
@@ -65,6 +66,7 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     uint256 AVAX_SWAP_VOL_10K = 12; // 10,000 AVAX swap volume
     uint256 AVAX_SWAP_VOL_100K = 13; // 100,000 AVAX swap volume
 
+    // TODO: assign URI's
     string AVAX_SWAP_VOL_1_URI = "";
     string AVAX_SWAP_VOL_10_URI = "";
     string AVAX_SWAP_VOL_100_URI = "";
@@ -81,6 +83,7 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     uint256 LIQUIDITY_100K = 106; // 100,000 liquidity adds
     uint256 LIQUIDITY_1M = 107; // 1,000,000 liquidity adds
 
+    // TODO: assign URI's
     string LIQUIDITY_1_URI = "";
     string LIQUIDITY_10_URI = "";
     string LIQUIDITY_100_URI = "";
@@ -96,6 +99,7 @@ contract AchievementTracker is IAchievementTracker, Ownable {
     uint256 AVAX_LIQ_ADD_10K = 112; // 10,000 AVAX liquidity added
     uint256 AVAX_LIQ_ADD_100K = 113; // 100,000 AVAX liquidity added
 
+    // TODO: assign URI's
     string AVAX_LIQ_ADD_1_URI = "";
     string AVAX_LIQ_ADD_10_URI = "";
     string AVAX_LIQ_ADD_100_URI = "";
