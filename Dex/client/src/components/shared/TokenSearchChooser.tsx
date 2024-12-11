@@ -108,6 +108,7 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
                     onSelection(token);
                 }
                 setOpen(false);
+                setSearchValue('');
             } else {
                 setImportError('Not a valid token contract!');
             }
@@ -147,7 +148,7 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
                             <img
                                 src={currentSelected.imgUrl || '/placeholder-token.png'}
                                 alt={currentSelected.ticker}
-                                className="w-full h-full object-cover transform scale-110"
+                                className="w-full h-full object-cover"
                             />
                         </div>
                         <span>{currentSelected.ticker}</span>

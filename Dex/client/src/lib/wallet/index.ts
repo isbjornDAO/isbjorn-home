@@ -1017,8 +1017,25 @@ export const getTokenAmountForAddLiquidity = async (
 };
 
 export const importNewERC20Token = async (
-  address: string
+  tokenAddress: string
 ): Promise<Token | null> => {
   let token: Token | null = null;
+  try {
+    const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
+    const name: string = await contract.methods.name().call();
+    const symbol: string = await contract.methods.symbol().call();
+    const decimals: number = await contract.methods.decimals().call();
+
+    token = {
+      address: tokenAddress.toLowerCase(),
+      name: name,
+      ticker: symbol,
+      imgUrl: "/assets/icons/question-sign.svg",
+      decimals: Number(decimals),
+      rank: "9999",
+    };
+  } catch (error) {
+    console.log("Error trying to import token: ", error);
+  }
   return token;
 };
