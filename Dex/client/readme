@@ -11,6 +11,7 @@ if need to install components here is the list of commands:
 
 npx shadcn@latest add button
 npx shadcn@latest add card
+npx shadcn@latest add command
 npx shadcn@latest add input
 npx shadcn@latest add popover
 npx shadcn@latest add select

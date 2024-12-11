@@ -3,7 +3,7 @@ import { FaChevronDown } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Loader, SlippageInput, TokenChooser } from '@/components/shared';
+import { Loader, SlippageInput, TokenChooser, TokenSearchChooser } from '@/components/shared';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from "@/components/ui/switch"
 import BN from 'bn.js';
@@ -296,7 +296,7 @@ const SwapPanel = () => {
                                         value={fromAmountInputValue}
                                         onChange={(e) => handleFromInputChange(e.target.value)}
                                     />
-                                    <TokenChooser startSelected={fromToken} available={sample_token_list} onSelection={onFromTokenChange} />
+                                    <TokenSearchChooser startSelected={fromToken} available={sample_token_list} onSelection={onFromTokenChange} />
                                 </div>
                                 <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer">
                                     <p
@@ -324,7 +324,7 @@ const SwapPanel = () => {
                                         value={toAmountInputValue}
                                         onChange={(e) => handleToInputChange(e.target.value)}
                                     />
-                                    <TokenChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} />
+                                    <TokenSearchChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} />
                                 </div>
                                 <div className="p-2 pt-0 text-xxs font-semibold">
                                     <p className='ml-2'>{`wallet: ${Number(formatBN(toBalance, toToken.decimals)).toLocaleString()}`}</p>

@@ -5,7 +5,7 @@ import { useAccountConnect } from "@/lib/react-query/queriesAndMutations";
 import { INITIAL_ACCOUNT, useUserContext } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { Account } from "@/types";
-import { getCookie, isAddress, setCookie, sqrtBN } from "../utils";
+import { getCookie, isAddress, setCookie, sqrtBN } from "@/lib/utils";
 import {
   avvy_resolver_abi,
   avvy_resolver_addr,
@@ -73,24 +73,29 @@ export const getCachedAccount = (address: string): Account | null => {
   const cachedAccounts = JSON.parse(cachedAccountsStr);
   const cachedAccount = cachedAccounts[address.toLowerCase()] || null;
 
+  console.log(cachedAccount);
+
   if (cachedAccount && cachedAccount.address) {
     // Convert hex strings in balances back to BN objects
-    const convertedBalances = Object.entries(cachedAccount.balances).reduce(
-      (acc, [tokenAddress, balance]) => {
-        if (typeof balance !== "string") {
-          console.warn(
-            `Unexpected balance format for ${tokenAddress}:`,
-            balance
-          );
-          return acc; // Skip invalid balance
-        }
-        return {
-          ...acc,
-          [tokenAddress]: new BN(balance, 16), // Convert valid balance string to BN
-        };
-      },
-      {} as { [key: string]: BN }
-    );
+    let convertedBalances = {};
+    if (cachedAccount.balances) {
+      convertedBalances = Object.entries(cachedAccount.balances).reduce(
+        (acc, [tokenAddress, balance]) => {
+          if (typeof balance !== "string") {
+            console.warn(
+              `Unexpected balance format for ${tokenAddress}:`,
+              balance
+            );
+            return acc; // Skip invalid balance
+          }
+          return {
+            ...acc,
+            [tokenAddress]: new BN(balance, 16), // Convert valid balance string to BN
+          };
+        },
+        {} as { [key: string]: BN }
+      );
+    }
 
     return {
       ...cachedAccount,
