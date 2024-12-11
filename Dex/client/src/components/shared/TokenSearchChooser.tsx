@@ -17,6 +17,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { Token } from '@/types';
 import { setCookie, getCookie } from '@/lib/utils';
 import { cn } from "@/lib/utils";
+import { Loader } from '@/components/shared';
 
 interface TokenSearchChooserProps {
     startSelected: Token;
@@ -41,6 +42,7 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
     const [currentSelected, setCurrentSelected] = useState<Token>(startSelected);
     const [importedTokens, setImportedTokens] = useState<{ [address: string]: Token }>({});
     const [isAddingToken, setIsAddingToken] = useState(false);
+    const [importError, setImportError] = useState<string>('');
 
     // Load imported tokens from cookies on mount
     useEffect(() => {
@@ -63,6 +65,7 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
     useEffect(() => {
         // Check if search value might be a contract address
         setMightBeAddress(/^0x[a-fA-F0-9]{40}$/.test(searchValue));
+        setImportError('');
     }, [searchValue]);
 
 
@@ -88,6 +91,7 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
         if (!onImport || !searchValue) return;
 
         setIsAddingToken(true);
+        setImportError('');
         try {
             const token = await onImport(searchValue);
             if (token) {
@@ -104,9 +108,12 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
                     onSelection(token);
                 }
                 setOpen(false);
+            } else {
+                setImportError('Not a valid token contract!');
             }
         } catch (error) {
             console.error('Error importing token:', error);
+            setImportError('Failed to import token!');
         } finally {
             setIsAddingToken(false);
         }
@@ -157,16 +164,18 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
                         />
                         <CommandList>
                             <CommandEmpty>
-                                {mightBeAddress && onImport ? (
+                                {mightBeAddress && onImport && !importError ? (
                                     <Button
                                         className="justify-center import-token-button mx-4"
                                         disabled={isAddingToken}
                                         onClick={handleImport}
                                     >
-                                        {isAddingToken ? 'Importing...' : 'Import token'}
+                                        {isAddingToken ? <Loader /> : 'Import token'}
                                     </Button>
+                                ) : importError ? (
+                                    <div className="text-red text-center py-2">{importError}</div>
                                 ) : (
-                                    'No token found.'
+                                    'No tokens found.'
                                 )}
                             </CommandEmpty>
                             {Object.keys(filteredTokens).length > 0 && (<CommandGroup heading="Tokens">

@@ -4,7 +4,7 @@ import BN from "bn.js";
 import { useAccountConnect } from "@/lib/react-query/queriesAndMutations";
 import { INITIAL_ACCOUNT, useUserContext } from "@/context/AuthContext";
 import { useEffect } from "react";
-import { Account } from "@/types";
+import { Account, Token } from "@/types";
 import { getCookie, isAddress, setCookie, sqrtBN } from "@/lib/utils";
 import {
   avvy_resolver_abi,
@@ -1014,4 +1014,11 @@ export const getTokenAmountForAddLiquidity = async (
     console.log(error);
   }
   return amount;
+};
+
+export const importNewERC20Token = async (
+  address: string
+): Promise<Token | null> => {
+  let token: Token | null = null;
+  return token;
 };
