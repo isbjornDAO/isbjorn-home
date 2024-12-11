@@ -127,6 +127,10 @@
     @apply bg-white border border-isbjorn-dark text-dodger-blue;
   }
 
+  .import-token-button {
+    @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2;
+  }
+
   .profile-tooltip {
     @apply bg-white text-dodger-blue;
   }

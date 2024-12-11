@@ -72,19 +72,6 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
     // Filter tokens based on search value
     const filteredTokens = Object.entries(allTokens).reduce((acc, [address, token]) => {
         const searchLower = searchValue.toLowerCase();
-        const addressLower = address.toLowerCase();
-        const tickerLower = token.ticker.toLowerCase();
-        const nameLower = token.name.toLowerCase();
-
-        console.log('Filtering Token:', {
-            searchValue: searchLower,
-            address: addressLower,
-            addressMatch: addressLower.includes(searchLower),
-            ticker: tickerLower,
-            tickerMatch: tickerLower.includes(searchLower),
-            name: nameLower,
-            nameMatch: nameLower.includes(searchLower),
-        });
         if (
             token.ticker.toLowerCase().includes(searchLower) ||
             token.name.toLowerCase().includes(searchLower) ||
@@ -172,8 +159,7 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
                             <CommandEmpty>
                                 {mightBeAddress && onImport ? (
                                     <Button
-                                        className="w-full justify-start px-2 py-1.5"
-                                        variant="ghost"
+                                        className="justify-center import-token-button mx-4"
                                         disabled={isAddingToken}
                                         onClick={handleImport}
                                     >

@@ -324,7 +324,10 @@ const SwapPanel = () => {
                                         value={toAmountInputValue}
                                         onChange={(e) => handleToInputChange(e.target.value)}
                                     />
-                                    <TokenSearchChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} />
+                                    <TokenSearchChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} onImport={(address) => {
+                                        console.log(address);
+                                        return null;
+                                    }} />
                                 </div>
                                 <div className="p-2 pt-0 text-xxs font-semibold">
                                     <p className='ml-2'>{`wallet: ${Number(formatBN(toBalance, toToken.decimals)).toLocaleString()}`}</p>
