@@ -8,18 +8,7 @@ import "./SafeMath.sol";
 import "./BoringERC20.sol";
 import "./EnumerableSet.sol";
 import "./JoeToken.sol";
-
-interface IRewarder {
-    using SafeERC20 for IERC20;
-
-    function onJoeReward(address user, uint256 newLpAmount) external;
-
-    function pendingTokens(
-        address user
-    ) external view returns (uint256 pending);
-
-    function rewardToken() external view returns (address);
-}
+import "./IRewarder.sol";
 
 // MasterChefJoe is a boss. He says "go f your blocks lego boy, I'm gonna use timestamp instead".
 // And to top it off, it takes no risks. Because the biggest risk is operator error.

@@ -222,6 +222,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IJoeRouter02__factory>;
     getContractFactory(
+      name: "IMasterChef",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMasterChef__factory>;
+    getContractFactory(
+      name: "IRewarder",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRewarder__factory>;
+    getContractFactory(
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWAVAX__factory>;
@@ -250,13 +258,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.JoeToken__factory>;
     getContractFactory(
-      name: "IRewarder",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IRewarder__factory>;
-    getContractFactory(
       name: "MasterChefJoeV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MasterChefJoeV2__factory>;
+    getContractFactory(
+      name: "MasterChefJoeV3",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MasterChefJoeV3__factory>;
     getContractFactory(
       name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -531,6 +539,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IJoeRouter02>;
     getContractAt(
+      name: "IMasterChef",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMasterChef>;
+    getContractAt(
+      name: "IRewarder",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRewarder>;
+    getContractAt(
       name: "IWAVAX",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -566,15 +584,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.JoeToken>;
     getContractAt(
-      name: "IRewarder",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IRewarder>;
-    getContractAt(
       name: "MasterChefJoeV2",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.MasterChefJoeV2>;
+    getContractAt(
+      name: "MasterChefJoeV3",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MasterChefJoeV3>;
     getContractAt(
       name: "Ownable",
       address: string | ethers.Addressable,
@@ -800,6 +818,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IJoeRouter02>;
     deployContract(
+      name: "IMasterChef",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMasterChef>;
+    deployContract(
+      name: "IRewarder",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IRewarder>;
+    deployContract(
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWAVAX>;
@@ -828,13 +854,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.JoeToken>;
     deployContract(
-      name: "IRewarder",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IRewarder>;
-    deployContract(
       name: "MasterChefJoeV2",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MasterChefJoeV2>;
+    deployContract(
+      name: "MasterChefJoeV3",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MasterChefJoeV3>;
     deployContract(
       name: "Ownable",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1109,6 +1135,16 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IJoeRouter02>;
     deployContract(
+      name: "IMasterChef",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMasterChef>;
+    deployContract(
+      name: "IRewarder",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IRewarder>;
+    deployContract(
       name: "IWAVAX",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1144,15 +1180,15 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.JoeToken>;
     deployContract(
-      name: "IRewarder",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IRewarder>;
-    deployContract(
       name: "MasterChefJoeV2",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MasterChefJoeV2>;
+    deployContract(
+      name: "MasterChefJoeV3",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MasterChefJoeV3>;
     deployContract(
       name: "Ownable",
       args: any[],
