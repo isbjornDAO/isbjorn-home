@@ -11,8 +11,8 @@ import { Token } from '@/types';
 import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, sample_token_list, WAVAX_ADDRESS } from '@/constants';
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
-import { Loader, SlippageInput } from '.';
-import { approveERC20Amount, createAddLiquidityTransaction, createRemoveLiquidityTransaction, getERC20Allowance, getPairAddress, getTokenAmountForAddLiquidity, getTokenAmountsOnRemoveLiquidity, initializeWeb3, useHandleConnectWallet } from '@/lib/wallet';
+import { Loader, SlippageInput, TokenSearchChooser } from '.';
+import { approveERC20Amount, createAddLiquidityTransaction, createRemoveLiquidityTransaction, getERC20Allowance, getPairAddress, getTokenAmountForAddLiquidity, getTokenAmountsOnRemoveLiquidity, importNewERC20Token, initializeWeb3, useHandleConnectWallet } from '@/lib/wallet';
 import BN from 'bn.js';
 import { formatBN, scaleToBN } from '@/lib/utils';
 
@@ -231,6 +231,12 @@ const LiquidityPanel = () => {
         update();
     };
 
+    const handleTokenImport = async (address: string) => {
+        console.log("Import Token: ", address);
+        const retrivedToken = await importNewERC20Token(address);
+        return retrivedToken;
+    }
+
     useEffect(() => {
         const getInitialPair = async () => {
             const newPairAddress = await getPairAddress(token0.address, token1.address);
@@ -430,7 +436,7 @@ const LiquidityPanel = () => {
                                         value={token0InputValue}
                                         onChange={(e) => handleToken0InputChange(e.target.value)}
                                     />
-                                    <TokenChooser startSelected={token0} available={sample_token_list} onSelection={onToken0Change} />
+                                    <TokenSearchChooser startSelected={token0} available={sample_token_list} onSelection={onToken0Change} onImport={handleTokenImport} />
                                 </div>
                                 <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer">
                                     <p
@@ -457,7 +463,7 @@ const LiquidityPanel = () => {
                                         value={token1InputValue}
                                         onChange={(e) => handleToken1InputChange(e.target.value)}
                                     />
-                                    <TokenChooser startSelected={token1} available={sample_token_list} onSelection={onToken1Change} />
+                                    <TokenSearchChooser startSelected={token1} available={sample_token_list} onSelection={onToken1Change} onImport={handleTokenImport} />
                                 </div>
                                 <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer">
                                     <p

@@ -13,7 +13,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { Token } from '@/types';
 import { setCookie, getCookie } from '@/lib/utils';
 import { cn } from "@/lib/utils";
@@ -85,7 +85,31 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
         return acc;
     }, {} as typeof allTokens);
 
+    const handleRemoveToken = (address: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (currentSelected.address.toLowerCase() === address.toLowerCase()) {
+            const availableTokens = Object.entries(available)
+                .sort(([, tokenA], [, tokenB]) => {
+                    if (tokenA.rank === "" && tokenB.rank === "") return 0;
+                    if (tokenA.rank === "") return 1;
+                    if (tokenB.rank === "") return -1;
+                    return Number(tokenA.rank) - Number(tokenB.rank);
+                });
+            if (availableTokens.length > 0) {
+                const [newAddress, newToken] = availableTokens[0];
+                setValue(newAddress);
+                setCurrentSelected(newToken);
+                if (onSelection) {
+                    onSelection(newToken);
+                }
+            }
+        }
 
+        const updatedImported = { ...importedTokens };
+        delete updatedImported[address];
+        setImportedTokens(updatedImported);
+        setCookie(IMPORTED_TOKENS_COOKIE, JSON.stringify(updatedImported), 30);
+    };
 
     const handleImport = async () => {
         if (!onImport || !searchValue) return;
@@ -209,6 +233,15 @@ const TokenSearchChooser: FC<TokenSearchChooserProps> = ({
                                                     value === address ? "opacity-100" : "opacity-0"
                                                 )}
                                             />
+                                            {address in importedTokens && (
+                                                <button
+                                                    onClick={(e) => handleRemoveToken(address, e)}
+                                                    className="p-1 hover:bg-gray-100 rounded-full"
+                                                    title="Remove imported token"
+                                                >
+                                                    <X className="h-4 w-4 text-red-500" />
+                                                </button>
+                                            )}
                                         </CommandItem>
                                     ))}
                             </CommandGroup>

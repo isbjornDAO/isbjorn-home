@@ -73,8 +73,6 @@ export const getCachedAccount = (address: string): Account | null => {
   const cachedAccounts = JSON.parse(cachedAccountsStr);
   const cachedAccount = cachedAccounts[address.toLowerCase()] || null;
 
-  console.log(cachedAccount);
-
   if (cachedAccount && cachedAccount.address) {
     // Convert hex strings in balances back to BN objects
     let convertedBalances = {};
