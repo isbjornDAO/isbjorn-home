@@ -42,6 +42,8 @@ export type { IIsbjornRouter02 } from "./contracts/IGGY Dex/IIsbjornRouter02";
 export { IIsbjornRouter02__factory } from "./factories/contracts/IGGY Dex/IIsbjornRouter02__factory";
 export type { IsbjornRouter02 } from "./contracts/IGGY Dex/IsbjornRouter02";
 export { IsbjornRouter02__factory } from "./factories/contracts/IGGY Dex/IsbjornRouter02__factory";
+export type { IsbjornStaking } from "./contracts/IGGY Dex/IsbjornStaking";
+export { IsbjornStaking__factory } from "./factories/contracts/IGGY Dex/IsbjornStaking__factory";
 export type { IWAVAX } from "./contracts/IGGY Dex/IWAVAX";
 export { IWAVAX__factory } from "./factories/contracts/IGGY Dex/IWAVAX__factory";
 export type { Ownable } from "./contracts/IGGY Dex/Ownable";

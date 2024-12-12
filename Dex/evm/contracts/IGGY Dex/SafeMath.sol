@@ -16,4 +16,9 @@ library SafeMath {
     function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require(y == 0 || (z = x * y) / y == x, "ds-math-mul-overflow");
     }
+
+    function div(uint256 x, uint256 y) internal pure returns (uint256 z) {
+        require(y > 0, "ds-math-div-by-zero");
+        z = x / y;
+    }
 }

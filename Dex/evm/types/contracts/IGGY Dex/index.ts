@@ -17,4 +17,5 @@ export type { IWAVAX } from "./IWAVAX";
 export type { IcePondERC20 } from "./IcePondERC20";
 export type { IcePondFactory } from "./IcePondFactory";
 export type { IsbjornRouter02 } from "./IsbjornRouter02";
+export type { IsbjornStaking } from "./IsbjornStaking";
 export type { Ownable } from "./Ownable";

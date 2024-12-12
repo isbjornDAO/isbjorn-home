@@ -15,4 +15,5 @@ export { IWAVAX__factory } from "./IWAVAX__factory";
 export { IcePondERC20__factory } from "./IcePondERC20__factory";
 export { IcePondFactory__factory } from "./IcePondFactory__factory";
 export { IsbjornRouter02__factory } from "./IsbjornRouter02__factory";
+export { IsbjornStaking__factory } from "./IsbjornStaking__factory";
 export { Ownable__factory } from "./Ownable__factory";

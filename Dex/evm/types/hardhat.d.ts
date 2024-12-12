@@ -90,6 +90,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IsbjornRouter02__factory>;
     getContractFactory(
+      name: "IsbjornStaking",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IsbjornStaking__factory>;
+    getContractFactory(
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWAVAX__factory>;
@@ -374,6 +378,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IsbjornRouter02>;
     getContractAt(
+      name: "IsbjornStaking",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IsbjornStaking>;
+    getContractAt(
       name: "IWAVAX",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -686,6 +695,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IsbjornRouter02>;
     deployContract(
+      name: "IsbjornStaking",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IsbjornStaking>;
+    deployContract(
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWAVAX>;
@@ -969,6 +982,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IsbjornRouter02>;
+    deployContract(
+      name: "IsbjornStaking",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IsbjornStaking>;
     deployContract(
       name: "IWAVAX",
       args: any[],
