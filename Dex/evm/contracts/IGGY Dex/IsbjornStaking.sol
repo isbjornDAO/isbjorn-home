@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.6.12;
+pragma experimental ABIEncoderV2;
 
 import "./Ownable.sol";
 import "./ReentrancyGuard.sol";
@@ -10,32 +11,34 @@ import "./Math.sol";
 contract IsbjornStaking is ReentrancyGuard, Ownable {
     using SafeMath for uint256;
 
-    IERC20 public IGGY;
-
     uint256 public immutable EPOCH_TIME = 2629800;
 
+    struct EpochReward {
+        uint256 amount;
+        uint32 weight;
+    }
+
     struct Epoch {
-        uint256 totalIggyRewards;
         uint256 startTime;
-        mapping(address => uint32) poolWeights;
-        address[] rewardedTokens;
+        mapping(address => mapping(address => EpochReward)) poolRewards; // stakingToken => rewardToken => reward
+        address[] stakingTokens;
+        address[] rewardTokens;
         bool isActive;
     }
 
     struct StakingConfig {
-        uint256 rate;
         uint256 duration;
         uint256 periodFinish;
         uint256 lastUpdateTime;
-        uint256 rewardsPerTokenStored;
+        mapping(address => uint256) rewardsPerTokenStored; // rewardToken => rewardsPerTokenStored
         uint256 totalSupply;
         bool isActive;
     }
 
     struct UserStakingInfo {
         uint256 balance;
-        uint256 rewardsPerTokenPaid;
-        uint256 rewards;
+        mapping(address => uint256) rewardsPerTokenPaid; // rewardToken => rewardsPerTokenPaid
+        mapping(address => uint256) rewards; // rewardToken => rewards
     }
 
     mapping(uint256 => Epoch) public epochs;
@@ -43,42 +46,43 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
     uint256 public totalEpochs;
 
     mapping(address => StakingConfig) public stakingConfigs;
-
     mapping(address => mapping(address => UserStakingInfo))
-        public userStakingInfo; // token => user => staking info
+        public userStakingInfo; // stakingToken => user => staking info
 
     event Deposit(address indexed user, address indexed token, uint256 amount);
     event Withdraw(address indexed user, address indexed token, uint256 amount);
     event RewardClaimed(
         address indexed user,
-        address indexed token,
+        address indexed stakingToken,
+        address indexed rewardToken,
         uint256 reward
     );
     event EpochConfigured(
         uint256 indexed epochNumber,
-        uint256 totalRewards,
         uint256 startTime,
-        address[] pools,
-        uint32[] weights
+        address[] stakingTokens,
+        address[] rewardTokens,
+        uint32[][] weights
     );
     event EpochRemoved(uint256 indexed epochNumber);
 
-    constructor(address _rewardToken) public Ownable(msg.sender) {
-        IGGY = IERC20(_rewardToken);
-    }
+    constructor() public Ownable(msg.sender) {}
 
     function getEpochPoolRate(
         uint256 epochNum,
-        address token
+        address stakingToken,
+        address rewardToken
     ) public view returns (uint256) {
         Epoch storage epoch = epochs[epochNum];
         if (!epoch.isActive) return 0;
 
-        uint256 poolWeight = epoch.poolWeights[token];
-        if (poolWeight == 0) return 0;
+        EpochReward storage reward = epoch.poolRewards[stakingToken][
+            rewardToken
+        ];
+        if (reward.weight == 0) return 0;
 
         return
-            epoch.totalIggyRewards.mul(uint256(poolWeight)).div(10000).div(
+            reward.amount.mul(uint256(reward.weight)).div(10000).div(
                 EPOCH_TIME
             );
     }
@@ -97,12 +101,16 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         return 0;
     }
 
-    function rewardsPerToken(address token) public view returns (uint256) {
-        StakingConfig storage config = stakingConfigs[token];
-        if (config.totalSupply == 0) return config.rewardsPerTokenStored;
+    function rewardsPerToken(
+        address stakingToken,
+        address rewardToken
+    ) public view returns (uint256) {
+        StakingConfig storage config = stakingConfigs[stakingToken];
+        if (config.totalSupply == 0)
+            return config.rewardsPerTokenStored[rewardToken];
 
         uint256 epochNum = getCurrentEpoch();
-        if (epochNum == 0) return config.rewardsPerTokenStored;
+        if (epochNum == 0) return config.rewardsPerTokenStored[rewardToken];
 
         Epoch storage epoch = epochs[epochNum];
         uint256 endTime = epochNum < totalEpochs
@@ -113,98 +121,138 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
             Math.max(config.lastUpdateTime, epoch.startTime)
         );
 
-        uint256 rate = getEpochPoolRate(epochNum, token);
+        uint256 rate = getEpochPoolRate(epochNum, stakingToken, rewardToken);
         return
-            config.rewardsPerTokenStored.add(
+            config.rewardsPerTokenStored[rewardToken].add(
                 timespan.mul(rate).mul(1e18).div(config.totalSupply)
             );
     }
 
     function earned(
         address account,
-        address token
+        address stakingToken,
+        address rewardToken
     ) public view returns (uint256) {
-        UserStakingInfo storage userInfo = userStakingInfo[token][account];
+        UserStakingInfo storage userInfo = userStakingInfo[stakingToken][
+            account
+        ];
         return
             userInfo
                 .balance
-                .mul(rewardsPerToken(token).sub(userInfo.rewardsPerTokenPaid))
+                .mul(
+                    rewardsPerToken(stakingToken, rewardToken).sub(
+                        userInfo.rewardsPerTokenPaid[rewardToken]
+                    )
+                )
                 .div(1e18)
-                .add(userInfo.rewards);
+                .add(userInfo.rewards[rewardToken]);
     }
 
     function deposit(
-        address token,
+        address stakingToken,
         uint256 amount
-    ) external nonReentrant updateReward(msg.sender, token) {
+    ) external nonReentrant updateReward(msg.sender, stakingToken) {
         require(amount > 0, "Cannot deposit 0");
         require(
-            stakingConfigs[token].isActive,
+            stakingConfigs[stakingToken].isActive,
             "Token not configured for staking"
         );
 
         uint256 epochNum = getCurrentEpoch();
         require(epochNum > 0, "No active epoch");
-        require(
-            epochs[epochNum].poolWeights[token] > 0,
-            "Token not in current epoch"
-        );
 
-        stakingConfigs[token].totalSupply = stakingConfigs[token]
+        Epoch storage epoch = epochs[epochNum];
+        bool validToken = false;
+        for (uint256 i = 0; i < epoch.stakingTokens.length; i++) {
+            if (epoch.stakingTokens[i] == stakingToken) {
+                validToken = true;
+                break;
+            }
+        }
+        require(validToken, "Token not in current epoch");
+
+        stakingConfigs[stakingToken].totalSupply = stakingConfigs[stakingToken]
             .totalSupply
             .add(amount);
-        userStakingInfo[token][msg.sender].balance = userStakingInfo[token][
-            msg.sender
-        ].balance.add(amount);
+        userStakingInfo[stakingToken][msg.sender].balance = userStakingInfo[
+            stakingToken
+        ][msg.sender].balance.add(amount);
 
-        IERC20(token).transferFrom(msg.sender, address(this), amount);
-        emit Deposit(msg.sender, token, amount);
+        IERC20(stakingToken).transferFrom(msg.sender, address(this), amount);
+        emit Deposit(msg.sender, stakingToken, amount);
     }
 
     function withdraw(
-        address token,
+        address stakingToken,
         uint256 amount
-    ) public nonReentrant updateReward(msg.sender, token) {
+    ) public nonReentrant updateReward(msg.sender, stakingToken) {
         require(amount > 0, "Cannot withdraw 0");
 
-        stakingConfigs[token].totalSupply = stakingConfigs[token]
+        stakingConfigs[stakingToken].totalSupply = stakingConfigs[stakingToken]
             .totalSupply
             .sub(amount);
-        userStakingInfo[token][msg.sender].balance = userStakingInfo[token][
-            msg.sender
-        ].balance.sub(amount);
+        userStakingInfo[stakingToken][msg.sender].balance = userStakingInfo[
+            stakingToken
+        ][msg.sender].balance.sub(amount);
 
-        IERC20(token).transfer(msg.sender, amount);
-        emit Withdraw(msg.sender, token, amount);
+        IERC20(stakingToken).transfer(msg.sender, amount);
+        emit Withdraw(msg.sender, stakingToken, amount);
     }
 
     function claimReward(
-        address token
-    ) public nonReentrant updateReward(msg.sender, token) {
-        uint256 reward = earned(msg.sender, token);
+        address stakingToken,
+        address rewardToken
+    ) public nonReentrant updateReward(msg.sender, stakingToken) {
+        uint256 reward = earned(msg.sender, stakingToken, rewardToken);
         if (reward > 0) {
-            userStakingInfo[token][msg.sender].rewards = 0;
-            IGGY.transfer(msg.sender, reward);
-            emit RewardClaimed(msg.sender, token, reward);
+            userStakingInfo[stakingToken][msg.sender].rewards[rewardToken] = 0;
+            IERC20(rewardToken).transfer(msg.sender, reward);
+            emit RewardClaimed(msg.sender, stakingToken, rewardToken, reward);
         }
     }
 
-    function exit(address token) external {
-        withdraw(token, userStakingInfo[token][msg.sender].balance);
-        claimReward(token);
+    function claimAllRewards(address stakingToken) public {
+        uint256 epochNum = getCurrentEpoch();
+        if (epochNum > 0) {
+            Epoch storage epoch = epochs[epochNum];
+            for (uint256 i = 0; i < epoch.rewardTokens.length; i++) {
+                claimReward(stakingToken, epoch.rewardTokens[i]);
+            }
+        }
+    }
+
+    function exit(address stakingToken) external {
+        withdraw(
+            stakingToken,
+            userStakingInfo[stakingToken][msg.sender].balance
+        );
+        claimAllRewards(stakingToken);
     }
 
     function configureEpoch(
         uint256 epochNumber,
-        uint256 totalRewards,
         uint256 startTime,
-        address[] calldata pools,
-        uint32[] calldata weights
+        address[] calldata stakingTokens,
+        address[] calldata rewardTokens,
+        uint256[][] calldata rewardAmounts,
+        uint32[][] calldata weights
     ) external onlyOwner {
-        require(totalRewards > 0, "Rewards must be greater than 0");
         require(startTime > block.timestamp, "Start time must be in future");
-        require(pools.length > 0, "Must provide at least one token");
-        require(pools.length == weights.length, "Arrays length mismatch");
+        require(
+            stakingTokens.length > 0,
+            "Must provide at least one staking token"
+        );
+        require(
+            rewardTokens.length > 0,
+            "Must provide at least one reward token"
+        );
+        require(
+            stakingTokens.length == weights.length &&
+                rewardTokens.length == weights[0].length &&
+                stakingTokens.length == rewardAmounts.length &&
+                rewardTokens.length == rewardAmounts[0].length,
+            "Arrays length mismatch"
+        );
 
         // If not first epoch, ensure sequential configuration
         if (totalEpochs > 0) {
@@ -224,38 +272,63 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
             }
         }
 
-        require(
-            IGGY.balanceOf(address(this)) >= totalRewards,
-            "Insufficient IGGY balance"
-        );
-
-        uint32 totalWeight;
-        for (uint256 i = 0; i < weights.length; i++) {
-            totalWeight = totalWeight + weights[i];
-            require(weights[i] > 0, "Weight must be greater than 0");
-
-            for (uint256 j = 0; j < i; j++) {
-                require(pools[i] != pools[j], "Duplicate pool not allowed");
+        // Check reward token balances
+        for (uint256 i = 0; i < rewardTokens.length; i++) {
+            uint256 totalRewardAmount = 0;
+            for (uint256 j = 0; j < rewardAmounts.length; j++) {
+                totalRewardAmount = totalRewardAmount.add(rewardAmounts[j][i]);
             }
+            require(
+                IERC20(rewardTokens[i]).balanceOf(address(this)) >=
+                    totalRewardAmount,
+                "Insufficient reward token balance"
+            );
         }
-        require(totalWeight == 10000, "Weights must sum to 10000");
+
+        // Validate weights
+        for (uint256 i = 0; i < stakingTokens.length; i++) {
+            uint32 totalWeight = 0;
+            for (uint256 j = 0; j < rewardTokens.length; j++) {
+                totalWeight = totalWeight + weights[i][j];
+            }
+            require(totalWeight == 10000, "Weights must sum to 10000");
+        }
 
         Epoch storage epoch = epochs[epochNumber];
-        epoch.totalIggyRewards = totalRewards;
         epoch.startTime = startTime;
         epoch.isActive = true;
 
-        uint256 oldTokensLength = epoch.rewardedTokens.length;
-        for (uint256 i = 0; i < oldTokensLength; i++) {
-            address oldToken = epoch.rewardedTokens[i];
-            epoch.poolWeights[oldToken] = 0;
+        // Clear old data
+        for (uint256 i = 0; i < epoch.stakingTokens.length; i++) {
+            for (uint256 j = 0; j < epoch.rewardTokens.length; j++) {
+                delete epoch.poolRewards[epoch.stakingTokens[i]][
+                    epoch.rewardTokens[j]
+                ];
+            }
         }
 
-        delete epoch.rewardedTokens;
-        for (uint256 i = 0; i < pools.length; i++) {
-            epoch.rewardedTokens.push(pools[i]);
-            epoch.poolWeights[pools[i]] = weights[i];
-            stakingConfigs[pools[i]].isActive = true;
+        delete epoch.stakingTokens;
+        delete epoch.rewardTokens;
+
+        // Set new data
+        for (uint256 i = 0; i < stakingTokens.length; i++) {
+            epoch.stakingTokens.push(stakingTokens[i]);
+            stakingConfigs[stakingTokens[i]].isActive = true;
+        }
+
+        for (uint256 i = 0; i < rewardTokens.length; i++) {
+            epoch.rewardTokens.push(rewardTokens[i]);
+        }
+
+        for (uint256 i = 0; i < stakingTokens.length; i++) {
+            for (uint256 j = 0; j < rewardTokens.length; j++) {
+                epoch.poolRewards[stakingTokens[i]][
+                    rewardTokens[j]
+                ] = EpochReward({
+                    amount: rewardAmounts[i][j],
+                    weight: weights[i][j]
+                });
+            }
         }
 
         if (epochNumber > totalEpochs) {
@@ -264,9 +337,9 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
 
         emit EpochConfigured(
             epochNumber,
-            totalRewards,
             startTime,
-            pools,
+            stakingTokens,
+            rewardTokens,
             weights
         );
     }
@@ -284,7 +357,6 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
 
         delete epochs[epochNumber];
 
-        // Update totalEpochs if removing the last epoch
         if (epochNumber == totalEpochs) {
             while (epochNumber > 0 && !epochs[epochNumber].isActive) {
                 epochNumber--;
@@ -295,20 +367,45 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         emit EpochRemoved(epochNumber);
     }
 
-    function recoverUnusedIGGY() external onlyOwner {
-        uint256 balance = IGGY.balanceOf(address(this));
-        IGGY.transfer(owner, balance);
+    function recoverToken(address token) external onlyOwner {
+        uint256 balance = IERC20(token).balanceOf(address(this));
+        IERC20(token).transfer(owner, balance);
     }
 
-    modifier updateReward(address account, address token) {
-        StakingConfig storage config = stakingConfigs[token];
-        config.rewardsPerTokenStored = rewardsPerToken(token);
+    modifier updateReward(address account, address stakingToken) {
+        StakingConfig storage config = stakingConfigs[stakingToken];
+        uint256 epochNum = getCurrentEpoch();
+
+        if (epochNum > 0) {
+            Epoch storage epoch = epochs[epochNum];
+            for (uint256 i = 0; i < epoch.rewardTokens.length; i++) {
+                address rewardToken = epoch.rewardTokens[i];
+                config.rewardsPerTokenStored[rewardToken] = rewardsPerToken(
+                    stakingToken,
+                    rewardToken
+                );
+            }
+        }
+
         config.lastUpdateTime = block.timestamp;
 
         if (account != address(0)) {
-            UserStakingInfo storage userInfo = userStakingInfo[token][account];
-            userInfo.rewards = earned(account, token);
-            userInfo.rewardsPerTokenPaid = config.rewardsPerTokenStored;
+            UserStakingInfo storage userInfo = userStakingInfo[stakingToken][
+                account
+            ];
+            if (epochNum > 0) {
+                Epoch storage epoch = epochs[epochNum];
+                for (uint256 i = 0; i < epoch.rewardTokens.length; i++) {
+                    address rewardToken = epoch.rewardTokens[i];
+                    userInfo.rewards[rewardToken] = earned(
+                        account,
+                        stakingToken,
+                        rewardToken
+                    );
+                    userInfo.rewardsPerTokenPaid[rewardToken] = config
+                        .rewardsPerTokenStored[rewardToken];
+                }
+            }
         }
         _;
     }

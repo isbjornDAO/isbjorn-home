@@ -27,7 +27,7 @@ export interface IsbjornStakingInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "EPOCH_TIME"
-      | "IGGY"
+      | "claimAllRewards"
       | "claimReward"
       | "configureEpoch"
       | "currentEpoch"
@@ -38,7 +38,7 @@ export interface IsbjornStakingInterface extends Interface {
       | "getCurrentEpoch"
       | "getEpochPoolRate"
       | "owner"
-      | "recoverUnusedIGGY"
+      | "recoverToken"
       | "removeEpoch"
       | "revokeOwnership"
       | "rewardsPerToken"
@@ -63,19 +63,23 @@ export interface IsbjornStakingInterface extends Interface {
     functionFragment: "EPOCH_TIME",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "IGGY", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "claimAllRewards",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "claimReward",
-    values: [AddressLike]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "configureEpoch",
     values: [
       BigNumberish,
       BigNumberish,
-      BigNumberish,
       AddressLike[],
-      BigNumberish[]
+      AddressLike[],
+      BigNumberish[][],
+      BigNumberish[][]
     ]
   ): string;
   encodeFunctionData(
@@ -88,7 +92,7 @@ export interface IsbjornStakingInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "earned",
-    values: [AddressLike, AddressLike]
+    values: [AddressLike, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "epochs",
@@ -101,12 +105,12 @@ export interface IsbjornStakingInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getEpochPoolRate",
-    values: [BigNumberish, AddressLike]
+    values: [BigNumberish, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "recoverUnusedIGGY",
-    values?: undefined
+    functionFragment: "recoverToken",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "removeEpoch",
@@ -118,7 +122,7 @@ export interface IsbjornStakingInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "rewardsPerToken",
-    values: [AddressLike]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "stakingConfigs",
@@ -142,7 +146,10 @@ export interface IsbjornStakingInterface extends Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "EPOCH_TIME", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "IGGY", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "claimAllRewards",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "claimReward",
     data: BytesLike
@@ -169,7 +176,7 @@ export interface IsbjornStakingInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "recoverUnusedIGGY",
+    functionFragment: "recoverToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -224,24 +231,24 @@ export namespace DepositEvent {
 export namespace EpochConfiguredEvent {
   export type InputTuple = [
     epochNumber: BigNumberish,
-    totalRewards: BigNumberish,
     startTime: BigNumberish,
-    pools: AddressLike[],
-    weights: BigNumberish[]
+    stakingTokens: AddressLike[],
+    rewardTokens: AddressLike[],
+    weights: BigNumberish[][]
   ];
   export type OutputTuple = [
     epochNumber: bigint,
-    totalRewards: bigint,
     startTime: bigint,
-    pools: string[],
-    weights: bigint[]
+    stakingTokens: string[],
+    rewardTokens: string[],
+    weights: bigint[][]
   ];
   export interface OutputObject {
     epochNumber: bigint;
-    totalRewards: bigint;
     startTime: bigint;
-    pools: string[];
-    weights: bigint[];
+    stakingTokens: string[];
+    rewardTokens: string[];
+    weights: bigint[][];
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -277,13 +284,20 @@ export namespace OwnershipTransferredEvent {
 export namespace RewardClaimedEvent {
   export type InputTuple = [
     user: AddressLike,
-    token: AddressLike,
+    stakingToken: AddressLike,
+    rewardToken: AddressLike,
     reward: BigNumberish
   ];
-  export type OutputTuple = [user: string, token: string, reward: bigint];
+  export type OutputTuple = [
+    user: string,
+    stakingToken: string,
+    rewardToken: string,
+    reward: bigint
+  ];
   export interface OutputObject {
     user: string;
-    token: string;
+    stakingToken: string;
+    rewardToken: string;
     reward: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -355,17 +369,26 @@ export interface IsbjornStaking extends BaseContract {
 
   EPOCH_TIME: TypedContractMethod<[], [bigint], "view">;
 
-  IGGY: TypedContractMethod<[], [string], "view">;
+  claimAllRewards: TypedContractMethod<
+    [stakingToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-  claimReward: TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
+  claimReward: TypedContractMethod<
+    [stakingToken: AddressLike, rewardToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   configureEpoch: TypedContractMethod<
     [
       epochNumber: BigNumberish,
-      totalRewards: BigNumberish,
       startTime: BigNumberish,
-      pools: AddressLike[],
-      weights: BigNumberish[]
+      stakingTokens: AddressLike[],
+      rewardTokens: AddressLike[],
+      rewardAmounts: BigNumberish[][],
+      weights: BigNumberish[][]
     ],
     [void],
     "nonpayable"
@@ -374,42 +397,40 @@ export interface IsbjornStaking extends BaseContract {
   currentEpoch: TypedContractMethod<[], [bigint], "view">;
 
   deposit: TypedContractMethod<
-    [token: AddressLike, amount: BigNumberish],
+    [stakingToken: AddressLike, amount: BigNumberish],
     [void],
     "nonpayable"
   >;
 
   earned: TypedContractMethod<
-    [account: AddressLike, token: AddressLike],
+    [account: AddressLike, stakingToken: AddressLike, rewardToken: AddressLike],
     [bigint],
     "view"
   >;
 
   epochs: TypedContractMethod<
     [arg0: BigNumberish],
-    [
-      [bigint, bigint, boolean] & {
-        totalIggyRewards: bigint;
-        startTime: bigint;
-        isActive: boolean;
-      }
-    ],
+    [[bigint, boolean] & { startTime: bigint; isActive: boolean }],
     "view"
   >;
 
-  exit: TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
+  exit: TypedContractMethod<[stakingToken: AddressLike], [void], "nonpayable">;
 
   getCurrentEpoch: TypedContractMethod<[], [bigint], "view">;
 
   getEpochPoolRate: TypedContractMethod<
-    [epochNum: BigNumberish, token: AddressLike],
+    [
+      epochNum: BigNumberish,
+      stakingToken: AddressLike,
+      rewardToken: AddressLike
+    ],
     [bigint],
     "view"
   >;
 
   owner: TypedContractMethod<[], [string], "view">;
 
-  recoverUnusedIGGY: TypedContractMethod<[], [void], "nonpayable">;
+  recoverToken: TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
 
   removeEpoch: TypedContractMethod<
     [epochNumber: BigNumberish],
@@ -419,17 +440,19 @@ export interface IsbjornStaking extends BaseContract {
 
   revokeOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  rewardsPerToken: TypedContractMethod<[token: AddressLike], [bigint], "view">;
+  rewardsPerToken: TypedContractMethod<
+    [stakingToken: AddressLike, rewardToken: AddressLike],
+    [bigint],
+    "view"
+  >;
 
   stakingConfigs: TypedContractMethod<
     [arg0: AddressLike],
     [
-      [bigint, bigint, bigint, bigint, bigint, bigint, boolean] & {
-        rate: bigint;
+      [bigint, bigint, bigint, bigint, boolean] & {
         duration: bigint;
         periodFinish: bigint;
         lastUpdateTime: bigint;
-        rewardsPerTokenStored: bigint;
         totalSupply: bigint;
         isActive: boolean;
       }
@@ -447,18 +470,12 @@ export interface IsbjornStaking extends BaseContract {
 
   userStakingInfo: TypedContractMethod<
     [arg0: AddressLike, arg1: AddressLike],
-    [
-      [bigint, bigint, bigint] & {
-        balance: bigint;
-        rewardsPerTokenPaid: bigint;
-        rewards: bigint;
-      }
-    ],
+    [bigint],
     "view"
   >;
 
   withdraw: TypedContractMethod<
-    [token: AddressLike, amount: BigNumberish],
+    [stakingToken: AddressLike, amount: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -471,20 +488,25 @@ export interface IsbjornStaking extends BaseContract {
     nameOrSignature: "EPOCH_TIME"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "IGGY"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: "claimAllRewards"
+  ): TypedContractMethod<[stakingToken: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "claimReward"
-  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
+  ): TypedContractMethod<
+    [stakingToken: AddressLike, rewardToken: AddressLike],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "configureEpoch"
   ): TypedContractMethod<
     [
       epochNumber: BigNumberish,
-      totalRewards: BigNumberish,
       startTime: BigNumberish,
-      pools: AddressLike[],
-      weights: BigNumberish[]
+      stakingTokens: AddressLike[],
+      rewardTokens: AddressLike[],
+      rewardAmounts: BigNumberish[][],
+      weights: BigNumberish[][]
     ],
     [void],
     "nonpayable"
@@ -495,14 +517,14 @@ export interface IsbjornStaking extends BaseContract {
   getFunction(
     nameOrSignature: "deposit"
   ): TypedContractMethod<
-    [token: AddressLike, amount: BigNumberish],
+    [stakingToken: AddressLike, amount: BigNumberish],
     [void],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "earned"
   ): TypedContractMethod<
-    [account: AddressLike, token: AddressLike],
+    [account: AddressLike, stakingToken: AddressLike, rewardToken: AddressLike],
     [bigint],
     "view"
   >;
@@ -510,25 +532,23 @@ export interface IsbjornStaking extends BaseContract {
     nameOrSignature: "epochs"
   ): TypedContractMethod<
     [arg0: BigNumberish],
-    [
-      [bigint, bigint, boolean] & {
-        totalIggyRewards: bigint;
-        startTime: bigint;
-        isActive: boolean;
-      }
-    ],
+    [[bigint, boolean] & { startTime: bigint; isActive: boolean }],
     "view"
   >;
   getFunction(
     nameOrSignature: "exit"
-  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
+  ): TypedContractMethod<[stakingToken: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "getCurrentEpoch"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "getEpochPoolRate"
   ): TypedContractMethod<
-    [epochNum: BigNumberish, token: AddressLike],
+    [
+      epochNum: BigNumberish,
+      stakingToken: AddressLike,
+      rewardToken: AddressLike
+    ],
     [bigint],
     "view"
   >;
@@ -536,8 +556,8 @@ export interface IsbjornStaking extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "recoverUnusedIGGY"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+    nameOrSignature: "recoverToken"
+  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "removeEpoch"
   ): TypedContractMethod<[epochNumber: BigNumberish], [void], "nonpayable">;
@@ -546,18 +566,20 @@ export interface IsbjornStaking extends BaseContract {
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "rewardsPerToken"
-  ): TypedContractMethod<[token: AddressLike], [bigint], "view">;
+  ): TypedContractMethod<
+    [stakingToken: AddressLike, rewardToken: AddressLike],
+    [bigint],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "stakingConfigs"
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [bigint, bigint, bigint, bigint, bigint, bigint, boolean] & {
-        rate: bigint;
+      [bigint, bigint, bigint, bigint, boolean] & {
         duration: bigint;
         periodFinish: bigint;
         lastUpdateTime: bigint;
-        rewardsPerTokenStored: bigint;
         totalSupply: bigint;
         isActive: boolean;
       }
@@ -574,19 +596,13 @@ export interface IsbjornStaking extends BaseContract {
     nameOrSignature: "userStakingInfo"
   ): TypedContractMethod<
     [arg0: AddressLike, arg1: AddressLike],
-    [
-      [bigint, bigint, bigint] & {
-        balance: bigint;
-        rewardsPerTokenPaid: bigint;
-        rewards: bigint;
-      }
-    ],
+    [bigint],
     "view"
   >;
   getFunction(
     nameOrSignature: "withdraw"
   ): TypedContractMethod<
-    [token: AddressLike, amount: BigNumberish],
+    [stakingToken: AddressLike, amount: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -646,7 +662,7 @@ export interface IsbjornStaking extends BaseContract {
       DepositEvent.OutputObject
     >;
 
-    "EpochConfigured(uint256,uint256,uint256,address[],uint32[])": TypedContractEvent<
+    "EpochConfigured(uint256,uint256,address[],address[],uint32[][])": TypedContractEvent<
       EpochConfiguredEvent.InputTuple,
       EpochConfiguredEvent.OutputTuple,
       EpochConfiguredEvent.OutputObject
@@ -679,7 +695,7 @@ export interface IsbjornStaking extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "RewardClaimed(address,address,uint256)": TypedContractEvent<
+    "RewardClaimed(address,address,address,uint256)": TypedContractEvent<
       RewardClaimedEvent.InputTuple,
       RewardClaimedEvent.OutputTuple,
       RewardClaimedEvent.OutputObject
