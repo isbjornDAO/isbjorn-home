@@ -5,11 +5,22 @@ import "./Ownable.sol";
 import "./ReentrancyGuard.sol";
 import "./IERC20.sol";
 import "./SafeMath.sol";
+import "./Math.sol";
 
 contract IsbjornStaking is ReentrancyGuard, Ownable {
     using SafeMath for uint256;
 
     IERC20 public IGGY;
+
+    uint256 public immutable EPOCH_TIME = 2629800;
+
+    struct Epoch {
+        uint256 totalIggyRewards;
+        uint256 startTime;
+        mapping(address => uint32) poolWeights;
+        address[] rewardedTokens;
+        bool isActive;
+    }
 
     struct StakingConfig {
         uint256 rate;
@@ -27,6 +38,10 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         uint256 rewards;
     }
 
+    mapping(uint256 => Epoch) public epochs;
+    uint256 public currentEpoch;
+    uint256 public totalEpochs;
+
     mapping(address => StakingConfig) public stakingConfigs;
 
     mapping(address => mapping(address => UserStakingInfo))
@@ -39,34 +54,69 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         address indexed token,
         uint256 reward
     );
-    event StakingConfigUpdated(
-        address indexed token,
-        uint256 rewardRate,
-        uint256 duration
+    event EpochConfigured(
+        uint256 indexed epochNumber,
+        uint256 totalRewards,
+        uint256 startTime,
+        address[] pools,
+        uint32[] weights
     );
+    event EpochRemoved(uint256 indexed epochNumber);
 
     constructor(address _rewardToken) public Ownable(msg.sender) {
         IGGY = IERC20(_rewardToken);
     }
 
-    function getRewardForDuration(
+    function getEpochPoolRate(
+        uint256 epochNum,
         address token
-    ) external view returns (uint256) {
-        return stakingConfigs[token].rate.mul(stakingConfigs[token].duration);
+    ) public view returns (uint256) {
+        Epoch storage epoch = epochs[epochNum];
+        if (!epoch.isActive) return 0;
+
+        uint256 poolWeight = epoch.poolWeights[token];
+        if (poolWeight == 0) return 0;
+
+        return
+            epoch.totalIggyRewards.mul(uint256(poolWeight)).div(10000).div(
+                EPOCH_TIME
+            );
+    }
+
+    function getCurrentEpoch() public view returns (uint256) {
+        uint256 currentTime = block.timestamp;
+        for (uint256 i = currentEpoch; i <= totalEpochs; i++) {
+            if (
+                epochs[i].isActive &&
+                currentTime >= epochs[i].startTime &&
+                (i == totalEpochs || currentTime < epochs[i + 1].startTime)
+            ) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     function rewardsPerToken(address token) public view returns (uint256) {
         StakingConfig storage config = stakingConfigs[token];
-        if (config.totalSupply == 0) {
-            return config.rewardsPerTokenStored;
-        }
+        if (config.totalSupply == 0) return config.rewardsPerTokenStored;
+
+        uint256 epochNum = getCurrentEpoch();
+        if (epochNum == 0) return config.rewardsPerTokenStored;
+
+        Epoch storage epoch = epochs[epochNum];
+        uint256 endTime = epochNum < totalEpochs
+            ? epochs[epochNum + 1].startTime
+            : epoch.startTime.add(EPOCH_TIME);
+
+        uint256 timespan = Math.min(block.timestamp, endTime).sub(
+            Math.max(config.lastUpdateTime, epoch.startTime)
+        );
+
+        uint256 rate = getEpochPoolRate(epochNum, token);
         return
             config.rewardsPerTokenStored.add(
-                lastTimeRewardApplicable(token)
-                    .sub(config.lastUpdateTime)
-                    .mul(config.rate)
-                    .mul(1e18)
-                    .div(config.totalSupply)
+                timespan.mul(rate).mul(1e18).div(config.totalSupply)
             );
     }
 
@@ -83,15 +133,6 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
                 .add(userInfo.rewards);
     }
 
-    function lastTimeRewardApplicable(
-        address token
-    ) public view returns (uint256) {
-        return
-            block.timestamp < stakingConfigs[token].periodFinish
-                ? block.timestamp
-                : stakingConfigs[token].periodFinish;
-    }
-
     function deposit(
         address token,
         uint256 amount
@@ -100,6 +141,13 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         require(
             stakingConfigs[token].isActive,
             "Token not configured for staking"
+        );
+
+        uint256 epochNum = getCurrentEpoch();
+        require(epochNum > 0, "No active epoch");
+        require(
+            epochs[epochNum].poolWeights[token] > 0,
+            "Token not in current epoch"
         );
 
         stakingConfigs[token].totalSupply = stakingConfigs[token]
@@ -146,31 +194,105 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         claimReward(token);
     }
 
-    function setStakingConfig(
-        address token,
-        uint256 rate,
-        uint256 duration
+    function configureEpoch(
+        uint256 epochNumber,
+        uint256 totalRewards,
+        uint256 startTime,
+        address[] calldata pools,
+        uint32[] calldata weights
     ) external onlyOwner {
-        require(
-            block.timestamp >= stakingConfigs[token].periodFinish,
-            "Previous rewards period must be complete"
-        );
-        require(rate > 0, "Rate must be greater than 0");
-        require(duration > 0, "Duration must be greater than 0");
+        require(totalRewards > 0, "Rewards must be greater than 0");
+        require(startTime > block.timestamp, "Start time must be in future");
+        require(pools.length > 0, "Must provide at least one token");
+        require(pools.length == weights.length, "Arrays length mismatch");
 
-        uint256 rewardAmount = rate.mul(duration);
+        // If not first epoch, ensure sequential configuration
+        if (totalEpochs > 0) {
+            require(epochNumber > currentEpoch, "Cannot modify past epochs");
+            if (epochNumber > 1) {
+                require(
+                    startTime > epochs[epochNumber - 1].startTime,
+                    "Start time must be after previous epoch"
+                );
+            }
+            if (epochs[epochNumber + 1].isActive) {
+                require(
+                    startTime.add(EPOCH_TIME) <=
+                        epochs[epochNumber + 1].startTime,
+                    "Would overlap with next epoch"
+                );
+            }
+        }
+
         require(
-            IGGY.balanceOf(address(this)) >= rewardAmount,
+            IGGY.balanceOf(address(this)) >= totalRewards,
             "Insufficient IGGY balance"
         );
 
-        stakingConfigs[token].rate = rate;
-        stakingConfigs[token].duration = duration;
-        stakingConfigs[token].periodFinish = block.timestamp.add(duration);
-        stakingConfigs[token].lastUpdateTime = block.timestamp;
-        stakingConfigs[token].isActive = true;
+        uint32 totalWeight;
+        for (uint256 i = 0; i < weights.length; i++) {
+            totalWeight = totalWeight + weights[i];
+            require(weights[i] > 0, "Weight must be greater than 0");
 
-        emit StakingConfigUpdated(token, rate, duration);
+            for (uint256 j = 0; j < i; j++) {
+                require(pools[i] != pools[j], "Duplicate pool not allowed");
+            }
+        }
+        require(totalWeight == 10000, "Weights must sum to 10000");
+
+        Epoch storage epoch = epochs[epochNumber];
+        epoch.totalIggyRewards = totalRewards;
+        epoch.startTime = startTime;
+        epoch.isActive = true;
+
+        uint256 oldTokensLength = epoch.rewardedTokens.length;
+        for (uint256 i = 0; i < oldTokensLength; i++) {
+            address oldToken = epoch.rewardedTokens[i];
+            epoch.poolWeights[oldToken] = 0;
+        }
+
+        delete epoch.rewardedTokens;
+        for (uint256 i = 0; i < pools.length; i++) {
+            epoch.rewardedTokens.push(pools[i]);
+            epoch.poolWeights[pools[i]] = weights[i];
+            stakingConfigs[pools[i]].isActive = true;
+        }
+
+        if (epochNumber > totalEpochs) {
+            totalEpochs = epochNumber;
+        }
+
+        emit EpochConfigured(
+            epochNumber,
+            totalRewards,
+            startTime,
+            pools,
+            weights
+        );
+    }
+
+    function removeEpoch(uint256 epochNumber) external onlyOwner {
+        require(
+            epochNumber > currentEpoch,
+            "Cannot remove current or past epochs"
+        );
+        require(epochs[epochNumber].isActive, "Epoch not configured");
+        require(
+            block.timestamp < epochs[epochNumber].startTime,
+            "Epoch already started"
+        );
+
+        delete epochs[epochNumber];
+
+        // Update totalEpochs if removing the last epoch
+        if (epochNumber == totalEpochs) {
+            while (epochNumber > 0 && !epochs[epochNumber].isActive) {
+                epochNumber--;
+            }
+            totalEpochs = epochNumber;
+        }
+
+        emit EpochRemoved(epochNumber);
     }
 
     function recoverUnusedIGGY() external onlyOwner {
@@ -181,7 +303,7 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
     modifier updateReward(address account, address token) {
         StakingConfig storage config = stakingConfigs[token];
         config.rewardsPerTokenStored = rewardsPerToken(token);
-        config.lastUpdateTime = lastTimeRewardApplicable(token);
+        config.lastUpdateTime = block.timestamp;
 
         if (account != address(0)) {
             UserStakingInfo storage userInfo = userStakingInfo[token][account];
