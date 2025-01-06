@@ -4,16 +4,19 @@ import { Signer, ContractTransactionResponse, Addressable } from "ethers";
 
 import {
   ERC20Mock,
+  ERC20Mock__factory,
   IcePond,
   IcePond__factory,
   IcePondFactory,
   IsbjornRouter02,
+  IsbjornStaking,
   WAVAXMock,
 } from "../types";
 
 describe("IsbjornRouter02", function () {
   let router: IsbjornRouter02;
   let factory: IcePondFactory;
+  let Token: ERC20Mock__factory;
   let tokenA: ERC20Mock;
   let tokenB: ERC20Mock;
   let WAVAX: WAVAXMock;
@@ -52,7 +55,7 @@ describe("IsbjornRouter02", function () {
     router = await Router.deploy(factory.target, WAVAX.target);
     await router.waitForDeployment();
 
-    const Token = await ethers.getContractFactory("ERC20Mock");
+    Token = await ethers.getContractFactory("ERC20Mock");
     tokenA = await Token.deploy(
       "TokenA",
       "TKA",
@@ -1210,6 +1213,199 @@ describe("IsbjornRouter02", function () {
           8
         );
         expect(achievementBalanceAgain).to.be.equal(1n);
+      });
+    });
+  });
+  describe("Staking Functions", function () {
+    let staking: IsbjornStaking;
+    let stakingToken: ERC20Mock;
+    let rewardToken1: ERC20Mock;
+    let rewardToken2: ERC20Mock;
+
+    beforeEach(async function () {
+      stakingToken = await Token.deploy(
+        "Staking Token",
+        "STK",
+        18,
+        ethers.parseEther("1000000")
+      );
+      rewardToken1 = await Token.deploy(
+        "Reward Token 1",
+        "RWD1",
+        18,
+        ethers.parseEther("1000000")
+      );
+      rewardToken2 = await Token.deploy(
+        "Reward Token 2",
+        "RWD2",
+        18,
+        ethers.parseEther("1000000")
+      );
+
+      const Staking = await ethers.getContractFactory("IsbjornStaking");
+      staking = await Staking.deploy();
+
+      await rewardToken1.transfer(staking.target, ethers.parseEther("100000"));
+      await rewardToken2.transfer(staking.target, ethers.parseEther("100000"));
+    });
+
+    describe("Epoch Configuration", function () {
+      it("should configure epoch correctly", async function () {
+        const startTime = Math.floor(Date.now() / 1000) + 3600;
+        const stakingTokens = [stakingToken.target];
+        const rewardTokens = [rewardToken1.target, rewardToken2.target];
+        const rewardAmounts = [
+          [ethers.parseEther("1000"), ethers.parseEther("2000")],
+        ];
+        const weights = [[5000, 5000]];
+
+        await staking.configureEpoch(
+          1,
+          startTime,
+          stakingTokens,
+          rewardTokens,
+          rewardAmounts,
+          weights
+        );
+
+        const epoch = await staking.epochs(1);
+        expect(epoch.startTime).to.equal(startTime);
+        expect(epoch.isActive).to.be.true;
+      });
+
+      it("should fail to configure epoch with invalid weights", async function () {
+        const startTime = Math.floor(Date.now() / 1000) + 3600;
+        await expect(
+          staking.configureEpoch(
+            1,
+            startTime,
+            [stakingToken.target],
+            [rewardToken1.target, rewardToken2.target],
+            [[ethers.parseEther("1000"), ethers.parseEther("2000")]],
+            [[3000, 5000]]
+          )
+        ).to.be.revertedWith("Weights must sum to 10000");
+      });
+    });
+
+    describe("Staking Operations", function () {
+      beforeEach(async function () {
+        const latestBlock = await ethers.provider.getBlock("latest");
+        if (!latestBlock) throw new Error("Failed to fetch block");
+
+        const startTime = latestBlock.timestamp + 3600;
+
+        await staking.configureEpoch(
+          1,
+          startTime,
+          [stakingToken.target],
+          [rewardToken1.target, rewardToken2.target],
+          [[ethers.parseEther("1000"), ethers.parseEther("2000")]],
+          [[5000, 5000]]
+        );
+
+        await stakingToken.transfer(user1Address, ethers.parseEther("10000"));
+        await stakingToken.transfer(user2Address, ethers.parseEther("10000"));
+
+        await ethers.provider.send("evm_increaseTime", [3600]);
+        await ethers.provider.send("evm_mine", []);
+      });
+
+      it("should allow users to stake tokens", async function () {
+        await ethers.provider.send("evm_increaseTime", [3600]);
+        await ethers.provider.send("evm_mine", []);
+        const stakeAmount = ethers.parseEther("1000");
+        await stakingToken.connect(user1).approve(staking.target, stakeAmount);
+        await staking.connect(user1).deposit(stakingToken.target, stakeAmount);
+
+        // Check staking config total supply
+        const config = await staking.stakingConfigs(stakingToken.target);
+        expect(config.totalSupply).to.equal(stakeAmount);
+
+        await ethers.provider.send("evm_increaseTime", [3600]);
+        await ethers.provider.send("evm_mine", []);
+
+        // Check user balance through earned function by checking rewards calculation
+        const earnedAmount = await staking.earned(
+          user1Address,
+          stakingToken.target,
+          rewardToken1.target
+        );
+        expect(earnedAmount).to.be.gt(0);
+      });
+
+      it("should calculate rewards correctly for multiple stakers", async function () {
+        await ethers.provider.send("evm_increaseTime", [3600]);
+        await ethers.provider.send("evm_mine", []);
+
+        const stakeAmount1 = ethers.parseEther("1000");
+        const stakeAmount2 = ethers.parseEther("2000");
+
+        await stakingToken.connect(user1).approve(staking.target, stakeAmount1);
+        await stakingToken.connect(user2).approve(staking.target, stakeAmount2);
+
+        await staking.connect(user1).deposit(stakingToken.target, stakeAmount1);
+        await staking.connect(user2).deposit(stakingToken.target, stakeAmount2);
+
+        await ethers.provider.send("evm_increaseTime", [3600]);
+        await ethers.provider.send("evm_mine", []);
+
+        const earnedReward1User1 = await staking.earned(
+          user1Address,
+          stakingToken.target,
+          rewardToken1.target
+        );
+        const earnedReward1User2 = await staking.earned(
+          user2Address,
+          stakingToken.target,
+          rewardToken1.target
+        );
+
+        expect(earnedReward1User2).to.be.gt(earnedReward1User1);
+        const ratio = Number(earnedReward1User2) / Number(earnedReward1User1);
+        expect(ratio).to.be.approximately(2, 0.01);
+      });
+
+      it("should handle rewards claim and exit correctly", async function () {
+        await ethers.provider.send("evm_increaseTime", [3600]);
+        await ethers.provider.send("evm_mine", []);
+
+        const stakeAmount = ethers.parseEther("1000");
+        await stakingToken.connect(user1).approve(staking.target, stakeAmount);
+        await staking.connect(user1).deposit(stakingToken.target, stakeAmount);
+
+        await ethers.provider.send("evm_increaseTime", [3600]);
+        await ethers.provider.send("evm_mine", []);
+
+        const initialReward1Balance = await rewardToken1.balanceOf(
+          user1Address
+        );
+        const initialStakingBalance = await stakingToken.balanceOf(
+          user1Address
+        );
+
+        await staking.connect(user1).exit(stakingToken.target);
+
+        const finalReward1Balance = await rewardToken1.balanceOf(user1Address);
+        const finalStakingBalance = await stakingToken.balanceOf(user1Address);
+
+        expect(finalReward1Balance).to.be.gt(initialReward1Balance);
+        expect(finalStakingBalance).to.equal(
+          initialStakingBalance + stakeAmount
+        );
+      });
+    });
+
+    describe("Owner Functions", function () {
+      it("should allow owner to recover unused tokens", async function () {
+        const amount = ethers.parseEther("1000");
+        await rewardToken1.transfer(staking.target, amount);
+
+        const initialBalance = await rewardToken1.balanceOf(ownerAddress);
+        await staking.recoverToken(rewardToken1.target);
+        const finalBalance = await rewardToken1.balanceOf(ownerAddress);
+
+        expect(finalBalance).to.be.gt(initialBalance);
       });
     });
   });
