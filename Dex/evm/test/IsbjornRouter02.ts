@@ -11,6 +11,7 @@ import {
   IsbjornRouter02,
   IsbjornLPStaking,
   WAVAXMock,
+  IsbjornStaking,
 } from "../types";
 
 describe("IsbjornRouter02", function () {
@@ -1216,7 +1217,7 @@ describe("IsbjornRouter02", function () {
       });
     });
   });
-  describe("Staking Functions", function () {
+  describe("LP Staking Functions", function () {
     let staking: IsbjornLPStaking;
     let stakingToken: ERC20Mock;
     let rewardToken1: ERC20Mock;
@@ -1464,6 +1465,179 @@ describe("IsbjornRouter02", function () {
         const balanceAfter = await unusedToken.balanceOf(ownerAddress);
 
         expect(balanceAfter).to.be.gt(balanceBefore);
+      });
+    });
+  });
+  describe("IGGY Staking Functions", function () {
+    let isbjornStaking: IsbjornStaking;
+    const WEEK = 604800; // 1 week in seconds
+
+    beforeEach(async function () {
+      const IsbjornStaking = await ethers.getContractFactory("IsbjornStaking");
+      isbjornStaking = await IsbjornStaking.deploy(tokenA.target);
+      await isbjornStaking.waitForDeployment();
+      await ethers.provider.send("evm_mine", []);
+
+      // Transfer tokens to test accounts
+      await tokenA
+        .connect(owner)
+        .transfer(user1Address, ethers.parseEther("1000"));
+      await tokenA
+        .connect(owner)
+        .transfer(user2Address, ethers.parseEther("1000"));
+      await tokenB
+        .connect(owner)
+        .transfer(user1Address, ethers.parseEther("1000"));
+      await ethers.provider.send("evm_mine", []);
+    });
+
+    describe("Core Staking Functions", function () {
+      beforeEach(async function () {
+        // Queue rewards using tokenB as reward for 1 week
+        await tokenB.approve(isbjornStaking.target, ethers.parseEther("1000"));
+        await isbjornStaking.queueNewRewards(
+          ethers.parseEther("100"),
+          tokenB.target,
+          WEEK
+        );
+        await ethers.provider.send("evm_mine", []);
+      });
+
+      it("should distribute rewards over the specified period", async function () {
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+
+        // Check rewards after 1 day
+        await ethers.provider.send("evm_increaseTime", [86400]); // 1 day
+        await ethers.provider.send("evm_mine", []);
+
+        const oneDayRewards = await isbjornStaking.earned(
+          user1Address,
+          tokenB.target
+        );
+
+        // After 1 day should have earned roughly 1/7 of rewards (as period is 1 week)
+        const expectedDailyRewards = ethers.parseEther("100") / 7n;
+        expect(oneDayRewards).to.be.closeTo(
+          expectedDailyRewards,
+          ethers.parseEther("1") // Allow 1 token margin of error
+        );
+      });
+
+      it("should handle queuing additional rewards mid-period", async function () {
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+
+        // Advance halfway through period
+        await ethers.provider.send("evm_increaseTime", [WEEK / 2]);
+        await ethers.provider.send("evm_mine", []);
+
+        // Queue additional rewards
+        await tokenB.approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.queueNewRewards(
+          ethers.parseEther("100"),
+          tokenB.target,
+          WEEK
+        );
+
+        // Check new reward rate
+        const rewardInfo = await isbjornStaking.rewards(tokenB.target);
+        expect(rewardInfo.periodFinish).to.be.gt(
+          (await ethers.provider.getBlock("latest")).timestamp + WEEK / 2
+        );
+      });
+
+      it("should distribute rewards proportionally between stakers", async function () {
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+        await tokenA
+          .connect(user2)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+        await isbjornStaking.connect(user2).stake(ethers.parseEther("20"));
+
+        // Advance some time
+        await ethers.provider.send("evm_increaseTime", [86400]);
+        await ethers.provider.send("evm_mine", []);
+
+        const user1Earned = await isbjornStaking.earned(
+          user1Address,
+          tokenB.target
+        );
+        const user2Earned = await isbjornStaking.earned(
+          user2Address,
+          tokenB.target
+        );
+
+        // User2 should have earned twice as much as user1
+        expect(user2Earned).to.be.gt(user1Earned);
+        expect(user2Earned / user1Earned).to.be.closeTo(2n, 1n);
+      });
+
+      it("should handle multiple reward tokens with different periods", async function () {
+        // Queue WAVAX rewards with different period
+        await WAVAX.deposit({ value: ethers.parseEther("100") });
+        await WAVAX.approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.queueNewRewards(
+          ethers.parseEther("100"),
+          WAVAX.target,
+          WEEK * 2 // 2 weeks
+        );
+
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("10"));
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+
+        // Advance 1 week
+        await ethers.provider.send("evm_increaseTime", [WEEK]);
+        await ethers.provider.send("evm_mine", []);
+
+        const tokenBEarned = await isbjornStaking.earned(
+          user1Address,
+          tokenB.target
+        );
+        const wavaxEarned = await isbjornStaking.earned(
+          user1Address,
+          WAVAX.target
+        );
+
+        // TokenB should be fully distributed, WAVAX should be half distributed
+        expect(tokenBEarned).to.be.closeTo(
+          ethers.parseEther("100"),
+          ethers.parseEther("1")
+        );
+        expect(wavaxEarned).to.be.closeTo(
+          ethers.parseEther("50"),
+          ethers.parseEther("1")
+        );
+      });
+
+      it("should allow reward claims after period ends", async function () {
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("10"));
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+
+        // Advance past reward period
+        await ethers.provider.send("evm_increaseTime", [WEEK + 1]);
+        await ethers.provider.send("evm_mine", []);
+
+        const initialBalance = await tokenB.balanceOf(user1Address);
+        await isbjornStaking.connect(user1).getReward();
+        const finalBalance = await tokenB.balanceOf(user1Address);
+
+        // Should receive full reward amount
+        expect(finalBalance - initialBalance).to.be.closeTo(
+          ethers.parseEther("100"),
+          ethers.parseEther("1")
+        );
       });
     });
   });

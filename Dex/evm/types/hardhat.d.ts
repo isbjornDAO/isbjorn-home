@@ -94,6 +94,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IsbjornRouter02__factory>;
     getContractFactory(
+      name: "IsbjornStaking",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IsbjornStaking__factory>;
+    getContractFactory(
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IWAVAX__factory>;
@@ -105,14 +109,6 @@ declare module "hardhat/types/runtime" {
       name: "SoulboundAchievments",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SoulboundAchievments__factory>;
-    getContractFactory(
-      name: "IsbjornLPStaking",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IsbjornLPStaking__factory>;
-    getContractFactory(
-      name: "IsbjornLPStakingOld",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IsbjornLPStakingOld__factory>;
     getContractFactory(
       name: "Distributor",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -391,6 +387,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IsbjornRouter02>;
     getContractAt(
+      name: "IsbjornStaking",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IsbjornStaking>;
+    getContractAt(
       name: "IWAVAX",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -405,16 +406,6 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.SoulboundAchievments>;
-    getContractAt(
-      name: "IsbjornLPStaking",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IsbjornLPStaking>;
-    getContractAt(
-      name: "IsbjornLPStakingOld",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IsbjornLPStakingOld>;
     getContractAt(
       name: "Distributor",
       address: string | ethers.Addressable,
@@ -717,6 +708,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IsbjornRouter02>;
     deployContract(
+      name: "IsbjornStaking",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IsbjornStaking>;
+    deployContract(
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IWAVAX>;
@@ -728,14 +723,6 @@ declare module "hardhat/types/runtime" {
       name: "SoulboundAchievments",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SoulboundAchievments>;
-    deployContract(
-      name: "IsbjornLPStaking",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IsbjornLPStaking>;
-    deployContract(
-      name: "IsbjornLPStakingOld",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IsbjornLPStakingOld>;
     deployContract(
       name: "Distributor",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1014,6 +1001,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IsbjornRouter02>;
     deployContract(
+      name: "IsbjornStaking",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IsbjornStaking>;
+    deployContract(
       name: "IWAVAX",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1028,16 +1020,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SoulboundAchievments>;
-    deployContract(
-      name: "IsbjornLPStaking",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IsbjornLPStaking>;
-    deployContract(
-      name: "IsbjornLPStakingOld",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IsbjornLPStakingOld>;
     deployContract(
       name: "Distributor",
       args: any[],

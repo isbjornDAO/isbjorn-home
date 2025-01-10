@@ -26,110 +26,81 @@ import type {
 export interface IsbjornStakingInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "EPOCH_TIME"
-      | "claimAllRewards"
-      | "claimReward"
-      | "configureEpoch"
-      | "currentEpoch"
-      | "deposit"
       | "earned"
-      | "epochs"
-      | "exit"
-      | "getCurrentEpoch"
-      | "getEpochPoolRate"
+      | "getReward"
+      | "getRewardTokens"
+      | "getUserStakeInfo"
+      | "isRewardToken"
       | "owner"
-      | "recoverToken"
-      | "removeEpoch"
+      | "queueNewRewards"
       | "revokeOwnership"
-      | "rewardsPerToken"
-      | "stakingConfigs"
-      | "totalEpochs"
+      | "rewardPerToken"
+      | "rewardTokens"
+      | "rewards"
+      | "stake"
+      | "stakingToken"
+      | "totalStaked"
       | "transferOwnership"
-      | "userStakingInfo"
+      | "userRewardPerTokenPaid"
+      | "userRewards"
+      | "userStakes"
       | "withdraw"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "Deposit"
-      | "EpochConfigured"
-      | "EpochRemoved"
       | "OwnershipTransferred"
-      | "RewardClaimed"
-      | "Withdraw"
+      | "RewardAdded"
+      | "RewardPaid"
+      | "Staked"
+      | "Withdrawn"
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "EPOCH_TIME",
+    functionFragment: "earned",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "getReward", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getRewardTokens",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "claimAllRewards",
+    functionFragment: "getUserStakeInfo",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "claimReward",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "configureEpoch",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      AddressLike[],
-      AddressLike[],
-      BigNumberish[][],
-      BigNumberish[][]
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "currentEpoch",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "deposit",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "earned",
-    values: [AddressLike, AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "epochs",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "exit", values: [AddressLike]): string;
-  encodeFunctionData(
-    functionFragment: "getCurrentEpoch",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getEpochPoolRate",
-    values: [BigNumberish, AddressLike, AddressLike]
+    functionFragment: "isRewardToken",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "recoverToken",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeEpoch",
-    values: [BigNumberish]
+    functionFragment: "queueNewRewards",
+    values: [BigNumberish, AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "revokeOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "rewardsPerToken",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "stakingConfigs",
+    functionFragment: "rewardPerToken",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "totalEpochs",
+    functionFragment: "rewardTokens",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rewards",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "stake", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "stakingToken",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalStaked",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -137,50 +108,39 @@ export interface IsbjornStakingInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "userStakingInfo",
+    functionFragment: "userRewardPerTokenPaid",
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "userRewards",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "userStakes",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdraw",
-    values: [AddressLike, BigNumberish]
+    values: [BigNumberish]
   ): string;
 
-  decodeFunctionResult(functionFragment: "EPOCH_TIME", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "claimAllRewards",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "claimReward",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "configureEpoch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "currentEpoch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "earned", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "epochs", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "exit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getReward", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getCurrentEpoch",
+    functionFragment: "getRewardTokens",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getEpochPoolRate",
+    functionFragment: "getUserStakeInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRewardToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "recoverToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeEpoch",
+    functionFragment: "queueNewRewards",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -188,15 +148,21 @@ export interface IsbjornStakingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "rewardsPerToken",
+    functionFragment: "rewardPerToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "stakingConfigs",
+    functionFragment: "rewardTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "rewards", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "stakingToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "totalEpochs",
+    functionFragment: "totalStaked",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -204,68 +170,15 @@ export interface IsbjornStakingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "userStakingInfo",
+    functionFragment: "userRewardPerTokenPaid",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "userRewards",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "userStakes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
-}
-
-export namespace DepositEvent {
-  export type InputTuple = [
-    user: AddressLike,
-    token: AddressLike,
-    amount: BigNumberish
-  ];
-  export type OutputTuple = [user: string, token: string, amount: bigint];
-  export interface OutputObject {
-    user: string;
-    token: string;
-    amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace EpochConfiguredEvent {
-  export type InputTuple = [
-    epochNumber: BigNumberish,
-    startTime: BigNumberish,
-    stakingTokens: AddressLike[],
-    rewardTokens: AddressLike[],
-    weights: BigNumberish[][]
-  ];
-  export type OutputTuple = [
-    epochNumber: bigint,
-    startTime: bigint,
-    stakingTokens: string[],
-    rewardTokens: string[],
-    weights: bigint[][]
-  ];
-  export interface OutputObject {
-    epochNumber: bigint;
-    startTime: bigint;
-    stakingTokens: string[];
-    rewardTokens: string[];
-    weights: bigint[][];
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace EpochRemovedEvent {
-  export type InputTuple = [epochNumber: BigNumberish];
-  export type OutputTuple = [epochNumber: bigint];
-  export interface OutputObject {
-    epochNumber: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace OwnershipTransferredEvent {
@@ -281,22 +194,37 @@ export namespace OwnershipTransferredEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace RewardClaimedEvent {
+export namespace RewardAddedEvent {
+  export type InputTuple = [
+    reward: BigNumberish,
+    rewardToken: AddressLike,
+    duration: BigNumberish
+  ];
+  export type OutputTuple = [
+    reward: bigint,
+    rewardToken: string,
+    duration: bigint
+  ];
+  export interface OutputObject {
+    reward: bigint;
+    rewardToken: string;
+    duration: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace RewardPaidEvent {
   export type InputTuple = [
     user: AddressLike,
-    stakingToken: AddressLike,
     rewardToken: AddressLike,
     reward: BigNumberish
   ];
-  export type OutputTuple = [
-    user: string,
-    stakingToken: string,
-    rewardToken: string,
-    reward: bigint
-  ];
+  export type OutputTuple = [user: string, rewardToken: string, reward: bigint];
   export interface OutputObject {
     user: string;
-    stakingToken: string;
     rewardToken: string;
     reward: bigint;
   }
@@ -306,16 +234,24 @@ export namespace RewardClaimedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace WithdrawEvent {
-  export type InputTuple = [
-    user: AddressLike,
-    token: AddressLike,
-    amount: BigNumberish
-  ];
-  export type OutputTuple = [user: string, token: string, amount: bigint];
+export namespace StakedEvent {
+  export type InputTuple = [user: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [user: string, amount: bigint];
   export interface OutputObject {
     user: string;
-    token: string;
+    amount: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace WithdrawnEvent {
+  export type InputTuple = [user: AddressLike, amount: BigNumberish];
+  export type OutputTuple = [user: string, amount: bigint];
+  export interface OutputObject {
+    user: string;
     amount: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -367,100 +303,65 @@ export interface IsbjornStaking extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  EPOCH_TIME: TypedContractMethod<[], [bigint], "view">;
-
-  claimAllRewards: TypedContractMethod<
-    [stakingToken: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  claimReward: TypedContractMethod<
-    [stakingToken: AddressLike, rewardToken: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  configureEpoch: TypedContractMethod<
-    [
-      epochNumber: BigNumberish,
-      startTime: BigNumberish,
-      stakingTokens: AddressLike[],
-      rewardTokens: AddressLike[],
-      rewardAmounts: BigNumberish[][],
-      weights: BigNumberish[][]
-    ],
-    [void],
-    "nonpayable"
-  >;
-
-  currentEpoch: TypedContractMethod<[], [bigint], "view">;
-
-  deposit: TypedContractMethod<
-    [stakingToken: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
   earned: TypedContractMethod<
-    [account: AddressLike, stakingToken: AddressLike, rewardToken: AddressLike],
+    [_account: AddressLike, _rewardToken: AddressLike],
     [bigint],
     "view"
   >;
 
-  epochs: TypedContractMethod<
-    [arg0: BigNumberish],
-    [[bigint, boolean] & { startTime: bigint; isActive: boolean }],
+  getReward: TypedContractMethod<[], [void], "nonpayable">;
+
+  getRewardTokens: TypedContractMethod<[], [string[]], "view">;
+
+  getUserStakeInfo: TypedContractMethod<
+    [user: AddressLike],
+    [[bigint, bigint] & { stakedAmount: bigint; stakeDuration: bigint }],
     "view"
   >;
 
-  exit: TypedContractMethod<[stakingToken: AddressLike], [void], "nonpayable">;
-
-  getCurrentEpoch: TypedContractMethod<[], [bigint], "view">;
-
-  getEpochPoolRate: TypedContractMethod<
-    [
-      epochNum: BigNumberish,
-      stakingToken: AddressLike,
-      rewardToken: AddressLike
-    ],
-    [bigint],
-    "view"
-  >;
+  isRewardToken: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
 
-  recoverToken: TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
-
-  removeEpoch: TypedContractMethod<
-    [epochNumber: BigNumberish],
-    [void],
+  queueNewRewards: TypedContractMethod<
+    [
+      _amountReward: BigNumberish,
+      _rewardToken: AddressLike,
+      _duration: BigNumberish
+    ],
+    [boolean],
     "nonpayable"
   >;
 
   revokeOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  rewardsPerToken: TypedContractMethod<
-    [stakingToken: AddressLike, rewardToken: AddressLike],
+  rewardPerToken: TypedContractMethod<
+    [_rewardToken: AddressLike],
     [bigint],
     "view"
   >;
 
-  stakingConfigs: TypedContractMethod<
+  rewardTokens: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+
+  rewards: TypedContractMethod<
     [arg0: AddressLike],
     [
-      [bigint, bigint, bigint, bigint, boolean] & {
-        duration: bigint;
-        periodFinish: bigint;
+      [bigint, bigint, bigint, bigint, bigint] & {
+        rewardPerTokenStored: bigint;
+        queuedRewards: bigint;
         lastUpdateTime: bigint;
-        totalSupply: bigint;
-        isActive: boolean;
+        periodFinish: bigint;
+        rewardRate: bigint;
       }
     ],
     "view"
   >;
 
-  totalEpochs: TypedContractMethod<[], [bigint], "view">;
+  stake: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+
+  stakingToken: TypedContractMethod<[], [string], "view">;
+
+  totalStaked: TypedContractMethod<[], [bigint], "view">;
 
   transferOwnership: TypedContractMethod<
     [_owner: AddressLike],
@@ -468,166 +369,128 @@ export interface IsbjornStaking extends BaseContract {
     "nonpayable"
   >;
 
-  userStakingInfo: TypedContractMethod<
+  userRewardPerTokenPaid: TypedContractMethod<
     [arg0: AddressLike, arg1: AddressLike],
     [bigint],
     "view"
   >;
 
-  withdraw: TypedContractMethod<
-    [stakingToken: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
+  userRewards: TypedContractMethod<
+    [arg0: AddressLike, arg1: AddressLike],
+    [bigint],
+    "view"
   >;
+
+  userStakes: TypedContractMethod<
+    [arg0: AddressLike],
+    [[bigint, bigint] & { amount: bigint; startTime: bigint }],
+    "view"
+  >;
+
+  withdraw: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
-    nameOrSignature: "EPOCH_TIME"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "claimAllRewards"
-  ): TypedContractMethod<[stakingToken: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "claimReward"
-  ): TypedContractMethod<
-    [stakingToken: AddressLike, rewardToken: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "configureEpoch"
-  ): TypedContractMethod<
-    [
-      epochNumber: BigNumberish,
-      startTime: BigNumberish,
-      stakingTokens: AddressLike[],
-      rewardTokens: AddressLike[],
-      rewardAmounts: BigNumberish[][],
-      weights: BigNumberish[][]
-    ],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "currentEpoch"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "deposit"
-  ): TypedContractMethod<
-    [stakingToken: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "earned"
   ): TypedContractMethod<
-    [account: AddressLike, stakingToken: AddressLike, rewardToken: AddressLike],
+    [_account: AddressLike, _rewardToken: AddressLike],
     [bigint],
     "view"
   >;
   getFunction(
-    nameOrSignature: "epochs"
+    nameOrSignature: "getReward"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "getRewardTokens"
+  ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "getUserStakeInfo"
   ): TypedContractMethod<
-    [arg0: BigNumberish],
-    [[bigint, boolean] & { startTime: bigint; isActive: boolean }],
+    [user: AddressLike],
+    [[bigint, bigint] & { stakedAmount: bigint; stakeDuration: bigint }],
     "view"
   >;
   getFunction(
-    nameOrSignature: "exit"
-  ): TypedContractMethod<[stakingToken: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "getCurrentEpoch"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getEpochPoolRate"
-  ): TypedContractMethod<
-    [
-      epochNum: BigNumberish,
-      stakingToken: AddressLike,
-      rewardToken: AddressLike
-    ],
-    [bigint],
-    "view"
-  >;
+    nameOrSignature: "isRewardToken"
+  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "recoverToken"
-  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "removeEpoch"
-  ): TypedContractMethod<[epochNumber: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: "queueNewRewards"
+  ): TypedContractMethod<
+    [
+      _amountReward: BigNumberish,
+      _rewardToken: AddressLike,
+      _duration: BigNumberish
+    ],
+    [boolean],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "revokeOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "rewardsPerToken"
-  ): TypedContractMethod<
-    [stakingToken: AddressLike, rewardToken: AddressLike],
-    [bigint],
-    "view"
-  >;
+    nameOrSignature: "rewardPerToken"
+  ): TypedContractMethod<[_rewardToken: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "stakingConfigs"
+    nameOrSignature: "rewardTokens"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "rewards"
   ): TypedContractMethod<
     [arg0: AddressLike],
     [
-      [bigint, bigint, bigint, bigint, boolean] & {
-        duration: bigint;
-        periodFinish: bigint;
+      [bigint, bigint, bigint, bigint, bigint] & {
+        rewardPerTokenStored: bigint;
+        queuedRewards: bigint;
         lastUpdateTime: bigint;
-        totalSupply: bigint;
-        isActive: boolean;
+        periodFinish: bigint;
+        rewardRate: bigint;
       }
     ],
     "view"
   >;
   getFunction(
-    nameOrSignature: "totalEpochs"
+    nameOrSignature: "stake"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "stakingToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "totalStaked"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[_owner: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "userStakingInfo"
+    nameOrSignature: "userRewardPerTokenPaid"
   ): TypedContractMethod<
     [arg0: AddressLike, arg1: AddressLike],
     [bigint],
     "view"
   >;
   getFunction(
-    nameOrSignature: "withdraw"
+    nameOrSignature: "userRewards"
   ): TypedContractMethod<
-    [stakingToken: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
+    [arg0: AddressLike, arg1: AddressLike],
+    [bigint],
+    "view"
   >;
+  getFunction(
+    nameOrSignature: "userStakes"
+  ): TypedContractMethod<
+    [arg0: AddressLike],
+    [[bigint, bigint] & { amount: bigint; startTime: bigint }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "withdraw"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
-  getEvent(
-    key: "Deposit"
-  ): TypedContractEvent<
-    DepositEvent.InputTuple,
-    DepositEvent.OutputTuple,
-    DepositEvent.OutputObject
-  >;
-  getEvent(
-    key: "EpochConfigured"
-  ): TypedContractEvent<
-    EpochConfiguredEvent.InputTuple,
-    EpochConfiguredEvent.OutputTuple,
-    EpochConfiguredEvent.OutputObject
-  >;
-  getEvent(
-    key: "EpochRemoved"
-  ): TypedContractEvent<
-    EpochRemovedEvent.InputTuple,
-    EpochRemovedEvent.OutputTuple,
-    EpochRemovedEvent.OutputObject
-  >;
   getEvent(
     key: "OwnershipTransferred"
   ): TypedContractEvent<
@@ -636,54 +499,35 @@ export interface IsbjornStaking extends BaseContract {
     OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "RewardClaimed"
+    key: "RewardAdded"
   ): TypedContractEvent<
-    RewardClaimedEvent.InputTuple,
-    RewardClaimedEvent.OutputTuple,
-    RewardClaimedEvent.OutputObject
+    RewardAddedEvent.InputTuple,
+    RewardAddedEvent.OutputTuple,
+    RewardAddedEvent.OutputObject
   >;
   getEvent(
-    key: "Withdraw"
+    key: "RewardPaid"
   ): TypedContractEvent<
-    WithdrawEvent.InputTuple,
-    WithdrawEvent.OutputTuple,
-    WithdrawEvent.OutputObject
+    RewardPaidEvent.InputTuple,
+    RewardPaidEvent.OutputTuple,
+    RewardPaidEvent.OutputObject
+  >;
+  getEvent(
+    key: "Staked"
+  ): TypedContractEvent<
+    StakedEvent.InputTuple,
+    StakedEvent.OutputTuple,
+    StakedEvent.OutputObject
+  >;
+  getEvent(
+    key: "Withdrawn"
+  ): TypedContractEvent<
+    WithdrawnEvent.InputTuple,
+    WithdrawnEvent.OutputTuple,
+    WithdrawnEvent.OutputObject
   >;
 
   filters: {
-    "Deposit(address,address,uint256)": TypedContractEvent<
-      DepositEvent.InputTuple,
-      DepositEvent.OutputTuple,
-      DepositEvent.OutputObject
-    >;
-    Deposit: TypedContractEvent<
-      DepositEvent.InputTuple,
-      DepositEvent.OutputTuple,
-      DepositEvent.OutputObject
-    >;
-
-    "EpochConfigured(uint256,uint256,address[],address[],uint32[][])": TypedContractEvent<
-      EpochConfiguredEvent.InputTuple,
-      EpochConfiguredEvent.OutputTuple,
-      EpochConfiguredEvent.OutputObject
-    >;
-    EpochConfigured: TypedContractEvent<
-      EpochConfiguredEvent.InputTuple,
-      EpochConfiguredEvent.OutputTuple,
-      EpochConfiguredEvent.OutputObject
-    >;
-
-    "EpochRemoved(uint256)": TypedContractEvent<
-      EpochRemovedEvent.InputTuple,
-      EpochRemovedEvent.OutputTuple,
-      EpochRemovedEvent.OutputObject
-    >;
-    EpochRemoved: TypedContractEvent<
-      EpochRemovedEvent.InputTuple,
-      EpochRemovedEvent.OutputTuple,
-      EpochRemovedEvent.OutputObject
-    >;
-
     "OwnershipTransferred(address,address)": TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
@@ -695,26 +539,48 @@ export interface IsbjornStaking extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "RewardClaimed(address,address,address,uint256)": TypedContractEvent<
-      RewardClaimedEvent.InputTuple,
-      RewardClaimedEvent.OutputTuple,
-      RewardClaimedEvent.OutputObject
+    "RewardAdded(uint256,address,uint256)": TypedContractEvent<
+      RewardAddedEvent.InputTuple,
+      RewardAddedEvent.OutputTuple,
+      RewardAddedEvent.OutputObject
     >;
-    RewardClaimed: TypedContractEvent<
-      RewardClaimedEvent.InputTuple,
-      RewardClaimedEvent.OutputTuple,
-      RewardClaimedEvent.OutputObject
+    RewardAdded: TypedContractEvent<
+      RewardAddedEvent.InputTuple,
+      RewardAddedEvent.OutputTuple,
+      RewardAddedEvent.OutputObject
     >;
 
-    "Withdraw(address,address,uint256)": TypedContractEvent<
-      WithdrawEvent.InputTuple,
-      WithdrawEvent.OutputTuple,
-      WithdrawEvent.OutputObject
+    "RewardPaid(address,address,uint256)": TypedContractEvent<
+      RewardPaidEvent.InputTuple,
+      RewardPaidEvent.OutputTuple,
+      RewardPaidEvent.OutputObject
     >;
-    Withdraw: TypedContractEvent<
-      WithdrawEvent.InputTuple,
-      WithdrawEvent.OutputTuple,
-      WithdrawEvent.OutputObject
+    RewardPaid: TypedContractEvent<
+      RewardPaidEvent.InputTuple,
+      RewardPaidEvent.OutputTuple,
+      RewardPaidEvent.OutputObject
+    >;
+
+    "Staked(address,uint256)": TypedContractEvent<
+      StakedEvent.InputTuple,
+      StakedEvent.OutputTuple,
+      StakedEvent.OutputObject
+    >;
+    Staked: TypedContractEvent<
+      StakedEvent.InputTuple,
+      StakedEvent.OutputTuple,
+      StakedEvent.OutputObject
+    >;
+
+    "Withdrawn(address,uint256)": TypedContractEvent<
+      WithdrawnEvent.InputTuple,
+      WithdrawnEvent.OutputTuple,
+      WithdrawnEvent.OutputObject
+    >;
+    Withdrawn: TypedContractEvent<
+      WithdrawnEvent.InputTuple,
+      WithdrawnEvent.OutputTuple,
+      WithdrawnEvent.OutputObject
     >;
   };
 }
