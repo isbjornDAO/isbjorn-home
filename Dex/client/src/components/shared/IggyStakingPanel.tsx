@@ -144,7 +144,7 @@ const IggyStakingPanel = () => {
                                 </CardFooter>
                             </Card>
                             <Button
-                                className="shad-button_primary w-[350px] md:w-[380px] lg:w-[420px] xl:w-[480px] mt-2"
+                                className="deposit-iggy-button w-[350px] md:w-[380px] lg:w-[420px] xl:w-[480px] mt-2"
                                 disabled={depositButtonDisabled || isLoading}
                                 onClick={async () => {
                                     setButtonLoading("deposit");
@@ -221,7 +221,7 @@ const IggyStakingPanel = () => {
                                 </CardFooter>
                             </Card>
                             <Button
-                                className="shad-button_primary w-[350px] md:w-[380px] lg:w-[420px] xl:w-[480px] mt-2"
+                                className="withdraw-iggy-button w-[350px] md:w-[380px] lg:w-[420px] xl:w-[480px] mt-2"
                                 disabled={withdrawButtonDisabled || isLoading}
                                 onClick={async () => {
                                     setButtonLoading("deposit");
@@ -275,7 +275,7 @@ const IggyStakingPanel = () => {
                     </CardHeader>
                 </Card>
                 <Button
-                    className="shad-button_primary w-[350px] md:w-[380px] lg:w-[420px] xl:w-[480px] mt-2"
+                    className="claim-iggy-reward-button w-[350px] md:w-[380px] lg:w-[420px] xl:w-[480px] mt-2"
                     disabled={claimButtonDisabled || isLoading}
                     onClick={async () => {
                         setButtonLoading("claim");

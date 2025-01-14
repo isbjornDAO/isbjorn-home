@@ -111,16 +111,32 @@
     @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2 w-[320px];
   }
 
-  .swap-button {
+  .isbjorn-base-button {
     @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2 w-full;
+  }
+
+  .swap-button {
+    @apply isbjorn-base-button;
   }
 
   .add-liq-button {
-    @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2 w-full;
+    @apply isbjorn-base-button;
   }
 
   .remove-liq-button {
-    @apply bg-isbjorn-blue hover:bg-isbjorn-blue-hover text-white flex gap-2 w-full;
+    @apply isbjorn-base-button;
+  }
+
+  .deposit-iggy-button {
+    @apply isbjorn-base-button;
+  }
+
+  .withdraw-iggy-button {
+    @apply isbjorn-base-button;
+  }
+
+  .claim-iggy-reward-button {
+    @apply isbjorn-base-button;
   }
 
   .profile-card-connect-button {
