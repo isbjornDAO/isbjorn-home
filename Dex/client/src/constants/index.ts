@@ -14,6 +14,8 @@ export const isbjorn_head_logo_url =
 export const isbjorn_head_w_text_logo_url =
   "https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dcbcac4228310e9fda70_Isbjorn%20PNG%20(5)-p-500.png";
 
+export const iggy_token_address = "0xiggy";
+
 export const sample_token_list: { [address: string]: Token } =
   USE_TESTNET === "1"
     ? {

@@ -15,14 +15,19 @@ export default defineConfig({
       process: "process/browser",
     },
   },
+  clearScreen: false,
   server: {
     host: "0.0.0.0",
     port: 5173,
+    hmr: {
+      overlay: false,
+    },
   },
   define: {
     global: "globalThis",
   },
   optimizeDeps: {
+    force: true,
     esbuildOptions: {
       define: {
         global: "globalThis",

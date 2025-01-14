@@ -4,6 +4,8 @@ export type Account = {
   address: string | null;
   name: string | null;
   balances: { [address: string]: BN };
+  deposits: { [address: string]: BN };
+  allowances: { [address: string]: BN };
 };
 
 export type Token = {

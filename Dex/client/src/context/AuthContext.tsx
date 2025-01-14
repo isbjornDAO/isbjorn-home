@@ -10,7 +10,9 @@ import { chain_id, sample_token_list } from "@/constants";
 export const INITIAL_ACCOUNT = {
     address: null,
     name: null,
-    balances: {}
+    balances: {},
+    deposits: {},
+    allowances: {}
 }
 
 const INITIAL_STATE = {
@@ -80,12 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const domainName = await getDomainName(address);
                 const cachedAccount = getCachedAccount(address);
                 if (cachedAccount) {
-                    setAccount({ address: cachedAccount.address, name: domainName || cachedAccount.name, balances: cachedAccount.balances });
+                    setAccount({ address: cachedAccount.address, name: domainName || cachedAccount.name, balances: cachedAccount.balances, deposits: {}, allowances: {} });
                     setIsConnected(true);
                     setIsLoading(false);
                     return;
                 } else {
-                    setAccount({ address: accounts[0], name: domainName, balances: {} });
+                    setAccount({ address: accounts[0], name: domainName, balances: {}, deposits: {}, allowances: {} });
                     setIsConnected(true);
                     setIsLoading(false);
                     return;
@@ -105,11 +107,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setIsConnected(true);
             } else {
                 setBalancesFetched(false);
-                setAccount({ address: address, name: await getDomainName(address), balances: {} });
+                setAccount({ address: address, name: await getDomainName(address), balances: {}, deposits: {}, allowances: {} }); //TODO: possibly set allowances and deposits in cache
                 setIsConnected(true);
             }
         } else {
-            setAccount({ address: null, name: null, balances: {} });
+            setAccount({ address: null, name: null, balances: {}, deposits: {}, allowances: {} });
             setIsConnected(false);
             setBalancesFetched(false);
         }

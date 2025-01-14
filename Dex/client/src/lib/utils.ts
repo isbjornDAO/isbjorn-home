@@ -167,3 +167,11 @@ export const sqrtBN = (value: BN) => {
 
   return high.sub(new BN(1));
 };
+
+export const formatDecimal = (
+  numberStr: string,
+  decimalPlaces: number
+): string => {
+  const rounded = Number(numberStr).toFixed(decimalPlaces);
+  return parseFloat(rounded).toString();
+};
