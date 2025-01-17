@@ -10,11 +10,11 @@ import BN from 'bn.js';
 import { formatBN, formatDecimal, scaleToBN } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 import { Loader } from '@/components/shared';
-import { explorer_url, iggy_token_address } from '@/constants';
+import { explorer_url, iggy_token_address, isbjorn_head_logo_url } from '@/constants';
 
 
 const IggyStakingPanel = () => {
-    const { account, currentChainId, update } = useUserContext();
+    const { account, getUserTokenBal, update, refresh } = useUserContext();
     const { showToast } = useToast();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -42,10 +42,26 @@ const IggyStakingPanel = () => {
     };
 
     useEffect(() => {
+        const getIggyBalance = async () => {
+            console.log(iggy_token_address);
+            const iggyBalance = await getUserTokenBal(iggy_token_address);
+            if (iggyBalance !== null) {
+                setUserBalance(iggyBalance);
+            } else {
+                setUserBalance(new BN(0));
+            }
+            console.log(iggyBalance.toString());
+        }
+        getIggyBalance();
+    }, [refresh]);
+
+    useEffect(() => {
         if (account && account.balances && account.balances[iggy_token_address]) {
             setUserBalance(account.balances[iggy_token_address]);
+            console.log(account.balances[iggy_token_address]);
         } else {
             setUserBalance(new BN(0));
+            console.log("NULL");
         }
     }, [account.balances]);
 
@@ -105,7 +121,7 @@ const IggyStakingPanel = () => {
                                 <CardContent>
                                     <div className='flex flex-row gap-1 items-center'>
                                         <img
-                                            src={"https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dc99fa55b6632e77070b_Isbjorn%20PNG%20(3).png"}
+                                            src={isbjorn_head_logo_url}
                                             alt='IGGY Token'
                                             className='w-10 h-10 rounded-full mr-1'
                                         />
@@ -119,13 +135,13 @@ const IggyStakingPanel = () => {
                                         </div>
                                         <div className='flex flex-col gap-1 w-3/5 ml-auto'>
                                             <div>
-                                                <p className='ml-2'>My wallet: <span className='hover:cursor-pointer' onClick={() => { setAmountToDeposit(userBalance); setInputValue(amountToDepositInput, formatBN(userBalance, 18)); }}>{formatDecimal(formatBN(userBalance, 18), 2)}</span> IGGY</p>
+                                                <p className='ml-2'>My wallet: <span className='hover:cursor-pointer' onClick={() => { setAmountToDeposit(userBalance); setInputValue(amountToDepositInput, formatBN(userBalance, 18)); console.log(formatBN(userBalance, 18)); }}>{formatDecimal(formatBN(userBalance, 18), 2)}</span> IGGY</p>
                                             </div>
                                             <Input
                                                 ref={amountToDepositInput}
                                                 type="number"
                                                 placeholder="0.0"
-                                                className='text-white bg-dark-2 border-dark-4 no-arrows'
+                                                className='text-dodger-blue bg-white no-arrows'
                                                 autoComplete="off"
                                                 onChange={(e) => {
                                                     const value = e.target.value;
@@ -249,7 +265,7 @@ const IggyStakingPanel = () => {
                         <CardContent>
                             <div className='flex flex-row gap-3 justify-start items-center'>
                                 <img
-                                    src={"https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dc99fa55b6632e77070b_Isbjorn%20PNG%20(3).png"}
+                                    src={isbjorn_head_logo_url}
                                     alt='IGGY Token'
                                     className='w-12 h-12 rounded-full mr-1'
                                 />

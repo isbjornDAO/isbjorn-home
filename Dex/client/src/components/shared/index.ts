@@ -1,4 +1,5 @@
 export { default as IggyStakingPanel } from "./IggyStakingPanel";
+export { default as LPStakingPanel } from "./LPStakingPanel";
 export { default as LiquidityPanel } from "./LiquidityPanel";
 export { default as Loader } from "./Loader";
 export { default as ProfileCard } from "./ProfileCard";

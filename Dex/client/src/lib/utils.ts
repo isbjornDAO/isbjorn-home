@@ -173,5 +173,5 @@ export const formatDecimal = (
   decimalPlaces: number
 ): string => {
   const rounded = Number(numberStr).toFixed(decimalPlaces);
-  return parseFloat(rounded).toString();
+  return parseFloat(rounded).toLocaleString();
 };

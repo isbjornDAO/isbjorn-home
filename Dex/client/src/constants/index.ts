@@ -14,11 +14,20 @@ export const isbjorn_head_logo_url =
 export const isbjorn_head_w_text_logo_url =
   "https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dcbcac4228310e9fda70_Isbjorn%20PNG%20(5)-p-500.png";
 
-export const iggy_token_address = "0xiggy";
+export const iggy_token_address =
+  USE_TESTNET === "1" ? "0x493c1d1cda9456b426339e24ee7676cf2c1c2f5f" : "0xiggy";
 
 export const sample_token_list: { [address: string]: Token } =
   USE_TESTNET === "1"
     ? {
+        "0x493c1d1cda9456b426339e24ee7676cf2c1c2f5f": {
+          address: "0x493c1d1cda9456b426339e24ee7676cf2c1c2f5f",
+          name: "Isbjorn",
+          ticker: "IGGY",
+          imgUrl: isbjorn_head_logo_url,
+          decimals: 18,
+          rank: "0",
+        },
         "0xAVAX": {
           address: "0xAVAX",
           name: "AVAX",
