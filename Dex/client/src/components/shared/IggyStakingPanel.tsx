@@ -10,7 +10,8 @@ import BN from 'bn.js';
 import { formatBN, formatDecimal, scaleToBN } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 import { Loader } from '@/components/shared';
-import { explorer_url, iggy_token_address, isbjorn_head_logo_url } from '@/constants';
+import { explorer_url, iggy_staking_address, iggy_token_address, isbjorn_head_logo_url } from '@/constants';
+import { approveERC20Amount, createDepositTransaction, createWithdrawTransaction, getERC20Allowance, getIggyDepositBalance } from '@/lib/wallet';
 
 
 const IggyStakingPanel = () => {
@@ -42,15 +43,41 @@ const IggyStakingPanel = () => {
     };
 
     useEffect(() => {
+        const getIggyDepositAllowance = async () => {
+            const iggyDepositAllowance = await getERC20Allowance(account.address, iggy_staking_address, iggy_token_address);
+            if (iggyDepositAllowance !== null) {
+                setUserAllowance(iggyDepositAllowance);
+            } else {
+                setUserAllowance(new BN(0));
+            }
+        }
+        if (account.address) {
+            getIggyDepositAllowance();
+        }
+    }, [account, refresh]);
+
+    useEffect(() => {
+        const getIggyDeposited = async () => {
+            const iggyDepositedAmount = await getIggyDepositBalance(account.address);
+            if (iggyDepositedAmount !== null) {
+                setUserDepositBalance(iggyDepositedAmount);
+            } else {
+                setUserDepositBalance(new BN(0));
+            }
+        }
+        if (account.address) {
+            getIggyDeposited();
+        }
+    }, [account, refresh]);
+
+    useEffect(() => {
         const getIggyBalance = async () => {
-            console.log(iggy_token_address);
             const iggyBalance = await getUserTokenBal(iggy_token_address);
             if (iggyBalance !== null) {
                 setUserBalance(iggyBalance);
             } else {
                 setUserBalance(new BN(0));
             }
-            console.log(iggyBalance.toString());
         }
         getIggyBalance();
     }, [refresh]);
@@ -58,36 +85,10 @@ const IggyStakingPanel = () => {
     useEffect(() => {
         if (account && account.balances && account.balances[iggy_token_address]) {
             setUserBalance(account.balances[iggy_token_address]);
-            console.log(account.balances[iggy_token_address]);
         } else {
             setUserBalance(new BN(0));
-            console.log("NULL");
         }
     }, [account.balances]);
-
-    useEffect(() => {
-        if (account && account.deposits && account.deposits[iggy_token_address]) {
-            setUserDepositBalance(account.deposits[iggy_token_address])
-        } else {
-            setUserDepositBalance(new BN(0));
-        }
-    }, [account.deposits]);
-
-    useEffect(() => {
-        if (account && account.allowances && account.allowances[iggy_token_address]) {
-            setUserAllowance(account.allowances[iggy_token_address])
-        } else {
-            setUserAllowance(new BN(0));
-        }
-    }, [account.allowances]);
-
-    // useEffect(() => {
-    //     if (userPendingRewards[currentChainId]) {
-    //         setPendingRewards(userPendingRewards[currentChainId])
-    //     } else {
-    //         setPendingRewards(new BN(0));
-    //     }
-    // }, [userPendingRewards, account, currentChainId]);
 
     useEffect(() => {
         setDepositButtonDisabled(!(amountToDeposit.gt(new BN(0)) && userBalance.gt(new BN(0)) && amountToDeposit.lte(userBalance)));
@@ -166,14 +167,14 @@ const IggyStakingPanel = () => {
                                     setButtonLoading("deposit");
                                     setIsLoading(true);
                                     let result;
-                                    // if (userAllowance.lt(amountToDeposit)) {
-                                    //     let approvalResult = await approveIggy(currentChainId, account.address, amountToDeposit);
-                                    //     if (approvalResult.success) {
-                                    //         result = await createDepositTransaction(currentChainId, account.address, amountToDeposit);
-                                    //     }
-                                    // } else {
-                                    //     result = await createDepositTransaction(currentChainId, account.address, amountToDeposit);
-                                    // }
+                                    if (userAllowance.lt(amountToDeposit)) {
+                                        let approvalResult = await approveERC20Amount(account.address, iggy_staking_address, iggy_token_address, amountToDeposit);
+                                        if (approvalResult.success) {
+                                            result = await createDepositTransaction(account.address, amountToDeposit);
+                                        }
+                                    } else {
+                                        result = await createDepositTransaction(account.address, amountToDeposit);
+                                    }
                                     if (result?.success) {
                                         showToast("Successfully deposited IGGY", 'success', explorer_url + "/tx/" + result.txHash);
                                     } else {
@@ -218,7 +219,7 @@ const IggyStakingPanel = () => {
                                                 ref={amountToWithdrawInput}
                                                 type="number"
                                                 placeholder="0.0"
-                                                className='text-white bg-dark-2 border-dark-4 no-arrows'
+                                                className='text-dodger-blue bg-white no-arrows'
                                                 autoComplete="off"
                                                 onChange={(e) => {
                                                     const value = e.target.value;
@@ -242,12 +243,12 @@ const IggyStakingPanel = () => {
                                 onClick={async () => {
                                     setButtonLoading("deposit");
                                     setIsLoading(true);
-                                    let result = ''; //await createWithdrawTransaction(currentChainId, account.address, amountToWithdraw);
-                                    // if (result.success) {
-                                    //     showToast("Successfully withdrew IGGY", 'success', explorer_url + "/tx/" + result.txHash);
-                                    // } else {
-                                    //     showToast("Error withdrawing IGGY", "error", result?.txHash !== undefined ? explorer_url + "/tx/" + result.txHash : undefined);
-                                    // }
+                                    let result = await createWithdrawTransaction(account.address, amountToWithdraw);
+                                    if (result.success) {
+                                        showToast("Successfully withdrew IGGY", 'success', explorer_url + "/tx/" + result.txHash);
+                                    } else {
+                                        showToast("Error withdrawing IGGY", "error", result?.txHash !== undefined ? explorer_url + "/tx/" + result.txHash : undefined);
+                                    }
                                     setIsLoading(false);
                                     setAmountToWithdraw(new BN(0));
                                     setInputValue(amountToWithdrawInput, '');

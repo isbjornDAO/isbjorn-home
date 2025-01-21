@@ -211,7 +211,9 @@ contract Isbjorn is ERC20, Ownable {
         } else {
             uint256 allFee = collectFee(
                 amount,
-                isAutomatedMarketMakerPairs[recipient]
+                isAutomatedMarketMakerPairs[recipient],
+                !isAutomatedMarketMakerPairs[sender] &&
+                    !isAutomatedMarketMakerPairs[recipient]
             );
             if (allFee > 0) {
                 super._transfer(sender, address(this), allFee);
@@ -230,7 +232,14 @@ contract Isbjorn is ERC20, Ownable {
         try distributor.process(distributorGas) {} catch {}
     }
 
-    function collectFee(uint256 amount, bool sell) private returns (uint256) {
+    function collectFee(
+        uint256 amount,
+        bool sell,
+        bool p2p
+    ) private returns (uint256) {
+        if (p2p) {
+            return 0;
+        }
         uint256 newReflectionFee = (amount * (sell ? sellTax : buyTax)) / 10000;
         taxesFeeTotal += newReflectionFee;
         return newReflectionFee;

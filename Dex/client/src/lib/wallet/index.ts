@@ -14,6 +14,8 @@ import {
   factory_abi,
   Factory_address,
   ice_pond_abi,
+  iggy_staking_abi,
+  iggy_staking_address,
   pair_abi,
   router_abi,
   Router_address,
@@ -1036,4 +1038,112 @@ export const importNewERC20Token = async (
     console.log("Error trying to import token: ", error);
   }
   return token;
+};
+
+export const createDepositTransaction = async (
+  address: string,
+  depositAmount: BN
+): Promise<{
+  success: boolean;
+  txHash?: string;
+  error?: unknown;
+}> => {
+  try {
+    const contract = new window.w3.eth.Contract(
+      iggy_staking_abi,
+      iggy_staking_address
+    );
+
+    const data = await contract.methods
+      .stake(depositAmount.toString())
+      .encodeABI();
+
+    const txParams = {
+      to: iggy_staking_address,
+      from: address,
+      data: data,
+    };
+    console.log(txParams);
+
+    const txHash = await window.ethereum?.request({
+      method: "eth_sendTransaction",
+      params: [txParams],
+    });
+
+    const receipt = await waitForTransactionReceipt(txHash);
+
+    if (receipt && receipt.status) {
+      console.log("Transaction successful:", receipt);
+      return { success: true, txHash };
+    } else {
+      console.error("Transaction failed:", receipt);
+      return { success: false, txHash };
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: error };
+  }
+};
+
+export const createWithdrawTransaction = async (
+  address: string,
+  withdrawAmount: BN
+): Promise<{
+  success: boolean;
+  txHash?: string;
+  error?: unknown;
+}> => {
+  try {
+    const contract = new window.w3.eth.Contract(
+      iggy_staking_abi,
+      iggy_staking_address
+    );
+
+    const data = await contract.methods
+      .withdraw(withdrawAmount.toString())
+      .encodeABI();
+
+    const txParams = {
+      to: iggy_staking_address,
+      from: address,
+      data: data,
+    };
+    console.log(txParams);
+
+    const txHash = await window.ethereum?.request({
+      method: "eth_sendTransaction",
+      params: [txParams],
+    });
+
+    const receipt = await waitForTransactionReceipt(txHash);
+
+    if (receipt && receipt.status) {
+      console.log("Transaction successful:", receipt);
+      return { success: true, txHash };
+    } else {
+      console.error("Transaction failed:", receipt);
+      return { success: false, txHash };
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, error: error };
+  }
+};
+
+export const getIggyDepositBalance = async (address: string) => {
+  let balance: BN | null = null;
+  try {
+    const contract = new window.w3.eth.Contract(
+      iggy_staking_abi,
+      iggy_staking_address
+    );
+
+    let result = await contract.methods.getUserStakeInfo(address).call();
+    if (result) {
+      balance = new BN(result[0]);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return balance;
 };
