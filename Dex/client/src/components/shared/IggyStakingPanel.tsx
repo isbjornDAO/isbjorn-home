@@ -11,7 +11,7 @@ import { formatBN, formatDecimal, scaleToBN } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 import { Loader } from '@/components/shared';
 import { explorer_url, iggy_staking_address, iggy_token_address, isbjorn_head_logo_url } from '@/constants';
-import { approveERC20Amount, createDepositTransaction, createWithdrawTransaction, getERC20Allowance, getIggyDepositBalance } from '@/lib/wallet';
+import { approveERC20Amount, createDepositTransaction, createWithdrawTransaction, getERC20Allowance, getIggyDepositBalance, getIggyStakingRewardTokens, getStakableTokens } from '@/lib/wallet';
 
 
 const IggyStakingPanel = () => {
@@ -27,6 +27,8 @@ const IggyStakingPanel = () => {
     const [userBalance, setUserBalance] = useState<BN>(new BN(0));
     const [userDepositBalance, setUserDepositBalance] = useState<BN>(new BN(0));
     const [userAllowance, setUserAllowance] = useState<BN>(new BN(0));
+    const [rewardTokens, setRewardTokens] = useState<string[]>([]);
+    const [stakableTokens, setStakableTokens] = useState<string[]>([]);
     const [pendingRewards, setPendingRewards] = useState<BN>(new BN(0));
 
     const [depositButtonDisabled, setDepositButtonDisabled] = useState(true);
@@ -80,6 +82,31 @@ const IggyStakingPanel = () => {
             }
         }
         getIggyBalance();
+
+    }, [refresh]);
+
+    useEffect(() => {
+        const getRewardTokenList = async () => {
+            const rewardTokenList = await getIggyStakingRewardTokens();
+            if (rewardTokenList !== null) {
+                setRewardTokens(rewardTokenList);
+            } else {
+                setRewardTokens([]);
+            }
+        }
+        getRewardTokenList();
+    }, [refresh]);
+
+    useEffect(() => {
+        const getStakableTokenList = async () => {
+            const stakableTokenList = await getStakableTokens();
+            if (stakableTokenList !== null) {
+                setStakableTokens(stakableTokenList);
+            } else {
+                setStakableTokens([]);
+            }
+        }
+        getStakableTokenList();
     }, [refresh]);
 
     useEffect(() => {
@@ -281,12 +308,13 @@ const IggyStakingPanel = () => {
                         <CardDescription></CardDescription>
                         <CardContent>
                             <div className='flex flex-row gap-3 justify-start items-center'>
-                                <img
+                                {rewardTokens.length === 0 && <div className='flex flex-1 text-center items-center justify-center text-sm pt-2'>no rewards yet</div>}
+                                {/* <img
                                     src={`/assets/images/tokens.png`}
                                     alt={"REWARDS"}
                                     className='w-12 h-12 rounded-full mr-1'
                                 />
-                                <div className='text-lg'>{formatDecimal(formatBN(pendingRewards, 18), 5)} {"REWARDS"}</div>
+                                <div className='text-lg'>{formatDecimal(formatBN(pendingRewards, 18), 5)} {"REWARDS"}</div> */}
                             </div>
                         </CardContent>
                     </CardHeader>

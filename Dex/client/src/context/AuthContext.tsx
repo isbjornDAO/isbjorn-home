@@ -155,7 +155,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        initializeWeb3();
+        const init = async () => {
+            await initializeWeb3();
+        }
+        init();
     }, []);
 
     useEffect(() => {

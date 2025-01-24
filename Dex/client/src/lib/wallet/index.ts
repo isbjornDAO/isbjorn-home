@@ -16,6 +16,8 @@ import {
   ice_pond_abi,
   iggy_staking_abi,
   iggy_staking_address,
+  lp_staking_abi,
+  lp_staking_address,
   pair_abi,
   router_abi,
   Router_address,
@@ -238,6 +240,9 @@ export const getERC20Balance = async (
 ): Promise<BN | null> => {
   let balance: BN | null = null;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     if (tokenAddress.toLowerCase() === "0xAVAX".toLowerCase()) {
       let result = await window.w3.eth.getBalance(accountAddress);
       if (result || (result as unknown as bigint) === 0n) {
@@ -261,9 +266,11 @@ export const getERC20Allowance = async (
   spenderAddress: string,
   tokenAddress: string
 ): Promise<BN | null> => {
-  await initializeWeb3();
   let allowance: BN | null = null;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
     let result = await contract.methods
       .allowance(accountAddress, spenderAddress)
@@ -288,6 +295,9 @@ export const approveERC20Amount = async (
   error?: unknown;
 }> => {
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
     const data = await contract.methods
       .approve(spenderAddress, amount.toString())
@@ -324,9 +334,11 @@ export const getPairAddress = async (
   token0Address: string,
   token1Address: string
 ): Promise<string | null> => {
-  await initializeWeb3();
   let pairAddress: string | null = null;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(factory_abi, Factory_address);
     let result = await contract.methods
       .getPair(
@@ -353,6 +365,9 @@ export const getAmountOut = async (
     a.toLowerCase().localeCompare(b.toLowerCase())
   );
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const factoryContract = new window.w3.eth.Contract(
       factory_abi,
       Factory_address
@@ -419,6 +434,9 @@ export const getAmountIn = async (
     a.toLowerCase().localeCompare(b.toLowerCase())
   );
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const factoryContract = new window.w3.eth.Contract(
       factory_abi,
       Factory_address
@@ -536,6 +554,9 @@ export const createSwapTransaction = async (
   const deadline = currentTimestamp + 300;
   let data, amountInMax;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(router_abi, Router_address);
     if (isFromExact) {
       const amountOutMin = amountOut
@@ -661,6 +682,9 @@ export const createAddLiquidityTransaction = async (
   const minAmount1 = amount1.mul(new BN(100 - slippage)).div(new BN(100));
   let data;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(router_abi, Router_address);
 
     if (token0Address === "0xAVAX") {
@@ -761,6 +785,9 @@ export const createRemoveLiquidityTransaction = async (
   const minAmount1 = amount1.mul(new BN(100 - slippage)).div(new BN(100));
   let data;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(router_abi, Router_address);
 
     if (token0Address === "0xAVAX") {
@@ -835,6 +862,9 @@ export const createWrapAvaxTransaction = async (
   error?: unknown;
 }> => {
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(wavax_abi, WAVAX_ADDRESS);
 
     const data = contract.methods.deposit().encodeABI();
@@ -876,6 +906,9 @@ export const createUnwrapAvaxTransaction = async (
   error?: unknown;
 }> => {
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(wavax_abi, WAVAX_ADDRESS);
 
     const data = contract.methods.withdraw(amount.toString()).encodeABI();
@@ -914,6 +947,9 @@ export const getTokenAmountsOnRemoveLiquidity = async (
 ): Promise<BN[] | null> => {
   let amounts: BN[] | null = null;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const factoryContract = new window.w3.eth.Contract(
       factory_abi,
       Factory_address
@@ -974,6 +1010,9 @@ export const getTokenAmountForAddLiquidity = async (
 ): Promise<BN | null> => {
   let amount: BN | null = null;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const factoryContract = new window.w3.eth.Contract(
       factory_abi,
       Factory_address
@@ -1021,6 +1060,9 @@ export const importNewERC20Token = async (
 ): Promise<Token | null> => {
   let token: Token | null = null;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(erc20_abi, tokenAddress);
     const name: string = await contract.methods.name().call();
     const symbol: string = await contract.methods.symbol().call();
@@ -1049,6 +1091,9 @@ export const createDepositTransaction = async (
   error?: unknown;
 }> => {
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(
       iggy_staking_abi,
       iggy_staking_address
@@ -1094,6 +1139,9 @@ export const createWithdrawTransaction = async (
   error?: unknown;
 }> => {
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(
       iggy_staking_abi,
       iggy_staking_address
@@ -1133,6 +1181,9 @@ export const createWithdrawTransaction = async (
 export const getIggyDepositBalance = async (address: string) => {
   let balance: BN | null = null;
   try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
     const contract = new window.w3.eth.Contract(
       iggy_staking_abi,
       iggy_staking_address
@@ -1146,4 +1197,47 @@ export const getIggyDepositBalance = async (address: string) => {
     console.log(error);
   }
   return balance;
+};
+
+export const getIggyStakingRewardTokens = async () => {
+  let rewardTokens: string[] | null = null;
+
+  try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
+    const contract = new window.w3.eth.Contract(
+      iggy_staking_abi,
+      iggy_staking_address
+    );
+
+    let result = await contract.methods.getRewardTokens().call();
+    console.log(result);
+    if (result) {
+      rewardTokens = result;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return rewardTokens;
+};
+
+export const getStakableTokens = async () => {
+  let stakableTokens: string[] | null = null;
+  try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
+    const contract = new window.w3.eth.Contract(
+      lp_staking_abi,
+      lp_staking_address
+    );
+
+    let result = await contract.methods.getStakableTokens().call();
+    console.log(result);
+    if (result) {
+      stakableTokens = result;
+    }
+  } catch (error) {}
+  return stakableTokens;
 };

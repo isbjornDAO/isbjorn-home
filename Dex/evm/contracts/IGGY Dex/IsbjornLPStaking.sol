@@ -40,6 +40,7 @@ contract IsbjornLPStaking is ReentrancyGuard, Ownable {
     mapping(address => StakingPool) public stakingPools;
     mapping(address => mapping(address => UserInfo)) public userInfo;
     mapping(address => bool) public isStakingToken;
+    address[] public stakingTokens;
 
     uint256 public currentEpoch;
     uint256 public createdEpochs;
@@ -99,6 +100,7 @@ contract IsbjornLPStaking is ReentrancyGuard, Ownable {
         StakingPool storage pool = stakingPools[stakingToken];
         pool.isActive = true;
         isStakingToken[stakingToken] = true;
+        stakingTokens.push(stakingToken);
 
         emit PoolCreated(stakingToken);
     }
@@ -338,5 +340,9 @@ contract IsbjornLPStaking is ReentrancyGuard, Ownable {
                     user.rewardDebt[rewardToken]
                 )
             );
+    }
+
+    function getStakableTokens() external view returns (address[] memory) {
+        return stakingTokens;
     }
 }
