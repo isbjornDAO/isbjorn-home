@@ -28,7 +28,7 @@ const IggyStakingPanel = () => {
     const [userDepositBalance, setUserDepositBalance] = useState<BN>(new BN(0));
     const [userAllowance, setUserAllowance] = useState<BN>(new BN(0));
     const [rewardTokens, setRewardTokens] = useState<string[]>([]);
-    const [stakableTokens, setStakableTokens] = useState<string[]>([]);
+
     const [pendingRewards, setPendingRewards] = useState<BN>(new BN(0));
 
     const [depositButtonDisabled, setDepositButtonDisabled] = useState(true);
@@ -95,18 +95,6 @@ const IggyStakingPanel = () => {
             }
         }
         getRewardTokenList();
-    }, [refresh]);
-
-    useEffect(() => {
-        const getStakableTokenList = async () => {
-            const stakableTokenList = await getStakableTokens();
-            if (stakableTokenList !== null) {
-                setStakableTokens(stakableTokenList);
-            } else {
-                setStakableTokens([]);
-            }
-        }
-        getStakableTokenList();
     }, [refresh]);
 
     useEffect(() => {

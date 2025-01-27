@@ -16,3 +16,8 @@ export type Token = {
   decimals: number;
   rank: string;
 };
+
+export type LPToken = {
+  token: string;
+  addresses: string[];
+};

@@ -47,8 +47,8 @@ export const sample_token_list: { [address: string]: Token } =
           decimals: 18,
           rank: "1",
         },
-        "0x4634A2B4767d906e8FAc20b2CB03C8a3E9Ce4e10": {
-          address: "0x4634A2B4767d906e8FAc20b2CB03C8a3E9Ce4e10",
+        "0x4634a2b4767d906e8fac20b2cb03c8a3e9ce4e10": {
+          address: "0x4634a2b4767d906e8fac20b2cb03c8a3e9ce4e10",
           name: "Wrapped AVAX",
           ticker: "WAVAX",
           imgUrl:
@@ -56,8 +56,8 @@ export const sample_token_list: { [address: string]: Token } =
           decimals: 18,
           rank: "1",
         },
-        "0x31fA8c1589c7989b33eEFa1220E2b517bd321F54": {
-          address: "0x31fA8c1589c7989b33eEFa1220E2b517bd321F54",
+        "0x31fa8c1589c7989b33eefa1220e2b517bd321f54": {
+          address: "0x31fa8c1589c7989b33eefa1220e2b517bd321f54",
           name: "Quasi",
           ticker: "QUASI",
           imgUrl:
@@ -65,8 +65,8 @@ export const sample_token_list: { [address: string]: Token } =
           decimals: 18,
           rank: "2",
         },
-        "0xA5e4D1f2e6d1Cdbd81dd4f5b0224845defBD2448": {
-          address: "0xA5e4D1f2e6d1Cdbd81dd4f5b0224845defBD2448",
+        "0xa5e4d1f2e6d1cdbd81dd4f5b0224845defbd2448": {
+          address: "0xa5e4d1f2e6d1cdbd81dd4f5b0224845defbd2448",
           name: "Yes",
           ticker: "YES",
           imgUrl:

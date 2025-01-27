@@ -355,6 +355,26 @@ export const getPairAddress = async (
   return pairAddress;
 };
 
+export const getTokenAddressesFromPair = async (
+  pairAddress: string
+): Promise<string[] | null> => {
+  let tokensAddresses: string[] | null = null;
+  try {
+    if (!window.w3) {
+      await initializeWeb3();
+    }
+    const contract = new window.w3.eth.Contract(ice_pond_abi, pairAddress);
+    let token0Address = await contract.methods.token0().call();
+    let token1Address = await contract.methods.token1().call();
+    if (token0Address && token1Address) {
+      tokensAddresses = [token0Address.toString(), token1Address.toString()];
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return tokensAddresses;
+};
+
 export const getAmountOut = async (
   tokenInAddress: string,
   tokenOutAddress: string,

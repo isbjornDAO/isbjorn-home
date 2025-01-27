@@ -22,8 +22,8 @@ const LiquidityPanel = () => {
     const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
 
-    const [token0, setToken0] = useState<Token>(sample_token_list[WAVAX_ADDRESS]);
-    const [token1, setToken1] = useState<Token>(sample_token_list[QUASI_ADDRESS]);
+    const [token0, setToken0] = useState<Token>(sample_token_list[WAVAX_ADDRESS.toLowerCase()]);
+    const [token1, setToken1] = useState<Token>(sample_token_list[QUASI_ADDRESS.toLowerCase()]);
 
     const [token0Amount, setToken0Amount] = useState<BN>(new BN(0));
     const [token1Amount, setToken1Amount] = useState<BN>(new BN(0));

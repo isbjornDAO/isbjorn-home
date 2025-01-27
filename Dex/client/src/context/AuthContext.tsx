@@ -2,7 +2,7 @@ import Web3 from "web3";
 import BN from "bn.js";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { Account } from "@/types";
+import { Account, Token } from "@/types";
 import { cacheAccount, getCachedAccount, getDomainName, getERC20Balance, initializeWeb3 } from "@/lib/wallet";
 import { chain_id, sample_token_list } from "@/constants";
 
@@ -24,6 +24,7 @@ const INITIAL_STATE = {
     setCurrentChainId: () => { },
     switchNetwork: async (chainId: number) => { },
     getUserTokenBal: async (address: string) => { return null; },
+    tokenList: {},
     refresh: 0,
     update: () => { },
 }
@@ -37,6 +38,7 @@ type IContextType = {
     setCurrentChainId: React.Dispatch<React.SetStateAction<number>>;
     switchNetwork: (chainId: number) => Promise<void>;
     getUserTokenBal: (address: string) => Promise<BN | null>;
+    tokenList: { [address: string]: Token }
     refresh: number;
     update: () => void;
 }
@@ -48,8 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [balancesFetched, setBalancesFetched] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
     const [currentChainId, setCurrentChainId] = useState<number>(chain_id);
+    const [tokenList, setTokenList] = useState<{ [address: string]: Token }>(sample_token_list);
 
     const [refresh, setRefresh] = useState(0);
 
@@ -214,6 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setCurrentChainId,
         switchNetwork,
         getUserTokenBal,
+        tokenList,
         refresh,
         update,
     };

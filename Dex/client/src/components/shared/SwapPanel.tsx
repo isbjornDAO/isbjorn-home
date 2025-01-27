@@ -7,7 +7,7 @@ import { Loader, SlippageInput, TokenChooser, TokenSearchChooser } from '@/compo
 import { Separator } from '@/components/ui/separator';
 import { Switch } from "@/components/ui/switch"
 import BN from 'bn.js';
-import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, safeModeEnabledMaxSlippage, sample_token_list, WAVAX_ADDRESS } from '@/constants';
+import { defaultSlippage, explorer_url, QUASI_ADDRESS, Router_address, safeModeEnabledMaxSlippage, WAVAX_ADDRESS } from '@/constants';
 import { Token } from '@/types';
 import { useUserContext } from '@/context/AuthContext';
 import { approveERC20Amount, createSwapTransaction, createUnwrapAvaxTransaction, createWrapAvaxTransaction, getAmountIn, getAmountOut, getERC20Allowance, importNewERC20Token, useHandleConnectWallet } from '@/lib/wallet';
@@ -17,20 +17,20 @@ import { useToast } from '@/context/ToastContext';
 
 const SwapPanel = () => {
 
-    const { account, isConnected, update, refresh } = useUserContext();
+    const { account, isConnected, tokenList, update, refresh } = useUserContext();
     const { handleConnectWallet, isWalletLoading } = useHandleConnectWallet();
     const { showToast } = useToast();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const [fromToken, setFromToken] = useState<Token>(sample_token_list[WAVAX_ADDRESS]);
+    const [fromToken, setFromToken] = useState<Token>(tokenList[WAVAX_ADDRESS.toLowerCase()]);
     const [lastFromToken, setLastFromToken] = useState<Token>(fromToken);
     const [fromAmount, setFromAmount] = useState<BN>(new BN(0));
     const [fromAmountInputValue, setFromAmountInputValue] = useState<string>('');
     const [fromTokenAllowance, setFromTokenAllowance] = useState<BN>(new BN(0));
     const [fromBalance, setFromTokenBalance] = useState<BN>(new BN(0));
 
-    const [toToken, setToToken] = useState<Token>(sample_token_list[QUASI_ADDRESS]);
+    const [toToken, setToToken] = useState<Token>(tokenList[QUASI_ADDRESS.toLowerCase()]);
     const [lastToToken, setLastToToken] = useState<Token>(toToken);
     const [toAmount, setToAmount] = useState<BN>(new BN(0));
     const [toAmountInputValue, setToAmountInputValue] = useState<string>('');
@@ -273,6 +273,8 @@ const SwapPanel = () => {
         }
     }, [toToken, account.balances]);
 
+    console.log(fromToken);
+
     return (
         <div className='flex flex-col gap-1 items-center justify-start'>
             <div>
@@ -302,7 +304,7 @@ const SwapPanel = () => {
                                         value={fromAmountInputValue}
                                         onChange={(e) => handleFromInputChange(e.target.value)}
                                     />
-                                    <TokenSearchChooser startSelected={fromToken} available={sample_token_list} onSelection={onFromTokenChange} onImport={handleTokenImport} />
+                                    <TokenSearchChooser startSelected={fromToken} available={tokenList} onSelection={onFromTokenChange} onImport={handleTokenImport} />
                                 </div>
                                 <div className="p-2 pt-0 text-xxs font-semibold hover:cursor-pointer">
                                     <p
@@ -330,7 +332,7 @@ const SwapPanel = () => {
                                         value={toAmountInputValue}
                                         onChange={(e) => handleToInputChange(e.target.value)}
                                     />
-                                    <TokenSearchChooser startSelected={toToken} available={sample_token_list} onSelection={onToTokenChange} onImport={handleTokenImport} />
+                                    <TokenSearchChooser startSelected={toToken} available={tokenList} onSelection={onToTokenChange} onImport={handleTokenImport} />
                                 </div>
                                 <div className="p-2 pt-0 text-xxs font-semibold">
                                     <p className='ml-2'>{`wallet: ${Number(formatBN(toBalance, toToken.decimals)).toLocaleString()}`}</p>
