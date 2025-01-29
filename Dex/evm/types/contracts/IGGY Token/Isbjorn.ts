@@ -40,19 +40,21 @@ export interface IsbjornInterface extends Interface {
       | "distributorAddress"
       | "distributorGas"
       | "excludeFromFee"
+      | "icePondPair"
       | "iggyBurned"
       | "iggySentToDao"
       | "increaseAllowance"
       | "isAutomatedMarketMakerPairs"
       | "isExcludedFromFee"
+      | "isbjornRouter"
       | "joePair"
       | "joeRouter"
       | "liquidityBasisPoints"
       | "name"
       | "owner"
       | "quasi"
+      | "quasiIsbjornLiquidity"
       | "quasiLPRewarded"
-      | "quasiLiquidity"
       | "reflectionBasisPoints"
       | "revokeOwnership"
       | "sellTax"
@@ -134,6 +136,10 @@ export interface IsbjornInterface extends Interface {
     values: [AddressLike, boolean]
   ): string;
   encodeFunctionData(
+    functionFragment: "icePondPair",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "iggyBurned",
     values?: undefined
   ): string;
@@ -153,6 +159,10 @@ export interface IsbjornInterface extends Interface {
     functionFragment: "isExcludedFromFee",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "isbjornRouter",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "joePair", values?: undefined): string;
   encodeFunctionData(functionFragment: "joeRouter", values?: undefined): string;
   encodeFunctionData(
@@ -163,11 +173,11 @@ export interface IsbjornInterface extends Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "quasi", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "quasiLPRewarded",
+    functionFragment: "quasiIsbjornLiquidity",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "quasiLiquidity",
+    functionFragment: "quasiLPRewarded",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -275,6 +285,10 @@ export interface IsbjornInterface extends Interface {
     functionFragment: "excludeFromFee",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "icePondPair",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "iggyBurned", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "iggySentToDao",
@@ -292,6 +306,10 @@ export interface IsbjornInterface extends Interface {
     functionFragment: "isExcludedFromFee",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isbjornRouter",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "joePair", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "joeRouter", data: BytesLike): Result;
   decodeFunctionResult(
@@ -302,11 +320,11 @@ export interface IsbjornInterface extends Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "quasi", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "quasiLPRewarded",
+    functionFragment: "quasiIsbjornLiquidity",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "quasiLiquidity",
+    functionFragment: "quasiLPRewarded",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -592,6 +610,8 @@ export interface Isbjorn extends BaseContract {
     "nonpayable"
   >;
 
+  icePondPair: TypedContractMethod<[], [string], "view">;
+
   iggyBurned: TypedContractMethod<[], [bigint], "view">;
 
   iggySentToDao: TypedContractMethod<[], [bigint], "view">;
@@ -614,6 +634,8 @@ export interface Isbjorn extends BaseContract {
     "view"
   >;
 
+  isbjornRouter: TypedContractMethod<[], [string], "view">;
+
   joePair: TypedContractMethod<[], [string], "view">;
 
   joeRouter: TypedContractMethod<[], [string], "view">;
@@ -626,9 +648,9 @@ export interface Isbjorn extends BaseContract {
 
   quasi: TypedContractMethod<[], [string], "view">;
 
-  quasiLPRewarded: TypedContractMethod<[], [bigint], "view">;
+  quasiIsbjornLiquidity: TypedContractMethod<[], [string], "view">;
 
-  quasiLiquidity: TypedContractMethod<[], [string], "view">;
+  quasiLPRewarded: TypedContractMethod<[], [bigint], "view">;
 
   reflectionBasisPoints: TypedContractMethod<[], [bigint], "view">;
 
@@ -778,6 +800,9 @@ export interface Isbjorn extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "icePondPair"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "iggyBurned"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -797,6 +822,9 @@ export interface Isbjorn extends BaseContract {
     nameOrSignature: "isExcludedFromFee"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
+    nameOrSignature: "isbjornRouter"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "joePair"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -815,11 +843,11 @@ export interface Isbjorn extends BaseContract {
     nameOrSignature: "quasi"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "quasiIsbjornLiquidity"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "quasiLPRewarded"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "quasiLiquidity"
-  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "reflectionBasisPoints"
   ): TypedContractMethod<[], [bigint], "view">;

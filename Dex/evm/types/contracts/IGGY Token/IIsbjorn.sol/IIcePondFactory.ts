@@ -20,7 +20,7 @@ import type {
   TypedContractMethod,
 } from "../../../common";
 
-export interface IJoeFactoryInterface extends Interface {
+export interface IIcePondFactoryInterface extends Interface {
   getFunction(nameOrSignature: "createPair" | "getPair"): FunctionFragment;
 
   encodeFunctionData(
@@ -36,11 +36,11 @@ export interface IJoeFactoryInterface extends Interface {
   decodeFunctionResult(functionFragment: "getPair", data: BytesLike): Result;
 }
 
-export interface IJoeFactory extends BaseContract {
-  connect(runner?: ContractRunner | null): IJoeFactory;
+export interface IIcePondFactory extends BaseContract {
+  connect(runner?: ContractRunner | null): IIcePondFactory;
   waitForDeployment(): Promise<this>;
 
-  interface: IJoeFactoryInterface;
+  interface: IIcePondFactoryInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,

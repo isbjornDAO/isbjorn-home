@@ -3,6 +3,7 @@
 /* eslint-disable */
 export * as distributorSol from "./Distributor.sol";
 export * as erc20Sol from "./ERC20.sol";
+export * as iIsbjornSol from "./IIsbjorn.sol";
 export * as iJoeSol from "./IJoe.sol";
 export { IERC20__factory } from "./IERC20__factory";
 export { Isbjorn__factory } from "./Isbjorn__factory";

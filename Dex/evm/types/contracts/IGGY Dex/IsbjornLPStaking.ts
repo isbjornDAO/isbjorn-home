@@ -36,6 +36,7 @@ export interface IsbjornLPStakingInterface extends Interface {
       | "epochs"
       | "exit"
       | "getCurrentEpoch"
+      | "getStakableTokens"
       | "isStakingToken"
       | "owner"
       | "pendingRewards"
@@ -43,6 +44,7 @@ export interface IsbjornLPStakingInterface extends Interface {
       | "revokeOwnership"
       | "stake"
       | "stakingPools"
+      | "stakingTokens"
       | "transferOwnership"
       | "userInfo"
       | "withdraw"
@@ -97,6 +99,10 @@ export interface IsbjornLPStakingInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getStakableTokens",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "isStakingToken",
     values: [AddressLike]
   ): string;
@@ -120,6 +126,10 @@ export interface IsbjornLPStakingInterface extends Interface {
   encodeFunctionData(
     functionFragment: "stakingPools",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "stakingTokens",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -169,6 +179,10 @@ export interface IsbjornLPStakingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getStakableTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isStakingToken",
     data: BytesLike
   ): Result;
@@ -188,6 +202,10 @@ export interface IsbjornLPStakingInterface extends Interface {
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "stakingPools",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "stakingTokens",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -424,6 +442,8 @@ export interface IsbjornLPStaking extends BaseContract {
 
   getCurrentEpoch: TypedContractMethod<[], [bigint], "view">;
 
+  getStakableTokens: TypedContractMethod<[], [string[]], "view">;
+
   isStakingToken: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
@@ -449,6 +469,8 @@ export interface IsbjornLPStaking extends BaseContract {
     [[bigint, boolean] & { totalSupply: bigint; isActive: boolean }],
     "view"
   >;
+
+  stakingTokens: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   transferOwnership: TypedContractMethod<
     [_owner: AddressLike],
@@ -522,6 +544,9 @@ export interface IsbjornLPStaking extends BaseContract {
     nameOrSignature: "getCurrentEpoch"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getStakableTokens"
+  ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
     nameOrSignature: "isStakingToken"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
@@ -554,6 +579,9 @@ export interface IsbjornLPStaking extends BaseContract {
     [[bigint, boolean] & { totalSupply: bigint; isActive: boolean }],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "stakingTokens"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[_owner: AddressLike], [void], "nonpayable">;

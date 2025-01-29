@@ -5,6 +5,8 @@ import type * as distributorSol from "./Distributor.sol";
 export type { distributorSol };
 import type * as erc20Sol from "./ERC20.sol";
 export type { erc20Sol };
+import type * as iIsbjornSol from "./IIsbjorn.sol";
+export type { iIsbjornSol };
 import type * as iJoeSol from "./IJoe.sol";
 export type { iJoeSol };
 export type { IERC20 } from "./IERC20";

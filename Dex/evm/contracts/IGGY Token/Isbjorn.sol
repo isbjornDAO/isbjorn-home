@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import "./ERC20.sol";
 import "./Ownable.sol";
 import "./IJoe.sol";
+import "./IIsbjorn.sol";
 import "./Distributor.sol";
 
 contract Isbjorn is ERC20, Ownable {
@@ -29,9 +30,12 @@ contract Isbjorn is ERC20, Ownable {
     IJoeRouter public joeRouter;
     address public joePair;
 
+    IIsbjornRouter public isbjornRouter;
+    address public icePondPair;
+
     address public WAVAX;
     address public quasi;
-    address public quasiLiquidity;
+    address public quasiIsbjornLiquidity;
 
     address public distributorAddress;
     Distributor public distributor;
@@ -58,27 +62,29 @@ contract Isbjorn is ERC20, Ownable {
         address _daoRecipientAddress
     ) Ownable(msg.sender) ERC20("Isbjorn", "IGGY") {
         joeRouter = IJoeRouter(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
-
-        quasi = address(0xc970D70234895dD6033f984Fd00909623C666e66);
-        quasiLiquidity = address(0x117ef430c565DD5c7C53A3Fdc585681CeaF18777);
-
+        isbjornRouter = IIsbjornRouter(
+            0x60aE616a2155Ee3d9A68541Ba4544862310933d4
+        );
         WAVAX = joeRouter.WAVAX();
+        quasi = address(0xc970D70234895dD6033f984Fd00909623C666e66);
+        quasiIsbjornLiquidity = IIcePondFactory(isbjornRouter.factory())
+            .getPair(quasi, WAVAX);
 
-        joePair = IJoeFactory(joeRouter.factory()).createPair(
+        icePondPair = IIcePondFactory(isbjornRouter.factory()).createPair(
             address(this),
             WAVAX
         );
 
-        distributor = new Distributor(quasiLiquidity);
+        distributor = new Distributor(quasiIsbjornLiquidity);
         distributorAddress = address(distributor);
 
         buyTax = 200;
         sellTax = 200;
 
         // Initial Weights, can be modified after deployment
-        liquidityBasisPoints = 2000; // 20% to self LP
-        reflectionBasisPoints = 3000; // 30% to holders
-        daoBasisPoints = 4500; // 45% to dao
+        liquidityBasisPoints = 3500; // 35% to self LP
+        reflectionBasisPoints = 2500; // 25% to holders
+        daoBasisPoints = 3500; // 35% to dao
         burnBasisPoints = 500; // 5% to 0xdead
 
         daoRecipientAddress = _daoRecipientAddress;
@@ -177,10 +183,11 @@ contract Isbjorn is ERC20, Ownable {
                 if (AvaxBalance > 0) {
                     _addQuasiLiquidity(AvaxBalance);
 
-                    uint256 quasiLiquidityBalance = IERC20(quasiLiquidity)
-                        .balanceOf(address(this));
+                    uint256 quasiLiquidityBalance = IERC20(
+                        quasiIsbjornLiquidity
+                    ).balanceOf(address(this));
 
-                    IERC20(quasiLiquidity).transfer(
+                    IERC20(quasiIsbjornLiquidity).transfer(
                         address(distributor),
                         quasiLiquidityBalance
                     );
@@ -250,9 +257,9 @@ contract Isbjorn is ERC20, Ownable {
         path[0] = address(this);
         path[1] = WAVAX;
 
-        _approve(address(this), address(joeRouter), tokenAmount);
+        _approve(address(this), address(isbjornRouter), tokenAmount);
 
-        joeRouter.swapExactTokensForAVAXSupportingFeeOnTransferTokens(
+        isbjornRouter.swapExactTokensForAVAXSupportingFeeOnTransferTokens(
             tokenAmount,
             0,
             path,
@@ -278,9 +285,9 @@ contract Isbjorn is ERC20, Ownable {
         uint256 tokenAmount,
         uint256 avaxAmount
     ) private {
-        _approve(address(this), address(joeRouter), tokenAmount);
+        _approve(address(this), address(isbjornRouter), tokenAmount);
 
-        joeRouter.addLiquidityAVAX{value: avaxAmount}(
+        isbjornRouter.addLiquidityAVAX{value: avaxAmount}(
             address(this),
             tokenAmount,
             0,
@@ -296,9 +303,9 @@ contract Isbjorn is ERC20, Ownable {
 
         _swapAvaxForQuasi(half);
         uint256 quasiBalance = IERC20(quasi).balanceOf(address(this));
-        IERC20(quasi).approve(address(joeRouter), quasiBalance);
+        IERC20(quasi).approve(address(isbjornRouter), quasiBalance);
 
-        joeRouter.addLiquidityAVAX{value: otherHalf}(
+        isbjornRouter.addLiquidityAVAX{value: otherHalf}(
             quasi,
             quasiBalance,
             0,

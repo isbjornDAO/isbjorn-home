@@ -56,6 +56,10 @@ export type { Distributor } from "./contracts/IGGY Token/Distributor.sol/Distrib
 export { Distributor__factory } from "./factories/contracts/IGGY Token/Distributor.sol/Distributor__factory";
 export type { IDistributor } from "./contracts/IGGY Token/Distributor.sol/IDistributor";
 export { IDistributor__factory } from "./factories/contracts/IGGY Token/Distributor.sol/IDistributor__factory";
+export type { IIsbjorn2Router } from "./contracts/IGGY Token/IIsbjorn.sol/IIsbjorn2Router";
+export { IIsbjorn2Router__factory } from "./factories/contracts/IGGY Token/IIsbjorn.sol/IIsbjorn2Router__factory";
+export type { IIsbjornRouter } from "./contracts/IGGY Token/IIsbjorn.sol/IIsbjornRouter";
+export { IIsbjornRouter__factory } from "./factories/contracts/IGGY Token/IIsbjorn.sol/IIsbjornRouter__factory";
 export type { IERC165 } from "./contracts/IGGY Token/IJoe.sol/IERC165";
 export { IERC165__factory } from "./factories/contracts/IGGY Token/IJoe.sol/IERC165__factory";
 export type { IJoe2Router } from "./contracts/IGGY Token/IJoe.sol/IJoe2Router";

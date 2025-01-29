@@ -4,9 +4,9 @@
 
 import { Contract, Interface, type ContractRunner } from "ethers";
 import type {
-  IJoeFactory,
-  IJoeFactoryInterface,
-} from "../../../../contracts/IGGY Token/IJoe.sol/IJoeFactory";
+  IIcePondFactory,
+  IIcePondFactoryInterface,
+} from "../../../../contracts/IGGY Token/IIsbjorn.sol/IIcePondFactory";
 
 const _abi = [
   {
@@ -59,12 +59,15 @@ const _abi = [
   },
 ] as const;
 
-export class IJoeFactory__factory {
+export class IIcePondFactory__factory {
   static readonly abi = _abi;
-  static createInterface(): IJoeFactoryInterface {
-    return new Interface(_abi) as IJoeFactoryInterface;
+  static createInterface(): IIcePondFactoryInterface {
+    return new Interface(_abi) as IIcePondFactoryInterface;
   }
-  static connect(address: string, runner?: ContractRunner | null): IJoeFactory {
-    return new Contract(address, _abi, runner) as unknown as IJoeFactory;
+  static connect(
+    address: string,
+    runner?: ContractRunner | null
+  ): IIcePondFactory {
+    return new Contract(address, _abi, runner) as unknown as IIcePondFactory;
   }
 }
