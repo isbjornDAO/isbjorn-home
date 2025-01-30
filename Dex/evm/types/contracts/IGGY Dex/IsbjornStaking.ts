@@ -26,13 +26,21 @@ import type {
 export interface IsbjornStakingInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "claimAll"
       | "earned"
+      | "getReflection"
       | "getReward"
       | "getRewardTokens"
       | "getUserStakeInfo"
       | "isRewardToken"
+      | "lastReflectionBalance"
+      | "lastTotalReflection"
       | "owner"
       | "queueNewRewards"
+      | "reflectionPerTokenStored"
+      | "reflectionReward"
+      | "reflectionToken"
+      | "reflectionUpdatedAt"
       | "revokeOwnership"
       | "rewardPerToken"
       | "rewardTokens"
@@ -56,9 +64,14 @@ export interface IsbjornStakingInterface extends Interface {
       | "Withdrawn"
   ): EventFragment;
 
+  encodeFunctionData(functionFragment: "claimAll", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "earned",
     values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getReflection",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getReward", values?: undefined): string;
   encodeFunctionData(
@@ -73,10 +86,34 @@ export interface IsbjornStakingInterface extends Interface {
     functionFragment: "isRewardToken",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "lastReflectionBalance",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastTotalReflection",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "queueNewRewards",
     values: [BigNumberish, AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reflectionPerTokenStored",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reflectionReward",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reflectionToken",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reflectionUpdatedAt",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "revokeOwnership",
@@ -124,7 +161,12 @@ export interface IsbjornStakingInterface extends Interface {
     values: [BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "claimAll", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "earned", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getReflection",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getReward", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRewardTokens",
@@ -138,9 +180,33 @@ export interface IsbjornStakingInterface extends Interface {
     functionFragment: "isRewardToken",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "lastReflectionBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "lastTotalReflection",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "queueNewRewards",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reflectionPerTokenStored",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reflectionReward",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reflectionToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reflectionUpdatedAt",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -303,11 +369,15 @@ export interface IsbjornStaking extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  claimAll: TypedContractMethod<[], [void], "nonpayable">;
+
   earned: TypedContractMethod<
     [_account: AddressLike, _rewardToken: AddressLike],
     [bigint],
     "view"
   >;
+
+  getReflection: TypedContractMethod<[], [void], "nonpayable">;
 
   getReward: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -321,6 +391,10 @@ export interface IsbjornStaking extends BaseContract {
 
   isRewardToken: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
 
+  lastReflectionBalance: TypedContractMethod<[], [bigint], "view">;
+
+  lastTotalReflection: TypedContractMethod<[], [bigint], "view">;
+
   owner: TypedContractMethod<[], [string], "view">;
 
   queueNewRewards: TypedContractMethod<
@@ -332,6 +406,14 @@ export interface IsbjornStaking extends BaseContract {
     [boolean],
     "nonpayable"
   >;
+
+  reflectionPerTokenStored: TypedContractMethod<[], [bigint], "view">;
+
+  reflectionReward: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  reflectionToken: TypedContractMethod<[], [string], "view">;
+
+  reflectionUpdatedAt: TypedContractMethod<[], [bigint], "view">;
 
   revokeOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -394,12 +476,18 @@ export interface IsbjornStaking extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "claimAll"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "earned"
   ): TypedContractMethod<
     [_account: AddressLike, _rewardToken: AddressLike],
     [bigint],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "getReflection"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "getReward"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -417,6 +505,12 @@ export interface IsbjornStaking extends BaseContract {
     nameOrSignature: "isRewardToken"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
+    nameOrSignature: "lastReflectionBalance"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "lastTotalReflection"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -430,6 +524,18 @@ export interface IsbjornStaking extends BaseContract {
     [boolean],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "reflectionPerTokenStored"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "reflectionReward"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "reflectionToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "reflectionUpdatedAt"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "revokeOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;

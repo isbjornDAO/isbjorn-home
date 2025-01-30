@@ -39,6 +39,18 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
     mapping(address => bool) public isRewardToken;
     address[] public rewardTokens;
 
+    // Reflection tracking parameters
+    IERC20 public immutable reflectionToken;
+    uint256 public reflectionUpdatedAt;
+    uint256 public reflectionPerTokenStored;
+
+    uint256 public lastReflectionBalance;
+    uint256 public lastTotalReflection;
+
+    mapping(address => uint256) public reflectionReward;
+
+    uint256 immutable ACCURACY_CONST = 1e18;
+
     mapping(address => UserStakeInfo) public userStakes;
     uint256 public totalStaked;
 
@@ -55,9 +67,23 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         uint256 reward
     );
 
-    constructor(address _stakingToken) public Ownable(msg.sender) {
+    constructor(
+        address _stakingToken,
+        address _reflectionToken
+    ) public Ownable(msg.sender) {
         stakingToken = IERC20(_stakingToken);
         stakingDecimals = IERC20(_stakingToken).decimals();
+        reflectionToken = IERC20(_reflectionToken);
+    }
+
+    modifier updateReflection() {
+        reflectionPerTokenStored = reflectionPerToken();
+        reflectionUpdatedAt = block.timestamp;
+        reflectionReward[msg.sender] = reflectionEarned(msg.sender);
+        userRewardPerTokenPaid[msg.sender][
+            address(reflectionToken)
+        ] = reflectionPerTokenStored;
+        _;
     }
 
     function updateReward(address account) internal {
@@ -97,6 +123,15 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         if (totalStaked == 0) return 0;
 
         return newRewards.mul(userStakes[_account].amount).div(totalStaked);
+    }
+
+    function reflectionEarned(address _account) internal returns (uint256) {
+        return
+            (userStakes[_account].amount *
+                (reflectionPerToken() -
+                    userRewardPerTokenPaid[_account][
+                        address(reflectionToken)
+                    ])) / ACCURACY_CONST;
     }
 
     function queueNewRewards(
@@ -143,7 +178,24 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         return true;
     }
 
-    function stake(uint256 amount) external nonReentrant {
+    function reflectionPerToken() internal returns (uint256) {
+        if (totalStaked == 0) {
+            return reflectionPerTokenStored;
+        }
+        uint256 reflectionBalance = reflectionToken.balanceOf(address(this));
+        if (reflectionBalance == lastReflectionBalance) {
+            return reflectionPerTokenStored;
+        } else {
+            uint256 newReflection = reflectionBalance - lastReflectionBalance;
+            lastReflectionBalance = reflectionBalance;
+            return
+                reflectionPerTokenStored +
+                (newReflection * ACCURACY_CONST) /
+                totalStaked;
+        }
+    }
+
+    function stake(uint256 amount) external nonReentrant updateReflection {
         require(amount > 0, "Cannot stake 0");
         updateReward(msg.sender);
 
@@ -162,7 +214,7 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         emit Staked(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) external nonReentrant {
+    function withdraw(uint256 amount) external nonReentrant updateReflection {
         require(amount > 0, "Cannot withdraw 0");
         require(
             userStakes[msg.sender].amount >= amount,
@@ -180,7 +232,7 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         emit Withdrawn(msg.sender, amount);
     }
 
-    function getReward() external nonReentrant {
+    function getReward() public nonReentrant {
         updateReward(msg.sender);
 
         for (uint i = 0; i < rewardTokens.length; i++) {
@@ -195,6 +247,20 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
                 emit RewardPaid(msg.sender, rewardToken, reward);
             }
         }
+    }
+
+    function getReflection() public nonReentrant updateReflection {
+        uint256 reward = reflectionReward[msg.sender];
+        if (reward > 0) {
+            reflectionReward[msg.sender] = 0;
+            reflectionToken.transfer(msg.sender, reward);
+            lastReflectionBalance -= reward;
+        }
+    }
+
+    function claimAll() external {
+        getReward();
+        getReflection();
     }
 
     // View functions

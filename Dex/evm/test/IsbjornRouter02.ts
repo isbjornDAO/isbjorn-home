@@ -1474,7 +1474,10 @@ describe("IsbjornRouter02", function () {
 
     beforeEach(async function () {
       const IsbjornStaking = await ethers.getContractFactory("IsbjornStaking");
-      isbjornStaking = await IsbjornStaking.deploy(tokenA.target);
+      isbjornStaking = await IsbjornStaking.deploy(
+        tokenA.target,
+        tokenB.target
+      );
       await isbjornStaking.waitForDeployment();
       await ethers.provider.send("evm_mine", []);
 
