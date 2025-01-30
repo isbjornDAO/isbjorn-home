@@ -28,8 +28,6 @@ export interface IsbjornStakingInterface extends Interface {
     nameOrSignature:
       | "claimAll"
       | "earned"
-      | "getReflection"
-      | "getReward"
       | "getRewardTokens"
       | "getUserStakeInfo"
       | "isRewardToken"
@@ -38,7 +36,6 @@ export interface IsbjornStakingInterface extends Interface {
       | "owner"
       | "queueNewRewards"
       | "reflectionPerTokenStored"
-      | "reflectionReward"
       | "reflectionToken"
       | "reflectionUpdatedAt"
       | "revokeOwnership"
@@ -70,11 +67,6 @@ export interface IsbjornStakingInterface extends Interface {
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getReflection",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getReward", values?: undefined): string;
-  encodeFunctionData(
     functionFragment: "getRewardTokens",
     values?: undefined
   ): string;
@@ -102,10 +94,6 @@ export interface IsbjornStakingInterface extends Interface {
   encodeFunctionData(
     functionFragment: "reflectionPerTokenStored",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reflectionReward",
-    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "reflectionToken",
@@ -164,11 +152,6 @@ export interface IsbjornStakingInterface extends Interface {
   decodeFunctionResult(functionFragment: "claimAll", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "earned", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getReflection",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getReward", data: BytesLike): Result;
-  decodeFunctionResult(
     functionFragment: "getRewardTokens",
     data: BytesLike
   ): Result;
@@ -195,10 +178,6 @@ export interface IsbjornStakingInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "reflectionPerTokenStored",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reflectionReward",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -377,10 +356,6 @@ export interface IsbjornStaking extends BaseContract {
     "view"
   >;
 
-  getReflection: TypedContractMethod<[], [void], "nonpayable">;
-
-  getReward: TypedContractMethod<[], [void], "nonpayable">;
-
   getRewardTokens: TypedContractMethod<[], [string[]], "view">;
 
   getUserStakeInfo: TypedContractMethod<
@@ -408,8 +383,6 @@ export interface IsbjornStaking extends BaseContract {
   >;
 
   reflectionPerTokenStored: TypedContractMethod<[], [bigint], "view">;
-
-  reflectionReward: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   reflectionToken: TypedContractMethod<[], [string], "view">;
 
@@ -486,12 +459,6 @@ export interface IsbjornStaking extends BaseContract {
     "view"
   >;
   getFunction(
-    nameOrSignature: "getReflection"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "getReward"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "getRewardTokens"
   ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
@@ -527,9 +494,6 @@ export interface IsbjornStaking extends BaseContract {
   getFunction(
     nameOrSignature: "reflectionPerTokenStored"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "reflectionReward"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "reflectionToken"
   ): TypedContractMethod<[], [string], "view">;

@@ -1633,12 +1633,154 @@ describe("IsbjornRouter02", function () {
         await ethers.provider.send("evm_mine", []);
 
         const initialBalance = await tokenB.balanceOf(user1Address);
-        await isbjornStaking.connect(user1).getReward();
+        await isbjornStaking.connect(user1).claimAll();
         const finalBalance = await tokenB.balanceOf(user1Address);
 
         // Should receive full reward amount
         expect(finalBalance - initialBalance).to.be.closeTo(
           ethers.parseEther("100"),
+          ethers.parseEther("1")
+        );
+      });
+    });
+
+    describe("Reflection Handling", function () {
+      it("should track reflections for a single staker", async function () {
+        // Initial stake
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+
+        await ethers.provider.send("evm_mine", []);
+
+        // Send reflection
+        await tokenB
+          .connect(owner)
+          .transfer(isbjornStaking.target, ethers.parseEther("50"));
+
+        await ethers.provider.send("evm_mine", []);
+
+        // Check reflection earnings
+        const initialBalance = await tokenB.balanceOf(user1Address);
+        await isbjornStaking.connect(user1).claimAll();
+        const finalBalance = await tokenB.balanceOf(user1Address);
+
+        // Should receive full reflection amount since they're the only staker
+        expect(finalBalance - initialBalance).to.be.closeTo(
+          ethers.parseEther("50"),
+          ethers.parseEther("0.001")
+        );
+      });
+
+      it("should distribute reflections proportionally between stakers", async function () {
+        // User1 stakes 10 tokens (1/3 of total)
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+
+        // User2 stakes 20 tokens (2/3 of total)
+        await tokenA
+          .connect(user2)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.connect(user2).stake(ethers.parseEther("20"));
+
+        // Send reflection
+        await tokenB
+          .connect(owner)
+          .transfer(isbjornStaking.target, ethers.parseEther("30"));
+
+        // Check User1's reflection (should be ~10 tokens)
+        const user1InitialBalance = await tokenB.balanceOf(user1Address);
+        await isbjornStaking.connect(user1).claimAll();
+        const user1FinalBalance = await tokenB.balanceOf(user1Address);
+        const user1Reflection = user1FinalBalance - user1InitialBalance;
+
+        // Check User2's reflection (should be ~20 tokens)
+        const user2InitialBalance = await tokenB.balanceOf(user2Address);
+        await isbjornStaking.connect(user2).claimAll();
+        const user2FinalBalance = await tokenB.balanceOf(user2Address);
+        const user2Reflection = user2FinalBalance - user2InitialBalance;
+
+        // User2 should receive twice as much as User1
+        expect(user2Reflection).to.be.closeTo(
+          user1Reflection * 2n,
+          ethers.parseEther("0.1")
+        );
+      });
+
+      it("should handle reflection claims after unstaking", async function () {
+        // Initial stake
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+
+        // Send reflection
+        await tokenB
+          .connect(owner)
+          .transfer(isbjornStaking.target, ethers.parseEther("50"));
+
+        await ethers.provider.send("evm_mine", []);
+
+        const initialBalance = await tokenB.balanceOf(user1Address);
+
+        // Unstake
+        await isbjornStaking.connect(user1).withdraw(ethers.parseEther("10"));
+
+        const finalBalance = await tokenB.balanceOf(user1Address);
+
+        expect(finalBalance - initialBalance).to.be.closeTo(
+          ethers.parseEther("50"),
+          ethers.parseEther("0.001")
+        );
+      });
+
+      it("should correctly handle claimAll function", async function () {
+        // Setup using different tokens for rewards and reflections
+        // Use WAVAX for rewards to avoid confusion with reflection token
+        await WAVAX.deposit({ value: ethers.parseEther("100") });
+        await WAVAX.approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.queueNewRewards(
+          ethers.parseEther("100"),
+          WAVAX.target,
+          WEEK
+        );
+
+        // Stake tokens
+        await tokenA
+          .connect(user1)
+          .approve(isbjornStaking.target, ethers.parseEther("100"));
+        await isbjornStaking.connect(user1).stake(ethers.parseEther("10"));
+
+        // Advance time for rewards to accumulate
+        await ethers.provider.send("evm_increaseTime", [WEEK / 2]);
+        await ethers.provider.send("evm_mine", []);
+
+        // Send reflection
+        await tokenB
+          .connect(owner)
+          .transfer(isbjornStaking.target, ethers.parseEther("50"));
+
+        // Check initial balances
+        const initialWAVAXBalance = await WAVAX.balanceOf(user1Address);
+        const initialTokenBBalance = await tokenB.balanceOf(user1Address);
+
+        // Claim all rewards and reflections
+        await isbjornStaking.connect(user1).claimAll();
+
+        // Check final balances
+        const finalWAVAXBalance = await WAVAX.balanceOf(user1Address);
+        const finalTokenBBalance = await tokenB.balanceOf(user1Address);
+
+        // Should receive ~50 WAVAX (rewards) and 50 tokenB (reflections)
+        expect(finalWAVAXBalance - initialWAVAXBalance).to.be.closeTo(
+          ethers.parseEther("50"),
+          ethers.parseEther("1")
+        );
+        expect(finalTokenBBalance - initialTokenBBalance).to.be.closeTo(
+          ethers.parseEther("50"),
           ethers.parseEther("1")
         );
       });

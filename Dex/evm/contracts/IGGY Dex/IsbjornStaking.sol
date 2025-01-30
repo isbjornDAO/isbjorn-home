@@ -47,8 +47,6 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
     uint256 public lastReflectionBalance;
     uint256 public lastTotalReflection;
 
-    mapping(address => uint256) public reflectionReward;
-
     uint256 immutable ACCURACY_CONST = 1e18;
 
     mapping(address => UserStakeInfo) public userStakes;
@@ -79,7 +77,9 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
     modifier updateReflection() {
         reflectionPerTokenStored = reflectionPerToken();
         reflectionUpdatedAt = block.timestamp;
-        reflectionReward[msg.sender] = reflectionEarned(msg.sender);
+        userRewards[msg.sender][address(reflectionToken)] = reflectionEarned(
+            msg.sender
+        );
         userRewardPerTokenPaid[msg.sender][
             address(reflectionToken)
         ] = reflectionPerTokenStored;
@@ -223,6 +223,9 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
 
         updateReward(msg.sender);
 
+        getReward();
+        getReflection();
+
         totalStaked = totalStaked.sub(amount);
         userStakes[msg.sender].amount = userStakes[msg.sender].amount.sub(
             amount
@@ -232,7 +235,7 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         emit Withdrawn(msg.sender, amount);
     }
 
-    function getReward() public nonReentrant {
+    function getReward() internal {
         updateReward(msg.sender);
 
         for (uint i = 0; i < rewardTokens.length; i++) {
@@ -249,16 +252,16 @@ contract IsbjornStaking is ReentrancyGuard, Ownable {
         }
     }
 
-    function getReflection() public nonReentrant updateReflection {
-        uint256 reward = reflectionReward[msg.sender];
+    function getReflection() internal {
+        uint256 reward = userRewards[msg.sender][address(reflectionToken)];
         if (reward > 0) {
-            reflectionReward[msg.sender] = 0;
+            userRewards[msg.sender][address(reflectionToken)] = 0;
             reflectionToken.transfer(msg.sender, reward);
             lastReflectionBalance -= reward;
         }
     }
 
-    function claimAll() external {
+    function claimAll() external nonReentrant updateReflection {
         getReward();
         getReflection();
     }
