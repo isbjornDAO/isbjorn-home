@@ -4,4 +4,5 @@
 export * as iggyDex from "./IGGY Dex";
 export * as iggyToken from "./IGGY Token";
 export * as lfjForReference from "./LFJ (for reference)";
+export * as puppets from "./Puppets";
 export * as test from "./test";
