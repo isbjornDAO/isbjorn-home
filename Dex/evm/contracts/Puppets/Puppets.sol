@@ -43,10 +43,14 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     struct PhaseDetails {
         uint96 price;
         uint32 startTime;
-        uint8 phaseLimit;
+        uint256 phaseLimit;
     }
 
-    modifier mintCompliance(MintPhase _phase, uint32 _quantity) {
+    modifier mintCompliance(
+        MintPhase _phase,
+        uint32 _quantity,
+        bool isPanic
+    ) {
         require(_mintActive, "Minting is not active.");
         require(_quantity > 0, "Must mint at least one");
         require(getCurrentPhase() == _phase, "Incorrect phase");
@@ -55,9 +59,17 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
             block.timestamp >= phaseDetails.startTime,
             "Mint not started yet!"
         );
-        require(_tokenId + _quantity <= _maxSupply, "None left");
         require(
-            msg.value == (_quantity * phaseDetails.price),
+            (isPanic && _quantity == 1) || (!isPanic),
+            "Can only panic mint 1 at a time"
+        );
+        require(
+            _tokenId + _quantity <= phaseDetails.phaseLimit,
+            "None left in this phase"
+        );
+        require(
+            (!isPanic && msg.value == (_quantity * phaseDetails.price)) ||
+                (isPanic && msg.value == ((_quantity * 2 ether))),
             "Not enough AVAX sent."
         );
         _;
@@ -81,6 +93,35 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         _internalMint(msg.sender, 250); //200 presale puppets to be manually distributed, 50 kept for treasury
     }
 
+    function initPhases(uint32 _startTime) public onlyOwner {
+        setPhaseDetails(MintPhase.One, 1 ether, _startTime, 400);
+        setPhaseDetails(MintPhase.Two, 1.2 ether, _startTime + 10 minutes, 550);
+        setPhaseDetails(
+            MintPhase.Three,
+            1.4 ether,
+            _startTime + 20 minutes,
+            700
+        );
+        setPhaseDetails(
+            MintPhase.Four,
+            1.6 ether,
+            _startTime + 30 minutes,
+            850
+        );
+        setPhaseDetails(
+            MintPhase.Five,
+            1.8 ether,
+            _startTime + 40 minutes,
+            1000
+        );
+        setPhaseDetails(
+            MintPhase.Public,
+            2 ether,
+            _startTime + 50 minutes,
+            1000
+        );
+    }
+
     function setMintActive(bool status) public onlyOwner {
         _mintActive = status;
     }
@@ -89,7 +130,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         MintPhase _phase,
         uint96 _price,
         uint32 _startTime,
-        uint8 _phaseLimit
+        uint256 _phaseLimit
     ) public onlyOwner {
         detailsByPhase[_phase] = PhaseDetails(_price, _startTime, _phaseLimit);
     }
@@ -162,7 +203,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     )
         public
         payable
-        mintCompliance(phase, quantity)
+        mintCompliance(phase, quantity, false)
         restrictedPhase(phase, quantity)
     {
         payable(_royaltyReceiver).transfer(msg.value);
@@ -175,7 +216,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
 
     function publicMint(
         uint32 quantity
-    ) public payable mintCompliance(MintPhase.Public, quantity) {
+    ) public payable mintCompliance(MintPhase.Public, quantity, false) {
         payable(_royaltyReceiver).transfer(msg.value);
 
         for (uint i = 0; i < quantity; i++) {
