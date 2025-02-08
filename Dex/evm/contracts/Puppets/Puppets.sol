@@ -167,26 +167,33 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         _maxSupply = maxSupply_;
     }
 
+    function _setUserPhaseAllowance(
+        address _user,
+        MintPhase _phase
+    ) private onlyOwner {
+        for (
+            uint8 phase = uint8(_phase);
+            phase <= uint8(MintPhase.Five);
+            phase++
+        ) {
+            MintPhase currentPhase = MintPhase(phase);
+            userAllowanceByPhase[currentPhase][_user] = phase;
+        }
+    }
+
     function setUserPhaseAllowance(
         address _user,
-        MintPhase _phase,
-        uint32 allowance
+        MintPhase _phase
     ) public onlyOwner {
-        userAllowanceByPhase[_phase][_user] = allowance;
+        _setUserPhaseAllowance(_user, _phase);
     }
 
     function setUserPhaseAllowances(
         address[] memory _users,
-        MintPhase _phase,
-        uint32[] memory _allowances
+        MintPhase _phase
     ) public onlyOwner {
-        require(
-            _users.length == _allowances.length,
-            "phases and allowances lengths don't match!"
-        );
-
         for (uint i = 0; i < _users.length; i++) {
-            userAllowanceByPhase[_phase][_users[i]] = _allowances[i];
+            _setUserPhaseAllowance(_users[i], _phase);
         }
     }
 
@@ -206,6 +213,17 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         mintCompliance(phase, quantity, false)
         restrictedPhase(phase, quantity)
     {
+        payable(_royaltyReceiver).transfer(msg.value);
+
+        for (uint i = 0; i < quantity; i++) {
+            _tokenId++;
+            _mint(msg.sender, _tokenId);
+        }
+    }
+
+    function panicMint(
+        uint32 quantity
+    ) public payable mintCompliance(getCurrentPhase(), quantity, true) {
         payable(_royaltyReceiver).transfer(msg.value);
 
         for (uint i = 0; i < quantity; i++) {
