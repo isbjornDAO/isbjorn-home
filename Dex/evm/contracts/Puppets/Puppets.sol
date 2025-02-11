@@ -17,9 +17,9 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     address private _royaltyReceiver = address(0); //set dao address
 
     bool public revealed = false;
-    string private _baseTokenURI = "";
+    string private _baseTokenURI = "ipfs://<IPFS_HASH>";
     string private _baseExtension = ".json";
-    string private _unrevealURI = "ipfs://<IPFS_HASH>";
+    string private _unrevealURI = "ipfs://<IPFS_HASH>/unrevealed.json";
 
     bool private _mintActive = true;
 
@@ -171,6 +171,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         address _user,
         MintPhase _phase
     ) private onlyOwner {
+        whiteList[_user] = _phase;
         for (
             uint8 phase = uint8(_phase);
             phase <= uint8(MintPhase.Five);
