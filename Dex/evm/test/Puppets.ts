@@ -36,156 +36,143 @@ describe("Puppets", function () {
 
   describe("Phase Management", function () {
     it("Should correctly initialize all phases", async function () {
-      const phaseOne = await puppets.detailsByPhase(1);
-      expect(phaseOne.price).to.equal(ethers.parseEther("1.0"));
-      expect(phaseOne.startTime).to.equal(startTime);
-      expect(phaseOne.phaseLimit).to.equal(400);
+      const wlPhase = await puppets.detailsByPhase(1); // WL Phase
+      expect(wlPhase.price).to.equal(ethers.parseEther("1.0"));
+      expect(wlPhase.startTime).to.equal(startTime);
+      expect(wlPhase.phaseLimit).to.equal(400);
 
-      const phaseTwo = await puppets.detailsByPhase(2);
-      expect(phaseTwo.price).to.equal(ethers.parseEther("1.2"));
-      expect(phaseTwo.startTime).to.equal(startTime + 600); // 10 minutes
-      expect(phaseTwo.phaseLimit).to.equal(550);
+      const p1Phase = await puppets.detailsByPhase(2); // P1 Phase
+      expect(p1Phase.price).to.equal(ethers.parseEther("1.2"));
+      expect(p1Phase.startTime).to.equal(startTime + 600); // 10 minutes
+      expect(p1Phase.phaseLimit).to.equal(550);
     });
 
     it("Should return correct current phase", async function () {
       expect(await puppets.getCurrentPhase()).to.equal(0); // None
 
       await time.increaseTo(startTime);
-      expect(await puppets.getCurrentPhase()).to.equal(1); // Phase One
+      expect(await puppets.getCurrentPhase()).to.equal(1); // WL Phase
 
       await time.increaseTo(startTime + 600); // +10 minutes
-      expect(await puppets.getCurrentPhase()).to.equal(2); // Phase Two
+      expect(await puppets.getCurrentPhase()).to.equal(2); // P1 Phase
     });
   });
 
   describe("Whitelist Management", function () {
-    it("Should set allowances for single user correctly", async function () {
-      const user = await addr1.getAddress();
-      await puppets.setUserPhaseAllowance(user, 1); // Phase One
+    it("Should add addresses to whitelist", async function () {
+      const users = [await addr1.getAddress(), await addr2.getAddress()];
+      await puppets.addToWhitelist(users);
 
-      expect(await puppets.userAllowanceByPhase(1, user)).to.equal(1);
-      expect(await puppets.userAllowanceByPhase(2, user)).to.equal(2);
-      expect(await puppets.userAllowanceByPhase(3, user)).to.equal(3);
-      expect(await puppets.userAllowanceByPhase(4, user)).to.equal(4);
-      expect(await puppets.userAllowanceByPhase(5, user)).to.equal(5);
+      expect(await puppets.whiteList(await addr1.getAddress())).to.be.true;
+      expect(await puppets.whiteList(await addr2.getAddress())).to.be.true;
     });
 
-    it("Should set allowances for multiple users", async function () {
-      const users = [await addr1.getAddress(), await addr2.getAddress()];
-      await puppets.setUserPhaseAllowances(users, 2); // Phase Two
+    it("Should remove addresses from whitelist", async function () {
+      const users = [await addr1.getAddress()];
+      await puppets.addToWhitelist(users);
+      await puppets.removeFromWhitelist(users);
 
-      for (let user of users) {
-        expect(await puppets.userAllowanceByPhase(2, user)).to.equal(2);
-        expect(await puppets.userAllowanceByPhase(3, user)).to.equal(3);
-        expect(await puppets.userAllowanceByPhase(4, user)).to.equal(4);
-        expect(await puppets.userAllowanceByPhase(5, user)).to.equal(5);
-      }
+      expect(await puppets.whiteList(await addr1.getAddress())).to.be.false;
     });
   });
 
   describe("Minting", function () {
     beforeEach(async function () {
-      // Set up addr1 for whitelist minting
-      await puppets.setUserPhaseAllowance(await addr1.getAddress(), 1);
+      // Add addr1 to whitelist
+      await puppets.addToWhitelist([await addr1.getAddress()]);
       await time.increaseTo(startTime);
     });
 
-    it("Should allow whitelisted address to mint in correct phase", async function () {
-      const mintTx = await puppets.connect(addr1).wlMint(1, 1, {
-        value: ethers.parseEther("1.0"),
+    describe("Whitelist Minting", function () {
+      it("Should allow whitelisted address to mint in WL phase", async function () {
+        await puppets.connect(addr1).wlMint({
+          value: ethers.parseEther("1.0"),
+        });
+
+        expect(await puppets.totalSupply()).to.equal(251);
+        expect(await puppets.ownerOf(251)).to.equal(await addr1.getAddress());
+        expect(
+          await puppets.mintsInPhase(1, await addr1.getAddress())
+        ).to.equal(1);
       });
-      await mintTx.wait();
 
-      expect(await puppets.totalSupply()).to.equal(251);
-      expect(await puppets.ownerOf(251)).to.equal(await addr1.getAddress());
-    });
+      it("Should not allow whitelisted address to mint twice in WL phase", async function () {
+        await puppets.connect(addr1).wlMint({
+          value: ethers.parseEther("1.0"),
+        });
 
-    it("Should fail when minting more than allowed", async function () {
-      await expect(
-        puppets.connect(addr1).wlMint(2, 1, {
-          value: ethers.parseEther("2.0"),
-        })
-      ).to.be.revertedWith("no mints left");
-    });
-
-    it("Should fail when minting in wrong phase", async function () {
-      await expect(
-        puppets.connect(addr1).wlMint(1, 2, {
-          value: ethers.parseEther("1.2"),
-        })
-      ).to.be.revertedWith("Incorrect phase");
-    });
-
-    it("Should allow public minting in public phase", async function () {
-      await time.increaseTo(startTime + 3000); // Move to public phase
-      const mintTx = await puppets.connect(addr2).publicMint(1, {
-        value: ethers.parseEther("2.0"),
+        await expect(
+          puppets.connect(addr1).wlMint({
+            value: ethers.parseEther("1.0"),
+          })
+        ).to.be.revertedWith("Already minted WL");
       });
-      await mintTx.wait();
 
-      expect(await puppets.totalSupply()).to.equal(251);
-      expect(await puppets.ownerOf(251)).to.equal(await addr2.getAddress());
-    });
-  });
-
-  describe("Panic Minting", function () {
-    it("Should not allow panic minting before phase one starts", async function () {
-      await expect(
-        puppets.connect(addr1).panicMint(1, {
-          value: ethers.parseEther("2.0"),
-        })
-      ).to.be.revertedWith("None left in this phase");
-    });
-
-    it("Should allow panic minting during any active phase", async function () {
-      // Test during phase one
-      await time.increaseTo(startTime);
-      await puppets.connect(addr1).panicMint(1, {
-        value: ethers.parseEther("2.0"),
+      it("Should not allow non-whitelisted address to mint in WL phase", async function () {
+        await expect(
+          puppets.connect(addr2).wlMint({
+            value: ethers.parseEther("1.0"),
+          })
+        ).to.be.revertedWith("Not whitelisted");
       });
-      expect(await puppets.totalSupply()).to.equal(251);
+    });
 
-      // Test during phase two
-      await time.increaseTo(startTime + 600);
-      await puppets.connect(addr2).panicMint(1, {
-        value: ethers.parseEther("2.0"),
+    describe("Public Minting", function () {
+      beforeEach(async function () {
+        await time.increaseTo(startTime + 600); // Move to P1
       });
-      expect(await puppets.totalSupply()).to.equal(252);
 
-      // Test during public phase
-      await time.increaseTo(startTime + 3000);
-      await puppets.connect(addr1).panicMint(1, {
-        value: ethers.parseEther("2.0"),
+      it("Should allow anyone to mint in public phase", async function () {
+        await puppets.connect(addr2).publicMint(2, 2, {
+          // Phase P1, mint 2
+          value: ethers.parseEther("2.4"), // 1.2 ETH * 2
+        });
+
+        expect(await puppets.totalSupply()).to.equal(252);
+        expect(
+          await puppets.mintsInPhase(2, await addr2.getAddress())
+        ).to.equal(2);
       });
-      expect(await puppets.totalSupply()).to.equal(253);
-    });
 
-    it("Should fail when trying to panic mint more than 1 at a time", async function () {
-      await time.increaseTo(startTime);
-      await expect(
-        puppets.connect(addr1).panicMint(2, {
-          value: ethers.parseEther("4.0"),
-        })
-      ).to.be.revertedWith("Can only panic mint 1 at a time");
-    });
+      it("Should not allow minting more than 2 tokens in a public phase", async function () {
+        await expect(
+          puppets.connect(addr2).publicMint(3, 2, {
+            // Try to mint 3 in P1
+            value: ethers.parseEther("3.6"),
+          })
+        ).to.be.revertedWith("Exceeds phase mint limit");
+      });
 
-    it("Should fail when not sending enough ETH for panic mint", async function () {
-      await time.increaseTo(startTime);
-      await expect(
-        puppets.connect(addr1).panicMint(1, {
-          value: ethers.parseEther("1.0"), // Regular phase one price instead of panic price
-        })
-      ).to.be.revertedWith("Not enough AVAX sent.");
-    });
+      it("Should allow minting in multiple phases", async function () {
+        // Mint in P1
+        await puppets.connect(addr2).publicMint(2, 2, {
+          value: ethers.parseEther("2.4"),
+        });
 
-    it("Should fail panic mint when minting is not active", async function () {
-      await time.increaseTo(startTime);
-      await puppets.setMintActive(false);
-      await expect(
-        puppets.connect(addr1).panicMint(1, {
-          value: ethers.parseEther("2.0"),
-        })
-      ).to.be.revertedWith("Minting is not active.");
+        // Move to P2
+        await time.increaseTo(startTime + 1200);
+
+        // Mint in P2
+        await puppets.connect(addr2).publicMint(2, 3, {
+          value: ethers.parseEther("2.8"), // 1.4 ETH * 2
+        });
+
+        expect(
+          await puppets.mintsInPhase(2, await addr2.getAddress())
+        ).to.equal(2);
+        expect(
+          await puppets.mintsInPhase(3, await addr2.getAddress())
+        ).to.equal(2);
+      });
+
+      it("Should not allow minting in incorrect phase", async function () {
+        await expect(
+          puppets.connect(addr2).publicMint(1, 3, {
+            // Try to mint in P2 during P1
+            value: ethers.parseEther("1.4"),
+          })
+        ).to.be.revertedWith("Incorrect phase");
+      });
     });
   });
 

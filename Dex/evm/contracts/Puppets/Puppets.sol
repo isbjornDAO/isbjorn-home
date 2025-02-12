@@ -13,6 +13,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     uint256 private _tokenId;
     uint256 private _maxSupply = 1000;
     uint96 private _royaltyAmount = 600; // 6% royalties
+    uint256 private constant PUBLIC_MINT_LIMIT = 2; // Limit per phase for public minting
 
     address private _royaltyReceiver = address(0); //set dao address
 
@@ -23,21 +24,17 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
 
     bool private _mintActive = true;
 
-    mapping(MintPhase => mapping(address => uint256))
-        public mintsPerWalletPerPhase;
+    mapping(MintPhase => mapping(address => uint256)) public mintsInPhase;
     mapping(MintPhase => PhaseDetails) public detailsByPhase;
-    mapping(address => MintPhase) public whiteList;
-    mapping(MintPhase => mapping(address => uint32))
-        public userAllowanceByPhase;
+    mapping(address => bool) public whiteList;
 
     enum MintPhase {
         None,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Public
+        WL,
+        P1,
+        P2,
+        P3,
+        P4
     }
 
     struct PhaseDetails {
@@ -46,42 +43,53 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         uint256 phaseLimit;
     }
 
-    modifier mintCompliance(
-        MintPhase _phase,
-        uint32 _quantity,
-        bool isPanic
-    ) {
+    modifier mintCompliance(MintPhase _phase, uint32 _quantity) {
         require(_mintActive, "Minting is not active.");
         require(_quantity > 0, "Must mint at least one");
         require(getCurrentPhase() == _phase, "Incorrect phase");
+
         PhaseDetails memory phaseDetails = detailsByPhase[_phase];
         require(
             block.timestamp >= phaseDetails.startTime,
             "Mint not started yet!"
         );
         require(
-            (isPanic && _quantity == 1) || (!isPanic),
-            "Can only panic mint 1 at a time"
-        );
-        require(
             _tokenId + _quantity <= phaseDetails.phaseLimit,
             "None left in this phase"
         );
         require(
-            (!isPanic && msg.value == (_quantity * phaseDetails.price)) ||
-                (isPanic && msg.value == ((_quantity * 2 ether))),
+            msg.value == (_quantity * phaseDetails.price),
             "Not enough AVAX sent."
         );
+
+        // Check phase-specific requirements
+        if (_phase == MintPhase.WL) {
+            require(whiteList[msg.sender], "Not whitelisted");
+            require(_quantity == 1, "WL phase limited to 1 mint");
+            require(mintsInPhase[_phase][msg.sender] == 0, "Already minted WL");
+        } else {
+            require(_quantity <= PUBLIC_MINT_LIMIT, "Exceeds phase mint limit");
+            require(
+                mintsInPhase[_phase][msg.sender] + _quantity <=
+                    PUBLIC_MINT_LIMIT,
+                "Would exceed phase mint limit"
+            );
+        }
         _;
     }
 
-    modifier restrictedPhase(MintPhase _phase, uint32 _quantity) {
-        require(
-            _quantity <= userAllowanceByPhase[_phase][msg.sender],
-            "no mints left"
-        );
-        userAllowanceByPhase[_phase][msg.sender] -= _quantity;
-        _;
+    function addToWhitelist(address[] calldata addresses) external onlyOwner {
+        for (uint i = 0; i < addresses.length; i++) {
+            whiteList[addresses[i]] = true;
+        }
+    }
+
+    function removeFromWhitelist(
+        address[] calldata addresses
+    ) external onlyOwner {
+        for (uint i = 0; i < addresses.length; i++) {
+            whiteList[addresses[i]] = false;
+        }
     }
 
     constructor(
@@ -94,32 +102,11 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     }
 
     function initPhases(uint32 _startTime) public onlyOwner {
-        setPhaseDetails(MintPhase.One, 1 ether, _startTime, 400);
-        setPhaseDetails(MintPhase.Two, 1.2 ether, _startTime + 10 minutes, 550);
-        setPhaseDetails(
-            MintPhase.Three,
-            1.4 ether,
-            _startTime + 20 minutes,
-            700
-        );
-        setPhaseDetails(
-            MintPhase.Four,
-            1.6 ether,
-            _startTime + 30 minutes,
-            850
-        );
-        setPhaseDetails(
-            MintPhase.Five,
-            1.8 ether,
-            _startTime + 40 minutes,
-            1000
-        );
-        setPhaseDetails(
-            MintPhase.Public,
-            2 ether,
-            _startTime + 50 minutes,
-            1000
-        );
+        setPhaseDetails(MintPhase.WL, 1 ether, _startTime, 400);
+        setPhaseDetails(MintPhase.P1, 1.2 ether, _startTime + 10 minutes, 550);
+        setPhaseDetails(MintPhase.P2, 1.4 ether, _startTime + 20 minutes, 700);
+        setPhaseDetails(MintPhase.P3, 1.6 ether, _startTime + 30 minutes, 850);
+        setPhaseDetails(MintPhase.P4, 1.8 ether, _startTime + 40 minutes, 1000);
     }
 
     function setMintActive(bool status) public onlyOwner {
@@ -167,37 +154,6 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         _maxSupply = maxSupply_;
     }
 
-    function _setUserPhaseAllowance(
-        address _user,
-        MintPhase _phase
-    ) private onlyOwner {
-        whiteList[_user] = _phase;
-        for (
-            uint8 phase = uint8(_phase);
-            phase <= uint8(MintPhase.Five);
-            phase++
-        ) {
-            MintPhase currentPhase = MintPhase(phase);
-            userAllowanceByPhase[currentPhase][_user] = phase;
-        }
-    }
-
-    function setUserPhaseAllowance(
-        address _user,
-        MintPhase _phase
-    ) public onlyOwner {
-        _setUserPhaseAllowance(_user, _phase);
-    }
-
-    function setUserPhaseAllowances(
-        address[] memory _users,
-        MintPhase _phase
-    ) public onlyOwner {
-        for (uint i = 0; i < _users.length; i++) {
-            _setUserPhaseAllowance(_users[i], _phase);
-        }
-    }
-
     function _internalMint(address recipient, uint32 quantity) private {
         for (uint i = 0; i < quantity; i++) {
             _tokenId++;
@@ -205,71 +161,43 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         }
     }
 
-    function wlMint(
-        uint32 quantity,
-        MintPhase phase
-    )
-        public
-        payable
-        mintCompliance(phase, quantity, false)
-        restrictedPhase(phase, quantity)
-    {
+    function wlMint() public payable mintCompliance(MintPhase.WL, 1) {
         payable(_royaltyReceiver).transfer(msg.value);
-
-        for (uint i = 0; i < quantity; i++) {
-            _tokenId++;
-            _mint(msg.sender, _tokenId);
-        }
-    }
-
-    function panicMint(
-        uint32 quantity
-    ) public payable mintCompliance(getCurrentPhase(), quantity, true) {
-        payable(_royaltyReceiver).transfer(msg.value);
-
-        for (uint i = 0; i < quantity; i++) {
-            _tokenId++;
-            _mint(msg.sender, _tokenId);
-        }
+        mintsInPhase[MintPhase.WL][msg.sender] += 1;
+        _internalMint(msg.sender, 1);
     }
 
     function publicMint(
-        uint32 quantity
-    ) public payable mintCompliance(MintPhase.Public, quantity, false) {
+        uint32 quantity,
+        MintPhase phase
+    ) public payable mintCompliance(phase, quantity) {
+        mintsInPhase[phase][msg.sender] += quantity;
         payable(_royaltyReceiver).transfer(msg.value);
-
-        for (uint i = 0; i < quantity; i++) {
-            _tokenId++;
-            _mint(msg.sender, _tokenId);
-        }
+        _internalMint(msg.sender, quantity);
     }
 
     function getCurrentPhase() public view returns (MintPhase) {
-        if (block.timestamp < detailsByPhase[MintPhase.One].startTime) {
+        if (block.timestamp < detailsByPhase[MintPhase.WL].startTime) {
             return MintPhase.None;
         }
 
-        if (block.timestamp < detailsByPhase[MintPhase.Two].startTime) {
-            return MintPhase.One;
+        if (block.timestamp < detailsByPhase[MintPhase.P1].startTime) {
+            return MintPhase.WL;
         }
 
-        if (block.timestamp < detailsByPhase[MintPhase.Three].startTime) {
-            return MintPhase.Two;
+        if (block.timestamp < detailsByPhase[MintPhase.P2].startTime) {
+            return MintPhase.P1;
         }
 
-        if (block.timestamp < detailsByPhase[MintPhase.Four].startTime) {
-            return MintPhase.Three;
+        if (block.timestamp < detailsByPhase[MintPhase.P3].startTime) {
+            return MintPhase.P2;
         }
 
-        if (block.timestamp < detailsByPhase[MintPhase.Five].startTime) {
-            return MintPhase.Four;
+        if (block.timestamp < detailsByPhase[MintPhase.P4].startTime) {
+            return MintPhase.P3;
         }
 
-        if (block.timestamp < detailsByPhase[MintPhase.Public].startTime) {
-            return MintPhase.Five;
-        }
-
-        return MintPhase.Public;
+        return MintPhase.P4;
     }
 
     function totalSupply() public view returns (uint256) {
