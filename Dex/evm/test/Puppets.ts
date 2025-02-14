@@ -42,7 +42,7 @@ describe("Puppets", function () {
       expect(wlPhase.phaseLimit).to.equal(400);
 
       const p1Phase = await puppets.detailsByPhase(2); // P1 Phase
-      expect(p1Phase.price).to.equal(ethers.parseEther("1.2"));
+      expect(p1Phase.price).to.equal(ethers.parseEther("1.25"));
       expect(p1Phase.startTime).to.equal(startTime + 600); // 10 minutes
       expect(p1Phase.phaseLimit).to.equal(550);
     });
@@ -80,6 +80,7 @@ describe("Puppets", function () {
     beforeEach(async function () {
       // Add addr1 to whitelist
       await puppets.addToWhitelist([await addr1.getAddress()]);
+      await puppets.setMintActive(true);
       await time.increaseTo(startTime);
     });
 
@@ -125,7 +126,7 @@ describe("Puppets", function () {
       it("Should allow anyone to mint in public phase", async function () {
         await puppets.connect(addr2).publicMint(2, 2, {
           // Phase P1, mint 2
-          value: ethers.parseEther("2.4"), // 1.2 ETH * 2
+          value: ethers.parseEther("2.5"), // 1.25 ETH * 2
         });
 
         expect(await puppets.totalSupply()).to.equal(252);
@@ -138,7 +139,7 @@ describe("Puppets", function () {
         await expect(
           puppets.connect(addr2).publicMint(3, 2, {
             // Try to mint 3 in P1
-            value: ethers.parseEther("3.6"),
+            value: ethers.parseEther("3.75"),
           })
         ).to.be.revertedWith("Exceeds phase mint limit");
       });
@@ -146,7 +147,7 @@ describe("Puppets", function () {
       it("Should allow minting in multiple phases", async function () {
         // Mint in P1
         await puppets.connect(addr2).publicMint(2, 2, {
-          value: ethers.parseEther("2.4"),
+          value: ethers.parseEther("2.5"),
         });
 
         // Move to P2
@@ -154,7 +155,7 @@ describe("Puppets", function () {
 
         // Mint in P2
         await puppets.connect(addr2).publicMint(2, 3, {
-          value: ethers.parseEther("2.8"), // 1.4 ETH * 2
+          value: ethers.parseEther("3"), // 1.5 ETH * 2
         });
 
         expect(

@@ -22,7 +22,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     string private _baseExtension = ".json";
     string private _unrevealURI = "ipfs://<IPFS_HASH>/unrevealed.json";
 
-    bool private _mintActive = true;
+    bool public mintActive = false;
 
     mapping(MintPhase => mapping(address => uint256)) public mintsInPhase;
     mapping(MintPhase => PhaseDetails) public detailsByPhase;
@@ -44,7 +44,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     }
 
     modifier mintCompliance(MintPhase _phase, uint32 _quantity) {
-        require(_mintActive, "Minting is not active.");
+        require(mintActive, "Minting is not active.");
         require(_quantity > 0, "Must mint at least one");
         require(getCurrentPhase() == _phase, "Incorrect phase");
 
@@ -103,14 +103,14 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
 
     function initPhases(uint32 _startTime) public onlyOwner {
         setPhaseDetails(MintPhase.WL, 1 ether, _startTime, 400);
-        setPhaseDetails(MintPhase.P1, 1.2 ether, _startTime + 10 minutes, 550);
-        setPhaseDetails(MintPhase.P2, 1.4 ether, _startTime + 20 minutes, 700);
-        setPhaseDetails(MintPhase.P3, 1.6 ether, _startTime + 30 minutes, 850);
-        setPhaseDetails(MintPhase.P4, 1.8 ether, _startTime + 40 minutes, 1000);
+        setPhaseDetails(MintPhase.P1, 1.25 ether, _startTime + 10 minutes, 550);
+        setPhaseDetails(MintPhase.P2, 1.5 ether, _startTime + 20 minutes, 700);
+        setPhaseDetails(MintPhase.P3, 1.75 ether, _startTime + 30 minutes, 850);
+        setPhaseDetails(MintPhase.P4, 2 ether, _startTime + 40 minutes, 1000);
     }
 
     function setMintActive(bool status) public onlyOwner {
-        _mintActive = status;
+        mintActive = status;
     }
 
     function setPhaseDetails(
