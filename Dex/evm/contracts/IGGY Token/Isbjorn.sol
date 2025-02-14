@@ -56,11 +56,9 @@ contract Isbjorn is ERC20, Ownable {
         uint32 daoBasisPoints,
         uint32 burnBasisPoints
     );
-    event DaoRecipientAddressUpdated(address daoRecipientAddress);
+    event DaoRecipientAddressUpdated(address newDaoAddress);
 
-    constructor(
-        address _daoRecipientAddress
-    ) Ownable(msg.sender) ERC20("Isbjorn", "IGGY") {
+    constructor() Ownable(msg.sender) ERC20("Isbjorn", "IGGY") {
         joeRouter = IJoeRouter(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
         isbjornRouter = IIsbjornRouter(
             0x60aE616a2155Ee3d9A68541Ba4544862310933d4
@@ -87,11 +85,13 @@ contract Isbjorn is ERC20, Ownable {
         daoBasisPoints = 3500; // 35% to dao
         burnBasisPoints = 500; // 5% to 0xdead
 
-        daoRecipientAddress = _daoRecipientAddress;
+        daoRecipientAddress = address(
+            0x099035EcD2f4B87A0eE282Bd41418fC099C7dfb6
+        );
 
         isExcludedFromFee[address(this)] = true;
         isExcludedFromFee[msg.sender] = true;
-        isExcludedFromFee[daoRecipientAddress];
+        isExcludedFromFee[daoRecipientAddress] = true;
 
         isDividendExempt[address(joePair)] = true;
         isDividendExempt[address(this)] = true;
@@ -109,7 +109,7 @@ contract Isbjorn is ERC20, Ownable {
         //initial supply
         uint256 supply = 1_000_000_000 * (10 ** 18);
         swapTokensAtAmount = supply / 1000;
-        _mint(msg.sender, supply);
+        _mint(daoRecipientAddress, supply);
     }
 
     receive() external payable {}
@@ -376,6 +376,6 @@ contract Isbjorn is ERC20, Ownable {
     function setDaoRecipientAddress(address newRecipient) external onlyOwner {
         daoRecipientAddress = newRecipient;
 
-        emit DaoRecipientAddressUpdated(daoRecipientAddress);
+        emit DaoRecipientAddressUpdated(newRecipient);
     }
 }

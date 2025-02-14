@@ -183,7 +183,7 @@ describe("Puppets", function () {
         1,
         ethers.parseEther("1.0")
       );
-      expect(receiver).to.equal(await owner.getAddress());
+      expect(receiver).to.equal("0x099035EcD2f4B87A0eE282Bd41418fC099C7dfb6");
       expect(amount).to.equal(ethers.parseEther("0.06")); // 6%
     });
   });

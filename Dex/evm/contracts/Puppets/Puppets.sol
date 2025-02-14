@@ -15,7 +15,8 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     uint96 private _royaltyAmount = 600; // 6% royalties
     uint256 private constant PUBLIC_MINT_LIMIT = 2; // Limit per phase for public minting
 
-    address private _royaltyReceiver = address(0); //set dao address
+    address private _royaltyReceiver =
+        address(0x099035EcD2f4B87A0eE282Bd41418fC099C7dfb6);
 
     bool public revealed = false;
     string private _baseTokenURI = "ipfs://<IPFS_HASH>";
@@ -96,9 +97,8 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         string memory _name,
         string memory _symbol
     ) ERC721(_name, _symbol) Ownable(msg.sender) {
-        _royaltyReceiver = msg.sender;
-        _setDefaultRoyalty(msg.sender, _royaltyAmount);
-        _internalMint(msg.sender, 250); //200 presale puppets to be manually distributed, 50 kept for treasury
+        _setDefaultRoyalty(_royaltyReceiver, _royaltyAmount);
+        _internalMint(_royaltyReceiver, 250); //200 presale puppets to be manually distributed, 50 kept for treasury
     }
 
     function initPhases(uint32 _startTime) public onlyOwner {

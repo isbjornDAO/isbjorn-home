@@ -431,10 +431,10 @@ export namespace AutomatedMarketMakerPairUpdatedEvent {
 }
 
 export namespace DaoRecipientAddressUpdatedEvent {
-  export type InputTuple = [daoRecipientAddress: AddressLike];
-  export type OutputTuple = [daoRecipientAddress: string];
+  export type InputTuple = [newDaoAddress: AddressLike];
+  export type OutputTuple = [newDaoAddress: string];
   export interface OutputObject {
-    daoRecipientAddress: string;
+    newDaoAddress: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
