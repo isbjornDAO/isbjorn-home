@@ -14,6 +14,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     uint256 private _maxSupply = 1000;
     uint96 private _royaltyAmount = 600; // 6% royalties
     uint256 private constant PUBLIC_MINT_LIMIT = 2; // Limit per phase for public minting
+    uint256 private constant FINAL_ROUND_MINT_LIMIT = 10; // Final round max 10
 
     address private _royaltyReceiver =
         address(0x099035EcD2f4B87A0eE282Bd41418fC099C7dfb6);
@@ -68,6 +69,16 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
             require(whiteList[msg.sender], "Not whitelisted");
             require(_quantity == 1, "WL phase limited to 1 mint");
             require(mintsInPhase[_phase][msg.sender] == 0, "Already minted WL");
+        } else if (_phase == MintPhase.P4) {
+            require(
+                _quantity <= FINAL_ROUND_MINT_LIMIT,
+                "Exceeds phase mint limit"
+            );
+            require(
+                mintsInPhase[_phase][msg.sender] + _quantity <=
+                    FINAL_ROUND_MINT_LIMIT,
+                "Would exceed phase mint limit"
+            );
         } else {
             require(_quantity <= PUBLIC_MINT_LIMIT, "Exceeds phase mint limit");
             require(
@@ -93,10 +104,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         }
     }
 
-    constructor(
-        string memory _name,
-        string memory _symbol
-    ) ERC721(_name, _symbol) Ownable(msg.sender) {
+    constructor() ERC721("Puppets", "PUP") Ownable(_royaltyReceiver) {
         _setDefaultRoyalty(_royaltyReceiver, _royaltyAmount);
         _internalMint(_royaltyReceiver, 250); //200 presale puppets to be manually distributed, 50 kept for treasury
     }
