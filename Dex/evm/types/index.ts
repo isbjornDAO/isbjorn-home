@@ -138,6 +138,8 @@ export type { SafeCast } from "./contracts/Puppets/math/SafeCast";
 export { SafeCast__factory } from "./factories/contracts/Puppets/math/SafeCast__factory";
 export type { Puppets } from "./contracts/Puppets/Puppets";
 export { Puppets__factory } from "./factories/contracts/Puppets/Puppets__factory";
+export type { PuppetsFactory } from "./contracts/Puppets/PuppetsFactory";
+export { PuppetsFactory__factory } from "./factories/contracts/Puppets/PuppetsFactory__factory";
 export type { ReentrancyGuard } from "./contracts/Puppets/ReentrancyGuard";
 export { ReentrancyGuard__factory } from "./factories/contracts/Puppets/ReentrancyGuard__factory";
 export type { Strings } from "./contracts/Puppets/Strings";

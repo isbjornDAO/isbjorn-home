@@ -12,17 +12,24 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
 
     uint256 private _tokenId;
     uint256 private _maxSupply = 1000;
+    address private _royaltyReceiver;
     uint96 private _royaltyAmount = 600; // 6% royalties
     uint256 private constant PUBLIC_MINT_LIMIT = 2; // Limit per phase for public minting
     uint256 private constant FINAL_ROUND_MINT_LIMIT = 10; // Final round max 10
 
-    address private _royaltyReceiver =
+    address public daoAddress =
         address(0x099035EcD2f4B87A0eE282Bd41418fC099C7dfb6);
+    address public devAddress =
+        address(0x0eC9eFC8C5305978Cb957c74b228D4949F5e9DD0);
+    address public artistAddress =
+        address(0x4c48B6d6a5d9Aab0cf8cFC21A0A4F3dEC663E9Cf);
 
     bool public revealed = false;
-    string private _baseTokenURI = "ipfs://<IPFS_HASH>";
+    string private _baseTokenURI =
+        "https://telescope.isbjorn.co.nz/puppets/metadata/";
     string private _baseExtension = ".json";
-    string private _unrevealURI = "ipfs://<IPFS_HASH>/unrevealed.json";
+    string private _unrevealURI =
+        "https://telescope.isbjorn.co.nz/puppets/metadata/unrevealed.json";
 
     bool public mintActive = false;
 
@@ -104,16 +111,16 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         }
     }
 
-    constructor() ERC721("Puppets", "PUP") Ownable(_royaltyReceiver) {
-        _setDefaultRoyalty(_royaltyReceiver, _royaltyAmount);
-        _internalMint(_royaltyReceiver, 250); //200 presale puppets to be manually distributed, 50 kept for treasury
+    constructor() ERC721("Puppets", "PUP") Ownable(devAddress) {
+        _setDefaultRoyalty(daoAddress, _royaltyAmount);
+        _internalMint(daoAddress, 350); // 200 presale puppets to be manually distributed, 150 kept for treasury
     }
 
     function initPhases(uint32 _startTime) public onlyOwner {
-        setPhaseDetails(MintPhase.WL, 1 ether, _startTime, 400);
-        setPhaseDetails(MintPhase.P1, 1.25 ether, _startTime + 10 minutes, 550);
-        setPhaseDetails(MintPhase.P2, 1.5 ether, _startTime + 20 minutes, 700);
-        setPhaseDetails(MintPhase.P3, 1.75 ether, _startTime + 30 minutes, 850);
+        setPhaseDetails(MintPhase.WL, 1 ether, _startTime, 480);
+        setPhaseDetails(MintPhase.P1, 1.25 ether, _startTime + 10 minutes, 610);
+        setPhaseDetails(MintPhase.P2, 1.5 ether, _startTime + 20 minutes, 740);
+        setPhaseDetails(MintPhase.P3, 1.75 ether, _startTime + 30 minutes, 870);
         setPhaseDetails(MintPhase.P4, 2 ether, _startTime + 40 minutes, 1000);
     }
 
@@ -170,7 +177,17 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
     }
 
     function wlMint() public payable mintCompliance(MintPhase.WL, 1) {
-        payable(_royaltyReceiver).transfer(msg.value);
+        uint256 devShare = (msg.value * 1000) / 10000;
+        uint256 artistShare = (msg.value * 6000) / 10000;
+        uint256 daoShare = msg.value - devShare - artistShare;
+
+        (bool successDev, ) = payable(devAddress).call{value: devShare}("");
+        (bool successArtist, ) = payable(artistAddress).call{
+            value: artistShare
+        }("");
+        (bool successDao, ) = payable(daoAddress).call{value: daoShare}("");
+
+        require(successDev && successArtist && successDao, "Transfer failed");
         mintsInPhase[MintPhase.WL][msg.sender] += 1;
         _internalMint(msg.sender, 1);
     }
@@ -179,8 +196,20 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         uint32 quantity,
         MintPhase phase
     ) public payable mintCompliance(phase, quantity) {
+        require(phase != MintPhase.WL, "WL phase not public!");
+        uint256 devShare = (msg.value * 1000) / 10000;
+        uint256 artistShare = (msg.value * 6000) / 10000;
+        uint256 daoShare = msg.value - devShare - artistShare;
+
+        (bool successDev, ) = payable(devAddress).call{value: devShare}("");
+        (bool successArtist, ) = payable(artistAddress).call{
+            value: artistShare
+        }("");
+        (bool successDao, ) = payable(daoAddress).call{value: daoShare}("");
+
+        require(successDev && successArtist && successDao, "Transfer failed");
+
         mintsInPhase[phase][msg.sender] += quantity;
-        payable(_royaltyReceiver).transfer(msg.value);
         _internalMint(msg.sender, quantity);
     }
 
