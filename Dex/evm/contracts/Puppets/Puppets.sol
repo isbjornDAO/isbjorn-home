@@ -111,7 +111,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
         }
     }
 
-    constructor() ERC721("Puppets", "PUP") Ownable(devAddress) {
+    constructor() ERC721("Puppets", "PUP") Ownable(daoAddress) {
         _setDefaultRoyalty(daoAddress, _royaltyAmount);
         _internalMint(daoAddress, 350); // 200 presale puppets to be manually distributed, 150 kept for treasury
     }
@@ -273,6 +273,10 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
                     )
                 )
                 : _unrevealURI;
+    }
+
+    function reveal() external onlyOwner {
+        revealed = true;
     }
 
     function rescueAvax(uint256 amount) external onlyOwner {

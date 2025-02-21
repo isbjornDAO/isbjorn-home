@@ -31,13 +31,13 @@ describe("Puppets", function () {
     puppets = (await Puppets.deploy()) as Puppets;
 
     // Impersonate the devAddress (hardcoded owner)
-    const devAddress = await puppets.devAddress();
-    await ethers.provider.send("hardhat_impersonateAccount", [devAddress]);
-    devSigner = await ethers.getSigner(devAddress);
+    const daoAddress = await puppets.daoAddress();
+    await ethers.provider.send("hardhat_impersonateAccount", [daoAddress]);
+    devSigner = await ethers.getSigner(daoAddress);
 
     // Fund the dev address so it has enough gas.
     await owner.sendTransaction({
-      to: devAddress,
+      to: daoAddress,
       value: ethers.parseEther("10"),
     });
 
@@ -54,7 +54,7 @@ describe("Puppets", function () {
 
   describe("Deployment", function () {
     it("Should set the right owner", async function () {
-      expect(await puppets.owner()).to.equal(await puppets.devAddress());
+      expect(await puppets.owner()).to.equal(await puppets.daoAddress());
     });
 
     it("Should mint 350 initial tokens to DAO on construction", async function () {
