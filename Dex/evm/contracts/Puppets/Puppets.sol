@@ -264,7 +264,7 @@ contract Puppets is ERC721, ERC2981, Ownable, ReentrancyGuard {
 
         string memory currentBaseURI = _baseURI();
         return
-            bytes(currentBaseURI).length > 0
+            revealed
                 ? string(
                     abi.encodePacked(
                         currentBaseURI,
