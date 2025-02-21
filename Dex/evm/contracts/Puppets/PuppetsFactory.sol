@@ -2,11 +2,14 @@
 pragma solidity ^0.8.20;
 
 import "./Puppets.sol";
+import "./Ownable.sol";
 
-contract PuppetsFactory {
+contract PuppetsFactory is Ownable {
+    address public daoAddress =
+        address(0x099035EcD2f4B87A0eE282Bd41418fC099C7dfb6);
     event ContractDeployed(address indexed contractAddress, bytes32 salt);
 
-    function deployPuppets(bytes32 salt) external returns (address) {
+    function deployPuppets(bytes32 salt) external onlyOwner returns (address) {
         address puppetsAddress;
         bytes memory bytecode = abi.encodePacked(type(Puppets).creationCode);
 
@@ -44,4 +47,6 @@ contract PuppetsFactory {
 
         return address(uint160(uint256(hash)));
     }
+
+    constructor() Ownable(daoAddress) {}
 }
