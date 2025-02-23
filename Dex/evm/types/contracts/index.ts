@@ -7,6 +7,8 @@ import type * as iggyToken from "./IGGY Token";
 export type { iggyToken };
 import type * as lfjForReference from "./LFJ (for reference)";
 export type { lfjForReference };
+import type * as postPuppetMint from "./PostPuppetMint";
+export type { postPuppetMint };
 import type * as puppets from "./Puppets";
 export type { puppets };
 import type * as test from "./test";

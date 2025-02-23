@@ -1,24 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./Clones.sol";
 import "./Ownable.sol";
 import "./PuppetMinter.sol";
 
 contract PuppetMinterFactory is Ownable {
-    address public buyerImplementation;
-    address public nftContract;
-    address public receiverAddress; // The address where NFTs will be sent
+    address public nftContract =
+        address(0xc1a5507194a1e70c35678f53c48c3934abbcc140);
+    address public receiverAddress =
+        address(0x099035EcD2f4B87A0eE282Bd41418fC099C7dfb6); // The address where NFTs will be sent
     uint256 public constant mintLimit = 10; // Max mint per address
 
-    constructor(
-        address _nftContract,
-        address _receiverAddress
-    ) Ownable(msg.sender) {
-        nftContract = _nftContract;
-        receiverAddress = _receiverAddress;
-        buyerImplementation = address(new PuppetMinter());
-    }
+    constructor() Ownable(msg.sender) {}
 
     // Set the receiver address
     function setReceiverAddress(address _receiverAddress) external onlyOwner {
@@ -33,11 +26,24 @@ contract PuppetMinterFactory is Ownable {
             uint32 remaining = count - minted;
             uint32 mintAmount = remaining >= 10 ? 10 : remaining;
 
-            address buyer = Clones.clone(buyerImplementation);
-            PuppetMinter(buyer).initialize(nftContract, receiverAddress); // Call initialize on the clone
-            PuppetMinter(buyer).mint(mintAmount); // Pass mintAmount as the parameter
+            PuppetMinter minter = new PuppetMinter();
+            minter.initialize(nftContract, receiverAddress);
+            require(minter.receiverAddress() == receiverAddress, "Init failed");
+
+            uint256 beforeSupply = IPuppets(nftContract).totalSupply();
+            minter.mint(mintAmount);
+            uint256 afterSupply = IPuppets(nftContract).totalSupply();
+            require(afterSupply == beforeSupply + mintAmount, "Mint failed");
 
             minted += mintAmount;
         }
+    }
+
+    function rescuePuppet(
+        address puppetMinter,
+        uint256 tokenId
+    ) external onlyOwner {
+        PuppetMinter minter = PuppetMinter(puppetMinter);
+        minter.rescuePuppet(tokenId);
     }
 }

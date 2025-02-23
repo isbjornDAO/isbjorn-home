@@ -26,7 +26,7 @@ contract PuppetMinter is Ownable {
         puppets.publicMint(amount, IPuppets.MintPhase.P4);
 
         // Transfer the minted NFTs to receiver address
-        for (uint256 i = 0; i < 10; i++) {
+        for (uint256 i = 0; i < amount; i++) {
             uint256 tokenId = startTokenId + i;
             puppets.transferFrom(address(this), receiverAddress, tokenId);
         }
