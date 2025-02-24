@@ -26,4 +26,17 @@ contract PuppetDropper {
             }
         }
     }
+
+    function airDropSingle(address recipient, uint256 tokenId) external {
+        puppets.safeTransferFrom(msg.sender, recipient, tokenId);
+    }
+
+    function airDropTwoForOne(uint256 startTokenId) external {
+        uint256 nextTokenId = startTokenId;
+        for (uint256 i = 351; i <= 517; i++) {
+            address recipient = puppets.ownerOf(i);
+            puppets.safeTransferFrom(msg.sender, recipient, nextTokenId);
+            nextTokenId++;
+        }
+    }
 }

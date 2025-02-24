@@ -6,7 +6,7 @@ import "./PuppetMinter.sol";
 
 contract PuppetMinterFactory is Ownable {
     address public nftContract =
-        address(0xc1a5507194a1e70c35678f53c48c3934abbcc140);
+        address(0xc1a5507194a1E70C35678f53c48C3934AbbCc140);
     address public receiverAddress =
         address(0x099035EcD2f4B87A0eE282Bd41418fC099C7dfb6); // The address where NFTs will be sent
     uint256 public constant mintLimit = 10; // Max mint per address
