@@ -22,14 +22,36 @@ import type {
 } from "../../common";
 
 export interface PuppetDropperInterface extends Interface {
-  getFunction(nameOrSignature: "executeAirdrop" | "puppets"): FunctionFragment;
+  getFunction(
+    nameOrSignature:
+      | "airDropSingle"
+      | "airDropTwoForOne"
+      | "executeAirdrop"
+      | "puppets"
+  ): FunctionFragment;
 
   encodeFunctionData(
+    functionFragment: "airDropSingle",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "airDropTwoForOne",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "executeAirdrop",
-    values: [AddressLike[], BigNumberish[], BigNumberish]
+    values: [BigNumberish, AddressLike[], BigNumberish[]]
   ): string;
   encodeFunctionData(functionFragment: "puppets", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "airDropSingle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "airDropTwoForOne",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "executeAirdrop",
     data: BytesLike
@@ -80,11 +102,23 @@ export interface PuppetDropper extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  airDropSingle: TypedContractMethod<
+    [recipient: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  airDropTwoForOne: TypedContractMethod<
+    [startTokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   executeAirdrop: TypedContractMethod<
     [
-      recipients: AddressLike[],
-      numToDrop: BigNumberish[],
-      startTokenId: BigNumberish
+      startTokenId: BigNumberish,
+      presaleAddresses: AddressLike[],
+      preSaleNumToDrop: BigNumberish[]
     ],
     [void],
     "nonpayable"
@@ -97,12 +131,22 @@ export interface PuppetDropper extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "airDropSingle"
+  ): TypedContractMethod<
+    [recipient: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "airDropTwoForOne"
+  ): TypedContractMethod<[startTokenId: BigNumberish], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "executeAirdrop"
   ): TypedContractMethod<
     [
-      recipients: AddressLike[],
-      numToDrop: BigNumberish[],
-      startTokenId: BigNumberish
+      startTokenId: BigNumberish,
+      presaleAddresses: AddressLike[],
+      preSaleNumToDrop: BigNumberish[]
     ],
     [void],
     "nonpayable"

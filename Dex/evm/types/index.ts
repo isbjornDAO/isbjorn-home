@@ -138,6 +138,8 @@ export type { PuppetMinter } from "./contracts/PostPuppetMint/PuppetMinter";
 export { PuppetMinter__factory } from "./factories/contracts/PostPuppetMint/PuppetMinter__factory";
 export type { PuppetMinterFactory } from "./contracts/PostPuppetMint/PuppetMinterFactory";
 export { PuppetMinterFactory__factory } from "./factories/contracts/PostPuppetMint/PuppetMinterFactory__factory";
+export type { PuppetClaim } from "./contracts/PuppetClaim/PuppetClaim";
+export { PuppetClaim__factory } from "./factories/contracts/PuppetClaim/PuppetClaim__factory";
 export type { ERC165 } from "./contracts/Puppets/ERC165";
 export { ERC165__factory } from "./factories/contracts/Puppets/ERC165__factory";
 export type { ERC2981 } from "./contracts/Puppets/ERC2981";

@@ -26,23 +26,19 @@ import type {
 export interface PuppetMinterFactoryInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "buyerImplementation"
       | "deployBuyers"
       | "mintLimit"
       | "nftContract"
       | "owner"
       | "receiverAddress"
       | "renounceOwnership"
+      | "rescuePuppet"
       | "setReceiverAddress"
       | "transferOwnership"
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "buyerImplementation",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "deployBuyers",
     values: [BigNumberish]
@@ -62,6 +58,10 @@ export interface PuppetMinterFactoryInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "rescuePuppet",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setReceiverAddress",
     values: [AddressLike]
   ): string;
@@ -70,10 +70,6 @@ export interface PuppetMinterFactoryInterface extends Interface {
     values: [AddressLike]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "buyerImplementation",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "deployBuyers",
     data: BytesLike
@@ -90,6 +86,10 @@ export interface PuppetMinterFactoryInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "rescuePuppet",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -158,8 +158,6 @@ export interface PuppetMinterFactory extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  buyerImplementation: TypedContractMethod<[], [string], "view">;
-
   deployBuyers: TypedContractMethod<
     [count: BigNumberish],
     [void],
@@ -175,6 +173,12 @@ export interface PuppetMinterFactory extends BaseContract {
   receiverAddress: TypedContractMethod<[], [string], "view">;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  rescuePuppet: TypedContractMethod<
+    [puppetMinter: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   setReceiverAddress: TypedContractMethod<
     [_receiverAddress: AddressLike],
@@ -193,9 +197,6 @@ export interface PuppetMinterFactory extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "buyerImplementation"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "deployBuyers"
   ): TypedContractMethod<[count: BigNumberish], [void], "nonpayable">;
   getFunction(
@@ -213,6 +214,13 @@ export interface PuppetMinterFactory extends BaseContract {
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "rescuePuppet"
+  ): TypedContractMethod<
+    [puppetMinter: AddressLike, tokenId: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "setReceiverAddress"
   ): TypedContractMethod<[_receiverAddress: AddressLike], [void], "nonpayable">;
