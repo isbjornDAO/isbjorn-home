@@ -15,3 +15,5 @@ import type * as puppets from "./Puppets";
 export type { puppets };
 import type * as test from "./test";
 export type { test };
+import type * as veIggy from "./veIGGY";
+export type { veIggy };

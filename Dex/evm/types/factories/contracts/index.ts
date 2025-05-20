@@ -8,3 +8,4 @@ export * as postPuppetMint from "./PostPuppetMint";
 export * as puppetClaim from "./PuppetClaim";
 export * as puppets from "./Puppets";
 export * as test from "./test";
+export * as veIggy from "./veIGGY";

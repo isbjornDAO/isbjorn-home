@@ -26,49 +26,18 @@ import type {
 export interface IsbjornInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "WAVAX"
       | "allowance"
       | "approve"
       | "balanceOf"
-      | "burnBasisPoints"
-      | "buyTax"
-      | "daoBasisPoints"
-      | "daoRecipientAddress"
+      | "daoAddress"
       | "decimals"
       | "decreaseAllowance"
-      | "distributor"
-      | "distributorAddress"
-      | "distributorGas"
-      | "excludeFromFee"
-      | "icePondPair"
-      | "iggyBurned"
-      | "iggySentToDao"
       | "increaseAllowance"
-      | "isAutomatedMarketMakerPairs"
-      | "isExcludedFromFee"
-      | "isbjornRouter"
-      | "joePair"
-      | "joeRouter"
-      | "liquidityBasisPoints"
       | "name"
       | "owner"
-      | "quasi"
-      | "quasiIsbjornLiquidity"
-      | "quasiLPRewarded"
-      | "reflectionBasisPoints"
       | "revokeOwnership"
-      | "sellTax"
-      | "setAutomatedMarketMakerPair"
-      | "setDaoRecipientAddress"
-      | "setDistributionCriteria"
-      | "setDistributorGas"
-      | "setIsDividendExempt"
-      | "setSwapTokensAtAmount"
-      | "setTax"
-      | "setWeights"
-      | "swapTokensAtAmount"
+      | "setDaoAddress"
       | "symbol"
-      | "taxesFeeTotal"
       | "totalSupply"
       | "transfer"
       | "transferFrom"
@@ -76,19 +45,9 @@ export interface IsbjornInterface extends Interface {
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic:
-      | "AccountExcludeFromFee"
-      | "Approval"
-      | "AutomatedMarketMakerPairUpdated"
-      | "DaoRecipientAddressUpdated"
-      | "OwnershipTransferred"
-      | "SwapTokensAmountUpdated"
-      | "TaxAllocationUpdated"
-      | "TaxUpdated"
-      | "Transfer"
+    nameOrSignatureOrTopic: "Approval" | "OwnershipTransferred" | "Transfer"
   ): EventFragment;
 
-  encodeFunctionData(functionFragment: "WAVAX", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "allowance",
     values: [AddressLike, AddressLike]
@@ -102,16 +61,7 @@ export interface IsbjornInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "burnBasisPoints",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "buyTax", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "daoBasisPoints",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "daoRecipientAddress",
+    functionFragment: "daoAddress",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
@@ -120,116 +70,20 @@ export interface IsbjornInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "distributor",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "distributorAddress",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "distributorGas",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "excludeFromFee",
-    values: [AddressLike, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "icePondPair",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "iggyBurned",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "iggySentToDao",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "increaseAllowance",
     values: [AddressLike, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isAutomatedMarketMakerPairs",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isExcludedFromFee",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isbjornRouter",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "joePair", values?: undefined): string;
-  encodeFunctionData(functionFragment: "joeRouter", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "liquidityBasisPoints",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "quasi", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "quasiIsbjornLiquidity",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "quasiLPRewarded",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reflectionBasisPoints",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "revokeOwnership",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "sellTax", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "setAutomatedMarketMakerPair",
-    values: [AddressLike, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setDaoRecipientAddress",
+    functionFragment: "setDaoAddress",
     values: [AddressLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setDistributionCriteria",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setDistributorGas",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setIsDividendExempt",
-    values: [AddressLike, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSwapTokensAtAmount",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTax",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setWeights",
-    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "swapTokensAtAmount",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "taxesFeeTotal",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
@@ -247,130 +101,30 @@ export interface IsbjornInterface extends Interface {
     values: [AddressLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "WAVAX", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "burnBasisPoints",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "buyTax", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "daoBasisPoints",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "daoRecipientAddress",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "daoAddress", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "distributor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "distributorAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "distributorGas",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "excludeFromFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "icePondPair",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "iggyBurned", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "iggySentToDao",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "increaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isAutomatedMarketMakerPairs",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isExcludedFromFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isbjornRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "joePair", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "joeRouter", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "liquidityBasisPoints",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "quasi", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "quasiIsbjornLiquidity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "quasiLPRewarded",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "reflectionBasisPoints",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "revokeOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "sellTax", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setAutomatedMarketMakerPair",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDaoRecipientAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDistributionCriteria",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDistributorGas",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setIsDividendExempt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSwapTokensAtAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setTax", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setWeights", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "swapTokensAtAmount",
+    functionFragment: "setDaoAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "taxesFeeTotal",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -384,19 +138,6 @@ export interface IsbjornInterface extends Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
-}
-
-export namespace AccountExcludeFromFeeEvent {
-  export type InputTuple = [account: AddressLike, status: boolean];
-  export type OutputTuple = [account: string, status: boolean];
-  export interface OutputObject {
-    account: string;
-    status: boolean;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace ApprovalEvent {
@@ -417,87 +158,12 @@ export namespace ApprovalEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace AutomatedMarketMakerPairUpdatedEvent {
-  export type InputTuple = [pair: AddressLike, value: boolean];
-  export type OutputTuple = [pair: string, value: boolean];
-  export interface OutputObject {
-    pair: string;
-    value: boolean;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace DaoRecipientAddressUpdatedEvent {
-  export type InputTuple = [newDaoAddress: AddressLike];
-  export type OutputTuple = [newDaoAddress: string];
-  export interface OutputObject {
-    newDaoAddress: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace OwnershipTransferredEvent {
   export type InputTuple = [user: AddressLike, newOwner: AddressLike];
   export type OutputTuple = [user: string, newOwner: string];
   export interface OutputObject {
     user: string;
     newOwner: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace SwapTokensAmountUpdatedEvent {
-  export type InputTuple = [amount: BigNumberish];
-  export type OutputTuple = [amount: bigint];
-  export interface OutputObject {
-    amount: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace TaxAllocationUpdatedEvent {
-  export type InputTuple = [
-    liquidityBasisPoints: BigNumberish,
-    reflectionBasisPoints: BigNumberish,
-    daoBasisPoints: BigNumberish,
-    burnBasisPoints: BigNumberish
-  ];
-  export type OutputTuple = [
-    liquidityBasisPoints: bigint,
-    reflectionBasisPoints: bigint,
-    daoBasisPoints: bigint,
-    burnBasisPoints: bigint
-  ];
-  export interface OutputObject {
-    liquidityBasisPoints: bigint;
-    reflectionBasisPoints: bigint;
-    daoBasisPoints: bigint;
-    burnBasisPoints: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace TaxUpdatedEvent {
-  export type InputTuple = [buyTax: BigNumberish, sellTax: BigNumberish];
-  export type OutputTuple = [buyTax: bigint, sellTax: bigint];
-  export interface OutputObject {
-    buyTax: bigint;
-    sellTax: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -566,8 +232,6 @@ export interface Isbjorn extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  WAVAX: TypedContractMethod<[], [string], "view">;
-
   allowance: TypedContractMethod<
     [owner: AddressLike, spender: AddressLike],
     [bigint],
@@ -582,13 +246,7 @@ export interface Isbjorn extends BaseContract {
 
   balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
 
-  burnBasisPoints: TypedContractMethod<[], [bigint], "view">;
-
-  buyTax: TypedContractMethod<[], [bigint], "view">;
-
-  daoBasisPoints: TypedContractMethod<[], [bigint], "view">;
-
-  daoRecipientAddress: TypedContractMethod<[], [string], "view">;
+  daoAddress: TypedContractMethod<[], [string], "view">;
 
   decimals: TypedContractMethod<[], [bigint], "view">;
 
@@ -598,124 +256,25 @@ export interface Isbjorn extends BaseContract {
     "nonpayable"
   >;
 
-  distributor: TypedContractMethod<[], [string], "view">;
-
-  distributorAddress: TypedContractMethod<[], [string], "view">;
-
-  distributorGas: TypedContractMethod<[], [bigint], "view">;
-
-  excludeFromFee: TypedContractMethod<
-    [account: AddressLike, status: boolean],
-    [void],
-    "nonpayable"
-  >;
-
-  icePondPair: TypedContractMethod<[], [string], "view">;
-
-  iggyBurned: TypedContractMethod<[], [bigint], "view">;
-
-  iggySentToDao: TypedContractMethod<[], [bigint], "view">;
-
   increaseAllowance: TypedContractMethod<
     [spender: AddressLike, addedValue: BigNumberish],
     [boolean],
     "nonpayable"
   >;
 
-  isAutomatedMarketMakerPairs: TypedContractMethod<
-    [arg0: AddressLike],
-    [boolean],
-    "view"
-  >;
-
-  isExcludedFromFee: TypedContractMethod<
-    [arg0: AddressLike],
-    [boolean],
-    "view"
-  >;
-
-  isbjornRouter: TypedContractMethod<[], [string], "view">;
-
-  joePair: TypedContractMethod<[], [string], "view">;
-
-  joeRouter: TypedContractMethod<[], [string], "view">;
-
-  liquidityBasisPoints: TypedContractMethod<[], [bigint], "view">;
-
   name: TypedContractMethod<[], [string], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
 
-  quasi: TypedContractMethod<[], [string], "view">;
-
-  quasiIsbjornLiquidity: TypedContractMethod<[], [string], "view">;
-
-  quasiLPRewarded: TypedContractMethod<[], [bigint], "view">;
-
-  reflectionBasisPoints: TypedContractMethod<[], [bigint], "view">;
-
   revokeOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  sellTax: TypedContractMethod<[], [bigint], "view">;
-
-  setAutomatedMarketMakerPair: TypedContractMethod<
-    [pair: AddressLike, value: boolean],
+  setDaoAddress: TypedContractMethod<
+    [newAddress: AddressLike],
     [void],
     "nonpayable"
   >;
-
-  setDaoRecipientAddress: TypedContractMethod<
-    [newRecipient: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  setDistributionCriteria: TypedContractMethod<
-    [minPeriod: BigNumberish, minDistribution: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  setDistributorGas: TypedContractMethod<
-    [gas: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  setIsDividendExempt: TypedContractMethod<
-    [holder: AddressLike, status: boolean],
-    [void],
-    "nonpayable"
-  >;
-
-  setSwapTokensAtAmount: TypedContractMethod<
-    [amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  setTax: TypedContractMethod<
-    [newBuyTax: BigNumberish, newSellTax: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  setWeights: TypedContractMethod<
-    [
-      liqBp: BigNumberish,
-      reflectBp: BigNumberish,
-      daoBp: BigNumberish,
-      burnBp: BigNumberish
-    ],
-    [void],
-    "nonpayable"
-  >;
-
-  swapTokensAtAmount: TypedContractMethod<[], [bigint], "view">;
 
   symbol: TypedContractMethod<[], [string], "view">;
-
-  taxesFeeTotal: TypedContractMethod<[], [bigint], "view">;
 
   totalSupply: TypedContractMethod<[], [bigint], "view">;
 
@@ -742,9 +301,6 @@ export interface Isbjorn extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "WAVAX"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "allowance"
   ): TypedContractMethod<
     [owner: AddressLike, spender: AddressLike],
@@ -762,16 +318,7 @@ export interface Isbjorn extends BaseContract {
     nameOrSignature: "balanceOf"
   ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "burnBasisPoints"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "buyTax"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "daoBasisPoints"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "daoRecipientAddress"
+    nameOrSignature: "daoAddress"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "decimals"
@@ -784,31 +331,6 @@ export interface Isbjorn extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "distributor"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "distributorAddress"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "distributorGas"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "excludeFromFee"
-  ): TypedContractMethod<
-    [account: AddressLike, status: boolean],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "icePondPair"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "iggyBurned"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "iggySentToDao"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "increaseAllowance"
   ): TypedContractMethod<
     [spender: AddressLike, addedValue: BigNumberish],
@@ -816,105 +338,20 @@ export interface Isbjorn extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "isAutomatedMarketMakerPairs"
-  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "isExcludedFromFee"
-  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "isbjornRouter"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "joePair"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "joeRouter"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "liquidityBasisPoints"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "quasi"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "quasiIsbjornLiquidity"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "quasiLPRewarded"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "reflectionBasisPoints"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "revokeOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "sellTax"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "setAutomatedMarketMakerPair"
-  ): TypedContractMethod<
-    [pair: AddressLike, value: boolean],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "setDaoRecipientAddress"
-  ): TypedContractMethod<[newRecipient: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setDistributionCriteria"
-  ): TypedContractMethod<
-    [minPeriod: BigNumberish, minDistribution: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "setDistributorGas"
-  ): TypedContractMethod<[gas: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setIsDividendExempt"
-  ): TypedContractMethod<
-    [holder: AddressLike, status: boolean],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "setSwapTokensAtAmount"
-  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setTax"
-  ): TypedContractMethod<
-    [newBuyTax: BigNumberish, newSellTax: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "setWeights"
-  ): TypedContractMethod<
-    [
-      liqBp: BigNumberish,
-      reflectBp: BigNumberish,
-      daoBp: BigNumberish,
-      burnBp: BigNumberish
-    ],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "swapTokensAtAmount"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: "setDaoAddress"
+  ): TypedContractMethod<[newAddress: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "symbol"
   ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "taxesFeeTotal"
-  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "totalSupply"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -937,13 +374,6 @@ export interface Isbjorn extends BaseContract {
   ): TypedContractMethod<[_owner: AddressLike], [void], "nonpayable">;
 
   getEvent(
-    key: "AccountExcludeFromFee"
-  ): TypedContractEvent<
-    AccountExcludeFromFeeEvent.InputTuple,
-    AccountExcludeFromFeeEvent.OutputTuple,
-    AccountExcludeFromFeeEvent.OutputObject
-  >;
-  getEvent(
     key: "Approval"
   ): TypedContractEvent<
     ApprovalEvent.InputTuple,
@@ -951,46 +381,11 @@ export interface Isbjorn extends BaseContract {
     ApprovalEvent.OutputObject
   >;
   getEvent(
-    key: "AutomatedMarketMakerPairUpdated"
-  ): TypedContractEvent<
-    AutomatedMarketMakerPairUpdatedEvent.InputTuple,
-    AutomatedMarketMakerPairUpdatedEvent.OutputTuple,
-    AutomatedMarketMakerPairUpdatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "DaoRecipientAddressUpdated"
-  ): TypedContractEvent<
-    DaoRecipientAddressUpdatedEvent.InputTuple,
-    DaoRecipientAddressUpdatedEvent.OutputTuple,
-    DaoRecipientAddressUpdatedEvent.OutputObject
-  >;
-  getEvent(
     key: "OwnershipTransferred"
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
-  >;
-  getEvent(
-    key: "SwapTokensAmountUpdated"
-  ): TypedContractEvent<
-    SwapTokensAmountUpdatedEvent.InputTuple,
-    SwapTokensAmountUpdatedEvent.OutputTuple,
-    SwapTokensAmountUpdatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "TaxAllocationUpdated"
-  ): TypedContractEvent<
-    TaxAllocationUpdatedEvent.InputTuple,
-    TaxAllocationUpdatedEvent.OutputTuple,
-    TaxAllocationUpdatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "TaxUpdated"
-  ): TypedContractEvent<
-    TaxUpdatedEvent.InputTuple,
-    TaxUpdatedEvent.OutputTuple,
-    TaxUpdatedEvent.OutputObject
   >;
   getEvent(
     key: "Transfer"
@@ -1001,17 +396,6 @@ export interface Isbjorn extends BaseContract {
   >;
 
   filters: {
-    "AccountExcludeFromFee(address,bool)": TypedContractEvent<
-      AccountExcludeFromFeeEvent.InputTuple,
-      AccountExcludeFromFeeEvent.OutputTuple,
-      AccountExcludeFromFeeEvent.OutputObject
-    >;
-    AccountExcludeFromFee: TypedContractEvent<
-      AccountExcludeFromFeeEvent.InputTuple,
-      AccountExcludeFromFeeEvent.OutputTuple,
-      AccountExcludeFromFeeEvent.OutputObject
-    >;
-
     "Approval(address,address,uint256)": TypedContractEvent<
       ApprovalEvent.InputTuple,
       ApprovalEvent.OutputTuple,
@@ -1023,28 +407,6 @@ export interface Isbjorn extends BaseContract {
       ApprovalEvent.OutputObject
     >;
 
-    "AutomatedMarketMakerPairUpdated(address,bool)": TypedContractEvent<
-      AutomatedMarketMakerPairUpdatedEvent.InputTuple,
-      AutomatedMarketMakerPairUpdatedEvent.OutputTuple,
-      AutomatedMarketMakerPairUpdatedEvent.OutputObject
-    >;
-    AutomatedMarketMakerPairUpdated: TypedContractEvent<
-      AutomatedMarketMakerPairUpdatedEvent.InputTuple,
-      AutomatedMarketMakerPairUpdatedEvent.OutputTuple,
-      AutomatedMarketMakerPairUpdatedEvent.OutputObject
-    >;
-
-    "DaoRecipientAddressUpdated(address)": TypedContractEvent<
-      DaoRecipientAddressUpdatedEvent.InputTuple,
-      DaoRecipientAddressUpdatedEvent.OutputTuple,
-      DaoRecipientAddressUpdatedEvent.OutputObject
-    >;
-    DaoRecipientAddressUpdated: TypedContractEvent<
-      DaoRecipientAddressUpdatedEvent.InputTuple,
-      DaoRecipientAddressUpdatedEvent.OutputTuple,
-      DaoRecipientAddressUpdatedEvent.OutputObject
-    >;
-
     "OwnershipTransferred(address,address)": TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
@@ -1054,39 +416,6 @@ export interface Isbjorn extends BaseContract {
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
-    >;
-
-    "SwapTokensAmountUpdated(uint256)": TypedContractEvent<
-      SwapTokensAmountUpdatedEvent.InputTuple,
-      SwapTokensAmountUpdatedEvent.OutputTuple,
-      SwapTokensAmountUpdatedEvent.OutputObject
-    >;
-    SwapTokensAmountUpdated: TypedContractEvent<
-      SwapTokensAmountUpdatedEvent.InputTuple,
-      SwapTokensAmountUpdatedEvent.OutputTuple,
-      SwapTokensAmountUpdatedEvent.OutputObject
-    >;
-
-    "TaxAllocationUpdated(uint32,uint32,uint32,uint32)": TypedContractEvent<
-      TaxAllocationUpdatedEvent.InputTuple,
-      TaxAllocationUpdatedEvent.OutputTuple,
-      TaxAllocationUpdatedEvent.OutputObject
-    >;
-    TaxAllocationUpdated: TypedContractEvent<
-      TaxAllocationUpdatedEvent.InputTuple,
-      TaxAllocationUpdatedEvent.OutputTuple,
-      TaxAllocationUpdatedEvent.OutputObject
-    >;
-
-    "TaxUpdated(uint32,uint32)": TypedContractEvent<
-      TaxUpdatedEvent.InputTuple,
-      TaxUpdatedEvent.OutputTuple,
-      TaxUpdatedEvent.OutputObject
-    >;
-    TaxUpdated: TypedContractEvent<
-      TaxUpdatedEvent.InputTuple,
-      TaxUpdatedEvent.OutputTuple,
-      TaxUpdatedEvent.OutputObject
     >;
 
     "Transfer(address,address,uint256)": TypedContractEvent<

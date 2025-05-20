@@ -38,6 +38,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "ReentrancyGuard",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReentrancyGuard__factory>;
+    getContractFactory(
       name: "AchievementTracker",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AchievementTracker__factory>;
@@ -86,17 +90,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IIsbjornRouter02__factory>;
     getContractFactory(
-      name: "IsbjornLPStaking",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IsbjornLPStaking__factory>;
-    getContractFactory(
       name: "IsbjornRouter02",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IsbjornRouter02__factory>;
-    getContractFactory(
-      name: "IsbjornStaking",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IsbjornStaking__factory>;
     getContractFactory(
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -110,14 +106,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SoulboundAchievments__factory>;
     getContractFactory(
-      name: "Distributor",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Distributor__factory>;
-    getContractFactory(
-      name: "IDistributor",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IDistributor__factory>;
-    getContractFactory(
       name: "ERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
@@ -129,78 +117,6 @@ declare module "hardhat/types/runtime" {
       name: "IERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
-    getContractFactory(
-      name: "IIcePondFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IIcePondFactory__factory>;
-    getContractFactory(
-      name: "IIsbjorn2Router",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IIsbjorn2Router__factory>;
-    getContractFactory(
-      name: "IIsbjornRouter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IIsbjornRouter__factory>;
-    getContractFactory(
-      name: "IERC165",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC165__factory>;
-    getContractFactory(
-      name: "IJoe2Router",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IJoe2Router__factory>;
-    getContractFactory(
-      name: "IJoeFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IJoeFactory__factory>;
-    getContractFactory(
-      name: "IJoeRouter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IJoeRouter__factory>;
-    getContractFactory(
-      name: "ILBFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBFactory__factory>;
-    getContractFactory(
-      name: "ILBFlashLoanCallback",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBFlashLoanCallback__factory>;
-    getContractFactory(
-      name: "ILBLegacyFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBLegacyFactory__factory>;
-    getContractFactory(
-      name: "ILBLegacyPair",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBLegacyPair__factory>;
-    getContractFactory(
-      name: "ILBLegacyRouter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBLegacyRouter__factory>;
-    getContractFactory(
-      name: "ILBLegacyToken",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBLegacyToken__factory>;
-    getContractFactory(
-      name: "ILBPair",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBPair__factory>;
-    getContractFactory(
-      name: "ILBRouter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBRouter__factory>;
-    getContractFactory(
-      name: "ILBToken",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ILBToken__factory>;
-    getContractFactory(
-      name: "IPendingOwnable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IPendingOwnable__factory>;
-    getContractFactory(
-      name: "IWNATIVE",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IWNATIVE__factory>;
     getContractFactory(
       name: "Isbjorn",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -289,18 +205,6 @@ declare module "hardhat/types/runtime" {
       name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
-    getContractFactory(
-      name: "Clones",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Clones__factory>;
-    getContractFactory(
-      name: "Create2",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Create2__factory>;
-    getContractFactory(
-      name: "Errors",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Errors__factory>;
     getContractFactory(
       name: "IERC165",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -433,6 +337,10 @@ declare module "hardhat/types/runtime" {
       name: "WAVAXMock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.WAVAXMock__factory>;
+    getContractFactory(
+      name: "VeERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VeERC20__factory>;
 
     getContractAt(
       name: "IERC1155Errors",
@@ -464,6 +372,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
+    getContractAt(
+      name: "ReentrancyGuard",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReentrancyGuard>;
     getContractAt(
       name: "AchievementTracker",
       address: string | ethers.Addressable,
@@ -525,20 +438,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IIsbjornRouter02>;
     getContractAt(
-      name: "IsbjornLPStaking",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IsbjornLPStaking>;
-    getContractAt(
       name: "IsbjornRouter02",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IsbjornRouter02>;
-    getContractAt(
-      name: "IsbjornStaking",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IsbjornStaking>;
     getContractAt(
       name: "IWAVAX",
       address: string | ethers.Addressable,
@@ -555,16 +458,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.SoulboundAchievments>;
     getContractAt(
-      name: "Distributor",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Distributor>;
-    getContractAt(
-      name: "IDistributor",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IDistributor>;
-    getContractAt(
       name: "ERC20",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -579,96 +472,6 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
-    getContractAt(
-      name: "IIcePondFactory",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IIcePondFactory>;
-    getContractAt(
-      name: "IIsbjorn2Router",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IIsbjorn2Router>;
-    getContractAt(
-      name: "IIsbjornRouter",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IIsbjornRouter>;
-    getContractAt(
-      name: "IERC165",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC165>;
-    getContractAt(
-      name: "IJoe2Router",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IJoe2Router>;
-    getContractAt(
-      name: "IJoeFactory",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IJoeFactory>;
-    getContractAt(
-      name: "IJoeRouter",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IJoeRouter>;
-    getContractAt(
-      name: "ILBFactory",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBFactory>;
-    getContractAt(
-      name: "ILBFlashLoanCallback",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBFlashLoanCallback>;
-    getContractAt(
-      name: "ILBLegacyFactory",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBLegacyFactory>;
-    getContractAt(
-      name: "ILBLegacyPair",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBLegacyPair>;
-    getContractAt(
-      name: "ILBLegacyRouter",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBLegacyRouter>;
-    getContractAt(
-      name: "ILBLegacyToken",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBLegacyToken>;
-    getContractAt(
-      name: "ILBPair",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBPair>;
-    getContractAt(
-      name: "ILBRouter",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBRouter>;
-    getContractAt(
-      name: "ILBToken",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ILBToken>;
-    getContractAt(
-      name: "IPendingOwnable",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IPendingOwnable>;
-    getContractAt(
-      name: "IWNATIVE",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IWNATIVE>;
     getContractAt(
       name: "Isbjorn",
       address: string | ethers.Addressable,
@@ -779,21 +582,6 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.Ownable>;
-    getContractAt(
-      name: "Clones",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Clones>;
-    getContractAt(
-      name: "Create2",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Create2>;
-    getContractAt(
-      name: "Errors",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Errors>;
     getContractAt(
       name: "IERC165",
       address: string | ethers.Addressable,
@@ -959,6 +747,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.WAVAXMock>;
+    getContractAt(
+      name: "VeERC20",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VeERC20>;
 
     deployContract(
       name: "IERC1155Errors",
@@ -984,6 +777,10 @@ declare module "hardhat/types/runtime" {
       name: "IERC20",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
+    deployContract(
+      name: "ReentrancyGuard",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ReentrancyGuard>;
     deployContract(
       name: "AchievementTracker",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1033,17 +830,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IIsbjornRouter02>;
     deployContract(
-      name: "IsbjornLPStaking",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IsbjornLPStaking>;
-    deployContract(
       name: "IsbjornRouter02",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IsbjornRouter02>;
-    deployContract(
-      name: "IsbjornStaking",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IsbjornStaking>;
     deployContract(
       name: "IWAVAX",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1057,14 +846,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SoulboundAchievments>;
     deployContract(
-      name: "Distributor",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Distributor>;
-    deployContract(
-      name: "IDistributor",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IDistributor>;
-    deployContract(
       name: "ERC20",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ERC20>;
@@ -1076,78 +857,6 @@ declare module "hardhat/types/runtime" {
       name: "IERC20",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
-    deployContract(
-      name: "IIcePondFactory",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IIcePondFactory>;
-    deployContract(
-      name: "IIsbjorn2Router",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IIsbjorn2Router>;
-    deployContract(
-      name: "IIsbjornRouter",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IIsbjornRouter>;
-    deployContract(
-      name: "IERC165",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IERC165>;
-    deployContract(
-      name: "IJoe2Router",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IJoe2Router>;
-    deployContract(
-      name: "IJoeFactory",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IJoeFactory>;
-    deployContract(
-      name: "IJoeRouter",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IJoeRouter>;
-    deployContract(
-      name: "ILBFactory",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBFactory>;
-    deployContract(
-      name: "ILBFlashLoanCallback",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBFlashLoanCallback>;
-    deployContract(
-      name: "ILBLegacyFactory",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBLegacyFactory>;
-    deployContract(
-      name: "ILBLegacyPair",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBLegacyPair>;
-    deployContract(
-      name: "ILBLegacyRouter",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBLegacyRouter>;
-    deployContract(
-      name: "ILBLegacyToken",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBLegacyToken>;
-    deployContract(
-      name: "ILBPair",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBPair>;
-    deployContract(
-      name: "ILBRouter",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBRouter>;
-    deployContract(
-      name: "ILBToken",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBToken>;
-    deployContract(
-      name: "IPendingOwnable",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IPendingOwnable>;
-    deployContract(
-      name: "IWNATIVE",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IWNATIVE>;
     deployContract(
       name: "Isbjorn",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1236,18 +945,6 @@ declare module "hardhat/types/runtime" {
       name: "Ownable",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Ownable>;
-    deployContract(
-      name: "Clones",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Clones>;
-    deployContract(
-      name: "Create2",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Create2>;
-    deployContract(
-      name: "Errors",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Errors>;
     deployContract(
       name: "IERC165",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1380,6 +1077,10 @@ declare module "hardhat/types/runtime" {
       name: "WAVAXMock",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.WAVAXMock>;
+    deployContract(
+      name: "VeERC20",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.VeERC20>;
 
     deployContract(
       name: "IERC1155Errors",
@@ -1411,6 +1112,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
+    deployContract(
+      name: "ReentrancyGuard",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ReentrancyGuard>;
     deployContract(
       name: "AchievementTracker",
       args: any[],
@@ -1472,20 +1178,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IIsbjornRouter02>;
     deployContract(
-      name: "IsbjornLPStaking",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IsbjornLPStaking>;
-    deployContract(
       name: "IsbjornRouter02",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IsbjornRouter02>;
-    deployContract(
-      name: "IsbjornStaking",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IsbjornStaking>;
     deployContract(
       name: "IWAVAX",
       args: any[],
@@ -1502,16 +1198,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.SoulboundAchievments>;
     deployContract(
-      name: "Distributor",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Distributor>;
-    deployContract(
-      name: "IDistributor",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IDistributor>;
-    deployContract(
       name: "ERC20",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1526,96 +1212,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
-    deployContract(
-      name: "IIcePondFactory",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IIcePondFactory>;
-    deployContract(
-      name: "IIsbjorn2Router",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IIsbjorn2Router>;
-    deployContract(
-      name: "IIsbjornRouter",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IIsbjornRouter>;
-    deployContract(
-      name: "IERC165",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IERC165>;
-    deployContract(
-      name: "IJoe2Router",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IJoe2Router>;
-    deployContract(
-      name: "IJoeFactory",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IJoeFactory>;
-    deployContract(
-      name: "IJoeRouter",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IJoeRouter>;
-    deployContract(
-      name: "ILBFactory",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBFactory>;
-    deployContract(
-      name: "ILBFlashLoanCallback",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBFlashLoanCallback>;
-    deployContract(
-      name: "ILBLegacyFactory",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBLegacyFactory>;
-    deployContract(
-      name: "ILBLegacyPair",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBLegacyPair>;
-    deployContract(
-      name: "ILBLegacyRouter",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBLegacyRouter>;
-    deployContract(
-      name: "ILBLegacyToken",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBLegacyToken>;
-    deployContract(
-      name: "ILBPair",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBPair>;
-    deployContract(
-      name: "ILBRouter",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBRouter>;
-    deployContract(
-      name: "ILBToken",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.ILBToken>;
-    deployContract(
-      name: "IPendingOwnable",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IPendingOwnable>;
-    deployContract(
-      name: "IWNATIVE",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IWNATIVE>;
     deployContract(
       name: "Isbjorn",
       args: any[],
@@ -1726,21 +1322,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Ownable>;
-    deployContract(
-      name: "Clones",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Clones>;
-    deployContract(
-      name: "Create2",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Create2>;
-    deployContract(
-      name: "Errors",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Errors>;
     deployContract(
       name: "IERC165",
       args: any[],
@@ -1906,6 +1487,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.WAVAXMock>;
+    deployContract(
+      name: "VeERC20",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.VeERC20>;
 
     // default types
     getContractFactory(

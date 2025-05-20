@@ -1,0 +1,805 @@
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity =0.6.12;
+
+import "./IIsbjornRouter02.sol";
+import "./SafeMath.sol";
+import "./IIcePondFactory.sol";
+import "./IsbjornLibrary.sol";
+import "./TransferHelper.sol";
+import "./IWAVAX.sol";
+import "./IERC20.sol";
+import "./Ownable.sol";
+import "./IAchievementTracker.sol";
+
+import "hardhat/console.sol";
+
+contract IsbjornRouter02 is IIsbjornRouter02, Ownable {
+    using SafeMath for uint256;
+
+    address public immutable override factory;
+    address public immutable override WAVAX;
+
+    address public achievementTracker;
+
+    modifier ensure(uint256 deadline) {
+        require(deadline >= block.timestamp, "IsbjornRouter: EXPIRED");
+        _;
+    }
+
+    constructor(address _factory, address _WAVAX) public Ownable(msg.sender) {
+        factory = _factory;
+        WAVAX = _WAVAX;
+    }
+
+    function setAchievementTrackerAddress(
+        address _achievementTracker
+    ) external onlyOwner {
+        achievementTracker = _achievementTracker;
+    }
+
+    receive() external payable {
+        assert(msg.sender == WAVAX); // only accept AVAX via fallback from the WAVAX contract
+    }
+
+    // **** ADD LIQUIDITY ****
+    function _addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint256 amountADesired,
+        uint256 amountBDesired,
+        uint256 amountAMin,
+        uint256 amountBMin
+    ) internal virtual returns (uint256 amountA, uint256 amountB) {
+        // create the pair if it doesn't exist yet
+        if (IIcePondFactory(factory).getPair(tokenA, tokenB) == address(0)) {
+            IIcePondFactory(factory).createPair(tokenA, tokenB);
+        }
+        (uint256 reserveA, uint256 reserveB) = IsbjornLibrary.getReserves(
+            factory,
+            tokenA,
+            tokenB
+        );
+        if (reserveA == 0 && reserveB == 0) {
+            (amountA, amountB) = (amountADesired, amountBDesired);
+        } else {
+            uint256 amountBOptimal = IsbjornLibrary.quote(
+                amountADesired,
+                reserveA,
+                reserveB
+            );
+            if (amountBOptimal <= amountBDesired) {
+                require(
+                    amountBOptimal >= amountBMin,
+                    "IsbjornRouter: INSUFFICIENT_B_AMOUNT"
+                );
+                (amountA, amountB) = (amountADesired, amountBOptimal);
+            } else {
+                uint256 amountAOptimal = IsbjornLibrary.quote(
+                    amountBDesired,
+                    reserveB,
+                    reserveA
+                );
+                assert(amountAOptimal <= amountADesired);
+                require(
+                    amountAOptimal >= amountAMin,
+                    "IsbjornRouter: INSUFFICIENT_A_AMOUNT"
+                );
+                (amountA, amountB) = (amountAOptimal, amountBDesired);
+            }
+        }
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordAddLiquidity(
+                msg.sender,
+                tokenA,
+                tokenB,
+                amountA,
+                amountB
+            );
+        }
+    }
+
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint256 amountADesired,
+        uint256 amountBDesired,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline
+    )
+        external
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256 amountA, uint256 amountB, uint256 liquidity)
+    {
+        (amountA, amountB) = _addLiquidity(
+            tokenA,
+            tokenB,
+            amountADesired,
+            amountBDesired,
+            amountAMin,
+            amountBMin
+        );
+        address pair = IsbjornLibrary.pairFor(factory, tokenA, tokenB);
+        TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
+        TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
+        liquidity = IIcePond(pair).mint(to);
+    }
+
+    function addLiquidityAVAX(
+        address token,
+        uint256 amountTokenDesired,
+        uint256 amountTokenMin,
+        uint256 amountAVAXMin,
+        address to,
+        uint256 deadline
+    )
+        external
+        payable
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256 amountToken, uint256 amountAVAX, uint256 liquidity)
+    {
+        (amountToken, amountAVAX) = _addLiquidity(
+            token,
+            WAVAX,
+            amountTokenDesired,
+            msg.value,
+            amountTokenMin,
+            amountAVAXMin
+        );
+        address pair = IsbjornLibrary.pairFor(factory, token, WAVAX);
+        TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
+        IWAVAX(WAVAX).deposit{value: amountAVAX}();
+        assert(IWAVAX(WAVAX).transfer(pair, amountAVAX));
+        liquidity = IIcePond(pair).mint(to);
+        // refund dust eth, if any
+        if (msg.value > amountAVAX)
+            TransferHelper.safeTransferAVAX(msg.sender, msg.value - amountAVAX);
+    }
+
+    // **** REMOVE LIQUIDITY ****
+    function removeLiquidity(
+        address tokenA,
+        address tokenB,
+        uint256 liquidity,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline
+    )
+        public
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256 amountA, uint256 amountB)
+    {
+        address pair = IsbjornLibrary.pairFor(factory, tokenA, tokenB);
+        IIcePond(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        (uint256 amount0, uint256 amount1) = IIcePond(pair).burn(to);
+        {
+            (address token0, ) = IsbjornLibrary.sortTokens(tokenA, tokenB);
+            (amountA, amountB) = tokenA == token0
+                ? (amount0, amount1)
+                : (amount1, amount0);
+        }
+        require(amountA >= amountAMin, "IsbjornRouter: INSUFFICIENT_A_AMOUNT");
+        require(amountB >= amountBMin, "IsbjornRouter: INSUFFICIENT_B_AMOUNT");
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordRemoveLiquidity(
+                msg.sender,
+                tokenA,
+                tokenB,
+                amountA,
+                amountB
+            );
+        }
+    }
+
+    function removeLiquidityAVAX(
+        address token,
+        uint256 liquidity,
+        uint256 amountTokenMin,
+        uint256 amountAVAXMin,
+        address to,
+        uint256 deadline
+    )
+        public
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256 amountToken, uint256 amountAVAX)
+    {
+        (amountToken, amountAVAX) = removeLiquidity(
+            token,
+            WAVAX,
+            liquidity,
+            amountTokenMin,
+            amountAVAXMin,
+            address(this),
+            deadline
+        );
+        TransferHelper.safeTransfer(token, to, amountToken);
+        IWAVAX(WAVAX).withdraw(amountAVAX);
+        TransferHelper.safeTransferAVAX(to, amountAVAX);
+    }
+
+    function removeLiquidityWithPermit(
+        address tokenA,
+        address tokenB,
+        uint256 liquidity,
+        uint256 amountAMin,
+        uint256 amountBMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external virtual override returns (uint256 amountA, uint256 amountB) {
+        address pair = IsbjornLibrary.pairFor(factory, tokenA, tokenB);
+        uint256 value = approveMax ? uint256(-1) : liquidity;
+        IIcePond(pair).permit(
+            msg.sender,
+            address(this),
+            value,
+            deadline,
+            v,
+            r,
+            s
+        );
+        (amountA, amountB) = removeLiquidity(
+            tokenA,
+            tokenB,
+            liquidity,
+            amountAMin,
+            amountBMin,
+            to,
+            deadline
+        );
+    }
+
+    function removeLiquidityAVAXWithPermit(
+        address token,
+        uint256 liquidity,
+        uint256 amountTokenMin,
+        uint256 amountAVAXMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    )
+        external
+        virtual
+        override
+        returns (uint256 amountToken, uint256 amountAVAX)
+    {
+        address pair = IsbjornLibrary.pairFor(factory, token, WAVAX);
+        uint256 value = approveMax ? uint256(-1) : liquidity;
+        IIcePond(pair).permit(
+            msg.sender,
+            address(this),
+            value,
+            deadline,
+            v,
+            r,
+            s
+        );
+        (amountToken, amountAVAX) = removeLiquidityAVAX(
+            token,
+            liquidity,
+            amountTokenMin,
+            amountAVAXMin,
+            to,
+            deadline
+        );
+    }
+
+    // **** REMOVE LIQUIDITY (supporting fee-on-transfer tokens) ****
+    function removeLiquidityAVAXSupportingFeeOnTransferTokens(
+        address token,
+        uint256 liquidity,
+        uint256 amountTokenMin,
+        uint256 amountAVAXMin,
+        address to,
+        uint256 deadline
+    ) public virtual override ensure(deadline) returns (uint256 amountAVAX) {
+        (, amountAVAX) = removeLiquidity(
+            token,
+            WAVAX,
+            liquidity,
+            amountTokenMin,
+            amountAVAXMin,
+            address(this),
+            deadline
+        );
+        TransferHelper.safeTransfer(
+            token,
+            to,
+            IERC20(token).balanceOf(address(this))
+        );
+        IWAVAX(WAVAX).withdraw(amountAVAX);
+        TransferHelper.safeTransferAVAX(to, amountAVAX);
+    }
+
+    function removeLiquidityAVAXWithPermitSupportingFeeOnTransferTokens(
+        address token,
+        uint256 liquidity,
+        uint256 amountTokenMin,
+        uint256 amountAVAXMin,
+        address to,
+        uint256 deadline,
+        bool approveMax,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external virtual override returns (uint256 amountAVAX) {
+        address pair = IsbjornLibrary.pairFor(factory, token, WAVAX);
+        uint256 value = approveMax ? uint256(-1) : liquidity;
+        IIcePond(pair).permit(
+            msg.sender,
+            address(this),
+            value,
+            deadline,
+            v,
+            r,
+            s
+        );
+        amountAVAX = removeLiquidityAVAXSupportingFeeOnTransferTokens(
+            token,
+            liquidity,
+            amountTokenMin,
+            amountAVAXMin,
+            to,
+            deadline
+        );
+    }
+
+    // **** SWAP ****
+    // requires the initial amount to have already been sent to the first pair
+    function _swap(
+        uint256[] memory amounts,
+        address[] memory path,
+        address _to
+    ) internal virtual {
+        for (uint256 i; i < path.length - 1; i++) {
+            (address input, address output) = (path[i], path[i + 1]);
+            (address token0, ) = IsbjornLibrary.sortTokens(input, output);
+            uint256 amountOut = amounts[i + 1];
+            (uint256 amount0Out, uint256 amount1Out) = input == token0
+                ? (uint256(0), amountOut)
+                : (amountOut, uint256(0));
+            address to = i < path.length - 2
+                ? IsbjornLibrary.pairFor(factory, output, path[i + 2])
+                : _to;
+            IIcePond(IsbjornLibrary.pairFor(factory, input, output)).swap(
+                amount0Out,
+                amount1Out,
+                to,
+                new bytes(0)
+            );
+            if (achievementTracker != address(0)) {
+                IAchievementTracker(achievementTracker).recordSwapOut(
+                    msg.sender,
+                    output,
+                    amountOut
+                );
+            }
+        }
+    }
+
+    function swapExactTokensForTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    )
+        external
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256[] memory amounts)
+    {
+        amounts = IsbjornLibrary.getAmountsOut(factory, amountIn, path);
+        require(
+            amounts[amounts.length - 1] >= amountOutMin,
+            "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
+            amounts[0]
+        );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
+        _swap(amounts, path, to);
+    }
+
+    function swapTokensForExactTokens(
+        uint256 amountOut,
+        uint256 amountInMax,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    )
+        external
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256[] memory amounts)
+    {
+        amounts = IsbjornLibrary.getAmountsIn(factory, amountOut, path);
+        require(
+            amounts[0] <= amountInMax,
+            "IsbjornRouter: EXCESSIVE_INPUT_AMOUNT"
+        );
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
+            amounts[0]
+        );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amounts[0]
+            );
+        }
+        _swap(amounts, path, to);
+    }
+
+    function swapExactAVAXForTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    )
+        external
+        payable
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256[] memory amounts)
+    {
+        require(path[0] == WAVAX, "IsbjornRouter: INVALID_PATH");
+        amounts = IsbjornLibrary.getAmountsOut(factory, msg.value, path);
+        require(
+            amounts[amounts.length - 1] >= amountOutMin,
+            "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+        IWAVAX(WAVAX).deposit{value: amounts[0]}();
+        assert(
+            IWAVAX(WAVAX).transfer(
+                IsbjornLibrary.pairFor(factory, path[0], path[1]),
+                amounts[0]
+            )
+        );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amounts[0]
+            );
+        }
+        _swap(amounts, path, to);
+    }
+
+    function swapTokensForExactAVAX(
+        uint256 amountOut,
+        uint256 amountInMax,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    )
+        external
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256[] memory amounts)
+    {
+        require(path[path.length - 1] == WAVAX, "IsbjornRouter: INVALID_PATH");
+        amounts = IsbjornLibrary.getAmountsIn(factory, amountOut, path);
+
+        require(
+            amounts[0] <= amountInMax,
+            "IsbjornRouter: EXCESSIVE_INPUT_AMOUNT"
+        );
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
+            amounts[0]
+        );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amounts[0]
+            );
+        }
+        _swap(amounts, path, address(this));
+        uint256 feeTaken = amounts[amounts.length - 1] / 1000;
+        IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1] - feeTaken);
+        TransferHelper.safeTransferAVAX(
+            to,
+            amounts[amounts.length - 1] - feeTaken
+        );
+    }
+
+    function swapExactTokensForAVAX(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    )
+        external
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256[] memory amounts)
+    {
+        require(path[path.length - 1] == WAVAX, "IsbjornRouter: INVALID_PATH");
+        amounts = IsbjornLibrary.getAmountsOut(factory, amountIn, path);
+        require(
+            amounts[amounts.length - 1] >= amountOutMin,
+            "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
+            amounts[0]
+        );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
+        _swap(amounts, path, address(this));
+        uint256 feeTaken = amounts[amounts.length - 1] / 1000;
+        IWAVAX(WAVAX).withdraw(amounts[amounts.length - 1] - feeTaken);
+        TransferHelper.safeTransferAVAX(
+            to,
+            amounts[amounts.length - 1] - feeTaken
+        );
+    }
+
+    function swapAVAXForExactTokens(
+        uint256 amountOut,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    )
+        external
+        payable
+        virtual
+        override
+        ensure(deadline)
+        returns (uint256[] memory amounts)
+    {
+        require(path[0] == WAVAX, "IsbjornRouter: INVALID_PATH");
+        amounts = IsbjornLibrary.getAmountsIn(factory, amountOut, path);
+        require(
+            amounts[0] <= msg.value,
+            "IsbjornRouter: EXCESSIVE_INPUT_AMOUNT"
+        );
+        IWAVAX(WAVAX).deposit{value: amounts[0]}();
+        assert(
+            IWAVAX(WAVAX).transfer(
+                IsbjornLibrary.pairFor(factory, path[0], path[1]),
+                amounts[0]
+            )
+        );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amounts[0]
+            );
+        }
+        _swap(amounts, path, to);
+        // refund dust eth, if any
+        if (msg.value > amounts[0])
+            TransferHelper.safeTransferAVAX(msg.sender, msg.value - amounts[0]);
+    }
+
+    // **** SWAP (supporting fee-on-transfer tokens) ****
+    // requires the initial amount to have already been sent to the first pair
+    function _swapSupportingFeeOnTransferTokens(
+        address[] memory path,
+        address _to
+    ) internal virtual {
+        for (uint256 i; i < path.length - 1; i++) {
+            (address input, address output) = (path[i], path[i + 1]);
+            (address token0, ) = IsbjornLibrary.sortTokens(input, output);
+            IIcePond pair = IIcePond(
+                IsbjornLibrary.pairFor(factory, input, output)
+            );
+            uint256 amountInput;
+            uint256 amountOutput;
+            {
+                // scope to avoid stack too deep errors
+                (uint256 reserve0, uint256 reserve1, ) = pair.getReserves();
+                (uint256 reserveInput, uint256 reserveOutput) = input == token0
+                    ? (reserve0, reserve1)
+                    : (reserve1, reserve0);
+                amountInput = IERC20(input).balanceOf(address(pair)).sub(
+                    reserveInput
+                );
+                amountOutput = IsbjornLibrary.getAmountOut(
+                    amountInput,
+                    reserveInput,
+                    reserveOutput
+                );
+            }
+            (uint256 amount0Out, uint256 amount1Out) = input == token0
+                ? (uint256(0), amountOutput)
+                : (amountOutput, uint256(0));
+            address to = i < path.length - 2
+                ? IsbjornLibrary.pairFor(factory, output, path[i + 2])
+                : _to;
+            pair.swap(amount0Out, amount1Out, to, new bytes(0));
+            if (achievementTracker != address(0)) {
+                IAchievementTracker(achievementTracker).recordSwapOut(
+                    msg.sender,
+                    output,
+                    amountOutput
+                );
+            }
+        }
+    }
+
+    function swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
+            amountIn
+        );
+        uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
+        _swapSupportingFeeOnTransferTokens(path, to);
+        require(
+            IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >=
+                amountOutMin,
+            "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+    }
+
+    function swapExactAVAXForTokensSupportingFeeOnTransferTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable virtual override ensure(deadline) {
+        require(path[0] == WAVAX, "IsbjornRouter: INVALID_PATH");
+        uint256 amountIn = msg.value;
+        IWAVAX(WAVAX).deposit{value: amountIn}();
+        assert(
+            IWAVAX(WAVAX).transfer(
+                IsbjornLibrary.pairFor(factory, path[0], path[1]),
+                amountIn
+            )
+        );
+        uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
+        _swapSupportingFeeOnTransferTokens(path, to);
+        require(
+            IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >=
+                amountOutMin,
+            "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+    }
+
+    function swapExactTokensForAVAXSupportingFeeOnTransferTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external virtual override ensure(deadline) {
+        require(path[path.length - 1] == WAVAX, "IsbjornRouter: INVALID_PATH");
+        TransferHelper.safeTransferFrom(
+            path[0],
+            msg.sender,
+            IsbjornLibrary.pairFor(factory, path[0], path[1]),
+            amountIn
+        );
+        if (achievementTracker != address(0)) {
+            IAchievementTracker(achievementTracker).recordSwapIn(
+                msg.sender,
+                path[0],
+                amountIn
+            );
+        }
+        _swapSupportingFeeOnTransferTokens(path, address(this));
+        uint256 amountOut = IERC20(WAVAX).balanceOf(address(this));
+        require(
+            amountOut >= amountOutMin,
+            "IsbjornRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+        IWAVAX(WAVAX).withdraw(amountOut);
+        TransferHelper.safeTransferAVAX(to, amountOut);
+    }
+
+    // **** LIBRARY FUNCTIONS ****
+    function pairFor(
+        address tokenA,
+        address tokenB
+    ) external view returns (address) {
+        return IsbjornLibrary.pairFor(factory, tokenA, tokenB);
+    }
+
+    function quote(
+        uint256 amountA,
+        uint256 reserveA,
+        uint256 reserveB
+    ) public pure virtual override returns (uint256 amountB) {
+        return IsbjornLibrary.quote(amountA, reserveA, reserveB);
+    }
+
+    function getAmountOut(
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) public pure virtual override returns (uint256 amountOut) {
+        return IsbjornLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
+    }
+
+    function getAmountIn(
+        uint256 amountOut,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) public pure virtual override returns (uint256 amountIn) {
+        return IsbjornLibrary.getAmountIn(amountOut, reserveIn, reserveOut);
+    }
+
+    function getAmountsOut(
+        uint256 amountIn,
+        address[] memory path
+    ) public view virtual override returns (uint256[] memory amounts) {
+        return IsbjornLibrary.getAmountsOut(factory, amountIn, path);
+    }
+
+    function getAmountsIn(
+        uint256 amountOut,
+        address[] memory path
+    ) public view virtual override returns (uint256[] memory amounts) {
+        return IsbjornLibrary.getAmountsIn(factory, amountOut, path);
+    }
+}
