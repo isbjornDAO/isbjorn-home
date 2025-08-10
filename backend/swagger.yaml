@@ -1,0 +1,94 @@
+openapi: 3.0.0
+info:
+  title: Isbjorn API
+  description: Arctic conservation donation platform API
+  version: 1.0.0
+  contact:
+    name: Isbjorn Team
+    email: support@isbjorn.co.nz
+    url: https://isbjorn.co.nz
+
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                  version:
+                    type: string
+
+  /auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      summary: User registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                companyName:
+                  type: string
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Registration failed
+
+  /donations:
+    get:
+      summary: Get donations
+      responses:
+        '200':
+          description: List of donations
+
+    post:
+      summary: Create donation
+      responses:
+        '201':
+          description: Donation created
+
+  /projects:
+    get:
+      summary: Get projects
+      responses:
+        '200':
+          description: List of projects

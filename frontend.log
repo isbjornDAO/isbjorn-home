@@ -1,0 +1,10 @@
+
+> isbjorn-frontend@1.0.0 dev
+> vite
+
+Port 3000 is in use, trying another one...
+
+  VITE v5.4.19  ready in 154 ms
+
+  ➜  Local:   http://localhost:3001/
+  ➜  Network: use --host to expose
