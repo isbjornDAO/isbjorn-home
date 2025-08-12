@@ -1,13 +1,9 @@
 {
   "build": {
-    "builder": "nixpacks",
-    "buildCommand": "cd isbjorn-home && npm install && npm run build:backend && npm run build:frontend",
-    "watchPatterns": [
-      "isbjorn-home/**"
-    ]
+    "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "cd isbjorn-home && npm run start:prod",
+    "startCommand": "npm run start",
     "restartPolicyType": "on-failure",
     "restartPolicyMaxRetries": 10
   }
