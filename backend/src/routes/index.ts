@@ -6,9 +6,7 @@ import projectRoutes from './projects';
 import { dashboardRoutes } from './dashboard.routes';
 import { adminRoutes } from './admin.routes';
 import { integrationsRoutes } from './integrations.routes';
-import { simpleAuthRoutes } from './simple-auth';
 import { workingAuthRoutes } from './working-auth';
-import { demoAuthRoutes } from './demo-auth';
 import publicRoutes from './public';
 
 const router = express.Router();
@@ -38,8 +36,6 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/admin', adminRoutes);
 router.use('/public', publicRoutes);
 router.use('/integrations', integrationsRoutes);
-router.use('/simple-auth', simpleAuthRoutes);
-router.use('/working-auth', workingAuthRoutes);
 
 // Convenience endpoints that map to streamlined routes
 router.use('/companies', streamlinedDonationRoutes);

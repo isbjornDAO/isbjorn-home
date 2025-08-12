@@ -230,7 +230,7 @@ router.get(
  */
 router.get(
   '/charities/verified-dropdown',
-  rateLimitMiddleware({ windowMs: 60000, max: 30 }), // 30 requests per minute
+  rateLimitMiddleware({ windowMs: 60000, max: 30 }),
   controller.getVerifiedCharities
 );
 

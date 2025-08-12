@@ -55,7 +55,6 @@ export const StripeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           variables: {
             colorPrimary: '#0ea5e9',
             colorBackground: '#ffffff',
-            colorSurface: '#ffffff',
             colorText: '#1e293b',
             colorDanger: '#ef4444',
             fontFamily: 'Inter, system-ui, sans-serif',

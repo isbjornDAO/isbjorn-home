@@ -132,4 +132,31 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Current user endpoint for frontend
+router.get('/me', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret-key-change-in-production') as any;
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({
+      id: user.dataValues.id,
+      email: user.dataValues.email,
+      companyName: user.dataValues.companyName,
+      role: user.dataValues.role,
+    });
+  } catch (error) {
+    console.error('Get current user error:', error);
+    res.status(401).json({ success: false, message: 'Invalid token' });
+  }
+});
+
 export { router as workingAuthRoutes };

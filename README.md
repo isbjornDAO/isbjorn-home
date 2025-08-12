@@ -1,255 +1,118 @@
-# 🐻‍❄️ Isbjorn Business Donation Platform
+# 🐻‍❄️ Isbjorn — NZ Business Donations, Done Right
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Avalanche](https://img.shields.io/badge/Avalanche-E84142?logo=avalanche&logoColor=white)](https://www.avax.network/)
+[![Stripe](https://img.shields.io/badge/Stripe-635BFF?logo=stripe&logoColor=white)](https://stripe.com/)
 
-> **Complete Avalanche-powered nonprofit donation platform for polar bear conservation** 🌍
+Isbjorn makes it simple for NZ businesses to donate to verified charities and receive IRD‑compliant tax receipts instantly. The donor experience is “just pay with card,” while the platform handles IRD rules, company verification, receipts, and optional blockchain transparency.
 
-## 🌟 Overview
+### What’s included
 
-Isbjorn is a production-ready business donation platform that combines familiar nonprofit interfaces with cutting-edge blockchain transparency. Businesses can donate to polar bear conservation through traditional payment methods while benefiting from Avalanche blockchain verification and real-time impact tracking.
+- **Business‑first UX**: Zero crypto for donors; email + password signup.
+- **Stripe**: Familiar card payments; instant confirmation and receipts (dev mode supported).
+- **NZ readiness**: Company auto‑lookup (mock in dev) and IRD‑compliant PDF receipts.
+- **Streamlined flow**: A 2‑minute donation path with minimal fields.
+- **Mobile responsive**: Works great on phones.
+- **Optional Avalanche L1**: Record donations on chain when configured.
 
-### Key Features
-
-- **🏢 Business-First Design**: Zero crypto interaction for donors
-- **💳 Stripe Integration**: Familiar payment processing with instant tax receipts  
-- **🔗 Avalanche Blockchain**: Sub-$0.01 transaction costs with full transparency
-- **📊 Real-time Impact**: Track donations from payment to conservation projects
-- **🧾 NZ Tax Compliance**: Automated IRD-compliant receipt generation
-- **🔐 Multi-sig Security**: Enterprise-grade fund management
-- **📱 Mobile Responsive**: Arctic-themed UI with Iggy the polar bear mascot
-
-## 🏗️ Architecture
+### How it’s built (high level)
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   React Frontend │    │  Node.js Backend │    │ Avalanche Blockchain│
-│   (TypeScript)   │◄──►│   (Express)     │◄──►│   Smart Contracts  │
-│                 │    │                 │    │                 │
-│ • Donation UI    │    │ • Stripe API    │    │ • DonationTracker │
-│ • Impact Dash    │    │ • PostgreSQL    │    │ • ProjectDistrib. │
-│ • Admin Panel    │    │ • Redis Cache   │    │ • AdminMultiSig   │
-│ • Tax Receipts   │    │ • SendGrid      │    │ • USDC.e Support  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+React (Vite)  →  Express API  →  Stripe, Email, DB
+                        ↘︎  (optional) Avalanche L1
 ```
 
-## 🚀 Quick Start
+## 🚀 Quick start (local)
 
-### Prerequisites
-
-- Node.js 18+ and npm
-- PostgreSQL 15+
-- Redis 7+
-- Docker & Docker Compose
-- Avalanche wallet with testnet AVAX
-
-### 1. Clone and Install
+The fastest way to see it working end‑to‑end (with safe dev defaults):
 
 ```bash
-git clone https://github.com/your-org/isbjorn-platform.git
-cd isbjorn-platform
-
-# Install dependencies for all services
-npm install
-cd frontend && npm install
-cd ../backend && npm install
-cd ../smart-contracts && npm install
+./run-platform.sh
 ```
 
-### 2. Environment Setup
+Then open:
+
+- Frontend (Vite): http://localhost:3005 (port may vary)
+- API: http://localhost:5000
+- API Docs (dev): http://localhost:5000/api-docs
+
+Notes
+- Stripe runs in dev/simulated mode unless you add real keys.
+- Company lookup uses mock data in dev (no external API key required).
+- SQLite is used by default for local DB; Postgres/Redis are optional.
+
+## 💰 Donation flow (2 minutes)
+
+1. Select a charity
+2. Enter NZ company number (auto‑populate in dev)
+3. Enter amount and card details
+4. Done — instant IRD‑compliant receipt via email
+
+Behind the scenes (optional): when configured, donations can be recorded to Avalanche L1 for transparency.
+
+## 🔑 Config
 
 ```bash
-# Copy environment templates
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+# Backend (dev defaults work out of the box)
+JWT_SECRET=dev-secret
+JWT_REFRESH_SECRET=dev-refresh
+STRIPE_SECRET_KEY=sk_test_mock_key   # dev-only; set real key in prod
+STRIPE_WEBHOOK_SECRET=whsec_mock     # set real webhook secret in prod
+SENDGRID_API_KEY=                    # optional in dev
 
-# Configure your environment variables
-# - Database credentials
-# - Stripe keys (get from stripe.com)
-# - SendGrid API key
-# - Avalanche wallet private key
-# - Contract addresses (after deployment)
-```
-
-### 3. Deploy Smart Contracts
-
-```bash
-cd smart-contracts
-
-# Deploy to Avalanche Fuji testnet
-npm run deploy:testnet
-
-# Copy the contract addresses to your backend .env file
-```
-
-### 4. Start Development Environment
-
-```bash
-# Start all services with Docker
-docker-compose up -d
-
-# Or start individually:
-npm run dev  # Starts both frontend and backend
-```
-
-The platform will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-- API Documentation: http://localhost:5000/api-docs
-
-## 💰 Business Donation Flow
-
-### For Businesses (Zero Crypto Interaction)
-
-1. **Visit Donation Portal** → Professional Isbjorn-branded interface
-2. **Select Conservation Project** → Choose Arctic ice or polar bear initiatives  
-3. **Enter Company Details** → Auto-populating tax information
-4. **Pay with Credit Card** → Familiar Stripe checkout experience
-5. **Receive Instant Receipt** → NZ IRD-compliant PDF via email
-6. **Track Real-time Impact** → Dashboard shows conservation progress
-
-### Behind the Scenes (Blockchain Magic)
-
-1. **Payment Confirmed** → Stripe webhook triggers backend processing
-2. **Blockchain Recording** → Transaction logged on Avalanche C-Chain
-3. **Fund Distribution** → Smart contracts automatically allocate to projects
-4. **Impact Updates** → Real-time metrics update across all dashboards
-5. **Transparent Tracking** → Every dollar traceable from source to impact
-
-## 🏢 Production Deployment
-
-### Railway (Recommended)
-
-```bash
-# Connect your GitHub repo to Railway
-# Add environment variables in Railway dashboard
-# Deploy automatically on git push
-
-railway login
-railway link
-railway up
-```
-
-### Manual Docker Deployment
-
-```bash
-# Build production images
-docker-compose -f docker-compose.prod.yml build
-
-# Deploy with load balancing
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-### Required Environment Variables
-
-```bash
-# Database
-DB_HOST=your-postgres-host
-DB_PASSWORD=secure-password
-
-# Payments  
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Email
-SENDGRID_API_KEY=SG.your-key...
-
-# Blockchain
+# Optional Avalanche
+AVALANCHE_RPC_URL=https://api.avax-test.network/ext/bc/C/rpc
 AVALANCHE_PRIVATE_KEY=0x...
 DONATION_TRACKER_ADDRESS=0x...
 PROJECT_DISTRIBUTION_ADDRESS=0x...
 ```
 
-## 🔧 Smart Contracts
+## 🔧 Smart contracts (optional)
 
-### DonationTracker.sol
-- Records all donations immutably
-- Links off-chain donation IDs to blockchain
-- Emits events for real-time updates
-- Gas optimized: ~0.0025 AVAX per donation
+- `DonationTracker.sol`: record donations on chain
+- `ProjectDistribution.sol`: track distributions to projects
+- `AdminMultiSig.sol`: operational safety controls
 
-### ProjectDistribution.sol  
-- Manages fund allocation to conservation projects
-- Automated milestone-based distributions
-- USDC.e integration for stable value
-- Multi-signature controlled releases
+## 📊 API quick reference
 
-### AdminMultiSig.sol
-- 3-of-5 signature requirement for admin actions
-- Time-locked critical operations  
-- Comprehensive audit trail
-- Emergency pause functionality
-
-## 📊 API Documentation
-
-### Authentication
-```typescript
-POST /api/auth/login
+Authentication
+```http
 POST /api/auth/register
+POST /api/auth/login
 GET  /api/auth/me
 ```
 
-### Donations
-```typescript
-POST /api/donations          // Create payment intent
-GET  /api/donations/:id      // Get donation details  
-POST /api/donations/:id/confirm // Confirm payment
+Streamlined donations
+```http
+GET  /api/companies/:companyNumber/auto-populate
+GET  /api/charities/verified-dropdown
+POST /api/donations/streamlined
 ```
 
-### Projects
-```typescript
-GET  /api/projects           // List all projects
-GET  /api/projects/:id       // Project details
-GET  /api/projects/:id/impact // Real-time impact data
+Public
+```http
+GET  /api/public/charities
 ```
 
-### Blockchain
-```typescript
-GET  /api/blockchain/tx/:hash     // Transaction status
-GET  /api/blockchain/verify/:id  // Verify donation
-```
+Full docs in dev at `/api-docs`.
 
-Full API documentation available at `/api-docs` in development.
+## 🧪 Testing (coming online)
 
-## 🧪 Testing
+Project scaffolding includes scripts for unit and component tests. We’ll expand coverage as features solidify.
 
-```bash
-# Run all tests
-npm run test
+## 🔒 Security
 
-# Backend unit tests
-cd backend && npm run test
-
-# Frontend component tests  
-cd frontend && npm run test
-
-# Smart contract tests
-cd smart-contracts && npm run test
-
-# Integration tests
-npm run test:e2e
-```
-
-## 🔒 Security Features
-
-- **Input Validation**: Zod schemas for all API endpoints
-- **Rate Limiting**: IP-based request throttling
-- **SQL Injection Prevention**: Sequelize ORM with parameterized queries
-- **XSS Protection**: Content Security Policy headers
-- **HTTPS Enforcement**: SSL/TLS in production
-- **Secret Management**: Environment variable encryption
-- **Audit Logging**: All financial transactions logged immutably
+- Input validation & rate limiting on API routes
+- Parameterized queries via Sequelize
+- Strict CSP with Stripe allowances
+- HTTPS recommended for any public deployment
 
 ## 📈 Monitoring
 
-- **Health Checks**: `/health` endpoint for all services
-- **Error Tracking**: Sentry integration for real-time alerts
-- **Performance Monitoring**: Custom metrics dashboard
-- **Blockchain Monitoring**: Transaction confirmation tracking
-- **Uptime Monitoring**: Automated service availability checks
+- Health: `/health` on the API
+- Logs: `backend.log`, `frontend.log` in repo root when using `run-platform.sh`
 
 ## 🤝 Contributing
 
@@ -267,10 +130,8 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 
 ## 🆘 Support
 
-- **Documentation**: [docs.isbjorn.co.nz](https://docs.isbjorn.co.nz)
-- **Email Support**: support@isbjorn.co.nz
-- **GitHub Issues**: [Create Issue](https://github.com/your-org/isbjorn-platform/issues)
-- **Discord Community**: [Join Server](https://discord.gg/isbjorn)
+- Email: support@isbjorn.co.nz
+- Issues: please open a GitHub issue in this repository
 
 ## 🙏 Acknowledgments
 
@@ -284,4 +145,4 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 
 Built with ❄️ in New Zealand for Arctic conservation worldwide.
 
-**Ready to process your first $10,000 donation in under 60 seconds.** 🚀
+**Make an NZ business donation in under 2 minutes.** 🚀

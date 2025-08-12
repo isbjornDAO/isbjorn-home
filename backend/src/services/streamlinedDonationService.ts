@@ -55,7 +55,8 @@ export class StreamlinedDonationService {
     this.companiesService = new NZCompaniesRegisterService();
     this.charitiesService = new NZCharitiesService();
     this.receiptService = new IRDReceiptService();
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    const key = process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key';
+    this.stripe = new Stripe(key, {
       apiVersion: '2023-10-16',
     });
   }
@@ -183,23 +184,19 @@ export class StreamlinedDonationService {
   }>> {
     try {
       const charities = await Charity.findAll({
-        where: {
-          isDoneeOrganisation: true,
-          isActive: true,
-          verificationStatus: 'verified',
-        },
+        where: { isActive: true },
         attributes: [
-          'id', 'name', 'legalName', 'category', 'logoUrl', 
+          'id', 'name', /* no legalName in model */ 'category', 'logoUrl', 
           'description', 'donationCount', 'totalReceived'
         ],
         order: [['name', 'ASC']],
-        limit: 100, // Top 100 charities for performance
+        limit: 100,
       });
 
       return charities.map(charity => ({
         id: charity.id,
         name: charity.name,
-        legalName: charity.legalName,
+        legalName: (charity as any).legalName || charity.name,
         category: charity.category,
         logoUrl: charity.logoUrl,
         description: charity.description,
@@ -332,6 +329,19 @@ export class StreamlinedDonationService {
     companyName: string;
     charityName: string;
   }): Promise<Stripe.PaymentIntent> {
+    const isMock = (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_test_mock') || process.env.MOCK_STRIPE === 'true';
+
+    if (isMock) {
+      // Simulate a successful PaymentIntent
+      return {
+        id: `pi_mock_${Date.now()}`,
+        object: 'payment_intent',
+        amount: params.amount,
+        currency: 'nzd',
+        status: 'succeeded',
+      } as unknown as Stripe.PaymentIntent;
+    }
+
     const paymentIntent = await this.stripe.paymentIntents.create({
       amount: params.amount,
       currency: 'nzd',

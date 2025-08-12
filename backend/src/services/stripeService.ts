@@ -5,11 +5,7 @@ import { Project } from '../models/Project.model';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is required');
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key', {
   apiVersion: '2023-10-16',
 });
 

@@ -5,8 +5,8 @@ import { Elements, useStripe, useElements, CardElement } from '@stripe/react-str
 import { HeartIcon, CurrencyDollarIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-// Load Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
+// Load Stripe (fallback dev key to enable demo)
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_51_placeholder');
 
 interface CompanyData {
   legalName: string;
@@ -42,7 +42,7 @@ const DonationForm: React.FC = () => {
   useEffect(() => {
     const fetchCharities = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/public/charities`);
+        const response = await fetch(`/api/public/charities`);
         const result = await response.json();
         
         if (result.success) {
@@ -310,7 +310,8 @@ const DonationForm: React.FC = () => {
             {filteredCharities.map((charity) => (
             <div
               key={charity.id}
-              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-ice-100 hover:border-arctic-200 flex flex-col h-full"
+              onClick={() => handleLearnMore(charity.id)}
+              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-ice-100 hover:border-arctic-200 flex flex-col h-full cursor-pointer"
             >
               {/* Hero Image */}
               <div className="relative h-40 sm:h-48 overflow-hidden">
@@ -375,22 +376,8 @@ const DonationForm: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  <button
-                    onClick={() => handleDonate(charity.id)}
-                    className="flex-1 bg-gradient-to-r from-arctic-500 to-arctic-600 text-white py-2.5 sm:py-3 px-4 rounded-lg font-semibold hover:from-arctic-600 hover:to-arctic-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group text-sm sm:text-base"
-                  >
-                    Donate Now
-                  </button>
-                  <button
-                    onClick={() => handleLearnMore(charity.id)}
-                    className="px-4 py-2.5 sm:py-3 border-2 border-arctic-200 text-arctic-700 rounded-lg font-semibold hover:border-arctic-500 hover:bg-arctic-50 transition-all duration-200 text-sm sm:text-base"
-                  >
-                    <span className="hidden sm:inline">Learn More</span>
-                    <span className="sm:hidden">Learn</span>
-                  </button>
-                </div>
+                {/* Click hint */}
+                <div className="mt-2 text-center text-sm text-arctic-600">Click to learn more & donate</div>
               </div>
             </div>
           ))}
@@ -398,213 +385,7 @@ const DonationForm: React.FC = () => {
         )}
       </div>
 
-      {/* Donation Form Modal */}
-      {showDonationForm && selectedCharity && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto mt-2 sm:mt-0">
-            <div className="sticky top-0 bg-white border-b border-ice-200 p-4 sm:p-6 rounded-t-2xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
-                    <span className="text-3xl sm:text-4xl">{selectedCharity.icon}</span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-lg sm:text-2xl font-bold text-arctic-900 truncate">Donate to {selectedCharity.name}</h2>
-                    <p className="text-sm sm:text-base text-arctic-600">{selectedCharity.category}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowDonationForm(false)}
-                  className="text-arctic-400 hover:text-arctic-600 text-2xl ml-2 flex-shrink-0"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmitDonation} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-              {/* Company Details */}
-              <div>
-                <h3 className="text-base sm:text-lg font-semibold text-arctic-900 mb-3 sm:mb-4">Company Details</h3>
-                <div>
-                  <label className="block text-sm font-medium text-arctic-700 mb-2">
-                    NZ Company Number
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={companyNumber}
-                      onChange={(e) => setCompanyNumber(e.target.value.replace(/\D/g, ''))}
-                      placeholder="1234567"
-                      className="flex-1 px-4 py-3 border border-ice-300 rounded-lg focus:ring-2 focus:ring-arctic-500 focus:border-transparent"
-                      maxLength={10}
-                      required
-                    />
-                    {/* Development helper button */}
-                    {import.meta.env.DEV && (
-                      <button
-                        type="button"
-                        onClick={() => setCompanyNumber('1234567')}
-                        className="px-4 py-3 bg-amber-100 text-amber-800 rounded-lg hover:bg-amber-200 text-sm font-medium"
-                      >
-                        Use Test #
-                      </button>
-                    )}
-                  </div>
-                  <p className="text-xs text-arctic-500 mt-1">
-                    We'll automatically lookup your company details
-                  </p>
-                </div>
-
-                {companyData && (
-                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <h4 className="font-medium text-green-800 mb-2">✅ Company Verified: {companyData.legalName}</h4>
-                    <p className="text-sm text-green-700">{companyData.registeredAddress}</p>
-                    <p className="text-sm text-green-700">Directors: {companyData.directors.join(', ')}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Amount */}
-              {companyData && (
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-arctic-900 mb-3 sm:mb-4">Donation Amount</h3>
-                  <div>
-                    <label className="block text-sm font-medium text-arctic-700 mb-2">
-                      Amount (NZD)
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-arctic-500 text-lg">$</span>
-                      <input
-                        type="number"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        placeholder="100.00"
-                        min="1"
-                        step="0.01"
-                        className="w-full pl-8 pr-4 py-3 border border-ice-300 rounded-lg focus:ring-2 focus:ring-arctic-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
-                      {[50, 100, 250, 500].map((suggestedAmount) => (
-                        <button
-                          key={suggestedAmount}
-                          type="button"
-                          onClick={() => setAmount(suggestedAmount.toString())}
-                          className="py-2 px-2 sm:px-4 border border-ice-300 rounded-lg text-sm font-medium text-arctic-700 hover:bg-ice-50 transition-colors"
-                        >
-                          ${suggestedAmount}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <label className="block text-sm font-medium text-arctic-700 mb-2">
-                        Contact Email
-                      </label>
-                      <input
-                        type="email"
-                        value={contactEmail}
-                        onChange={(e) => setContactEmail(e.target.value)}
-                        placeholder="finance@yourcompany.co.nz"
-                        className="w-full px-4 py-3 border border-ice-300 rounded-lg focus:ring-2 focus:ring-arctic-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-arctic-700 mb-2">
-                        Accountant Email (Optional)
-                      </label>
-                      <input
-                        type="email"
-                        value={accountantEmail}
-                        onChange={(e) => setAccountantEmail(e.target.value)}
-                        placeholder="accountant@yourcompany.co.nz"
-                        className="w-full px-4 py-3 border border-ice-300 rounded-lg focus:ring-2 focus:ring-arctic-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-arctic-700 mb-2">
-                      Message (Optional)
-                    </label>
-                    <textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Thank you for your amazing work!"
-                      rows={3}
-                      className="w-full px-4 py-3 border border-ice-300 rounded-lg focus:ring-2 focus:ring-arctic-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Payment */}
-              {companyData && amount && contactEmail && (
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-arctic-900 mb-3 sm:mb-4">Payment Details</h3>
-                  <div className="mb-4 p-4 bg-ice-50 rounded-lg">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Company:</span>
-                      <span className="font-medium">{companyData.legalName}</span>
-                    </div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Charity:</span>
-                      <span className="font-medium">{selectedCharity.name}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Amount:</span>
-                      <span className="font-medium text-lg">${amount} NZD</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-arctic-700 mb-2">
-                      Card Details
-                    </label>
-                    <div className="p-4 border border-ice-300 rounded-lg">
-                      <CardElement
-                        options={{
-                          style: {
-                            base: {
-                              fontSize: '16px',
-                              color: '#374151',
-                              '::placeholder': { color: '#9CA3AF' },
-                            },
-                          },
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={!stripe || processingDonation}
-                    className="w-full bg-green-600 text-white py-3 sm:py-4 px-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-4 sm:mt-6"
-                  >
-                    {processingDonation ? (
-                      <>
-                        <LoadingSpinner size="sm" />
-                        <span className="ml-2">Processing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="mr-2">🚀</span>
-                        <span className="hidden sm:inline">Complete Donation (${amount})</span>
-                        <span className="sm:hidden">Donate ${amount}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Donation modal removed: click a card to open details with payment */}
     </div>
   );
 };

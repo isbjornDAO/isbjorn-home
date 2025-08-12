@@ -11,6 +11,7 @@ export const initializeRedis = async (): Promise<void> => {
       password: process.env.REDIS_PASSWORD || undefined,
       retryDelayOnFailover: 100,
       maxRetriesPerRequest: 3,
+      lazyConnect: true,
     });
 
     redis.on('connect', () => {
@@ -21,8 +22,15 @@ export const initializeRedis = async (): Promise<void> => {
       logger.error('Redis connection error:', error);
     });
 
-    // Test the connection
-    await redis.ping();
+    // Attempt connection, but don't crash app in development if unavailable
+    try {
+      await redis.connect?.();
+      await redis.ping();
+    } catch (err) {
+      logger.warn('Redis not available; continuing without cache');
+      redis.disconnect?.();
+      redis = null;
+    }
   } catch (error) {
     logger.error('Failed to initialize Redis:', error);
     // Continue without Redis for development
