@@ -140,7 +140,7 @@ export class NZCompany extends Model {
   annualReturnFilingMonth?: Date;
 
   @Column({
-    type: DataType.ARRAY(DataType.STRING),
+    type: DataType.JSONB,
     allowNull: true,
   })
   natureOfBusiness?: string[];

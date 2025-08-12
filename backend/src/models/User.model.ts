@@ -24,8 +24,8 @@ export enum UserRole {
   timestamps: true,
   indexes: [
     { fields: ['email'] },
-    { fields: ['companyName'] },
-    { fields: ['createdAt'] },
+    { fields: ['company_name'] },
+    { fields: ['created_at'] },
   ],
 })
 export class User extends Model {
@@ -169,7 +169,7 @@ export class User extends Model {
   @BeforeCreate
   @BeforeUpdate
   static async hashPassword(user: User) {
-    if (user.changed('password')) {
+    if (user.changed('password') && user.password) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(user.password, salt);
     }

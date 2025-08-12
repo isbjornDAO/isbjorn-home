@@ -244,7 +244,9 @@ class NZCompaniesRegisterService {
             gstNumber: '111-222-333',
             city: 'Auckland',
         };
-        const mockData = {
+        // Return mock data directly without database for now
+        const mockCompany = {
+            id: `mock-${companyNumber}`,
             nzCompanyNumber: companyNumber,
             legalName: companyInfo.legalName,
             tradingName: companyInfo.tradingName,
@@ -260,9 +262,14 @@ class NZCompaniesRegisterService {
                 postcode: '1010',
                 country: 'New Zealand',
             },
-            incorporationDate: new Date('2020-01-01'),
+            formattedAddress: `123 Queen Street, CBD, ${companyInfo.city} 1010, New Zealand`,
+            incorporationDate: new Date('2024-01-01'),
+            annualReturnFilingMonth: 12,
             directors: [{
-                    name: 'Mock Director',
+                    name: 'John Smith',
+                    appointmentDate: new Date('2020-01-01'),
+                }, {
+                    name: 'Jane Doe',
                     appointmentDate: new Date('2020-01-01'),
                 }],
             isActive: true,
@@ -279,10 +286,7 @@ class NZCompaniesRegisterService {
                 lastUpdatedFromRegister: new Date(),
             }
         };
-        const [company] = await NZCompany_model_1.NZCompany.upsert(mockData, {
-            returning: true,
-        });
-        return company;
+        return mockCompany;
     }
 }
 exports.NZCompaniesRegisterService = NZCompaniesRegisterService;

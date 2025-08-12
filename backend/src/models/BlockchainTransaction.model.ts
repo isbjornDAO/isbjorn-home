@@ -30,11 +30,11 @@ export enum TransactionType {
   tableName: 'blockchain_transactions',
   timestamps: true,
   indexes: [
-    { fields: ['txHash'] },
-    { fields: ['donationId'] },
+    { fields: ['tx_hash'] },
+    { fields: ['donation_id'] },
     { fields: ['status'] },
     { fields: ['type'] },
-    { fields: ['createdAt'] },
+    { fields: ['created_at'] },
   ],
 })
 export class BlockchainTransaction extends Model {

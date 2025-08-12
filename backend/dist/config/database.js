@@ -12,6 +12,9 @@ const Charity_model_1 = require("../models/Charity.model");
 const Donation_model_1 = require("../models/Donation.model");
 const Receipt_model_1 = require("../models/Receipt.model");
 const BlockchainTransaction_model_1 = require("../models/BlockchainTransaction.model");
+const NZCompany_model_1 = require("../models/NZCompany.model");
+const IRDCompliantDonation_model_1 = require("../models/IRDCompliantDonation.model");
+const Project_model_1 = require("../models/Project.model");
 dotenv_1.default.config();
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const DB_TYPE = process.env.DB_TYPE || 'sqlite';
@@ -51,7 +54,7 @@ const env = NODE_ENV;
 const dbConfig = config[env];
 exports.sequelize = new sequelize_typescript_1.Sequelize({
     ...dbConfig,
-    models: [User_model_1.User, Charity_model_1.Charity, Donation_model_1.Donation, Receipt_model_1.Receipt, BlockchainTransaction_model_1.BlockchainTransaction],
+    models: [User_model_1.User, Charity_model_1.Charity, Donation_model_1.Donation, Receipt_model_1.Receipt, BlockchainTransaction_model_1.BlockchainTransaction, NZCompany_model_1.NZCompany, IRDCompliantDonation_model_1.IRDCompliantDonation, Project_model_1.Project],
     define: {
         timestamps: true,
         underscored: true,

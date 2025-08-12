@@ -25,34 +25,27 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create user directly in database without triggering bcrypt hooks
-    const [user] = await User.sequelize!.query(`
-      INSERT INTO users (id, email, password, "companyName", role, "isActive", "emailVerified", "createdAt", "updatedAt")
-      VALUES (:id, :email, :password, :companyName, 'user', true, true, datetime('now'), datetime('now'))
-      RETURNING *
-    `, {
-      replacements: {
-        id: require('uuid').v4(),
-        email: email.toLowerCase(),
-        password: password, // Plain text for demo - hash in production
-        companyName
-      },
-      type: User.sequelize!.QueryTypes.SELECT
+    // Create user using Sequelize ORM (bypasses password hashing hooks)
+    const user = await User.create({
+      email: email.toLowerCase(),
+      password: password, // Plain text for demo - hash in production
+      companyName,
+      role: 'user',
+      isActive: true,
+      emailVerified: true
+    }, {
+      hooks: false // This bypasses the password hashing hook
     });
-
-    if (!user) {
-      throw new Error('User creation failed');
-    }
 
     // Generate tokens
     const token = jwt.sign(
-      { id: (user as any).id, email: (user as any).email, role: (user as any).role },
+      { id: user.dataValues.id, email: user.dataValues.email, role: user.dataValues.role },
       process.env.JWT_SECRET || 'dev-secret-key-change-in-production',
       { expiresIn: '7d' }
     );
 
     const refreshToken = jwt.sign(
-      { id: (user as any).id },
+      { id: user.dataValues.id },
       process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
       { expiresIn: '30d' }
     );
@@ -60,10 +53,10 @@ router.post('/register', async (req, res) => {
     res.status(201).json({
       success: true,
       user: {
-        id: (user as any).id,
-        email: (user as any).email,
-        companyName: (user as any).companyName,
-        role: (user as any).role
+        id: user.dataValues.id,
+        email: user.dataValues.email,
+        companyName: user.dataValues.companyName,
+        role: user.dataValues.role
       },
       token,
       refreshToken
@@ -99,7 +92,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Simple password check for demo
-    if (user.password !== password) {
+    if (user.dataValues.password !== password) {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
@@ -107,13 +100,13 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.dataValues.id, email: user.dataValues.email, role: user.dataValues.role },
       process.env.JWT_SECRET || 'dev-secret-key-change-in-production',
       { expiresIn: '7d' }
     );
 
     const refreshToken = jwt.sign(
-      { id: user.id },
+      { id: user.dataValues.id },
       process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
       { expiresIn: '30d' }
     );
@@ -121,10 +114,10 @@ router.post('/login', async (req, res) => {
     res.json({
       success: true,
       user: {
-        id: user.id,
-        email: user.email,
-        companyName: user.companyName,
-        role: user.role
+        id: user.dataValues.id,
+        email: user.dataValues.email,
+        companyName: user.dataValues.companyName,
+        role: user.dataValues.role
       },
       token,
       refreshToken

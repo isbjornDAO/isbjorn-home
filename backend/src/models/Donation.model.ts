@@ -13,6 +13,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from './User.model';
 import { Charity } from './Charity.model';
 import { Receipt } from './Receipt.model';
+import { NZCompany } from './NZCompany.model';
+import { Project } from './Project.model';
 
 export enum DonationStatus {
   PENDING = 'pending',
@@ -33,12 +35,14 @@ export enum DonationCurrency {
   tableName: 'donations',
   timestamps: true,
   indexes: [
-    { fields: ['userId'] },
-    { fields: ['charityId'] },
+    { fields: ['user_id'] },
+    { fields: ['charity_id'] },
+    { fields: ['company_id'] },
+    { fields: ['project_id'] },
     { fields: ['status'] },
-    { fields: ['createdAt'] },
-    { fields: ['stripePaymentId'] },
-    { fields: ['blockchainTxHash'] },
+    { fields: ['created_at'] },
+    { fields: ['stripe_payment_id'] },
+    { fields: ['blockchain_tx_hash'] },
   ],
 })
 export class Donation extends Model {
@@ -60,6 +64,20 @@ export class Donation extends Model {
     allowNull: false,
   })
   charityId!: string;
+
+  @ForeignKey(() => NZCompany)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  companyId?: string;
+
+  @ForeignKey(() => Project)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  projectId?: string;
 
   @Column({
     type: DataType.DECIMAL(15, 2),
@@ -211,6 +229,12 @@ export class Donation extends Model {
 
   @BelongsTo(() => Charity)
   charity!: Charity;
+
+  @BelongsTo(() => NZCompany)
+  company?: NZCompany;
+
+  @BelongsTo(() => Project)
+  project?: Project;
 
   @HasOne(() => Receipt)
   receipt!: Receipt;

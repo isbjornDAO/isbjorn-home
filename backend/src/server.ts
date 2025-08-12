@@ -5,7 +5,7 @@ import compression from 'compression';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
-import { sequelize } from './config/database-simple';
+import { sequelize } from './config/database';
 import { logger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
@@ -39,7 +39,14 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001', 
+    'http://localhost:3002',
+    'http://localhost:3003',
+    'http://localhost:3004',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
   credentials: true,
   optionsSuccessStatus: 200,
 }));
@@ -80,10 +87,11 @@ async function startServer() {
     await sequelize.authenticate();
     logger.info('Database connection established successfully');
 
-    if (NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      logger.info('Database synchronized');
-    }
+    // Database is already set up via migration
+    // if (NODE_ENV === 'development') {
+    //   await sequelize.sync({ alter: true });
+    //   logger.info('Database synchronized');
+    // }
 
     await initializeRedis();
     logger.info('Redis connection established');

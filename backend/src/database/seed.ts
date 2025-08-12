@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import User from '../models/User.model';
 import Charity from '../models/Charity.model';
 import Project from '../models/Project.model';
 import { logger } from '../utils/logger';
+import { sequelize } from '../config/database';
 
 class DatabaseSeeder {
   
@@ -16,39 +17,27 @@ class DatabaseSeeder {
       }
 
       // Create admin user
-      const adminPassword = await bcrypt.hash('admin123', 10);
       await User.create({
         id: uuidv4(),
         email: 'admin@isbjorn.co.nz',
-        password: adminPassword,
-        firstName: 'System',
-        lastName: 'Administrator',
+        password: 'admin123',
         role: 'admin',
-        isVerified: true,
+        emailVerified: true,
         companyName: 'Isbjorn Foundation',
-        businessNumber: 'NZ1234567890',
-        metadata: {
-          createdBy: 'system',
-          seedData: true
-        }
+        taxId: 'NZ1234567890',
+        description: 'System Administrator Account'
       });
 
       // Create test business user
-      const businessPassword = await bcrypt.hash('business123', 10);
       await User.create({
         id: uuidv4(),
         email: 'business@example.co.nz',
-        password: businessPassword,
-        firstName: 'Test',
-        lastName: 'Business',
-        role: 'business',
-        isVerified: true,
+        password: 'business123',
+        role: 'user',
+        emailVerified: true,
         companyName: 'Example Business Ltd',
-        businessNumber: 'NZ9876543210',
-        metadata: {
-          createdBy: 'system',
-          seedData: true
-        }
+        taxId: 'NZ9876543210',
+        description: 'Test Business Account'
       });
 
       logger.info('✅ Users seeded successfully');
@@ -200,7 +189,7 @@ class DatabaseSeeder {
       }
 
       // Get seeded charities
-      const charities = await Charity.findAll({ where: { 'metadata.seedData': true } });
+      const charities = await Charity.findAll();
       
       if (charities.length === 0) {
         logger.warn('No charities found for project seeding');
@@ -219,11 +208,7 @@ class DatabaseSeeder {
           startDate: new Date('2024-01-01'),
           endDate: new Date('2024-12-31'),
           isActive: true,
-          category: 'Environment',
-          metadata: {
-            imageUrl: 'https://images.unsplash.com/photo-1551446591-142875a901a1',
-            seedData: true
-          }
+          category: 'Environment'
         },
         {
           id: uuidv4(),
@@ -236,10 +221,7 @@ class DatabaseSeeder {
           startDate: new Date('2024-01-01'),
           endDate: new Date('2024-12-31'),
           isActive: true,
-          category: 'Social Services',
-          metadata: {
-            seedData: true
-          }
+          category: 'Social Services'
         }
       ];
 
@@ -269,9 +251,16 @@ class DatabaseSeeder {
 
 // Run seeding if called directly
 if (require.main === module) {
-  const seeder = new DatabaseSeeder();
-  
-  seeder.seedAll()
+  sequelize.authenticate()
+    .then(() => {
+      logger.info('Database connection established successfully');
+      return sequelize.sync();
+    })
+    .then(() => {
+      logger.info('Database synchronized successfully');
+      const seeder = new DatabaseSeeder();
+      return seeder.seedAll();
+    })
     .then(() => {
       logger.info('Seeding completed successfully');
       process.exit(0);

@@ -259,7 +259,7 @@ const DonationForm: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-ice-50">
-      <div className="relative bg-gradient-to-r from-arctic-500 to-polar-500 text-white py-20 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-arctic-500 to-polar-500 text-white py-12 sm:py-16 md:py-20 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-20"
           style={{
@@ -268,23 +268,23 @@ const DonationForm: React.FC = () => {
           }}
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold font-display mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold font-display mb-3 sm:mb-4">
             Choose a Charity
           </h1>
-          <p className="text-xl text-ice-100 max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl text-ice-100 max-w-3xl mx-auto px-4">
             Pick any verified NZ charity to support.
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Filter Categories */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
           {['All', 'Environment', 'Health', 'Social Services', 'Education', 'Emergency Relief'].map((category) => (
             <button
               key={category}
               onClick={() => handleCategorySelect(category)}
-              className={`px-6 py-3 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm ${
+              className={`px-3 sm:px-6 py-2 sm:py-3 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm text-sm sm:text-base ${
                 selectedCategory === category
                   ? 'bg-arctic-500 border-arctic-500 text-white shadow-md'
                   : 'bg-white border-ice-200 text-arctic-700 hover:border-arctic-500 hover:bg-arctic-50'
@@ -306,14 +306,14 @@ const DonationForm: React.FC = () => {
 
         {/* Icon-Focused Charity Grid */}
         {!loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {filteredCharities.map((charity) => (
             <div
               key={charity.id}
               className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-ice-100 hover:border-arctic-200 flex flex-col h-full"
             >
               {/* Hero Image */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-40 sm:h-48 overflow-hidden">
                 <img
                   src={charity.charityPhoto}
                   alt={`${charity.name} charitable work`}
@@ -321,37 +321,38 @@ const DonationForm: React.FC = () => {
                   loading="lazy"
                 />
                 {/* Icon Overlay */}
-                <div className="absolute top-4 right-4 w-24 h-24 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-6xl">{charity.icon}</span>
+                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-16 h-16 sm:w-24 sm:h-24 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-4xl sm:text-6xl">{charity.icon}</span>
                 </div>
                 {/* Verification Badge */}
                 {charity.verified && (
-                  <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-green-500 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold flex items-center">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    Verified
+                    <span className="hidden sm:inline">Verified</span>
+                    <span className="sm:hidden">✓</span>
                   </div>
                 )}
               </div>
 
               {/* Content */}
-              <div className="p-6 flex flex-col flex-1">
+              <div className="p-4 sm:p-6 flex flex-col flex-1">
                 {/* Header */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-arctic-900 mb-2 group-hover:text-arctic-600 transition-colors">
+                    <h3 className="text-lg sm:text-xl font-bold text-arctic-900 mb-2 group-hover:text-arctic-600 transition-colors leading-tight">
                       {charity.name}
                     </h3>
-                    <div className="flex items-center text-sm text-arctic-500 mb-3">
+                    <div className="flex items-center text-xs sm:text-sm text-arctic-500 mb-2 sm:mb-3">
                       <span className="inline-block w-2 h-2 bg-arctic-400 rounded-full mr-2"></span>
-                      {charity.category} • {charity.location}
+                      <span className="truncate">{charity.category} • {charity.location}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Description */}
-                <p className="text-arctic-700 text-sm mb-4 leading-relaxed line-clamp-3">
+                <p className="text-arctic-700 text-sm mb-3 sm:mb-4 leading-relaxed line-clamp-3">
                   {charity.description}
                 </p>
 
@@ -359,15 +360,15 @@ const DonationForm: React.FC = () => {
                 <div className="flex-1"></div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="text-center p-3 bg-ice-50 rounded-lg">
-                    <div className="text-xl font-bold text-arctic-900">
+                <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-3 sm:mb-4">
+                  <div className="text-center p-2 sm:p-3 bg-ice-50 rounded-lg">
+                    <div className="text-lg sm:text-xl font-bold text-arctic-900">
                       ${(charity.totalReceived / 1000).toFixed(0)}k
                     </div>
                     <div className="text-xs text-arctic-500">Total Raised</div>
                   </div>
-                  <div className="text-center p-3 bg-ice-50 rounded-lg">
-                    <div className="text-xl font-bold text-arctic-900">
+                  <div className="text-center p-2 sm:p-3 bg-ice-50 rounded-lg">
+                    <div className="text-lg sm:text-xl font-bold text-arctic-900">
                       {charity.donationCount.toLocaleString()}
                     </div>
                     <div className="text-xs text-arctic-500">Donations</div>
@@ -375,18 +376,19 @@ const DonationForm: React.FC = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <button
                     onClick={() => handleDonate(charity.id)}
-                    className="flex-1 bg-gradient-to-r from-arctic-500 to-arctic-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-arctic-600 hover:to-arctic-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group"
+                    className="flex-1 bg-gradient-to-r from-arctic-500 to-arctic-600 text-white py-2.5 sm:py-3 px-4 rounded-lg font-semibold hover:from-arctic-600 hover:to-arctic-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center group text-sm sm:text-base"
                   >
                     Donate Now
                   </button>
                   <button
                     onClick={() => handleLearnMore(charity.id)}
-                    className="px-4 py-3 border-2 border-arctic-200 text-arctic-700 rounded-lg font-semibold hover:border-arctic-500 hover:bg-arctic-50 transition-all duration-200"
+                    className="px-4 py-2.5 sm:py-3 border-2 border-arctic-200 text-arctic-700 rounded-lg font-semibold hover:border-arctic-500 hover:bg-arctic-50 transition-all duration-200 text-sm sm:text-base"
                   >
-                    Learn More
+                    <span className="hidden sm:inline">Learn More</span>
+                    <span className="sm:hidden">Learn</span>
                   </button>
                 </div>
               </div>
@@ -398,32 +400,32 @@ const DonationForm: React.FC = () => {
 
       {/* Donation Form Modal */}
       {showDonationForm && selectedCharity && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-ice-200 p-6 rounded-t-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto mt-2 sm:mt-0">
+            <div className="sticky top-0 bg-white border-b border-ice-200 p-4 sm:p-6 rounded-t-2xl">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                    <span className="text-4xl">{selectedCharity.icon}</span>
+                <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                    <span className="text-3xl sm:text-4xl">{selectedCharity.icon}</span>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-arctic-900">Donate to {selectedCharity.name}</h2>
-                    <p className="text-arctic-600">{selectedCharity.category}</p>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-lg sm:text-2xl font-bold text-arctic-900 truncate">Donate to {selectedCharity.name}</h2>
+                    <p className="text-sm sm:text-base text-arctic-600">{selectedCharity.category}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowDonationForm(false)}
-                  className="text-arctic-400 hover:text-arctic-600 text-2xl"
+                  className="text-arctic-400 hover:text-arctic-600 text-2xl ml-2 flex-shrink-0"
                 >
                   ×
                 </button>
               </div>
             </div>
 
-            <form onSubmit={handleSubmitDonation} className="p-6 space-y-6">
+            <form onSubmit={handleSubmitDonation} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Company Details */}
               <div>
-                <h3 className="text-lg font-semibold text-arctic-900 mb-4">Company Details</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-arctic-900 mb-3 sm:mb-4">Company Details</h3>
                 <div>
                   <label className="block text-sm font-medium text-arctic-700 mb-2">
                     NZ Company Number
@@ -466,7 +468,7 @@ const DonationForm: React.FC = () => {
               {/* Amount */}
               {companyData && (
                 <div>
-                  <h3 className="text-lg font-semibold text-arctic-900 mb-4">Donation Amount</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-arctic-900 mb-3 sm:mb-4">Donation Amount</h3>
                   <div>
                     <label className="block text-sm font-medium text-arctic-700 mb-2">
                       Amount (NZD)
@@ -484,13 +486,13 @@ const DonationForm: React.FC = () => {
                         required
                       />
                     </div>
-                    <div className="grid grid-cols-4 gap-2 mt-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
                       {[50, 100, 250, 500].map((suggestedAmount) => (
                         <button
                           key={suggestedAmount}
                           type="button"
                           onClick={() => setAmount(suggestedAmount.toString())}
-                          className="py-2 px-4 border border-ice-300 rounded-lg text-sm font-medium text-arctic-700 hover:bg-ice-50 transition-colors"
+                          className="py-2 px-2 sm:px-4 border border-ice-300 rounded-lg text-sm font-medium text-arctic-700 hover:bg-ice-50 transition-colors"
                         >
                           ${suggestedAmount}
                         </button>
@@ -544,7 +546,7 @@ const DonationForm: React.FC = () => {
               {/* Payment */}
               {companyData && amount && contactEmail && (
                 <div>
-                  <h3 className="text-lg font-semibold text-arctic-900 mb-4">Payment Details</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-arctic-900 mb-3 sm:mb-4">Payment Details</h3>
                   <div className="mb-4 p-4 bg-ice-50 rounded-lg">
                     <div className="flex justify-between text-sm mb-2">
                       <span>Company:</span>
@@ -582,15 +584,19 @@ const DonationForm: React.FC = () => {
                   <button
                     type="submit"
                     disabled={!stripe || processingDonation}
-                    className="w-full bg-green-600 text-white py-4 px-4 rounded-lg font-semibold text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-6"
+                    className="w-full bg-green-600 text-white py-3 sm:py-4 px-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-4 sm:mt-6"
                   >
                     {processingDonation ? (
                       <>
                         <LoadingSpinner size="sm" />
-                        <span className="ml-2">Processing Donation...</span>
+                        <span className="ml-2">Processing...</span>
                       </>
                     ) : (
-                      `🚀 Complete Donation ($${amount})`
+                      <>
+                        <span className="mr-2">🚀</span>
+                        <span className="hidden sm:inline">Complete Donation (${amount})</span>
+                        <span className="sm:hidden">Donate ${amount}</span>
+                      </>
                     )}
                   </button>
                 </div>

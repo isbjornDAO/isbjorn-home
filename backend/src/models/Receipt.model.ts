@@ -11,15 +11,17 @@ import {
 } from 'sequelize-typescript';
 import { v4 as uuidv4 } from 'uuid';
 import { Donation } from './Donation.model';
+import { IRDCompliantDonation } from './IRDCompliantDonation.model';
 
 @Table({
   tableName: 'receipts',
   timestamps: true,
   indexes: [
-    { fields: ['donationId'] },
-    { fields: ['receiptNumber'] },
-    { fields: ['issueDate'] },
-    { fields: ['taxYear'] },
+    { fields: ['donation_id'] },
+    { fields: ['ird_donation_id'] },
+    { fields: ['receipt_number'] },
+    { fields: ['issue_date'] },
+    { fields: ['tax_year'] },
   ],
 })
 export class Receipt extends Model {
@@ -34,6 +36,13 @@ export class Receipt extends Model {
     allowNull: false,
   })
   donationId!: string;
+
+  @ForeignKey(() => IRDCompliantDonation)
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  irdDonationId?: string;
 
   @Unique
   @Column({
@@ -178,6 +187,9 @@ export class Receipt extends Model {
 
   @BelongsTo(() => Donation)
   donation!: Donation;
+
+  @BelongsTo(() => IRDCompliantDonation)
+  irdDonation?: IRDCompliantDonation;
 
   static generateReceiptNumber(taxYear: number, sequenceNumber: number): string {
     return `ISB${taxYear}${sequenceNumber.toString().padStart(6, '0')}`;

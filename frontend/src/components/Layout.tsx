@@ -63,12 +63,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {isAuthenticated && user ? (
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1 sm:space-x-3">
                   <Link
                     to="/dashboard"
-                    className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-ice-700 hover:bg-ice-50 transition-colors"
+                    className="flex items-center space-x-2 px-2 sm:px-4 py-2 rounded-lg text-sm font-medium text-ice-700 hover:bg-ice-50 transition-colors"
                   >
                     <UserCircleIcon className="w-5 h-5" />
                     <span className="hidden sm:inline">{user.companyName}</span>
@@ -101,18 +101,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 sm:space-x-3">
                   <Link
                     to="/login"
-                    className="px-4 py-2 text-sm font-medium text-ice-700 hover:text-ice-900 transition-colors"
+                    className="hidden sm:block px-4 py-2 text-sm font-medium text-ice-700 hover:text-ice-900 transition-colors"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/donate"
-                    className="btn-primary text-sm"
+                    className="btn-primary text-sm px-3 sm:px-6 py-2 sm:py-3"
                   >
-                    Donate Now
+                    <span className="hidden sm:inline">Donate Now</span>
+                    <span className="sm:hidden">Donate</span>
                   </Link>
                 </div>
               )}

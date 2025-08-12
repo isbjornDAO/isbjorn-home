@@ -1,23 +1,8 @@
-import { Sequelize } from 'sequelize';
-import config from '../config/database.simple';
+import { sequelize } from '../config/database';
 import { logger } from '../utils/logger';
 
-// Import all models
-import User from '../models/User.model';
-import Charity from '../models/Charity.model';
-import Project from '../models/Project.model';
-import Donation from '../models/Donation.model';
-import Receipt from '../models/Receipt.model';
-import IRDCompliantDonation from '../models/IRDCompliantDonation.model';
-import BlockchainTransaction from '../models/BlockchainTransaction.model';
-import NZCompany from '../models/NZCompany.model';
-
 class DatabaseMigrator {
-  private sequelize: Sequelize;
-
-  constructor() {
-    this.sequelize = new Sequelize(config);
-  }
+  private sequelize = sequelize;
 
   async migrate(): Promise<void> {
     try {
@@ -27,20 +12,8 @@ class DatabaseMigrator {
       await this.sequelize.authenticate();
       logger.info('Database connection established successfully.');
 
-      // Add models to sequelize instance
-      this.sequelize.addModels([
-        User,
-        Charity,
-        Project,
-        Donation,
-        Receipt,
-        IRDCompliantDonation,
-        BlockchainTransaction,
-        NZCompany
-      ]);
-
       // Sync database
-      await this.sequelize.sync({ alter: true });
+      await this.sequelize.sync({ force: true });
       logger.info('🎉 Database migration completed successfully!');
 
     } catch (error) {

@@ -48,11 +48,13 @@ class SetupScript {
       // Migrate database
       const migrator = new DatabaseMigrator();
       await migrator.migrate();
-      await migrator.close();
       
       // Seed database
       const seeder = new DatabaseSeeder();
       await seeder.seedAll();
+      
+      // Close database connection
+      await migrator.close();
       
       logger.info('🎉 Setup completed successfully!');
       logger.info('');

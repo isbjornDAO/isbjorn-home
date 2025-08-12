@@ -30,7 +30,7 @@ router.get('/health', (req, res) => {
 });
 
 // API routes  
-router.use('/auth', demoAuthRoutes); // Using demo auth for now
+router.use('/auth', workingAuthRoutes); // Using working auth with real database
 router.use('/donations', streamlinedDonationRoutes); // New streamlined endpoints
 router.use('/donations-legacy', donationRoutes); // Legacy donation endpoints
 router.use('/projects', projectRoutes);
