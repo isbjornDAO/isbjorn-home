@@ -394,3 +394,30 @@ Executing (default): SELECT 1+1 AS result
 [32minfo[39m: Background jobs initialized {"service":"isbjorn-api","timestamp":"2025-08-12 22:40:47"}
 [32minfo[39m: Server running on port 5000 in development mode {"service":"isbjorn-api","timestamp":"2025-08-12 22:40:47"}
 [32minfo[39m: API Documentation: http://localhost:5000/api-docs {"service":"isbjorn-api","timestamp":"2025-08-12 22:40:47"}
+10:43:31 PM [tsx] change in ./src/routes/streamlinedDonations.ts Restarting...
+[32minfo[39m: SIGTERM signal received: closing HTTP server {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[32minfo[39m: Database connection closed {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+c[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[33mwarn[39m: Xero credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[33mwarn[39m: MYOB credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[33mwarn[39m: IRD API key not configured - using mock compliance data for development {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+Executing (default): SELECT 1+1 AS result
+[32minfo[39m: Database connection established successfully {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[31merror[39m: Redis connection error: connect ECONNREFUSED 127.0.0.1:6379 {"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-08-12 22:43:31"}
+[33mwarn[39m: Redis not available; continuing without cache {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[32minfo[39m: Redis connection established {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[31merror[39m: Failed to initialize blockchain service: Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:116:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-12 22:43:31"}
+[33mwarn[39m: Blockchain initialization failed - running without blockchain features Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:116:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-12 22:43:31"}
+[32minfo[39m: Job processing initialized {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[32minfo[39m: Background jobs initialized {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[32minfo[39m: Server running on port 5000 in development mode {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[32minfo[39m: API Documentation: http://localhost:5000/api-docs {"service":"isbjorn-api","timestamp":"2025-08-12 22:43:31"}
+[0mGET /api/public/charities [36m304[0m 2.954 ms - -[0m
+[32minfo[39m: Request completed {"duration":"5ms","ip":"::1","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-08-12 22:47:58","url":"/api/public/charities","userAgent":"Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0"}
+[0mGET /api/public/charities [32m200[0m 0.568 ms - -[0m
+[32minfo[39m: Request completed {"duration":"5ms","ip":"::1","method":"GET","service":"isbjorn-api","statusCode":200,"timestamp":"2025-08-12 22:47:58","url":"/api/public/charities","userAgent":"Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0"}
+[0mGET /api/public/charities [36m304[0m 0.481 ms - -[0m
+[32minfo[39m: Request completed {"duration":"0ms","ip":"::1","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-08-12 22:47:59","url":"/api/public/charities","userAgent":"Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0"}
+[0mGET /api/public/charities [36m304[0m 0.762 ms - -[0m
+[32minfo[39m: Request completed {"duration":"1ms","ip":"::1","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-08-12 22:47:59","url":"/api/public/charities","userAgent":"Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0"}
