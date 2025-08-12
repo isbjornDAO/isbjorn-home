@@ -22,6 +22,7 @@
     "deploy": "docker-compose up -d",
     "contracts:deploy": "cd smart-contracts && npx hardhat run scripts/deploy.ts"
   },
+  "main": "backend/dist/server.js",
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
