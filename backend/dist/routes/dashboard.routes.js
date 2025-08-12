@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const auth_1 = require("../middleware/auth");
 const Donation_model_1 = require("../models/Donation.model");
 const Charity_model_1 = require("../models/Charity.model");
+const logger_1 = require("../utils/logger");
 const router = express_1.default.Router();
 exports.dashboardRoutes = router;
 router.get('/stats', auth_1.authenticateToken, async (req, res) => {
@@ -37,7 +38,7 @@ router.get('/stats', auth_1.authenticateToken, async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Error fetching dashboard stats:', error);
+        logger_1.logger.error('Error fetching dashboard stats:', error);
         res.status(500).json({ error: 'Failed to fetch dashboard stats' });
     }
 });

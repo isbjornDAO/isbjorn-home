@@ -29,12 +29,16 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 app.use((0, helmet_1.default)({
     contentSecurityPolicy: {
         directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", 'https://js.stripe.com'],
-            styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-            imgSrc: ["'self'", 'data:', 'https:'],
-            connectSrc: ["'self'", 'https://api.stripe.com', 'https://api.avax.network', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005'],
+            defaultSrc: ["'self'", 'https:', 'data:'],
+            scriptSrc: ["'self'", "'unsafe-inline'", 'https://js.stripe.com', 'https://cdn.jsdelivr.net'],
+            styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
+            imgSrc: ["'self'", 'data:', 'https:', 'blob:', 'http:'],
+            fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+            connectSrc: ["'self'", 'https://api.stripe.com', 'https://api.avax.network', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:*'],
             frameSrc: ["'self'", 'https://js.stripe.com'],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'", 'https:'],
+            manifestSrc: ["'self'"],
         },
     },
     crossOriginEmbedderPolicy: false,
@@ -89,6 +93,15 @@ if (NODE_ENV === 'development') {
     app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerDocument));
 }
 app.use('/api', routes_1.default);
+// Serve static files from the frontend build in production
+if (NODE_ENV === 'production') {
+    // Serve static files from frontend build
+    app.use(express_1.default.static(path_1.default.join(__dirname, '../../frontend/dist')));
+    // Handle all other routes by serving the frontend index.html (SPA routing)
+    app.get('*', (req, res) => {
+        res.sendFile(path_1.default.join(__dirname, '../../frontend/dist/index.html'));
+    });
+}
 app.use(errorHandler_1.errorHandler);
 const server = (0, http_1.createServer)(app);
 async function startServer() {

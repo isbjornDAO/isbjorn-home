@@ -31,3 +31,11 @@ AggregateError [ECONNREFUSED]:
 9:58:35 PM [vite] hmr update /src/pages/CharityDetailsPage.tsx, /src/styles/index.css
 9:58:41 PM [vite] hmr update /src/pages/CharityDetailsPage.tsx, /src/styles/index.css
 9:58:51 PM [vite] hmr update /src/pages/CharityDetailsPage.tsx, /src/styles/index.css
+10:58:03 PM [vite] hmr update /src/styles/index.css, /src/contexts/AuthContext.tsx
+10:58:03 PM [vite] vite.config.ts changed, restarting server...
+10:58:03 PM [vite] hmr update /src/pages/DonatePage.tsx, /src/styles/index.css
+10:58:03 PM [vite] hmr update /src/contexts/StripeContext.tsx, /src/styles/index.css
+10:58:03 PM [vite] hmr update /src/pages/CharityDetailsPage.tsx, /src/styles/index.css
+10:58:03 PM [vite] server restarted.
+11:43:16 PM [vite] vite.config.ts changed, restarting server...
+11:43:16 PM [vite] server restarted.

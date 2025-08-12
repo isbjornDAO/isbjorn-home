@@ -32,7 +32,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
       imgSrc: ["'self'", 'data:', 'https:', 'blob:', 'http:'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-      connectSrc: ["'self'", 'https://api.stripe.com', 'https://api.avax.network', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:*'],
+      connectSrc: ["'self'", 'https://api.stripe.com', 'https://api.avax.network', 'https://api.avax-test.network', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005', 'http://localhost:*'],
       frameSrc: ["'self'", 'https://js.stripe.com'],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'", 'https:'],
@@ -54,7 +54,10 @@ const allowedOrigins = [
   'http://localhost:3007',
   'http://localhost:3008',
   'http://localhost:3009',
-  process.env.FRONTEND_URL || ''
+  process.env.FRONTEND_URL || '',
+  // Allow Railway domains
+  'https://*.up.railway.app',
+  'https://*.railway.app'
 ].filter(Boolean);
 
 app.use(cors({
@@ -63,6 +66,10 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) return callback(null, true);
     // Allow any localhost in development to avoid random port issues
     if (NODE_ENV === 'development' && /^http:\/\/localhost:\d{4,5}$/.test(origin)) {
+      return callback(null, true);
+    }
+    // Allow Railway domains
+    if (origin.includes('.up.railway.app') || origin.includes('.railway.app')) {
       return callback(null, true);
     }
     return callback(new Error(`Not allowed by CORS: ${origin}`));

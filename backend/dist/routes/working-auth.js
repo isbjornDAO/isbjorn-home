@@ -7,6 +7,7 @@ exports.workingAuthRoutes = void 0;
 const express_1 = __importDefault(require("express"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_model_1 = require("../models/User.model");
+const logger_1 = require("../utils/logger");
 const router = express_1.default.Router();
 exports.workingAuthRoutes = router;
 // Working registration - bypasses bcrypt for now
@@ -54,7 +55,7 @@ router.post('/register', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Registration error:', error);
+        logger_1.logger.error('Registration error:', error);
         res.status(500).json({
             success: false,
             message: `Registration failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -100,7 +101,7 @@ router.post('/login', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Login error:', error);
+        logger_1.logger.error('Login error:', error);
         res.status(500).json({
             success: false,
             message: `Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -128,7 +129,7 @@ router.get('/me', async (req, res) => {
         });
     }
     catch (error) {
-        console.error('Get current user error:', error);
+        logger_1.logger.error('Get current user error:', error);
         res.status(401).json({ success: false, message: 'Invalid token' });
     }
 });

@@ -14,10 +14,10 @@ class NZCompaniesRegisterService {
     lastRequestTime = 0;
     constructor() {
         this.apiKey = process.env.NZ_COMPANIES_API_KEY || '';
-        // Temporary: Always use mock data until API key is obtained
-        this.apiKey = ''; // TODO: Remove this line when API key is available
         if (!this.apiKey) {
             logger_1.logger.warn('NZ Companies API key not configured - using mock data for development');
+            logger_1.logger.info('To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable');
+            logger_1.logger.info('Get API key from: https://www.business.govt.nz/developers/');
         }
     }
     /**

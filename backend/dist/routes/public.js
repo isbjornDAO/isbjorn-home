@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const logger_1 = require("../utils/logger");
 const router = express_1.default.Router();
 router.get('/charities', async (req, res) => {
     try {
@@ -172,7 +173,7 @@ router.get('/charities', async (req, res) => {
         res.json({ success: true, data: staticCharities });
     }
     catch (error) {
-        console.error('Error fetching charities:', error);
+        logger_1.logger.error('Error fetching charities:', error);
         // Return static data even if database fails
         const staticCharities = [
             {
