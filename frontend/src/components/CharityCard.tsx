@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
-import { HeartIcon, MapPinIcon, CheckBadgeIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, CheckBadgeIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { 
   AcademicCapIcon, 
   HomeIcon, 

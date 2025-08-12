@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.model';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 
@@ -63,7 +64,7 @@ router.post('/register', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    logger.error('Registration error:', error);
     res.status(500).json({
       success: false,
       message: `Registration failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -124,7 +125,7 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error:', error);
     res.status(500).json({
       success: false,
       message: `Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -154,7 +155,7 @@ router.get('/me', async (req, res) => {
       role: user.dataValues.role,
     });
   } catch (error) {
-    console.error('Get current user error:', error);
+    logger.error('Get current user error:', error);
     res.status(401).json({ success: false, message: 'Invalid token' });
   }
 });

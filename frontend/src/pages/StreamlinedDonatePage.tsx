@@ -302,7 +302,7 @@ const StreamlinedDonationForm: React.FC = () => {
 
                 {loading && companyNumber && (
                   <div className="flex items-center text-arctic-600">
-                    <LoadingSpinner size="sm" />
+                    <LoadingSpinner size="small" />
                     <span className="ml-2">Looking up company...</span>
                   </div>
                 )}
@@ -561,7 +561,7 @@ const StreamlinedDonationForm: React.FC = () => {
                 >
                   {loading ? (
                     <>
-                      <LoadingSpinner size="sm" />
+                      <LoadingSpinner size="small" />
                       <span className="ml-2">Processing Donation...</span>
                     </>
                   ) : (

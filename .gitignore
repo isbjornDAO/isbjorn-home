@@ -1,0 +1,7 @@
+# Build artifacts
+frontend/dist/
+backend/dist/
+*.log
+*.pid
+dump.rdb
+node_modules/

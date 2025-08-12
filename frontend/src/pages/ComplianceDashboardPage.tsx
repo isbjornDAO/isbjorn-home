@@ -162,7 +162,7 @@ const ComplianceDashboardPage: React.FC = () => {
               >
                 {loading ? (
                   <div className="flex items-center">
-                    <LoadingSpinner size="sm" />
+                    <LoadingSpinner size="small" />
                     <span className="ml-2">Loading...</span>
                   </div>
                 ) : (

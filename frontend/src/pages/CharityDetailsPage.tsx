@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useStripe, useElements, CardElement, PaymentRequestButtonElement } from '@stripe/react-stripe-js';
@@ -180,9 +180,9 @@ const CharityDetailsPage: React.FC = () => {
                   <div className="text-6xl">{charity.icon || '🐻‍❄️'}</div>
                 </div>
                 <div className="absolute -bottom-16 left-8">
-                  <img
-                    src={charity.logoUrl}
-                    alt={`${charity.name} logo`}
+            <img
+              src={charity.logoUrl}
+              alt={`${charity.name} logo`}
                     className="w-32 h-32 rounded-2xl object-cover border-4 border-white shadow-lg"
                   />
                 </div>
@@ -190,8 +190,8 @@ const CharityDetailsPage: React.FC = () => {
               <div className="pt-20 pb-8 px-8">
                 <div className="flex items-center justify-between mb-4">
                   <h1 className="text-4xl font-bold text-arctic-900 font-display">
-                    {charity.name}
-                  </h1>
+                {charity.name}
+              </h1>
                   {charity.verified && (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                       ✓ Verified
@@ -203,10 +203,10 @@ const CharityDetailsPage: React.FC = () => {
                   {charity.location}
                 </p>
                 <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-arctic-100 text-arctic-700">
-                  {charity.category}
-                </span>
-              </div>
+                {charity.category}
+              </span>
             </div>
+          </div>
 
             {/* Description */}
             {charity.fullDescription && (
@@ -215,8 +215,8 @@ const CharityDetailsPage: React.FC = () => {
                 <div className="prose max-w-none text-arctic-700 text-lg leading-relaxed">
                   {charity.fullDescription.split('\n').map((paragraph: string, index: number) => (
                     <p key={index} className="mb-6 last:mb-0">{paragraph}</p>
-                  ))}
-                </div>
+            ))}
+          </div>
               </div>
             )}
 
@@ -307,15 +307,15 @@ const CharityDetailsPage: React.FC = () => {
                   )}
                   {charity.id === '6' && (
                     <>
-                      <div className="text-center">
+            <div className="text-center">
                         <div className="text-4xl font-bold mb-2">{charity.impact.peopleAssisted}</div>
                         <div className="text-arctic-100 text-sm">People Assisted</div>
-                      </div>
-                      <div className="text-center">
+            </div>
+            <div className="text-center">
                         <div className="text-4xl font-bold mb-2">{charity.impact.emergencyResponses}</div>
                         <div className="text-arctic-100 text-sm">Emergency Responses</div>
-                      </div>
-                      <div className="text-center">
+            </div>
+            <div className="text-center">
                         <div className="text-4xl font-bold mb-2">{charity.impact.communitiesServed}</div>
                         <div className="text-arctic-100 text-sm">Communities Served</div>
                       </div>
@@ -520,7 +520,7 @@ const CharityDetailsPage: React.FC = () => {
                       >
                         <span>🍎</span>
                         <span>Pay (Demo - Apple Pay not available)</span>
-                      </button>
+            </button>
                     </div>
                   )}
                   
@@ -572,7 +572,7 @@ const CharityDetailsPage: React.FC = () => {
               >
                 {submitting ? (
                   <>
-                    <LoadingSpinner size="sm" />
+                    <LoadingSpinner size="small" />
                     <span className="ml-2">Processing...</span>
                   </>
                 ) : (
@@ -581,7 +581,7 @@ const CharityDetailsPage: React.FC = () => {
                     Complete Donation {amount && `($${amount})`}
                   </>
                 )}
-              </button>
+            </button>
 
               <div className="text-center text-sm text-arctic-500">
                 <p>🔒 Secure payment powered by Stripe</p>

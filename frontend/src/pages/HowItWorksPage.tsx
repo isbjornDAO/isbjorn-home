@@ -131,7 +131,7 @@ const HowItWorksPage: React.FC = () => {
                     <step.icon className="w-8 h-8 text-arctic-600" />
                   ) : (
                     <img
-                      src={step.icon}
+                      src={step.icon as string}
                       alt={step.title}
                       className="w-8 h-8 object-contain"
                       loading="lazy"

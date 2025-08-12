@@ -3,6 +3,7 @@ import { authenticateToken } from '../middleware/auth';
 import { Donation } from '../models/Donation.model';
 import { User } from '../models/User.model';
 import { Charity } from '../models/Charity.model';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
       lastDonationDate
     });
   } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
+    logger.error('Error fetching dashboard stats:', error);
     res.status(500).json({ error: 'Failed to fetch dashboard stats' });
   }
 });

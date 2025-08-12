@@ -1,5 +1,6 @@
 import express from 'express';
 import { Charity } from '../models/Charity.model';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 
@@ -172,7 +173,7 @@ router.get('/charities', async (req, res) => {
     
     res.json({ success: true, data: staticCharities });
   } catch (error) {
-    console.error('Error fetching charities:', error);
+    logger.error('Error fetching charities:', error);
     
     // Return static data even if database fails
     const staticCharities = [

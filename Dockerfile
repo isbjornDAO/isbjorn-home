@@ -5,14 +5,19 @@ WORKDIR /app
 # Copy root package files for workspace support
 COPY package*.json ./
 COPY backend/package*.json ./backend/
+COPY frontend/package*.json ./frontend/
 
 # Install dependencies (this will install workspace dependencies)
 RUN npm install
 
-# Copy backend source code
+# Copy source code
 COPY backend/ ./backend/
+COPY frontend/ ./frontend/
 
-# Build only the backend (avoid building frontend)
+# Build frontend first
+RUN cd frontend && npm run build
+
+# Build backend
 RUN cd backend && npm run build
 
 # Expose port

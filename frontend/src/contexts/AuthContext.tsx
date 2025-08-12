@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      const { user, token } = await authService.login(email, password);
+      const { user, token } = await authService.login({ email, password });
       localStorage.setItem('authToken', token);
       setState({
         user,
