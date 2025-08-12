@@ -58,7 +58,7 @@ export class Project extends Model {
   @PrimaryKey
   @Default(uuidv4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @Column({
     type: DataType.STRING,

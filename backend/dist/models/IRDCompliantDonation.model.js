@@ -24,7 +24,6 @@ var ComplianceStatus;
     ComplianceStatus["REQUIRES_REVIEW"] = "requires_review";
 })(ComplianceStatus || (exports.ComplianceStatus = ComplianceStatus = {}));
 let IRDCompliantDonation = IRDCompliantDonation_1 = class IRDCompliantDonation extends sequelize_typescript_1.Model {
-    id;
     // IRD Required Fields (exact IRD255 compliance)
     receiptNumber; // ISB-2024-001234
     legalDonationStatement;

@@ -28,7 +28,6 @@ var TransactionType;
     TransactionType["ADMIN"] = "admin";
 })(TransactionType || (exports.TransactionType = TransactionType = {}));
 let BlockchainTransaction = class BlockchainTransaction extends sequelize_typescript_1.Model {
-    id;
     txHash;
     donationId;
     type;
@@ -241,11 +240,11 @@ exports.BlockchainTransaction = BlockchainTransaction = __decorate([
         tableName: 'blockchain_transactions',
         timestamps: true,
         indexes: [
-            { fields: ['txHash'] },
-            { fields: ['donationId'] },
+            { fields: ['tx_hash'] },
+            { fields: ['donation_id'] },
             { fields: ['status'] },
             { fields: ['type'] },
-            { fields: ['createdAt'] },
+            { fields: ['created_at'] },
         ],
     })
 ], BlockchainTransaction);

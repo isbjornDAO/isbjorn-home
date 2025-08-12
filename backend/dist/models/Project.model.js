@@ -28,7 +28,6 @@ var ProjectStatus;
     ProjectStatus["PAUSED"] = "paused";
 })(ProjectStatus || (exports.ProjectStatus = ProjectStatus = {}));
 let Project = class Project extends sequelize_typescript_1.Model {
-    id;
     name;
     description;
     longDescription;

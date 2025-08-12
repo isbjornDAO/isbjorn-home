@@ -20,10 +20,25 @@ export class Charity extends Model {
   @PrimaryKey
   @Default(uuidv4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @Column(DataType.STRING)
-  charityNumber!: string;
+  declare charityNumber: string;
+
+  @Column(DataType.STRING)
+  declare legalName: string;
+
+  @Column(DataType.STRING)
+  declare diaCharitiesNumber: string;
+
+  @Column(DataType.STRING)
+  declare doneeOrganisationNumber: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  declare isDoneeOrganisation: boolean;
 
   @Column(DataType.STRING)
   name!: string;
@@ -95,10 +110,10 @@ export class Charity extends Model {
   donations!: Donation[];
 
   @CreatedAt
-  createdAt!: Date;
+  declare createdAt: Date;
 
   @UpdatedAt
-  updatedAt!: Date;
+  declare updatedAt: Date;
 }
 
 export default Charity;

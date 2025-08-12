@@ -28,7 +28,7 @@ export class Receipt extends Model {
   @PrimaryKey
   @Default(uuidv4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @ForeignKey(() => Donation)
   @Column({

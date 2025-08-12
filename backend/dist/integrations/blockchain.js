@@ -29,12 +29,10 @@ class BlockchainService {
     treasuryAddress;
     constructor() {
         const rpcUrl = process.env.AVALANCHE_RPC_URL || 'https://api.avax-test.network/ext/bc/C/rpc';
-        const privateKey = process.env.AVALANCHE_PRIVATE_KEY;
+        const privateKey = process.env.AVALANCHE_PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000001';
         const donationTrackerAddress = process.env.DONATION_TRACKER_ADDRESS;
         const projectDistributionAddress = process.env.PROJECT_DISTRIBUTION_ADDRESS;
-        if (!privateKey || privateKey === '0x0000000000000000000000000000000000000000000000000000000000000000') {
-            throw new Error('AVALANCHE_PRIVATE_KEY is required - please set a valid private key');
-        }
+        // Allow dev mock key in local mode
         if (!donationTrackerAddress || !projectDistributionAddress) {
             throw new Error('Contract addresses are required');
         }

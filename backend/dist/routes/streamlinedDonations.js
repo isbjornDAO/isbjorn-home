@@ -217,8 +217,7 @@ companyNumberValidation, controller.autoPopulateCompany);
  *                       totalDonations:
  *                         type: number
  */
-router.get('/charities/verified-dropdown', (0, rateLimiter_1.rateLimitMiddleware)({ windowMs: 60000, max: 30 }), // 30 requests per minute
-controller.getVerifiedCharities);
+router.get('/charities/verified-dropdown', (0, rateLimiter_1.rateLimitMiddleware)({ windowMs: 60000, max: 30 }), controller.getVerifiedCharities);
 /**
  * @swagger
  * /api/charities/search:

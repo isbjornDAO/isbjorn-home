@@ -32,7 +32,7 @@ export class User extends Model {
   @PrimaryKey
   @Default(uuidv4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @Unique
   @Column({

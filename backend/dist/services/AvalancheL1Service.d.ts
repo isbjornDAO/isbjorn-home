@@ -40,8 +40,8 @@ declare class AvalancheL1Service {
         name: string;
         walletAddress: string;
         balance: string;
-        contractAddress: string | undefined;
-    } | null>;
+        contractAddress: string;
+    }>;
     /**
      * Health check for Avalanche L1 connection
      */

@@ -2,6 +2,8 @@ import { Model } from 'sequelize-typescript';
 import { User } from './User.model';
 import { Charity } from './Charity.model';
 import { Receipt } from './Receipt.model';
+import { NZCompany } from './NZCompany.model';
+import { Project } from './Project.model';
 export declare enum DonationStatus {
     PENDING = "pending",
     PROCESSING = "processing",
@@ -19,6 +21,8 @@ export declare class Donation extends Model {
     id: string;
     userId: string;
     charityId: string;
+    companyId?: string;
+    projectId?: string;
     amount: number;
     currency: DonationCurrency;
     exchangeRate?: number;
@@ -51,6 +55,8 @@ export declare class Donation extends Model {
     failureReason?: string;
     user: User;
     charity: Charity;
+    company?: NZCompany;
+    project?: Project;
     receipt: Receipt;
     get isCompleted(): boolean;
     get isPending(): boolean;

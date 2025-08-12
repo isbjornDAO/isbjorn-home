@@ -27,11 +27,13 @@ router.post('/register', async (req, res, next) => {
 });
 router.get('/me', async (req, res, next) => {
     try {
-        const userId = req.user?.id;
-        if (!userId) {
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+        if (!token) {
             return res.status(401).json({ message: 'Not authenticated' });
         }
-        const user = await authService_1.authService.getCurrentUser(userId);
+        const decoded = authService_1.authService.verifyToken(token);
+        const user = await authService_1.authService.getCurrentUser(decoded.id);
         res.json(user);
     }
     catch (error) {

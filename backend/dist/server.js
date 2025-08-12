@@ -10,7 +10,7 @@ const compression_1 = __importDefault(require("compression"));
 const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const http_1 = require("http");
-const database_simple_1 = require("./config/database-simple");
+const database_1 = require("./config/database");
 const logger_1 = require("./utils/logger");
 const errorHandler_1 = require("./middleware/errorHandler");
 const rateLimiter_1 = require("./middleware/rateLimiter");
@@ -31,16 +31,40 @@ app.use((0, helmet_1.default)({
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", 'https://js.stripe.com'],
-            styleSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
             imgSrc: ["'self'", 'data:', 'https:'],
-            connectSrc: ["'self'", 'https://api.stripe.com', 'https://api.avax.network'],
+            connectSrc: ["'self'", 'https://api.stripe.com', 'https://api.avax.network', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:3004', 'http://localhost:3005'],
             frameSrc: ["'self'", 'https://js.stripe.com'],
         },
     },
     crossOriginEmbedderPolicy: false,
 }));
+// CORS
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:3003',
+    'http://localhost:3004',
+    'http://localhost:3005',
+    'http://localhost:3006',
+    'http://localhost:3007',
+    'http://localhost:3008',
+    'http://localhost:3009',
+    process.env.FRONTEND_URL || ''
+].filter(Boolean);
 app.use((0, cors_1.default)({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.includes(origin))
+            return callback(null, true);
+        // Allow any localhost in development to avoid random port issues
+        if (NODE_ENV === 'development' && /^http:\/\/localhost:\d{4,5}$/.test(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error(`Not allowed by CORS: ${origin}`));
+    },
     credentials: true,
     optionsSuccessStatus: 200,
 }));
@@ -69,12 +93,13 @@ app.use(errorHandler_1.errorHandler);
 const server = (0, http_1.createServer)(app);
 async function startServer() {
     try {
-        await database_simple_1.sequelize.authenticate();
+        await database_1.sequelize.authenticate();
         logger_1.logger.info('Database connection established successfully');
-        if (NODE_ENV === 'development') {
-            await database_simple_1.sequelize.sync({ alter: true });
-            logger_1.logger.info('Database synchronized');
-        }
+        // Database is already set up via migration
+        // if (NODE_ENV === 'development') {
+        //   await sequelize.sync({ alter: true });
+        //   logger.info('Database synchronized');
+        // }
         await (0, redis_1.initializeRedis)();
         logger_1.logger.info('Redis connection established');
         try {
@@ -99,7 +124,7 @@ async function startServer() {
 process.on('SIGTERM', async () => {
     logger_1.logger.info('SIGTERM signal received: closing HTTP server');
     server.close(async () => {
-        await database_simple_1.sequelize.close();
+        await database_1.sequelize.close();
         logger_1.logger.info('Database connection closed');
         process.exit(0);
     });

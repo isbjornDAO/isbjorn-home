@@ -13,9 +13,10 @@ exports.Receipt = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const uuid_1 = require("uuid");
 const Donation_model_1 = require("./Donation.model");
+const IRDCompliantDonation_model_1 = require("./IRDCompliantDonation.model");
 let Receipt = class Receipt extends sequelize_typescript_1.Model {
-    id;
     donationId;
+    irdDonationId;
     receiptNumber;
     issueDate;
     taxYear;
@@ -35,6 +36,7 @@ let Receipt = class Receipt extends sequelize_typescript_1.Model {
     notes;
     compliance;
     donation;
+    irdDonation;
     static generateReceiptNumber(taxYear, sequenceNumber) {
         return `ISB${taxYear}${sequenceNumber.toString().padStart(6, '0')}`;
     }
@@ -60,6 +62,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Receipt.prototype, "donationId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => IRDCompliantDonation_model_1.IRDCompliantDonation),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.UUID,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Receipt.prototype, "irdDonationId", void 0);
 __decorate([
     sequelize_typescript_1.Unique,
     (0, sequelize_typescript_1.Column)({
@@ -192,15 +202,20 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => Donation_model_1.Donation),
     __metadata("design:type", Donation_model_1.Donation)
 ], Receipt.prototype, "donation", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => IRDCompliantDonation_model_1.IRDCompliantDonation),
+    __metadata("design:type", IRDCompliantDonation_model_1.IRDCompliantDonation)
+], Receipt.prototype, "irdDonation", void 0);
 exports.Receipt = Receipt = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: 'receipts',
         timestamps: true,
         indexes: [
-            { fields: ['donationId'] },
-            { fields: ['receiptNumber'] },
-            { fields: ['issueDate'] },
-            { fields: ['taxYear'] },
+            { fields: ['donation_id'] },
+            { fields: ['ird_donation_id'] },
+            { fields: ['receipt_number'] },
+            { fields: ['issue_date'] },
+            { fields: ['tax_year'] },
         ],
     })
 ], Receipt);

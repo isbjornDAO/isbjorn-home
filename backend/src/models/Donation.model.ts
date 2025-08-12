@@ -49,7 +49,7 @@ export class Donation extends Model {
   @PrimaryKey
   @Default(uuidv4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   @ForeignKey(() => User)
   @Column({

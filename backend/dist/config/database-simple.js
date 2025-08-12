@@ -13,7 +13,10 @@ exports.sequelize = new sequelize_typescript_1.Sequelize({
     models: [
         path_1.default.join(__dirname, '../models/User.model.ts'),
         path_1.default.join(__dirname, '../models/Charity.model.ts'),
+        path_1.default.join(__dirname, '../models/NZCompany.model.ts'),
+        path_1.default.join(__dirname, '../models/Project.model.ts'),
         path_1.default.join(__dirname, '../models/Donation.model.ts'),
+        path_1.default.join(__dirname, '../models/IRDCompliantDonation.model.ts'),
         path_1.default.join(__dirname, '../models/Receipt.model.ts'),
         path_1.default.join(__dirname, '../models/BlockchainTransaction.model.ts'),
     ],

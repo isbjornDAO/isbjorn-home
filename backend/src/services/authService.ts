@@ -31,14 +31,14 @@ export class AuthService {
       role: user.role,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+    const token = jwt.sign(payload, process.env.JWT_SECRET! as string, {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-    });
+    } as any);
 
     const refreshToken = jwt.sign(
       { id: user.id },
-      process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d' }
+      process.env.JWT_REFRESH_SECRET! as string,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d' } as any
     );
 
     return { token, refreshToken };

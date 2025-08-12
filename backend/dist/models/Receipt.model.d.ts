@@ -1,8 +1,10 @@
 import { Model } from 'sequelize-typescript';
 import { Donation } from './Donation.model';
+import { IRDCompliantDonation } from './IRDCompliantDonation.model';
 export declare class Receipt extends Model {
     id: string;
     donationId: string;
+    irdDonationId?: string;
     receiptNumber: string;
     issueDate: Date;
     taxYear: number;
@@ -53,6 +55,7 @@ export declare class Receipt extends Model {
         validatedBy?: string;
     };
     donation: Donation;
+    irdDonation?: IRDCompliantDonation;
     static generateReceiptNumber(taxYear: number, sequenceNumber: number): string;
     get formattedReceiptNumber(): string;
     get isValid(): boolean;

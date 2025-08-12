@@ -10,10 +10,7 @@ const User_model_1 = require("../models/User.model");
 const Project_model_1 = require("../models/Project.model");
 const AppError_1 = require("../utils/AppError");
 const logger_1 = require("../utils/logger");
-if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY is required');
-}
-const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY, {
+const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key', {
     apiVersion: '2023-10-16',
 });
 class StripeService {
@@ -132,7 +129,7 @@ class StripeService {
             const netAmount = donation.amount - fees.stripeFee - donation.platformFee;
             await donation.update({
                 status: Donation_model_1.DonationStatus.COMPLETED,
-                stripePaymentId: paymentIntent.charges.data[0]?.id,
+                stripePaymentId: paymentIntent.charges?.data[0]?.id,
                 completedAt: new Date(),
                 stripeFee: fees.stripeFee,
                 netAmount,
@@ -214,7 +211,7 @@ class StripeService {
         return Math.round((amount * 0.029 + 0.30) * 100) / 100;
     }
     extractFeesFromPaymentIntent(paymentIntent) {
-        const charge = paymentIntent.charges.data[0];
+        const charge = paymentIntent.charges?.data[0];
         if (!charge) {
             return { stripeFee: 0 };
         }

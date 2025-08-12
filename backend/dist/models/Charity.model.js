@@ -14,8 +14,6 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const uuid_1 = require("uuid");
 const Donation_model_1 = require("./Donation.model");
 let Charity = class Charity extends sequelize_typescript_1.Model {
-    id;
-    charityNumber;
     name;
     description;
     category;
@@ -34,8 +32,6 @@ let Charity = class Charity extends sequelize_typescript_1.Model {
     totalReceived;
     donationCount;
     donations;
-    createdAt;
-    updatedAt;
 };
 exports.Charity = Charity;
 __decorate([
@@ -48,6 +44,25 @@ __decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)
 ], Charity.prototype, "charityNumber", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
+], Charity.prototype, "legalName", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
+], Charity.prototype, "diaCharitiesNumber", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
+], Charity.prototype, "doneeOrganisationNumber", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.BOOLEAN,
+        defaultValue: false,
+    }),
+    __metadata("design:type", Boolean)
+], Charity.prototype, "isDoneeOrganisation", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
     __metadata("design:type", String)

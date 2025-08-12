@@ -42,7 +42,7 @@ export class IRDCompliantDonation extends Model {
   @PrimaryKey
   @Default(uuidv4)
   @Column(DataType.UUID)
-  id!: string;
+  declare id: string;
 
   // IRD Required Fields (exact IRD255 compliance)
   @Unique

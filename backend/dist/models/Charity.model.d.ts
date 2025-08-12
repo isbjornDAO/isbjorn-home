@@ -3,6 +3,10 @@ import { Donation } from './Donation.model';
 export declare class Charity extends Model {
     id: string;
     charityNumber: string;
+    legalName: string;
+    diaCharitiesNumber: string;
+    doneeOrganisationNumber: string;
+    isDoneeOrganisation: boolean;
     name: string;
     description: string;
     category: string;

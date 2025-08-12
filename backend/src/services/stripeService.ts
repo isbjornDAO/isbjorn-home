@@ -155,7 +155,7 @@ export class StripeService {
 
       await donation.update({
         status: DonationStatus.COMPLETED,
-        stripePaymentId: paymentIntent.charges.data[0]?.id,
+        stripePaymentId: (paymentIntent as any).charges?.data[0]?.id,
         completedAt: new Date(),
         stripeFee: fees.stripeFee,
         netAmount,
@@ -249,7 +249,7 @@ export class StripeService {
   private extractFeesFromPaymentIntent(paymentIntent: Stripe.PaymentIntent): {
     stripeFee: number;
   } {
-    const charge = paymentIntent.charges.data[0];
+    const charge = (paymentIntent as any).charges?.data[0];
     if (!charge) {
       return { stripeFee: 0 };
     }

@@ -13,8 +13,8 @@ const initializeRedis = async () => {
             host: process.env.REDIS_HOST || 'localhost',
             port: parseInt(process.env.REDIS_PORT || '6379'),
             password: process.env.REDIS_PASSWORD || undefined,
-            retryDelayOnFailover: 100,
             maxRetriesPerRequest: 3,
+            lazyConnect: true,
         });
         redis.on('connect', () => {
             logger_1.logger.info('Redis connected successfully');
@@ -22,8 +22,16 @@ const initializeRedis = async () => {
         redis.on('error', (error) => {
             logger_1.logger.error('Redis connection error:', error);
         });
-        // Test the connection
-        await redis.ping();
+        // Attempt connection, but don't crash app in development if unavailable
+        try {
+            await redis.connect?.();
+            await redis.ping();
+        }
+        catch (err) {
+            logger_1.logger.warn('Redis not available; continuing without cache');
+            redis.disconnect?.();
+            redis = null;
+        }
     }
     catch (error) {
         logger_1.logger.error('Failed to initialize Redis:', error);

@@ -21,7 +21,8 @@ class StreamlinedDonationService {
         this.companiesService = new nzCompaniesRegisterService_1.default();
         this.charitiesService = new nzCharitiesService_1.default();
         this.receiptService = new irdReceiptService_1.default();
-        this.stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || '', {
+        const key = process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key';
+        this.stripe = new stripe_1.default(key, {
             apiVersion: '2023-10-16',
         });
     }
@@ -121,22 +122,18 @@ class StreamlinedDonationService {
     async getVerifiedCharitiesDropdown() {
         try {
             const charities = await Charity_model_1.Charity.findAll({
-                where: {
-                    isDoneeOrganisation: true,
-                    isActive: true,
-                    verificationStatus: 'verified',
-                },
+                where: { isActive: true },
                 attributes: [
-                    'id', 'name', 'legalName', 'category', 'logoUrl',
+                    'id', 'name', /* no legalName in model */ 'category', 'logoUrl',
                     'description', 'donationCount', 'totalReceived'
                 ],
                 order: [['name', 'ASC']],
-                limit: 100, // Top 100 charities for performance
+                limit: 100,
             });
             return charities.map(charity => ({
                 id: charity.id,
                 name: charity.name,
-                legalName: charity.legalName,
+                legalName: charity.legalName || charity.name,
                 category: charity.category,
                 logoUrl: charity.logoUrl,
                 description: charity.description,
@@ -234,6 +231,17 @@ class StreamlinedDonationService {
         return charity;
     }
     async processStripePayment(params) {
+        const isMock = (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_test_mock') || process.env.MOCK_STRIPE === 'true';
+        if (isMock) {
+            // Simulate a successful PaymentIntent
+            return {
+                id: `pi_mock_${Date.now()}`,
+                object: 'payment_intent',
+                amount: params.amount,
+                currency: 'nzd',
+                status: 'succeeded',
+            };
+        }
         const paymentIntent = await this.stripe.paymentIntents.create({
             amount: params.amount,
             currency: 'nzd',

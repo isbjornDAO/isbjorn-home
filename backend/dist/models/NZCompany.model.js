@@ -31,7 +31,6 @@ var CompanyStatus;
     CompanyStatus["RECEIVERSHIP"] = "Receivership";
 })(CompanyStatus || (exports.CompanyStatus = CompanyStatus = {}));
 let NZCompany = class NZCompany extends sequelize_typescript_1.Model {
-    id;
     nzCompanyNumber;
     legalName;
     tradingName;
@@ -168,7 +167,7 @@ __decorate([
 ], NZCompany.prototype, "annualReturnFilingMonth", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.ARRAY(sequelize_typescript_1.DataType.STRING),
+        type: sequelize_typescript_1.DataType.JSONB,
         allowNull: true,
     }),
     __metadata("design:type", Array)

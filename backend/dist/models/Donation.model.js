@@ -15,6 +15,8 @@ const uuid_1 = require("uuid");
 const User_model_1 = require("./User.model");
 const Charity_model_1 = require("./Charity.model");
 const Receipt_model_1 = require("./Receipt.model");
+const NZCompany_model_1 = require("./NZCompany.model");
+const Project_model_1 = require("./Project.model");
 var DonationStatus;
 (function (DonationStatus) {
     DonationStatus["PENDING"] = "pending";
@@ -31,9 +33,10 @@ var DonationCurrency;
     DonationCurrency["EUR"] = "eur";
 })(DonationCurrency || (exports.DonationCurrency = DonationCurrency = {}));
 let Donation = class Donation extends sequelize_typescript_1.Model {
-    id;
     userId;
     charityId;
+    companyId;
+    projectId;
     amount;
     currency;
     exchangeRate;
@@ -58,6 +61,8 @@ let Donation = class Donation extends sequelize_typescript_1.Model {
     failureReason;
     user;
     charity;
+    company;
+    project;
     receipt;
     get isCompleted() {
         return this.status === DonationStatus.COMPLETED;
@@ -92,6 +97,22 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Donation.prototype, "charityId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => NZCompany_model_1.NZCompany),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.UUID,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Donation.prototype, "companyId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => Project_model_1.Project),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.UUID,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Donation.prototype, "projectId", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.DECIMAL(15, 2),
@@ -260,6 +281,14 @@ __decorate([
     __metadata("design:type", Charity_model_1.Charity)
 ], Donation.prototype, "charity", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => NZCompany_model_1.NZCompany),
+    __metadata("design:type", NZCompany_model_1.NZCompany)
+], Donation.prototype, "company", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => Project_model_1.Project),
+    __metadata("design:type", Project_model_1.Project)
+], Donation.prototype, "project", void 0);
+__decorate([
     (0, sequelize_typescript_1.HasOne)(() => Receipt_model_1.Receipt),
     __metadata("design:type", Receipt_model_1.Receipt)
 ], Donation.prototype, "receipt", void 0);
@@ -268,12 +297,14 @@ exports.Donation = Donation = __decorate([
         tableName: 'donations',
         timestamps: true,
         indexes: [
-            { fields: ['userId'] },
-            { fields: ['charityId'] },
+            { fields: ['user_id'] },
+            { fields: ['charity_id'] },
+            { fields: ['company_id'] },
+            { fields: ['project_id'] },
             { fields: ['status'] },
-            { fields: ['createdAt'] },
-            { fields: ['stripePaymentId'] },
-            { fields: ['blockchainTxHash'] },
+            { fields: ['created_at'] },
+            { fields: ['stripe_payment_id'] },
+            { fields: ['blockchain_tx_hash'] },
         ],
     })
 ], Donation);

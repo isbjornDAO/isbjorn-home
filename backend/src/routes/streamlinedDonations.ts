@@ -1,7 +1,7 @@
 import express from 'express';
 import { body, param, query } from 'express-validator';
 import StreamlinedDonationController from '../controllers/streamlinedDonationController';
-import { authMiddleware } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 import { rateLimitMiddleware } from '../middleware/rateLimiter';
 
 const router = express.Router();

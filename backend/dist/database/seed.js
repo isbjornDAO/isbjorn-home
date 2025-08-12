@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const uuid_1 = require("uuid");
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const User_model_1 = __importDefault(require("../models/User.model"));
 const Charity_model_1 = __importDefault(require("../models/Charity.model"));
 const Project_model_1 = __importDefault(require("../models/Project.model"));
 const logger_1 = require("../utils/logger");
+const database_1 = require("../config/database");
 class DatabaseSeeder {
     async seedUsers() {
         try {
@@ -18,38 +18,26 @@ class DatabaseSeeder {
                 return;
             }
             // Create admin user
-            const adminPassword = await bcrypt_1.default.hash('admin123', 10);
             await User_model_1.default.create({
                 id: (0, uuid_1.v4)(),
                 email: 'admin@isbjorn.co.nz',
-                password: adminPassword,
-                firstName: 'System',
-                lastName: 'Administrator',
+                password: 'admin123',
                 role: 'admin',
-                isVerified: true,
+                emailVerified: true,
                 companyName: 'Isbjorn Foundation',
-                businessNumber: 'NZ1234567890',
-                metadata: {
-                    createdBy: 'system',
-                    seedData: true
-                }
+                taxId: 'NZ1234567890',
+                description: 'System Administrator Account'
             });
             // Create test business user
-            const businessPassword = await bcrypt_1.default.hash('business123', 10);
             await User_model_1.default.create({
                 id: (0, uuid_1.v4)(),
                 email: 'business@example.co.nz',
-                password: businessPassword,
-                firstName: 'Test',
-                lastName: 'Business',
-                role: 'business',
-                isVerified: true,
+                password: 'business123',
+                role: 'user',
+                emailVerified: true,
                 companyName: 'Example Business Ltd',
-                businessNumber: 'NZ9876543210',
-                metadata: {
-                    createdBy: 'system',
-                    seedData: true
-                }
+                taxId: 'NZ9876543210',
+                description: 'Test Business Account'
             });
             logger_1.logger.info('✅ Users seeded successfully');
         }
@@ -197,7 +185,7 @@ class DatabaseSeeder {
                 return;
             }
             // Get seeded charities
-            const charities = await Charity_model_1.default.findAll({ where: { 'metadata.seedData': true } });
+            const charities = await Charity_model_1.default.findAll();
             if (charities.length === 0) {
                 logger_1.logger.warn('No charities found for project seeding');
                 return;
@@ -214,11 +202,7 @@ class DatabaseSeeder {
                     startDate: new Date('2024-01-01'),
                     endDate: new Date('2024-12-31'),
                     isActive: true,
-                    category: 'Environment',
-                    metadata: {
-                        imageUrl: 'https://images.unsplash.com/photo-1551446591-142875a901a1',
-                        seedData: true
-                    }
+                    category: 'Environment'
                 },
                 {
                     id: (0, uuid_1.v4)(),
@@ -231,10 +215,7 @@ class DatabaseSeeder {
                     startDate: new Date('2024-01-01'),
                     endDate: new Date('2024-12-31'),
                     isActive: true,
-                    category: 'Social Services',
-                    metadata: {
-                        seedData: true
-                    }
+                    category: 'Social Services'
                 }
             ];
             await Project_model_1.default.bulkCreate(projects.filter(p => p.charityId));
@@ -261,8 +242,16 @@ class DatabaseSeeder {
 }
 // Run seeding if called directly
 if (require.main === module) {
-    const seeder = new DatabaseSeeder();
-    seeder.seedAll()
+    database_1.sequelize.authenticate()
+        .then(() => {
+        logger_1.logger.info('Database connection established successfully');
+        return database_1.sequelize.sync();
+    })
+        .then(() => {
+        logger_1.logger.info('Database synchronized successfully');
+        const seeder = new DatabaseSeeder();
+        return seeder.seedAll();
+    })
         .then(() => {
         logger_1.logger.info('Seeding completed successfully');
         process.exit(0);

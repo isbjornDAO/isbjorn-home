@@ -27,33 +27,27 @@ router.post('/register', async (req, res) => {
                 message: 'Email already registered'
             });
         }
-        // Create user directly in database without triggering bcrypt hooks
-        const [user] = await User_model_1.User.sequelize.query(`
-      INSERT INTO users (id, email, password, "companyName", role, "isActive", "emailVerified", "createdAt", "updatedAt")
-      VALUES (:id, :email, :password, :companyName, 'user', true, true, datetime('now'), datetime('now'))
-      RETURNING *
-    `, {
-            replacements: {
-                id: require('uuid').v4(),
-                email: email.toLowerCase(),
-                password: password, // Plain text for demo - hash in production
-                companyName
-            },
-            type: User_model_1.User.sequelize.QueryTypes.SELECT
+        // Create user using Sequelize ORM (bypasses password hashing hooks)
+        const user = await User_model_1.User.create({
+            email: email.toLowerCase(),
+            password: password, // Plain text for demo - hash in production
+            companyName,
+            role: 'user',
+            isActive: true,
+            emailVerified: true
+        }, {
+            hooks: false // This bypasses the password hashing hook
         });
-        if (!user) {
-            throw new Error('User creation failed');
-        }
         // Generate tokens
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'dev-secret-key-change-in-production', { expiresIn: '7d' });
-        const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret', { expiresIn: '30d' });
+        const token = jsonwebtoken_1.default.sign({ id: user.dataValues.id, email: user.dataValues.email, role: user.dataValues.role }, process.env.JWT_SECRET || 'dev-secret-key-change-in-production', { expiresIn: '7d' });
+        const refreshToken = jsonwebtoken_1.default.sign({ id: user.dataValues.id }, process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret', { expiresIn: '30d' });
         res.status(201).json({
             success: true,
             user: {
-                id: user.id,
-                email: user.email,
-                companyName: user.companyName,
-                role: user.role
+                id: user.dataValues.id,
+                email: user.dataValues.email,
+                companyName: user.dataValues.companyName,
+                role: user.dataValues.role
             },
             token,
             refreshToken
@@ -85,21 +79,21 @@ router.post('/login', async (req, res) => {
             });
         }
         // Simple password check for demo
-        if (user.password !== password) {
+        if (user.dataValues.password !== password) {
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
             });
         }
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'dev-secret-key-change-in-production', { expiresIn: '7d' });
-        const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret', { expiresIn: '30d' });
+        const token = jsonwebtoken_1.default.sign({ id: user.dataValues.id, email: user.dataValues.email, role: user.dataValues.role }, process.env.JWT_SECRET || 'dev-secret-key-change-in-production', { expiresIn: '7d' });
+        const refreshToken = jsonwebtoken_1.default.sign({ id: user.dataValues.id }, process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret', { expiresIn: '30d' });
         res.json({
             success: true,
             user: {
-                id: user.id,
-                email: user.email,
-                companyName: user.companyName,
-                role: user.role
+                id: user.dataValues.id,
+                email: user.dataValues.email,
+                companyName: user.dataValues.companyName,
+                role: user.dataValues.role
             },
             token,
             refreshToken
@@ -111,6 +105,31 @@ router.post('/login', async (req, res) => {
             success: false,
             message: `Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`
         });
+    }
+});
+// Current user endpoint for frontend
+router.get('/me', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Not authenticated' });
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || 'dev-secret-key-change-in-production');
+        const user = await User_model_1.User.findByPk(decoded.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.json({
+            id: user.dataValues.id,
+            email: user.dataValues.email,
+            companyName: user.dataValues.companyName,
+            role: user.dataValues.role,
+        });
+    }
+    catch (error) {
+        console.error('Get current user error:', error);
+        res.status(401).json({ success: false, message: 'Invalid token' });
     }
 });
 //# sourceMappingURL=working-auth.js.map

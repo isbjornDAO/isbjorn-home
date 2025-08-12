@@ -53,7 +53,6 @@ var UserRole;
     UserRole["ADMIN"] = "admin";
 })(UserRole || (exports.UserRole = UserRole = {}));
 let User = class User extends sequelize_typescript_1.Model {
-    id;
     email;
     password;
     companyName;
@@ -75,7 +74,7 @@ let User = class User extends sequelize_typescript_1.Model {
     preferences;
     donations;
     static async hashPassword(user) {
-        if (user.changed('password')) {
+        if (user.changed('password') && user.password) {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(user.password, salt);
         }
@@ -252,8 +251,8 @@ exports.User = User = __decorate([
         timestamps: true,
         indexes: [
             { fields: ['email'] },
-            { fields: ['companyName'] },
-            { fields: ['createdAt'] },
+            { fields: ['company_name'] },
+            { fields: ['created_at'] },
         ],
     })
 ], User);
