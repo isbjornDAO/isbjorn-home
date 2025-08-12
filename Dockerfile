@@ -2,11 +2,12 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy backend package files
+# Copy root package files first (for workspaces)
+COPY package*.json ./
 COPY backend/package*.json ./backend/
 
-# Install backend dependencies
-RUN cd backend && npm ci
+# Install dependencies using npm install (not ci)
+RUN npm install
 
 # Copy backend source code
 COPY backend/ ./backend/
