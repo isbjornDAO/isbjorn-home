@@ -39,6 +39,13 @@ const CharityDetailsPage: React.FC = () => {
   const handleDonate = async () => {
     if (!amount || !contactEmail || !charity) return;
     
+    // Validate minimum amount
+    const donationAmount = parseFloat(amount);
+    if (donationAmount < 1) {
+      alert('Minimum donation amount is $1.00');
+      return;
+    }
+    
     setSubmitting(true);
     try {
       const response = await fetch('/api/stripe-checkout/create-session', {
@@ -308,8 +315,8 @@ const CharityDetailsPage: React.FC = () => {
               {/* Quick Amount Selection */}
               <div>
                 <label className="block text-sm font-semibold text-arctic-800 mb-3">Choose Amount</label>
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  {[50, 100, 250, 500].map((suggestedAmount) => (
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {[1, 50, 100, 250, 500, 1000].map((suggestedAmount) => (
                     <button
                       key={suggestedAmount}
                       type="button"
