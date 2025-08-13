@@ -45,3 +45,4 @@ AggregateError [ECONNREFUSED]:
 1:41:45 AM [vite] page reload src/contexts/StripeContext.tsx
 1:56:12 AM [vite] hmr update /src/pages/CharityDetailsPage.tsx, /src/styles/index.css
 1:56:31 AM [vite] hmr update /src/pages/CharityDetailsPage.tsx, /src/styles/index.css
+1:58:04 AM [vite] hmr update /src/pages/CharityDetailsPage.tsx, /src/styles/index.css
