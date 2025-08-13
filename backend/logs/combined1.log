@@ -7138,3 +7138,24 @@
 {"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-08-13 03:26:21"}
 {"level":"info","message":"SIGTERM signal received: closing HTTP server","service":"isbjorn-api","timestamp":"2025-08-13 03:26:35"}
 {"level":"info","message":"Database connection closed","service":"isbjorn-api","timestamp":"2025-08-13 03:26:35"}
+{"level":"warn","message":"NZ Companies API key not configured - using mock data for development","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"Get API key from: https://www.business.govt.nz/developers/","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"warn","message":"NZ Companies API key not configured - using mock data for development","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"Get API key from: https://www.business.govt.nz/developers/","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"Database connection established successfully","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"level":"error","message":"Redis connection error: connect ECONNREFUSED 127.0.0.1:6379","port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-08-13 03:28:27"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"error","message":"Failed to initialize blockchain service: Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/dist/integrations/blockchain.js:37:19)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/dist/integrations/blockchain.js:259:29)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/dist/server.js:126:57)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 03:28:27"}
+{"level":"warn","message":"Blockchain initialization failed - running without blockchain features Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/dist/integrations/blockchain.js:37:19)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/dist/integrations/blockchain.js:259:29)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/dist/server.js:126:57)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"Job processing initialized","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-08-13 03:28:27"}
+{"level":"info","message":"SIGTERM signal received: closing HTTP server","service":"isbjorn-api","timestamp":"2025-08-13 03:28:47"}
+{"level":"info","message":"SIGTERM signal received: closing HTTP server","service":"isbjorn-api","timestamp":"2025-08-13 03:28:47"}
