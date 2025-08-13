@@ -13,6 +13,21 @@ interface PaymentIntentResponse {
     paymentIntentId: string;
     donation: Donation;
 }
+interface CreateCheckoutSessionRequest {
+    amount: number;
+    currency: DonationCurrency;
+    charityId: string;
+    charityName: string;
+    companyName?: string;
+    companyEmail?: string;
+    message?: string;
+    isRecurring?: boolean;
+}
+interface CheckoutSessionResponse {
+    sessionId: string;
+    sessionUrl: string;
+    donation: Donation;
+}
 export declare class StripeService {
     createPaymentIntent(data: CreatePaymentIntentRequest): Promise<PaymentIntentResponse>;
     handleWebhook(signature: string, payload: Buffer): Promise<void>;
@@ -24,6 +39,10 @@ export declare class StripeService {
     private calculateStripeFee;
     private extractFeesFromPaymentIntent;
     createRefund(donationId: string, reason?: string): Promise<Stripe.Refund>;
+    /**
+     * Create Stripe Checkout session for donations
+     */
+    createCheckoutSession(data: CreateCheckoutSessionRequest): Promise<CheckoutSessionResponse>;
 }
 export declare const stripeService: StripeService;
 export {};

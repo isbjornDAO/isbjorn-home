@@ -12,6 +12,7 @@ const admin_routes_1 = require("./admin.routes");
 const integrations_routes_1 = require("./integrations.routes");
 const working_auth_1 = require("./working-auth");
 const public_1 = __importDefault(require("./public"));
+const stripe_checkout_1 = __importDefault(require("./stripe-checkout"));
 const router = express_1.default.Router();
 // Health check endpoint
 router.get('/health', (req, res) => {
@@ -37,6 +38,7 @@ router.use('/dashboard', dashboard_routes_1.dashboardRoutes);
 router.use('/admin', admin_routes_1.adminRoutes);
 router.use('/public', public_1.default);
 router.use('/integrations', integrations_routes_1.integrationsRoutes);
+router.use('/stripe-checkout', stripe_checkout_1.default);
 // Convenience endpoints that map to streamlined routes
 router.use('/companies', streamlinedDonations_1.default);
 router.use('/charities', streamlinedDonations_1.default);

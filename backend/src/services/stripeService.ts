@@ -332,7 +332,6 @@ export class StripeService {
               product_data: {
                 name: `Donation to ${data.charityName}`,
                 description: data.message || `Thank you for your donation to ${data.charityName}`,
-                images: ['https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dcbcac4228310e9fda70_Isbjorn%20PNG%20(5).png'],
               },
               unit_amount: amountInCents,
             },
@@ -350,8 +349,6 @@ export class StripeService {
           message: data.message || '',
           isRecurring: data.isRecurring ? 'true' : 'false',
         },
-        billing_address_collection: 'required',
-        receipt_email: data.companyEmail,
       });
 
       // Create donation record

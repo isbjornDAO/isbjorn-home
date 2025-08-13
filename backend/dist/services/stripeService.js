@@ -254,6 +254,71 @@ class StripeService {
             throw new AppError_1.AppError('Failed to create refund', 500);
         }
     }
+    /**
+     * Create Stripe Checkout session for donations
+     */
+    async createCheckoutSession(data) {
+        try {
+            const amountInCents = Math.round(data.amount * 100);
+            // Create checkout session
+            const session = await stripe.checkout.sessions.create({
+                line_items: [
+                    {
+                        price_data: {
+                            currency: data.currency.toLowerCase(),
+                            product_data: {
+                                name: `Donation to ${data.charityName}`,
+                                description: data.message || `Thank you for your donation to ${data.charityName}`,
+                            },
+                            unit_amount: amountInCents,
+                        },
+                        quantity: 1,
+                    },
+                ],
+                mode: 'payment',
+                success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donate`,
+                customer_email: data.companyEmail,
+                metadata: {
+                    charityId: data.charityId,
+                    charityName: data.charityName,
+                    companyName: data.companyName || 'Anonymous',
+                    message: data.message || '',
+                    isRecurring: data.isRecurring ? 'true' : 'false',
+                },
+            });
+            // Create donation record
+            const donation = await Donation_model_1.Donation.create({
+                charityId: data.charityId,
+                amount: data.amount,
+                currency: data.currency,
+                status: Donation_model_1.DonationStatus.PENDING,
+                stripePaymentIntentId: session.id, // Use session ID for now
+                taxDeductible: true,
+                message: data.message,
+                isAnonymous: !data.companyName,
+                platformFee: this.calculatePlatformFee(data.amount),
+                stripeFee: this.calculateStripeFee(data.amount),
+                metadata: {
+                    stripeSessionId: session.id,
+                    companyName: data.companyName,
+                    companyEmail: data.companyEmail,
+                },
+            });
+            logger_1.logger.info(`Checkout session created: ${session.id} for donation ${donation.id}`);
+            return {
+                sessionId: session.id,
+                sessionUrl: session.url,
+                donation,
+            };
+        }
+        catch (error) {
+            logger_1.logger.error('Create checkout session error:', error);
+            if (error instanceof AppError_1.AppError)
+                throw error;
+            throw new AppError_1.AppError('Failed to create checkout session', 500);
+        }
+    }
 }
 exports.StripeService = StripeService;
 exports.stripeService = new StripeService();
