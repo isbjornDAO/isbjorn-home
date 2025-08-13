@@ -185,11 +185,7 @@ const DonationForm: React.FC = () => {
 };
 
 const DonatePage: React.FC = () => {
-  return (
-    <Elements stripe={stripePromise}>
-      <DonationForm />
-    </Elements>
-  );
+  return <DonationForm />;
 };
 
 export default DonatePage;

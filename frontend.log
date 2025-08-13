@@ -41,3 +41,5 @@ AggregateError [ECONNREFUSED]:
 11:43:16 PM [vite] server restarted.
 11:45:07 PM [vite] vite.config.ts changed, restarting server...
 11:45:07 PM [vite] server restarted.
+1:41:45 AM [vite] page reload src/contexts/StripeContext.tsx
+1:41:45 AM [vite] page reload src/contexts/StripeContext.tsx

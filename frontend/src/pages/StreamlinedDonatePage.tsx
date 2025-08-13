@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+
 import LoadingSpinner from '@/components/LoadingSpinner';
 import CharityCard from '@/components/CharityCard';
 
@@ -45,8 +44,7 @@ const StreamlinedDonationForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [processingTime, setProcessingTime] = useState(0);
   const navigate = useNavigate();
-  const stripe = useStripe();
-  const elements = useElements();
+
 
   // Form state
   const [companyNumber, setCompanyNumber] = useState('');
@@ -125,75 +123,23 @@ const StreamlinedDonationForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!stripe || !elements || !selectedCharity || !companyData) {
+    if (!selectedCharity || !companyData || !amount || !contactEmail) {
+      alert('Please fill in all required fields');
       return;
     }
 
-    setLoading(true);
-    const startTime = Date.now();
-
-    try {
-      // Create payment method
-      const cardElement = elements.getElement(CardElement);
-      if (!cardElement) {
-        throw new Error('Card element not found');
+    // Redirect to charity details page for Stripe Checkout
+    navigate(`/charity/${selectedCharity.id}`, {
+      state: {
+        prefill: {
+          amount,
+          companyNumber,
+          contactEmail,
+          accountantEmail,
+          message
+        }
       }
-
-      const { paymentMethod, error } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardElement,
-        billing_details: {
-          name: companyData.legalName,
-          email: contactEmail,
-        },
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      // Process donation
-      const donationRequest = {
-        nzCompanyNumber: companyNumber,
-        charityId: selectedCharity.id,
-        amount: parseFloat(amount),
-        stripePaymentMethodId: paymentMethod.id,
-        companyContactEmail: contactEmail,
-        accountantEmail: accountantEmail || undefined,
-        message: message || undefined,
-      };
-
-      const response = await fetch('/api/donations/streamlined', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(donationRequest),
-      });
-
-      const result = await response.json();
-      const endTime = Date.now();
-      
-      setProcessingTime(endTime - startTime);
-
-      if (result.success) {
-        // Navigate to success page with results
-        navigate('/donation/success', { 
-          state: { 
-            donation: result,
-            processingTime: endTime - startTime
-          } 
-        });
-      } else {
-        throw new Error(result.message);
-      }
-
-    } catch (error: any) {
-      console.error('Donation failed:', error);
-      alert(`Donation failed: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return (
@@ -512,25 +458,10 @@ const StreamlinedDonationForm: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-arctic-700 mb-2">
-                    Card Details
-                  </label>
-                  <div className="p-4 border border-ice-300 rounded-lg">
-                    <CardElement
-                      options={{
-                        style: {
-                          base: {
-                            fontSize: '16px',
-                            color: '#374151',
-                            '::placeholder': {
-                              color: '#9CA3AF',
-                            },
-                          },
-                        },
-                      }}
-                    />
-                  </div>
+                <div className="text-center p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-blue-800">
+                    💳 Payment will be processed securely via Stripe Checkout
+                  </p>
                 </div>
 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -555,17 +486,17 @@ const StreamlinedDonationForm: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={!stripe || loading}
+                  disabled={loading}
                   className="w-full bg-green-600 text-white py-4 px-4 rounded-lg font-semibold text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {loading ? (
                     <>
                       <LoadingSpinner size="small" />
-                      <span className="ml-2">Processing Donation...</span>
+                      <span className="ml-2">Preparing...</span>
                     </>
                   ) : (
                     <>
-                      🚀 Complete Donation (${amount})
+                      💳 Continue to Stripe Checkout (${amount})
                     </>
                   )}
                 </button>
@@ -579,11 +510,7 @@ const StreamlinedDonationForm: React.FC = () => {
 };
 
 const StreamlinedDonatePage: React.FC = () => {
-  return (
-    <Elements stripe={stripePromise}>
-      <StreamlinedDonationForm />
-    </Elements>
-  );
+  return <StreamlinedDonationForm />;
 };
 
 export default StreamlinedDonatePage;
