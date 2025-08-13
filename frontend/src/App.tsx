@@ -2,7 +2,6 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { BlockchainProvider } from '@/contexts/BlockchainContext';
-import { StripeProvider } from '@/contexts/StripeContext';
 import Layout from '@/components/Layout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -23,7 +22,6 @@ const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage'));
 function App() {
   return (
     <AuthProvider>
-      <StripeProvider>
         <BlockchainProvider>
           <Layout>
             <Suspense fallback={<LoadingSpinner fullScreen />}>
@@ -77,7 +75,6 @@ function App() {
             </Suspense>
           </Layout>
         </BlockchainProvider>
-      </StripeProvider>
     </AuthProvider>
   );
 }

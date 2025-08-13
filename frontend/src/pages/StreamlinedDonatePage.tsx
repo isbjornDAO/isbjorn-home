@@ -5,8 +5,7 @@ import { Elements, useStripe, useElements, CardElement } from '@stripe/react-str
 import LoadingSpinner from '@/components/LoadingSpinner';
 import CharityCard from '@/components/CharityCard';
 
-// Load Stripe (fallback dev key to enable demo)
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || (import.meta.env.PROD ? '' : 'pk_test_51_placeholder'));
+
 
 // Step indicators
 const steps = [
