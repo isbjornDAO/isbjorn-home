@@ -321,6 +321,47 @@ export class StripeService {
    */
   async createCheckoutSession(data: CreateCheckoutSessionRequest): Promise<CheckoutSessionResponse> {
     try {
+      // Check if Stripe is properly configured
+      const stripeKey = process.env.STRIPE_SECRET_KEY;
+      if (!stripeKey || stripeKey === 'sk_test_your_stripe_secret_key_here') {
+        // In development, create a mock checkout session
+        if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+          logger.warn('Using mock Stripe checkout session for development');
+          
+          // Create donation record
+          const tempUserId = 'temp-user-' + Date.now();
+          const donation = await Donation.create({
+            userId: tempUserId,
+            charityId: data.charityId,
+            amount: data.amount,
+            currency: data.currency,
+            status: DonationStatus.PENDING,
+            stripePaymentIntentId: 'mock-session-' + Date.now(),
+            taxDeductible: true,
+            message: data.message,
+            isAnonymous: !data.companyName,
+            platformFee: this.calculatePlatformFee(data.amount),
+            stripeFee: this.calculateStripeFee(data.amount),
+            metadata: {
+              stripeSessionId: 'mock-session-' + Date.now(),
+              companyName: data.companyName,
+              companyEmail: data.companyEmail,
+              isAnonymousDonation: true,
+              tempUserId: tempUserId,
+              isMockSession: true,
+            },
+          });
+
+          return {
+            sessionId: 'mock-session-' + Date.now(),
+            sessionUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donation-success?session_id=mock-session&amount=${data.amount}&charity=${data.charityName}`,
+            donation,
+          };
+        }
+        
+        throw new AppError('Stripe is not properly configured. Please set a valid STRIPE_SECRET_KEY environment variable.', 500);
+      }
+
       const amountInCents = Math.round(data.amount * 100);
       
       // Create checkout session
@@ -351,8 +392,13 @@ export class StripeService {
         },
       });
 
+      // For checkout sessions, we need to handle the case where there's no user
+      // We'll create a donation with a temporary user ID that can be updated later
+      const tempUserId = 'temp-user-' + Date.now();
+      
       // Create donation record
       const donation = await Donation.create({
+        userId: tempUserId, // Temporary user ID for anonymous donations
         charityId: data.charityId,
         amount: data.amount,
         currency: data.currency,
@@ -367,6 +413,8 @@ export class StripeService {
           stripeSessionId: session.id,
           companyName: data.companyName,
           companyEmail: data.companyEmail,
+          isAnonymousDonation: true,
+          tempUserId: tempUserId,
         },
       });
 
