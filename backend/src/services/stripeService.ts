@@ -4,10 +4,7 @@ import { User } from '../models/User.model';
 import { Project } from '../models/Project.model';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key', {
-  apiVersion: '2023-10-16',
-});
+import { stripe, stripeConfig, isLiveMode } from '../utils/stripe';
 
 interface CreatePaymentIntentRequest {
   amount: number;
@@ -367,47 +364,17 @@ export class StripeService {
    */
   async createCheckoutSession(data: CreateCheckoutSessionRequest): Promise<CheckoutSessionResponse> {
     try {
-      // Check if Stripe is properly configured
-      const stripeKey = process.env.STRIPE_SECRET_KEY;
-      if (!stripeKey || stripeKey === 'sk_test_your_stripe_secret_key' || stripeKey === 'sk_test_mock_key') {
-        // In development, create a mock checkout session
-        if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
-          logger.warn('Using mock Stripe checkout session for development');
-          
-          // Create donation record
-          const tempUserId = 'temp-user-' + Date.now();
-          const donation = await Donation.create({
-            userId: tempUserId,
-            charityId: data.charityId,
-            amount: data.amount,
-            currency: data.currency,
-            status: DonationStatus.PENDING,
-            stripePaymentIntentId: 'mock-session-' + Date.now(),
-            taxDeductible: true,
-            message: data.message,
-            isAnonymous: !data.companyName,
-            platformFee: this.calculatePlatformFee(data.amount),
-            stripeFee: this.calculateStripeFee(data.amount),
-            metadata: {
-              stripeSessionId: 'mock-session-' + Date.now(),
-              companyName: data.companyName,
-              companyEmail: data.companyEmail,
-              isAnonymousDonation: true,
-              tempUserId: tempUserId,
-              isMockSession: true,
-            },
-          });
-
-          return {
-            sessionId: 'mock-session-' + Date.now(),
-            sessionUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donation-success?session_id=mock-session&amount=${data.amount}&charity=${data.charityName}`,
-            donation,
-          };
-        }
-        
-        throw new AppError('Stripe is not properly configured. Please set a valid STRIPE_SECRET_KEY environment variable.', 500);
+      // Log the current Stripe configuration
+      logger.info(`Stripe mode: ${stripeConfig.mode}`);
+      logger.info(`Using Stripe key starting with: ${stripeConfig.secretKey.substring(0, 7)}...`);
+      
+      // Show warning for live mode
+      if (isLiveMode()) {
+        logger.warn('⚠️  LIVE MODE: Real money will be charged!');
+      } else {
+        logger.info('🧪 TEST MODE: No real money will be charged');
       }
-
+      
       const amountInCents = Math.round(data.amount * 100);
       
       logger.info(`Creating Stripe checkout session for ${data.amount} ${data.currency} to ${data.charityName}`);

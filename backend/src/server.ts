@@ -122,14 +122,18 @@ const server = createServer(app);
 
 async function startServer() {
   try {
-    await sequelize.authenticate();
-    logger.info('Database connection established successfully');
-
-    // Database is already set up via migration
-    // if (NODE_ENV === 'development') {
-    //   await sequelize.sync({ alter: true });
-    //   logger.info('Database synchronized');
-    // }
+    // Database connection
+    try {
+      await sequelize.authenticate();
+      console.log('✅ Database connection established successfully.');
+      
+      // Sync database models (create tables)
+      await sequelize.sync({ alter: true });
+      console.log('✅ Database models synchronized.');
+    } catch (error) {
+      console.error('❌ Database connection failed:', error);
+      process.exit(1);
+    }
 
     await initializeRedis();
     logger.info('Redis connection established');
