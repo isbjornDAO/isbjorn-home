@@ -6,7 +6,7 @@ import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key', {
-  apiVersion: '2023-10-16',
+  apiVersion: '2024-12-18',
 });
 
 interface CreatePaymentIntentRequest {
@@ -325,7 +325,7 @@ export class StripeService {
       
       // Create checkout session
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card', 'apple_pay', 'google_pay'],
+        payment_method_types: ['card'],
         line_items: [
           {
             price_data: {
@@ -340,7 +340,7 @@ export class StripeService {
             quantity: 1,
           },
         ],
-        mode: data.isRecurring ? 'subscription' : 'payment',
+        mode: 'payment',
         success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donate`,
         customer_email: data.companyEmail,
@@ -352,9 +352,6 @@ export class StripeService {
           isRecurring: data.isRecurring ? 'true' : 'false',
         },
         billing_address_collection: 'required',
-        tax_id_collection: {
-          enabled: true,
-        },
         statement_descriptor: 'ISBJORN DONATION',
         receipt_email: data.companyEmail,
       });
