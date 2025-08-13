@@ -8,7 +8,7 @@ import { adminRoutes } from './admin.routes';
 import { integrationsRoutes } from './integrations.routes';
 import { workingAuthRoutes } from './working-auth';
 import publicRoutes from './public';
-import stripeCheckoutRoutes from './stripe-checkout';
+import stripeCheckoutRoutes from './stripe-checkout.js';
 
 const router = express.Router();
 
