@@ -317,13 +317,59 @@ export class StripeService {
   }
 
   /**
+   * Handle successful payment from webhook
+   */
+  async handleSuccessfulPayment(session: Stripe.Checkout.Session): Promise<void> {
+    try {
+      const sessionId = session.id;
+      const metadata = session.metadata;
+      
+      if (!metadata?.charityId) {
+        logger.error(`No charity ID in session metadata: ${sessionId}`);
+        return;
+      }
+
+      // Find the donation by session ID
+      const donation = await Donation.findOne({
+        where: {
+          metadata: {
+            stripeSessionId: sessionId
+          }
+        }
+      });
+
+      if (!donation) {
+        logger.error(`No donation found for session: ${sessionId}`);
+        return;
+      }
+
+      // Update donation status
+      await donation.update({
+        status: DonationStatus.COMPLETED,
+        completedAt: new Date(),
+        stripePaymentIntentId: session.payment_intent as string,
+      });
+
+      logger.info(`Donation ${donation.id} marked as completed for session ${sessionId}`);
+
+      // TODO: Send receipt email
+      // TODO: Update blockchain
+      // TODO: Send confirmation to charity
+
+    } catch (error: any) {
+      logger.error('Error handling successful payment:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Create Stripe Checkout session for donations
    */
   async createCheckoutSession(data: CreateCheckoutSessionRequest): Promise<CheckoutSessionResponse> {
     try {
       // Check if Stripe is properly configured
       const stripeKey = process.env.STRIPE_SECRET_KEY;
-      if (!stripeKey || stripeKey === 'sk_test_your_stripe_secret_key_here') {
+      if (!stripeKey || stripeKey === 'sk_test_your_stripe_secret_key' || stripeKey === 'sk_test_mock_key') {
         // In development, create a mock checkout session
         if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
           logger.warn('Using mock Stripe checkout session for development');
@@ -364,6 +410,8 @@ export class StripeService {
 
       const amountInCents = Math.round(data.amount * 100);
       
+      logger.info(`Creating Stripe checkout session for ${data.amount} ${data.currency} to ${data.charityName}`);
+      
       // Create checkout session
       const session = await stripe.checkout.sessions.create({
         line_items: [
@@ -373,6 +421,7 @@ export class StripeService {
               product_data: {
                 name: `Donation to ${data.charityName}`,
                 description: data.message || `Thank you for your donation to ${data.charityName}`,
+                images: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'], // Arctic image
               },
               unit_amount: amountInCents,
             },
@@ -380,9 +429,10 @@ export class StripeService {
           },
         ],
         mode: 'payment',
-        success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donate`,
+        success_url: `${process.env.FRONTEND_URL || 'https://isbjorn-home-production.up.railway.app'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.FRONTEND_URL || 'https://isbjorn-home-production.up.railway.app'}/donate`,
         customer_email: data.companyEmail,
+        billing_address_collection: 'required',
         metadata: {
           charityId: data.charityId,
           charityName: data.charityName,
@@ -391,6 +441,8 @@ export class StripeService {
           isRecurring: data.isRecurring ? 'true' : 'false',
         },
       });
+
+      logger.info(`Stripe checkout session created: ${session.id}`);
 
       // For checkout sessions, we need to handle the case where there's no user
       // We'll create a donation with a temporary user ID that can be updated later
@@ -428,7 +480,17 @@ export class StripeService {
     } catch (error: any) {
       logger.error('Create checkout session error:', error);
       if (error instanceof AppError) throw error;
-      throw new AppError('Failed to create checkout session', 500);
+      
+      // Provide more specific error messages
+      if (error.type === 'StripeInvalidRequestError') {
+        throw new AppError(`Stripe configuration error: ${error.message}`, 400);
+      } else if (error.type === 'StripeAuthenticationError') {
+        throw new AppError('Invalid Stripe API key. Please check your configuration.', 401);
+      } else if (error.type === 'StripePermissionError') {
+        throw new AppError('Stripe permission error. Please check your account settings.', 403);
+      }
+      
+      throw new AppError(`Failed to create checkout session: ${error.message}`, 500);
     }
   }
 }

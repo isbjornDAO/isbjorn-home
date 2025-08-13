@@ -11,6 +11,7 @@ import publicRoutes from './public';
 import { body, validationResult } from 'express-validator';
 import { stripeService } from '../services/stripeService';
 import { logger } from '../utils/logger';
+import { stripe } from '../utils/stripe';
 
 const router = express.Router();
 
@@ -93,6 +94,95 @@ router.post('/stripe-checkout/create-session', [
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to create checkout session'
+    });
+  }
+});
+
+// Stripe webhook handler
+router.post('/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    logger.error('STRIPE_WEBHOOK_SECRET not configured');
+    return res.status(400).json({ error: 'Webhook secret not configured' });
+  }
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig!, webhookSecret);
+  } catch (err: any) {
+    logger.error('Webhook signature verification failed:', err.message);
+    return res.status(400).json({ error: 'Invalid signature' });
+  }
+
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object;
+        logger.info(`Payment successful for session: ${session.id}`);
+        
+        // Update donation status
+        await stripeService.handleSuccessfulPayment(session);
+        break;
+        
+      case 'payment_intent.succeeded':
+        const paymentIntent = event.data.object;
+        logger.info(`Payment intent succeeded: ${paymentIntent.id}`);
+        break;
+        
+      default:
+        logger.info(`Unhandled event type: ${event.type}`);
+    }
+
+    res.json({ received: true });
+  } catch (error: any) {
+    logger.error('Webhook handler error:', error);
+    res.status(500).json({ error: 'Webhook handler failed' });
+  }
+});
+
+// Create payment intent for embedded checkout
+router.post('/stripe/create-payment-intent', [
+  body('amount').isFloat({ min: 1 }).withMessage('Amount must be at least $1'),
+  body('currency').isIn(['NZD', 'USD', 'AUD']).withMessage('Currency must be NZD, USD, or AUD'),
+  body('charityName').isString().notEmpty().withMessage('Charity name is required'),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    const { amount, currency, charityName } = req.body;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100),
+      currency: currency.toLowerCase(),
+      description: `Donation to ${charityName}`,
+      metadata: {
+        charityName,
+        platform: 'Isbjorn',
+      },
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+    });
+
+  } catch (error: any) {
+    logger.error('Error creating payment intent:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to create payment intent'
     });
   }
 });
