@@ -24,6 +24,23 @@ interface PaymentIntentResponse {
   donation: Donation;
 }
 
+interface CreateCheckoutSessionRequest {
+  amount: number;
+  currency: DonationCurrency;
+  charityId: string;
+  charityName: string;
+  companyName?: string;
+  companyEmail?: string;
+  message?: string;
+  isRecurring?: boolean;
+}
+
+interface CheckoutSessionResponse {
+  sessionId: string;
+  sessionUrl: string;
+  donation: Donation;
+}
+
 export class StripeService {
   async createPaymentIntent(data: CreatePaymentIntentRequest): Promise<PaymentIntentResponse> {
     try {
@@ -296,6 +313,82 @@ export class StripeService {
       logger.error('Create refund error:', error);
       if (error instanceof AppError) throw error;
       throw new AppError('Failed to create refund', 500);
+    }
+  }
+
+  /**
+   * Create Stripe Checkout session for donations
+   */
+  async createCheckoutSession(data: CreateCheckoutSessionRequest): Promise<CheckoutSessionResponse> {
+    try {
+      const amountInCents = Math.round(data.amount * 100);
+      
+      // Create checkout session
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card', 'apple_pay', 'google_pay'],
+        line_items: [
+          {
+            price_data: {
+              currency: data.currency.toLowerCase(),
+              product_data: {
+                name: `Donation to ${data.charityName}`,
+                description: data.message || `Thank you for your donation to ${data.charityName}`,
+                images: ['https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dcbcac4228310e9fda70_Isbjorn%20PNG%20(5).png'],
+              },
+              unit_amount: amountInCents,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: data.isRecurring ? 'subscription' : 'payment',
+        success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donate`,
+        customer_email: data.companyEmail,
+        metadata: {
+          charityId: data.charityId,
+          charityName: data.charityName,
+          companyName: data.companyName || 'Anonymous',
+          message: data.message || '',
+          isRecurring: data.isRecurring ? 'true' : 'false',
+        },
+        billing_address_collection: 'required',
+        tax_id_collection: {
+          enabled: true,
+        },
+        statement_descriptor: 'ISBJORN DONATION',
+        receipt_email: data.companyEmail,
+      });
+
+      // Create donation record
+      const donation = await Donation.create({
+        charityId: data.charityId,
+        amount: data.amount,
+        currency: data.currency,
+        status: DonationStatus.PENDING,
+        stripePaymentIntentId: session.id, // Use session ID for now
+        taxDeductible: true,
+        message: data.message,
+        isAnonymous: !data.companyName,
+        platformFee: this.calculatePlatformFee(data.amount),
+        stripeFee: this.calculateStripeFee(data.amount),
+        metadata: {
+          stripeSessionId: session.id,
+          companyName: data.companyName,
+          companyEmail: data.companyEmail,
+        },
+      });
+
+      logger.info(`Checkout session created: ${session.id} for donation ${donation.id}`);
+
+      return {
+        sessionId: session.id,
+        sessionUrl: session.url!,
+        donation,
+      };
+    } catch (error: any) {
+      logger.error('Create checkout session error:', error);
+      if (error instanceof AppError) throw error;
+      throw new AppError('Failed to create checkout session', 500);
     }
   }
 }

@@ -4,7 +4,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
 // Load Stripe (fallback dev key to enable demo)
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_51_placeholder');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || (import.meta.env.PROD ? '' : 'pk_test_51_placeholder'));
 
 
 

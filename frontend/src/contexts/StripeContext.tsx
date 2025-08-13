@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
-const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_placeholder';
+const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY || (import.meta.env.PROD ? '' : 'pk_test_placeholder');
 
 interface StripeContextType {
   stripe: Stripe | null;
@@ -39,6 +39,9 @@ export const StripeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   if (!stripe && !isLoading) {
+    if (import.meta.env.PROD && !STRIPE_PUBLIC_KEY) {
+      console.error('Stripe public key not configured in production. Please set VITE_STRIPE_PUBLIC_KEY environment variable.');
+    }
     return (
       <StripeContext.Provider value={{ stripe: null, isLoading: false }}>
         {children}

@@ -8,6 +8,7 @@ import { adminRoutes } from './admin.routes';
 import { integrationsRoutes } from './integrations.routes';
 import { workingAuthRoutes } from './working-auth';
 import publicRoutes from './public';
+import stripeCheckoutRoutes from './stripe-checkout';
 
 const router = express.Router();
 
@@ -36,6 +37,7 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/admin', adminRoutes);
 router.use('/public', publicRoutes);
 router.use('/integrations', integrationsRoutes);
+router.use('/stripe-checkout', stripeCheckoutRoutes);
 
 // Convenience endpoints that map to streamlined routes
 router.use('/companies', streamlinedDonationRoutes);

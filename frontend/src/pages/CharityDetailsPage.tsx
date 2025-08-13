@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { useStripe, useElements, CardElement, PaymentRequestButtonElement } from '@stripe/react-stripe-js';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 const CharityDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const stripe = useStripe();
-  const elements = useElements();
 
   const [charity, setCharity] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +15,6 @@ const CharityDetailsPage: React.FC = () => {
   const [accountantEmail, setAccountantEmail] = useState('');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [paymentRequest, setPaymentRequest] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -39,113 +35,38 @@ const CharityDetailsPage: React.FC = () => {
     load();
   }, [id]);
 
-  // Set up Apple Pay / Google Pay
-  useEffect(() => {
-    console.log('Payment request effect triggered:', { stripe: !!stripe, amount, charity: !!charity });
+  // Create Stripe Checkout session
+  const handleDonate = async () => {
+    if (!amount || !contactEmail || !charity) return;
     
-    if (stripe && amount && parseFloat(amount) > 0 && charity) {
-      console.log('Creating payment request...');
-      const pr = stripe.paymentRequest({
-        country: 'NZ',
-        currency: 'nzd',
-        total: {
-          label: `Donation to ${charity.name}`,
-          amount: Math.round(parseFloat(amount) * 100), // Convert to cents
-        },
-        requestPayerName: true,
-        requestPayerEmail: true,
-      });
-
-      console.log('Payment request created:', pr);
-
-      // Check if payment request is available (Apple Pay, Google Pay, etc.)
-      pr.canMakePayment().then((result) => {
-        console.log('Payment request availability result:', result);
-        if (result) {
-          console.log('Payment request is available! Setting up...');
-          setPaymentRequest(pr);
-        } else {
-          console.log('Payment request not available');
-          setPaymentRequest(null);
-        }
-      }).catch((err) => {
-        console.log('Payment request availability error:', err);
-        setPaymentRequest(null);
-      });
-
-      pr.on('paymentmethod', async (event) => {
-        try {
-          const payload = {
-            nzCompanyNumber: companyNumber || '1234567', // Use test number if empty
-            charityId: charity.id,
-            amount: parseFloat(amount),
-            stripePaymentMethodId: event.paymentMethod.id,
-            companyContactEmail: contactEmail || event.paymentMethod.billing_details?.email || 'test@example.com',
-            accountantEmail: accountantEmail || undefined,
-            message: message || undefined,
-          };
-
-          const resp = await fetch('/api/donations/streamlined', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-          const result = await resp.json();
-          
-          if (!resp.ok || !result?.success) {
-            event.complete('fail');
-            throw new Error(result?.message || 'Donation failed');
-          }
-
-          event.complete('success');
-          navigate('/dashboard');
-        } catch (err: any) {
-          event.complete('fail');
-          alert(err?.message || 'Donation failed');
-        }
-      });
-    } else {
-      setPaymentRequest(null);
-    }
-  }, [stripe, amount, charity, companyNumber, contactEmail, accountantEmail, message, navigate]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!stripe || !elements || !charity) return;
     setSubmitting(true);
     try {
-      const card = elements.getElement(CardElement);
-      if (!card) throw new Error('Card element not found');
-
-      const { paymentMethod, error } = await stripe.createPaymentMethod({
-        type: 'card',
-        card,
-        billing_details: { name: companyNumber || 'NZ Company', email: contactEmail },
-      });
-      if (error || !paymentMethod) throw new Error(error?.message || 'Payment error');
-
-      const payload = {
-        nzCompanyNumber: companyNumber,
-        charityId: charity.id,
-        amount: parseFloat(amount),
-        stripePaymentMethodId: paymentMethod.id,
-        companyContactEmail: contactEmail,
-        accountantEmail: accountantEmail || undefined,
-        message: message || undefined,
-      };
-
-      const resp = await fetch('/api/donations/streamlined', {
+      const response = await fetch('/api/stripe-checkout/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          amount: parseFloat(amount),
+          currency: 'NZD',
+          charityId: charity.id,
+          charityName: charity.name,
+          companyName: companyNumber ? `Company ${companyNumber}` : undefined,
+          companyEmail: contactEmail,
+          message: message || undefined,
+          isRecurring: false
+        })
       });
-      const result = await resp.json();
-      if (!resp.ok || !result?.success) throw new Error(result?.message || 'Donation failed');
 
-      // Success: backend generates & emails receipt. Redirect to profile/dashboard.
-      navigate('/dashboard');
-    } catch (err: any) {
-      alert(err?.message || 'Donation failed');
+      const result = await response.json();
+      
+      if (result.success && result.sessionUrl) {
+        // Redirect to Stripe Checkout
+        window.location.href = result.sessionUrl;
+      } else {
+        throw new Error(result.message || 'Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('Failed to create checkout session. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -378,7 +299,7 @@ const CharityDetailsPage: React.FC = () => {
 
           {/* Right Side - Payment Form */}
           <div className="lg:sticky lg:top-8 lg:self-start">
-            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+            <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-arctic-900 mb-2">Make a Donation</h2>
                 <p className="text-arctic-600">Support {charity.name} and receive an instant IRD-compliant tax receipt</p>
@@ -479,78 +400,7 @@ const CharityDetailsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Apple Pay / Google Pay */}
-              {amount && parseFloat(amount) > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-arctic-700 mb-2">Express Payment</label>
-                  
-                  {/* Debug info for development */}
-                  {import.meta.env.DEV && (
-                    <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                      <div>Stripe: {stripe ? '✅' : '❌'}</div>
-                      <div>Amount: {amount || 'none'}</div>
-                      <div>PaymentRequest: {paymentRequest ? '✅' : '❌'}</div>
-                      <div>User Agent: {navigator.userAgent.includes('Safari') ? 'Safari ✅' : 'Other browser'}</div>
-                    </div>
-                  )}
 
-                  {paymentRequest ? (
-                    <div className="mb-4">
-                      <PaymentRequestButtonElement 
-                        options={{ 
-                          paymentRequest,
-                          style: {
-                            paymentRequestButton: {
-                              type: 'donate',
-                              theme: 'dark',
-                              height: '48px',
-                            },
-                          },
-                        }} 
-                      />
-                    </div>
-                  ) : (
-                    <div className="mb-4">
-                      {/* Try a manual Apple Pay style button for testing */}
-                      <button
-                        type="button"
-                        onClick={() => console.log('Manual Apple Pay clicked - payment request:', paymentRequest)}
-                        className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
-                        disabled={!stripe}
-                      >
-                        <span>🍎</span>
-                        <span>Pay (Demo - Apple Pay not available)</span>
-            </button>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center my-4">
-                    <div className="flex-1 border-t border-ice-300"></div>
-                    <span className="px-4 text-sm text-arctic-500 bg-white">
-                      {paymentRequest ? 'or pay with card' : 'pay with card'}
-                    </span>
-                    <div className="flex-1 border-t border-ice-300"></div>
-                  </div>
-                </div>
-              )}
-
-              {/* Payment Details */}
-              <div>
-                <label className="block text-sm font-medium text-arctic-700 mb-2">Card Details</label>
-                <div className="p-4 border-2 border-ice-300 rounded-lg bg-white focus-within:ring-2 focus-within:ring-arctic-500 focus-within:border-arctic-500">
-                  <CardElement
-                    options={{
-                      style: {
-                        base: {
-                          fontSize: '16px',
-                          color: '#374151',
-                          '::placeholder': { color: '#9CA3AF' },
-                        },
-                      },
-                    }}
-                  />
-                </div>
-              </div>
 
               {/* Summary */}
               {amount && (
@@ -566,28 +416,29 @@ const CharityDetailsPage: React.FC = () => {
               )}
 
               <button
-                type="submit"
-                disabled={!stripe || submitting || !amount}
+                type="button"
+                onClick={handleDonate}
+                disabled={submitting || !amount || !contactEmail}
                 className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {submitting ? (
                   <>
                     <LoadingSpinner size="small" />
-                    <span className="ml-2">Processing...</span>
+                    <span className="ml-2">Creating Checkout...</span>
                   </>
                 ) : (
                   <>
-                    <span className="mr-2">🚀</span>
-                    Complete Donation {amount && `($${amount})`}
+                    <span className="mr-2">💳</span>
+                    Donate with Stripe Checkout {amount && `($${amount})`}
                   </>
                 )}
             </button>
 
               <div className="text-center text-sm text-arctic-500">
-                <p>🔒 Secure payment powered by Stripe</p>
-                <p>💳 Your card details are encrypted and secure</p>
+                <p>🔒 Secure payment powered by Stripe Checkout</p>
+                <p>💳 Your payment is processed securely by Stripe</p>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>
