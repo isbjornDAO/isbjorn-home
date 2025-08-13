@@ -1061,3 +1061,123 @@ Executing (default): SELECT 1+1 AS result
 [32minfo[39m: Background jobs initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:10:32"}
 [32minfo[39m: Server running on port 5000 in development mode {"service":"isbjorn-api","timestamp":"2025-08-13 02:10:32"}
 [32minfo[39m: API Documentation: http://localhost:5000/api-docs {"service":"isbjorn-api","timestamp":"2025-08-13 02:10:32"}
+2:11:23 AM [tsx] change in ./src/routes/index.ts Restarting...
+[32minfo[39m: SIGTERM signal received: closing HTTP server {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[32minfo[39m: Database connection closed {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+c[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[33mwarn[39m: Xero credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[33mwarn[39m: MYOB credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+[33mwarn[39m: IRD API key not configured - using mock compliance data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:23"}
+Executing (default): SELECT 1+1 AS result
+[32minfo[39m: Database connection established successfully {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:24"}
+[31merror[39m: Redis connection error: connect ECONNREFUSED 127.0.0.1:6379 {"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-08-13 02:11:24"}
+[33mwarn[39m: Redis not available; continuing without cache {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:24"}
+[32minfo[39m: Redis connection established {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:24"}
+[31merror[39m: Failed to initialize blockchain service: Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:138:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 02:11:24"}
+[33mwarn[39m: Blockchain initialization failed - running without blockchain features Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:138:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 02:11:24"}
+[32minfo[39m: Job processing initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:24"}
+[32minfo[39m: Background jobs initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:24"}
+[32minfo[39m: Server running on port 5000 in development mode {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:24"}
+[32minfo[39m: API Documentation: http://localhost:5000/api-docs {"service":"isbjorn-api","timestamp":"2025-08-13 02:11:24"}
+2:14:25 AM [tsx] change in ./src/routes/index.ts Restarting...
+[32minfo[39m: SIGTERM signal received: closing HTTP server {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:25"}
+[32minfo[39m: Database connection closed {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:25"}
+c[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+[33mwarn[39m: Xero credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+[33mwarn[39m: MYOB credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+[33mwarn[39m: IRD API key not configured - using mock compliance data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:26"}
+/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/routes/index.ts:40
+router.use('/stripe-checkout', stripeCheckoutRoutes);
+                               ^
+
+
+ReferenceError: stripeCheckoutRoutes is not defined
+    at streamlinedDonationRoutes (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/routes/index.ts:40:32)
+    at Object.<anonymous> (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/routes/index.ts:47:16)
+    at Module._compile (node:internal/modules/cjs/loader:1738:14)
+    at Object.transformer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1470:32)
+    at Module._load (node:internal/modules/cjs/loader:1290:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:238:24)
+    at Module.require (node:internal/modules/cjs/loader:1493:12)
+    at require (node:internal/modules/helpers:152:16)
+
+Node.js v24.5.0
+2:14:40 AM [tsx] change in ./src/routes/index.ts Rerunning...
+c[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[33mwarn[39m: Xero credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[33mwarn[39m: MYOB credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[33mwarn[39m: IRD API key not configured - using mock compliance data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+Executing (default): SELECT 1+1 AS result
+[32minfo[39m: Database connection established successfully {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[31merror[39m: Redis connection error: connect ECONNREFUSED 127.0.0.1:6379 {"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-08-13 02:14:41"}
+[33mwarn[39m: Redis not available; continuing without cache {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: Redis connection established {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[31merror[39m: Failed to initialize blockchain service: Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:138:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 02:14:41"}
+[33mwarn[39m: Blockchain initialization failed - running without blockchain features Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:138:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: Job processing initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: Background jobs initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: Server running on port 5000 in development mode {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+[32minfo[39m: API Documentation: http://localhost:5000/api-docs {"service":"isbjorn-api","timestamp":"2025-08-13 02:14:41"}
+2:15:45 AM [tsx] change in ./src/routes/index.ts Restarting...
+[32minfo[39m: SIGTERM signal received: closing HTTP server {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:45"}
+[32minfo[39m: Database connection closed {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:45"}
+c[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[33mwarn[39m: Xero credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[33mwarn[39m: MYOB credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[33mwarn[39m: IRD API key not configured - using mock compliance data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+Executing (default): SELECT 1+1 AS result
+[32minfo[39m: Database connection established successfully {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[31merror[39m: Redis connection error: connect ECONNREFUSED 127.0.0.1:6379 {"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-08-13 02:15:46"}
+[33mwarn[39m: Redis not available; continuing without cache {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: Redis connection established {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[31merror[39m: Failed to initialize blockchain service: Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:138:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 02:15:46"}
+[33mwarn[39m: Blockchain initialization failed - running without blockchain features Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:138:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: Job processing initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: Background jobs initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: Server running on port 5000 in development mode {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+[32minfo[39m: API Documentation: http://localhost:5000/api-docs {"service":"isbjorn-api","timestamp":"2025-08-13 02:15:46"}
+2:16:06 AM [tsx] change in ./src/routes/index.ts Restarting...
+[32minfo[39m: SIGTERM signal received: closing HTTP server {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:06"}
+[32minfo[39m: Database connection closed {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:06"}
+c[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[33mwarn[39m: NZ Companies API key not configured - using mock data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: Get API key from: https://www.business.govt.nz/developers/ {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[33mwarn[39m: Xero credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[33mwarn[39m: MYOB credentials not configured - integration disabled {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[33mwarn[39m: IRD API key not configured - using mock compliance data for development {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+Executing (default): SELECT 1+1 AS result
+[32minfo[39m: Database connection established successfully {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[31merror[39m: Redis connection error: connect ECONNREFUSED 127.0.0.1:6379 {"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-08-13 02:16:07"}
+[33mwarn[39m: Redis not available; continuing without cache {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: Redis connection established {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[31merror[39m: Failed to initialize blockchain service: Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:138:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 02:16:07"}
+[33mwarn[39m: Blockchain initialization failed - running without blockchain features Contract addresses are required {"service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:40:13)\n    at initializeBlockchain (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/integrations/blockchain.ts:348:25)\n    at startServer (/home/bear/Documents/GitHub/isbjorn/isbjorn-home/backend/src/server.ts:138:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: Job processing initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: Background jobs initialized {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: Server running on port 5000 in development mode {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
+[32minfo[39m: API Documentation: http://localhost:5000/api-docs {"service":"isbjorn-api","timestamp":"2025-08-13 02:16:07"}
