@@ -68,16 +68,16 @@ echo 🎉 Starting services...
 echo.
 
 REM Start backend
-echo 🔧 Starting backend server on port 5001...
+echo 🔧 Starting backend server on port 5000...
 cd backend
-start "Isbjorn Backend" cmd /k "set PORT=5001 && npm run dev"
+start "Isbjorn Backend" cmd /k "set PORT=5000 && npm run dev"
 cd ..
 
 REM Wait a moment
 timeout /t 3 /nobreak >nul
 
 REM Start frontend
-echo 🎨 Starting frontend server on port 3001...
+echo 🎨 Starting frontend server on port 3000...
 cd frontend
 start "Isbjorn Frontend" cmd /k "npm run dev"
 cd ..
@@ -85,9 +85,9 @@ cd ..
 echo.
 echo 🎉 Isbjorn Platform is starting!
 echo.
-echo 📱 Frontend: http://localhost:3001
-echo 🔧 Backend API: http://localhost:5001
-echo 📖 API Docs: http://localhost:5001/api-docs
+echo 📱 Frontend: http://localhost:3000
+echo 🔧 Backend API: http://localhost:5000
+echo 📖 API Docs: http://localhost:5000/api-docs
 echo.
 echo 📋 Default admin login:
 echo    Email: admin@isbjorn.co.nz

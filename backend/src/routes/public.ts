@@ -1,23 +1,45 @@
 import express from 'express';
 import { Charity } from '../models/Charity.model';
+import { IRDCompliantDonation } from '../models/IRDCompliantDonation.model';
+import { NZCompany } from '../models/NZCompany.model';
 import { logger } from '../utils/logger';
 
 const router = express.Router();
+const isProduction = process.env.NODE_ENV === 'production';
 
 router.get('/charities', async (req, res) => {
   try {
-    // Always return static data with images for now until database is properly populated
-    // const charities = await Charity.findAll({
-    //   where: { isActive: true },
-    //   attributes: ['id', 'name', 'description', 'category', 'website', 'logoUrl', 'charityPhoto', 'icon', 'location', 'totalReceived', 'donationCount']
-    // });
+    // Prefer real charities from the database
+    const charities = await Charity.findAll({
+      where: { isActive: true },
+      attributes: [
+        'id',
+        'name',
+        'description',
+        'category',
+        'website',
+        'logoUrl',
+        'charityPhoto',
+        'icon',
+        'location',
+        'totalReceived',
+        'donationCount',
+      ],
+      order: [['name', 'ASC']],
+      limit: 200,
+    });
     
-    // if (charities.length > 0 && charities[0].charityPhoto) {
-    //   res.json({ success: true, data: charities });
-    //   return;
-    // }
+    if (charities.length > 0) {
+      res.json({ success: true, data: charities });
+      return;
+    }
     
-    // Fallback to static data with images and emojis
+    // In non-production, fall back to static data with images and emojis for demo/dev
+    if (isProduction) {
+      res.json({ success: true, data: [] });
+      return;
+    }
+
     const staticCharities = [
       {
         id: '1',
@@ -175,7 +197,12 @@ router.get('/charities', async (req, res) => {
   } catch (error) {
     logger.error('Error fetching charities:', error);
     
-    // Return static data even if database fails
+    if (isProduction) {
+      res.status(500).json({ success: false, message: 'Failed to load charities' });
+      return;
+    }
+
+    // In non-production, return static data even if database fails
     const staticCharities = [
       {
         id: '1',
@@ -205,6 +232,36 @@ router.get('/charities', async (req, res) => {
     ];
     
     res.json({ success: true, data: staticCharities });
+  }
+});
+
+// Public stats for homepage (no mock numbers)
+router.get('/stats', async (req, res) => {
+  try {
+    const [charityCount, donationCount, totalDonatedRaw, companyCount] = await Promise.all([
+      Charity.count({ where: { isActive: true } }),
+      IRDCompliantDonation.count(),
+      IRDCompliantDonation.sum('donationAmountNzd'),
+      NZCompany.count({ where: { isVerified: true } }),
+    ]);
+
+    const totalDonatedNzd = Number(totalDonatedRaw || 0);
+
+    res.json({
+      success: true,
+      data: {
+        registeredCharities: charityCount,
+        donationsProcessed: donationCount,
+        totalDonatedNzd,
+        businessPartners: companyCount,
+      },
+    });
+  } catch (error: any) {
+    logger.error('Error fetching public stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to load stats',
+    });
   }
 });
 

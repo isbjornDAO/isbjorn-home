@@ -18,6 +18,7 @@ const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
 const ReceiptPage = lazy(() => import('@/pages/ReceiptPage'));
 const CharityDetailsPage = lazy(() => import('@/pages/CharityDetailsPage'));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage'));
+const SystemStatusPage = lazy(() => import('@/pages/SystemStatusPage'));
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/donation/success" element={<DonationSuccessPage />} />
                 <Route path="/compliance" element={<ComplianceDashboardPage />} />
                 <Route path="/charity/:id" element={<CharityDetailsPage />} />
+                <Route path="/system-status" element={<SystemStatusPage />} />
                 
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />

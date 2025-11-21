@@ -109,11 +109,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     Sign In
                   </Link>
                   <Link
-                    to="/donate"
+                    to={isAuthenticated ? '/donate' : '/register'}
                     className="btn-primary text-sm px-3 sm:px-6 py-2 sm:py-3"
                   >
-                    <span className="hidden sm:inline">Donate Now</span>
-                    <span className="sm:hidden">Donate</span>
+                    <span className="hidden sm:inline">Donate now</span>
+                    <span className="sm:hidden">Donate now</span>
                   </Link>
                 </div>
               )}

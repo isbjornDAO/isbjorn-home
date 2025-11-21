@@ -4,8 +4,9 @@ import StreamlinedDonationService from '../services/streamlinedDonationService';
 import NZCompaniesRegisterService from '../services/nzCompaniesRegisterService';
 import NZCharitiesService from '../services/nzCharitiesService';
 import { logger } from '../utils/logger';
-import { irdComplianceService } from '../services/irdComplianceService';
-import { accountingIntegrationService } from '../services/accountingIntegrationService';
+import { IRDCompliantDonation } from '../models/IRDCompliantDonation.model';
+import fs from 'fs';
+import path from 'path';
 
 export class StreamlinedDonationController {
   private donationService: StreamlinedDonationService;
@@ -290,12 +291,39 @@ export class StreamlinedDonationController {
   downloadReceipt = async (req: Request, res: Response): Promise<void> => {
     try {
       const { donationId } = req.params;
-      
-      // Implementation would serve the PDF file
-      res.status(501).json({
-        success: false,
-        message: 'Receipt download not implemented yet'
+
+      const donation = await IRDCompliantDonation.findByPk(donationId);
+      if (!donation || !donation.receiptPdfPath) {
+        res.status(404).json({
+          success: false,
+          message: 'Receipt not found',
+        });
+        return;
+      }
+
+      const filePath = donation.receiptPdfPath;
+
+      if (!fs.existsSync(filePath)) {
+        logger.error('Receipt PDF path does not exist on disk', { donationId, filePath });
+        res.status(404).json({
+          success: false,
+          message: 'Receipt file missing',
+        });
+        return;
+      }
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="receipt-${donation.receiptNumber || donation.id}.pdf"`
+      );
+
+      const stream = fs.createReadStream(filePath);
+      stream.on('error', (err) => {
+        logger.error('Error streaming receipt PDF:', err);
+        res.status(500).end();
       });
+      stream.pipe(res);
 
     } catch (error: any) {
       logger.error('Receipt download error:', error);

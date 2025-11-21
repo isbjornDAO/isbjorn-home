@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IggyMascot from '@/components/IggyMascot';
@@ -11,8 +11,18 @@ import {
   GlobeAltIcon,
   ArrowRightIcon
 } from '@heroicons/react/24/outline';
+import { apiService } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
+
+interface PublicStats {
+  registeredCharities: number;
+  donationsProcessed: number;
+  totalDonatedNzd: number;
+  businessPartners: number;
+}
 
 const HomePage: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const partnerLogos = [
     // Integration Partners - with brand colors
     {
@@ -66,6 +76,34 @@ const HomePage: React.FC = () => {
     }
   ];
 
+  const [stats, setStats] = useState<PublicStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const result = await apiService.get<{ success: boolean; data: PublicStats }>('/public/stats');
+        if ((result as any).success && (result as any).data) {
+          setStats((result as any).data as PublicStats);
+        }
+      } catch (e) {
+        console.error('Failed to load public stats', e);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+    loadStats();
+  }, []);
+
+  const displayValue = (formatter: () => string) => {
+    if (statsLoading) return '—';
+    try {
+      return formatter();
+    } catch {
+      return '—';
+    }
+  };
+
   const features = [
     {
       icon: 'https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61f5e21264ea04c7d7feb85e_COMMUNITY.png' as const,
@@ -85,13 +123,6 @@ const HomePage: React.FC = () => {
       description: 'One transparent fee covers everything. No hidden costs.',
       isImage: true as const,
     },
-  ];
-
-  const stats = [
-    { label: 'Registered NZ Charities', value: '127', icon: ShieldCheckIcon },
-    { label: 'Donations Processed', value: '2,847', icon: HeartIcon },
-    { label: 'Total Donated (NZD)', value: '$1.2M', icon: CurrencyDollarIcon },
-    { label: 'Business Partners', value: '156', icon: GlobeAltIcon },
   ];
 
   return (
@@ -134,11 +165,13 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex justify-center lg:justify-start">
-                <Link to="/donate" className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-3 sm:py-4 inline-flex items-center shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <span className="text-xl sm:text-2xl mr-2 sm:mr-3">🐻‍❄️</span>
-                  <span className="hidden sm:inline">Browse Charities</span>
-                  <span className="sm:hidden">Browse</span>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+                <Link
+                  to={isAuthenticated ? '/donate' : '/register'}
+                  className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-3 sm:py-4 inline-flex items-center shadow-lg hover:shadow-xl transition-shadow duration-300"
+                >
+                  <span className="hidden sm:inline">Donate now</span>
+                  <span className="sm:hidden">Donate now</span>
                   <ArrowRightIcon className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3" />
                 </Link>
               </div>
@@ -157,15 +190,29 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 text-center mb-8 sm:mb-12"
           >
-            {stats.map((stat, index) => {
+            {[
+              { label: 'Registered NZ Charities', key: 'registeredCharities', icon: ShieldCheckIcon },
+              { label: 'Donations Processed', key: 'donationsProcessed', icon: HeartIcon },
+              { label: 'Total Donated (NZD)', key: 'totalDonatedNzd', icon: CurrencyDollarIcon },
+              { label: 'Business Partners', key: 'businessPartners', icon: GlobeAltIcon },
+            ].map((stat, index) => {
               const IconComponent = stat.icon;
+              const value = displayValue(() => {
+                if (!stats) return '—';
+                const v = (stats as any)[stat.key];
+                if (stat.key === 'totalDonatedNzd') {
+                  if (!v || v === 0) return '$0';
+                  return `$${Number(v).toLocaleString()}`;
+                }
+                return v ? Number(v).toLocaleString() : '0';
+              });
               return (
                 <div key={index} className="flex flex-col items-center">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-arctic-500 to-arctic-600 rounded-full flex items-center justify-center mb-3 sm:mb-4 shadow-md hover:shadow-lg transition-shadow duration-300">
                     <IconComponent className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-arctic-600 font-display mb-1">
-                    {stat.value}
+                    {value}
                   </div>
                   <div className="text-sm sm:text-base text-ice-600 text-center px-1">{stat.label}</div>
                 </div>
@@ -258,7 +305,7 @@ const HomePage: React.FC = () => {
               </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-ice-900 font-display mb-4 sm:mb-6 drop-shadow-sm">
-              Ready to Donate?
+              Ready to donate with Isbjørn?
             </h2>
             
             <div className="text-lg sm:text-xl md:text-2xl text-ice-600 mb-6 sm:mb-8">
@@ -267,7 +314,7 @@ const HomePage: React.FC = () => {
                   <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                     <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
                   </div>
-                  <span className="font-semibold">Choose charity</span>
+                  <span className="font-semibold">Choose your charity</span>
                 </div>
                 <div className="flex items-center justify-center md:justify-start">
                   <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
@@ -279,7 +326,7 @@ const HomePage: React.FC = () => {
                   <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                     <ChartBarIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
                   </div>
-                  <span className="font-semibold">Get instant receipt</span>
+                  <span className="font-semibold">Get instant IRD receipts</span>
                 </div>
               </div>
               <p className="text-base sm:text-lg text-ice-500 mt-3 sm:mt-4 font-medium">Done in under 5 minutes</p>
@@ -287,12 +334,12 @@ const HomePage: React.FC = () => {
             
             <div className="flex justify-center md:justify-start">
               <Link 
-                to="/donate" 
+                to={isAuthenticated ? '/donate' : '/register'} 
                 className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-5 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center font-bold"
               >
                 <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-                <span className="hidden sm:inline">Browse Charities</span>
-                <span className="sm:hidden">Browse</span>
+                <span className="hidden sm:inline">Donate now</span>
+                <span className="sm:hidden">Donate now</span>
               </Link>
             </div>
             </div>

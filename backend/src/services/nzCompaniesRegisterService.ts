@@ -47,13 +47,19 @@ export class NZCompaniesRegisterService {
   private apiKey: string;
   private rateLimitDelay = 1000; // 1 second between requests
   private lastRequestTime = 0;
+  private isProduction: boolean;
 
   constructor() {
     this.apiKey = process.env.NZ_COMPANIES_API_KEY || '';
+    this.isProduction = process.env.NODE_ENV === 'production';
     if (!this.apiKey) {
-      logger.warn('NZ Companies API key not configured - using mock data for development');
-      logger.info('To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable');
-      logger.info('Get API key from: https://www.business.govt.nz/developers/');
+      if (this.isProduction) {
+        logger.error('NZ Companies API key not configured in production - real lookups will fail');
+      } else {
+        logger.warn('NZ Companies API key not configured - using mock data for development');
+        logger.info('To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable');
+        logger.info('Get API key from: https://www.business.govt.nz/developers/');
+      }
     }
   }
 
@@ -66,6 +72,9 @@ export class NZCompaniesRegisterService {
       await this.enforceRateLimit();
 
       if (!this.apiKey) {
+        if (this.isProduction) {
+          throw new Error('NZ_COMPANIES_API_KEY is required in production');
+        }
         return this.getMockCompanyData(companyNumber);
       }
 

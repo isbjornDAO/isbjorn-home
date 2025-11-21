@@ -5,7 +5,8 @@ import NZCompaniesRegisterService from './nzCompaniesRegisterService';
 import NZCharitiesService from './nzCharitiesService';
 import IRDReceiptService from './irdReceiptService';
 import { logger } from '../utils/logger';
-import Stripe from 'stripe';
+import { stripe } from '../utils/stripe';
+import AvalancheL1Service from './AvalancheL1Service';
 
 interface StreamlinedDonationRequest {
   // Step 1: Company auto-lookup
@@ -49,16 +50,11 @@ export class StreamlinedDonationService {
   private companiesService: NZCompaniesRegisterService;
   private charitiesService: NZCharitiesService;
   private receiptService: IRDReceiptService;
-  private stripe: Stripe;
 
   constructor() {
     this.companiesService = new NZCompaniesRegisterService();
     this.charitiesService = new NZCharitiesService();
     this.receiptService = new IRDReceiptService();
-    const key = process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key';
-    this.stripe = new Stripe(key, {
-      apiVersion: '2023-10-16',
-    });
   }
 
   /**
@@ -118,13 +114,13 @@ export class StreamlinedDonationService {
         accountant: request.accountantEmail,
       });
 
-      // Step 7: Export to accounting software (async)
+      // Step 7: Export to accounting software (async flags only here)
       const accountingExports = await this.exportToAccountingSoftware(donation.id);
 
       // Step 8: Optional blockchain recording
       let blockchainTx: string | undefined;
       if (process.env.ENABLE_BLOCKCHAIN === 'true') {
-        blockchainTx = await this.recordOnBlockchain(donation);
+        blockchainTx = await this.recordOnBlockchain(donation, company, charity, request);
       }
 
       // Update donation as completed
@@ -329,10 +325,11 @@ export class StreamlinedDonationService {
     companyName: string;
     charityName: string;
   }): Promise<Stripe.PaymentIntent> {
-    const isMock = (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_test_mock') || process.env.MOCK_STRIPE === 'true';
+    const isProduction = process.env.NODE_ENV === 'production';
+    const allowMocks = process.env.MOCK_STRIPE === 'true' && !isProduction;
 
-    if (isMock) {
-      // Simulate a successful PaymentIntent
+    if (allowMocks) {
+      // Development-only mock path
       return {
         id: `pi_mock_${Date.now()}`,
         object: 'payment_intent',
@@ -342,7 +339,7 @@ export class StreamlinedDonationService {
       } as unknown as Stripe.PaymentIntent;
     }
 
-    const paymentIntent = await this.stripe.paymentIntents.create({
+    const paymentIntent = await stripe.paymentIntents.create({
       amount: params.amount,
       currency: 'nzd',
       payment_method: params.paymentMethodId,
@@ -398,18 +395,41 @@ export class StreamlinedDonationService {
     xeroExported: boolean;
     myobExported: boolean;
   }> {
-    // This would integrate with Xero/MYOB APIs
-    // For now, return mock success
     return {
-      xeroExported: true,
+      // Accounting sync is handled by dedicated integration flows, not this streamlined path
+      xeroExported: false,
       myobExported: false,
     };
   }
 
-  private async recordOnBlockchain(donation: IRDCompliantDonation): Promise<string | undefined> {
-    // Optional blockchain recording for transparency
-    // Implementation would depend on chosen blockchain
-    return `0x${Math.random().toString(16).substr(2, 64)}`;
+  private async recordOnBlockchain(
+    donation: IRDCompliantDonation,
+    company: NZCompany,
+    charity: Charity,
+    request: StreamlinedDonationRequest
+  ): Promise<string | undefined> {
+    try {
+      const avaxPriceNzd = parseFloat(process.env.AVAX_PRICE_NZD || '50');
+      const amountInWei = AvalancheL1Service.nzdToWei(donation.donationAmountNzd, avaxPriceNzd);
+      const donorAddress = AvalancheL1Service.generateDonorAddress(
+        company.nzCompanyNumber,
+        request.companyContactEmail
+      );
+      const charityAddress = AvalancheL1Service.generateCharityAddress(charity.id);
+
+      const txHash = await AvalancheL1Service.recordDonation(
+        donation.id,
+        donorAddress,
+        charityAddress,
+        amountInWei,
+        donation.receiptNumber
+      );
+
+      return txHash || undefined;
+    } catch (error) {
+      logger.error('Error recording donation on Avalanche L1:', error);
+      return undefined;
+    }
   }
 }
 

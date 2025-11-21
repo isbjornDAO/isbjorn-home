@@ -38,11 +38,17 @@ export class NZCharitiesService {
   private apiKey: string;
   private rateLimitDelay = 1000;
   private lastRequestTime = 0;
+  private isProduction: boolean;
 
   constructor() {
     this.apiKey = process.env.NZ_CHARITIES_API_KEY || '';
+    this.isProduction = process.env.NODE_ENV === 'production';
     if (!this.apiKey) {
-      logger.warn('NZ Charities API key not configured - using mock data for development');
+      if (this.isProduction) {
+        logger.error('NZ Charities API key not configured in production - real lookups will fail');
+      } else {
+        logger.warn('NZ Charities API key not configured - using mock data for development');
+      }
     }
   }
 
@@ -60,6 +66,9 @@ export class NZCharitiesService {
       await this.enforceRateLimit();
 
       if (!this.apiKey) {
+        if (this.isProduction) {
+          throw new Error('NZ_CHARITIES_API_KEY is required in production');
+        }
         return this.getMockCharityVerification(charityName);
       }
 
@@ -174,6 +183,9 @@ export class NZCharitiesService {
       await this.enforceRateLimit();
 
       if (!this.apiKey) {
+        if (this.isProduction) {
+          throw new Error('NZ_CHARITIES_API_KEY is required in production');
+        }
         return {
           isDoneeOrganisation: true,
           doneeOrganisationNumber: 'MOCK-123456',
@@ -210,6 +222,9 @@ export class NZCharitiesService {
       await this.enforceRateLimit();
 
       if (!this.apiKey) {
+        if (this.isProduction) {
+          throw new Error('NZ_CHARITIES_API_KEY is required in production');
+        }
         return this.getMockCharityData(diaCharitiesNumber);
       }
 
@@ -321,6 +336,9 @@ export class NZCharitiesService {
 
       // If no local results, search API
       if (!this.apiKey) {
+        if (this.isProduction) {
+          throw new Error('NZ_CHARITIES_API_KEY is required in production');
+        }
         return this.getMockSearchResults(query, limit);
       }
 
