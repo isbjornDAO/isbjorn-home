@@ -9,6 +9,11 @@ dist/
 build/
 *.tsbuildinfo
 
+# App-specific build / runtime outputs
+backend/dist/
+frontend/dist/
+frontend/.vite/
+
 # Environment variables and secrets
 .env
 .env.local
@@ -24,9 +29,12 @@ backend/setup-stripe-keys.sh
 *.sqlite3
 database.sqlite
 database.sqlite3
+backend/data/*.sqlite
 
 # Logs
 logs/
+backend/logs/
+frontend/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
