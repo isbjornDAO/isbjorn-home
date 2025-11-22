@@ -19,64 +19,70 @@ const ReceiptPage = lazy(() => import('@/pages/ReceiptPage'));
 const CharityDetailsPage = lazy(() => import('@/pages/CharityDetailsPage'));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage'));
 const SystemStatusPage = lazy(() => import('@/pages/SystemStatusPage'));
+const BusinessDashboard = lazy(() => import('@/pages/BusinessDashboard'));
+const DonationForm = lazy(() => import('@/components/DonationForm'));
 
 function App() {
   return (
     <AuthProvider>
-        <BlockchainProvider>
-          <Layout>
-            <Suspense fallback={<LoadingSpinner fullScreen />}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                
-                <Route path="/donate" element={<DonatePage />} />
-                
-                {/* Advanced Donation Flows */}
-                <Route path="/donate-streamlined" element={<StreamlinedDonatePage />} />
-                <Route path="/donation/success" element={<DonationSuccessPage />} />
-                <Route path="/compliance" element={<ComplianceDashboardPage />} />
-                <Route path="/charity/:id" element={<CharityDetailsPage />} />
-                <Route path="/system-status" element={<SystemStatusPage />} />
-                
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <DashboardPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/*"
-                  element={
-                    <ProtectedRoute requiredRole="admin">
-                      <AdminPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/integrations"
-                  element={
-                    <ProtectedRoute>
-                      <IntegrationsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/receipt/:id"
-                  element={
-                    <ProtectedRoute>
-                      <ReceiptPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </Layout>
-        </BlockchainProvider>
+      <BlockchainProvider>
+        <Layout>
+          <Suspense fallback={<LoadingSpinner fullScreen />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+
+              <Route path="/donate" element={<DonatePage />} />
+
+              {/* Advanced Donation Flows */}
+              <Route path="/donate-streamlined" element={<StreamlinedDonatePage />} />
+              <Route path="/donation/success" element={<DonationSuccessPage />} />
+              <Route path="/compliance" element={<ComplianceDashboardPage />} />
+              <Route path="/charity/:id" element={<CharityDetailsPage />} />
+              <Route path="/system-status" element={<SystemStatusPage />} />
+
+              {/* Business Portal */}
+              <Route path="/business-dashboard" element={<ProtectedRoute><BusinessDashboard /></ProtectedRoute>} />
+              <Route path="/donate-business" element={<DonationForm />} />
+
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/*"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/integrations"
+                element={
+                  <ProtectedRoute>
+                    <IntegrationsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/receipt/:id"
+                element={
+                  <ProtectedRoute>
+                    <ReceiptPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </Layout>
+      </BlockchainProvider>
     </AuthProvider>
   );
 }

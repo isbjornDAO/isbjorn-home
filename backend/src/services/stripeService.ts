@@ -131,6 +131,7 @@ export class StripeService {
     }
 
     logger.info(`Processing webhook event: ${event.type}`);
+    logger.info(`[TradFi Verification] Webhook received for event: ${event.type} - ID: ${event.id}`);
 
     switch (event.type) {
       case 'payment_intent.succeeded':
@@ -320,7 +321,7 @@ export class StripeService {
     try {
       const sessionId = session.id;
       const metadata = session.metadata;
-      
+
       if (!metadata?.charityId) {
         logger.error(`No charity ID in session metadata: ${sessionId}`);
         return;
@@ -367,18 +368,18 @@ export class StripeService {
       // Log the current Stripe configuration
       logger.info(`Stripe mode: ${stripeConfig.mode}`);
       logger.info(`Using Stripe key starting with: ${stripeConfig.secretKey.substring(0, 7)}...`);
-      
+
       // Show warning for live mode
       if (isLiveMode()) {
         logger.warn('⚠️  LIVE MODE: Real money will be charged!');
       } else {
         logger.info('🧪 TEST MODE: No real money will be charged');
       }
-      
+
       const amountInCents = Math.round(data.amount * 100);
-      
+
       logger.info(`Creating Stripe checkout session for ${data.amount} ${data.currency} to ${data.charityName}`);
-      
+
       // Create checkout session
       const session = await stripe.checkout.sessions.create({
         line_items: [
@@ -414,7 +415,7 @@ export class StripeService {
       // For checkout sessions, we need to handle the case where there's no user
       // We'll create a donation with a temporary user ID that can be updated later
       const tempUserId = 'temp-user-' + Date.now();
-      
+
       // Create donation record
       const donation = await Donation.create({
         userId: tempUserId, // Temporary user ID for anonymous donations
@@ -447,7 +448,7 @@ export class StripeService {
     } catch (error: any) {
       logger.error('Create checkout session error:', error);
       if (error instanceof AppError) throw error;
-      
+
       // Provide more specific error messages
       if (error.type === 'StripeInvalidRequestError') {
         throw new AppError(`Stripe configuration error: ${error.message}`, 400);
@@ -456,7 +457,7 @@ export class StripeService {
       } else if (error.type === 'StripePermissionError') {
         throw new AppError('Stripe permission error. Please check your account settings.', 403);
       }
-      
+
       throw new AppError(`Failed to create checkout session: ${error.message}`, 500);
     }
   }

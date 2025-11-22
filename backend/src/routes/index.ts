@@ -2,6 +2,7 @@ import express from 'express';
 import authRoutes from './auth';
 import donationRoutes from './donations';
 import streamlinedDonationRoutes from './streamlinedDonations';
+import x402DonationRoutes from './x402Donations';
 import projectRoutes from './projects';
 import { dashboardRoutes } from './dashboard.routes';
 import { adminRoutes } from './admin.routes';
@@ -57,7 +58,7 @@ router.get('/health/deep', async (req, res) => {
   };
 
   try {
-    // Stripe check: list a small page of customers (or simple API call)
+    // Stripe check
     try {
       await stripe.customers.list({ limit: 1 });
       results.checks.stripe.ok = true;
@@ -77,7 +78,7 @@ router.get('/health/deep', async (req, res) => {
       results.checks.avalanche.error = e.message || 'Avalanche check failed';
     }
 
-    // NZ Companies API check – attempt a harmless lookup for a non-existent company
+    // NZ Companies API check
     try {
       const fakeNumber = process.env.HEALTHCHECK_NZ_COMPANY_NUMBER || '9999999';
       await companiesService.lookupCompany(fakeNumber);
@@ -86,7 +87,7 @@ router.get('/health/deep', async (req, res) => {
       results.checks.nzCompaniesApi.error = e.message || 'NZ Companies API check failed';
     }
 
-    // NZ Charities API check – search with a generic term
+    // NZ Charities API check
     try {
       await charitiesService.searchCharitiesByName('test', 1);
       results.checks.nzCharitiesApi.ok = true;
@@ -105,7 +106,7 @@ router.get('/health/deep', async (req, res) => {
       results.checks.email.error = e.message || 'Email check failed';
     }
 
-    // IRD API (compliance) – just see if configured and can generate mock data without throwing
+    // IRD API (compliance)
     try {
       const dummy = await irdComplianceService.generateIRDReceiptData(
         'HEALTHCHECK-DONATION',
@@ -133,15 +134,17 @@ router.get('/health/deep', async (req, res) => {
 });
 
 // API routes  
-router.use('/auth', workingAuthRoutes); // Using working auth with real database
-router.use('/donations', streamlinedDonationRoutes); // New streamlined endpoints
-router.use('/donations-legacy', donationRoutes); // Legacy donation endpoints
+router.use('/auth', workingAuthRoutes);
+router.use('/donations', streamlinedDonationRoutes);
+router.use('/x402', x402DonationRoutes);
+router.use('/donations-legacy', donationRoutes);
 router.use('/projects', projectRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/admin', adminRoutes);
 router.use('/public', publicRoutes);
 router.use('/integrations', integrationsRoutes);
-// Stripe Checkout routes (inline to avoid module resolution issues)
+
+// Stripe Checkout routes
 router.post('/stripe-checkout/create-session', [
   body('amount').isFloat({ min: 1 }).withMessage('Amount must be at least $1'),
   body('currency').isIn(['NZD', 'USD', 'AUD']).withMessage('Currency must be NZD, USD, or AUD'),
@@ -223,16 +226,14 @@ router.post('/stripe/webhook', express.raw({ type: 'application/json' }), async 
       case 'checkout.session.completed':
         const session = event.data.object;
         logger.info(`Payment successful for session: ${session.id}`);
-        
-        // Update donation status
         await stripeService.handleSuccessfulPayment(session);
         break;
-        
+
       case 'payment_intent.succeeded':
         const paymentIntent = event.data.object;
         logger.info(`Payment intent succeeded: ${paymentIntent.id}`);
         break;
-        
+
       default:
         logger.info(`Unhandled event type: ${event.type}`);
     }
@@ -291,7 +292,7 @@ router.post('/stripe/create-payment-intent', [
 router.get('/stripe-checkout/session/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
-    
+
     res.json({
       success: true,
       sessionId,
@@ -307,7 +308,7 @@ router.get('/stripe-checkout/session/:sessionId', async (req, res) => {
   }
 });
 
-// Convenience endpoints that map to streamlined routes
+// Convenience endpoints
 router.use('/companies', streamlinedDonationRoutes);
 router.use('/charities', streamlinedDonationRoutes);
 router.use('/receipts', streamlinedDonationRoutes);
