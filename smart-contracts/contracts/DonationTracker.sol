@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract DonationTracker is ReentrancyGuard, Pausable, AccessControl {
-    using Counters for Counters.Counter;
     
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     
-    Counters.Counter private _donationIds;
+    uint256 private _donationIds;
     
     struct Donation {
         uint256 id;
@@ -67,8 +65,8 @@ contract DonationTracker is ReentrancyGuard, Pausable, AccessControl {
         require(amount > 0, "DonationTracker: Amount must be greater than 0");
         require(donationIdToIndex[donationId] == 0, "DonationTracker: Donation already recorded");
         
-        _donationIds.increment();
-        uint256 newId = _donationIds.current();
+        _donationIds++;
+        uint256 newId = _donationIds;
         
         donations[newId] = Donation({
             id: newId,
@@ -155,7 +153,7 @@ contract DonationTracker is ReentrancyGuard, Pausable, AccessControl {
     {
         require(limit > 0 && limit <= 100, "DonationTracker: Invalid limit");
         
-        uint256 totalCount = _donationIds.current();
+        uint256 totalCount = _donationIds;
         if (offset >= totalCount) {
             return new Donation[](0);
         }

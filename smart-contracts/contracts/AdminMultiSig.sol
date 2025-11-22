@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract AdminMultiSig is ReentrancyGuard {
-    using Counters for Counters.Counter;
-    
     uint256 public constant MAX_OWNERS = 10;
     uint256 public constant MIN_REQUIRED = 2;
     
-    Counters.Counter private _transactionIds;
+    uint256 private _transactionIds;
     
     address[] public owners;
     mapping(address => bool) public isOwner;
@@ -122,8 +119,8 @@ contract AdminMultiSig is ReentrancyGuard {
     ) external onlyOwner returns (uint256) {
         require(to != address(0), "AdminMultiSig: Invalid destination");
         
-        _transactionIds.increment();
-        uint256 transactionId = _transactionIds.current();
+        _transactionIds++;
+        uint256 transactionId = _transactionIds;
         
         transactions[transactionId] = Transaction({
             id: transactionId,
@@ -200,7 +197,7 @@ contract AdminMultiSig is ReentrancyGuard {
     }
     
     function getTransactionCount() external view returns (uint256) {
-        return _transactionIds.current();
+        return _transactionIds;
     }
     
     function getTransaction(uint256 transactionId)
@@ -241,7 +238,7 @@ contract AdminMultiSig is ReentrancyGuard {
     {
         require(limit > 0 && limit <= 100, "AdminMultiSig: Invalid limit");
         
-        uint256 totalCount = _transactionIds.current();
+        uint256 totalCount = _transactionIds;
         if (offset >= totalCount) {
             return new Transaction[](0);
         }

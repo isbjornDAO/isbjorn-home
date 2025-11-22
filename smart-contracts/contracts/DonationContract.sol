@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 interface INodeRegistry {
     function registerNode(address operator, uint256 amount) external returns (uint256);
@@ -29,7 +29,7 @@ contract DonationContract is ReentrancyGuard, Ownable, Pausable {
     mapping(address => uint256) public donorBalances;
     mapping(address => string) public donorBusinessIds;
 
-    constructor(address _nodeRegistry, address _identityRegistry) {
+    constructor(address _nodeRegistry, address _identityRegistry) Ownable(msg.sender) {
         nodeRegistry = INodeRegistry(_nodeRegistry);
         identityRegistry = IERC8004(_identityRegistry);
     }

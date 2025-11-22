@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract ProjectDistribution is ReentrancyGuard, Pausable, AccessControl {
     using SafeERC20 for IERC20;
-    using Counters for Counters.Counter;
     
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant DISTRIBUTOR_ROLE = keccak256("DISTRIBUTOR_ROLE");
     
-    Counters.Counter private _distributionIds;
+    uint256 private _distributionIds;
     
     IERC20 public immutable usdcToken;
     address public treasury;
@@ -168,8 +166,8 @@ contract ProjectDistribution is ReentrancyGuard, Pausable, AccessControl {
         uint256 contractBalance = usdcToken.balanceOf(address(this));
         require(contractBalance >= amount, "ProjectDistribution: Insufficient contract balance");
         
-        _distributionIds.increment();
-        uint256 distributionId = _distributionIds.current();
+        _distributionIds++;
+        uint256 distributionId = _distributionIds;
         
         distributions[distributionId] = Distribution({
             id: distributionId,
@@ -256,8 +254,8 @@ contract ProjectDistribution is ReentrancyGuard, Pausable, AccessControl {
         uint256 contractBalance = usdcToken.balanceOf(address(this));
         
         if (contractBalance >= amount && project.pendingAmount >= amount) {
-            _distributionIds.increment();
-            uint256 distributionId = _distributionIds.current();
+            _distributionIds++;
+            uint256 distributionId = _distributionIds;
             
             distributions[distributionId] = Distribution({
                 id: distributionId,
@@ -344,5 +342,14 @@ contract ProjectDistribution is ReentrancyGuard, Pausable, AccessControl {
     
     function unpause() external onlyRole(ADMIN_ROLE) {
         _unpause();
+    }
+    
+    function supportsInterface(bytes4 interfaceId) 
+        public 
+        view 
+        override(AccessControl) 
+        returns (bool) 
+    {
+        return super.supportsInterface(interfaceId);
     }
 }

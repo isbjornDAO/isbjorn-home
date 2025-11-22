@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IggyMascot from '@/components/IggyMascot';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { 
-  HeartIcon, 
-  ChartBarIcon, 
+import {
+  HeartIcon,
+  ChartBarIcon,
   ShieldCheckIcon,
   CurrencyDollarIcon,
   GlobeAltIcon,
@@ -137,19 +137,19 @@ const HomePage: React.FC = () => {
             className="flex flex-col lg:flex-row items-center justify-center gap-8 sm:gap-12 lg:gap-16"
           >
             {/* Circular Background Image */}
-            <div 
+            <div
               className="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px] rounded-full bg-cover bg-center shadow-xl hover:shadow-2xl transition-shadow duration-300 flex-shrink-0"
               style={{
                 backgroundImage: "url('https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/621732317d36fa50a319746c_Mission%20(1).png')"
               }}
             />
-            
+
             {/* Content */}
             <div className="text-center lg:text-left flex-1">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-display mb-4 sm:mb-6 text-gray-800 leading-tight">
                 Donate to <span className="bg-gradient-to-r from-arctic-500 to-arctic-700 bg-clip-text text-transparent">NZ</span> <span className="bg-gradient-to-r from-arctic-500 to-arctic-700 bg-clip-text text-transparent">Charities</span>
               </h1>
-              
+
               <div className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-10 space-y-2 sm:space-y-3">
                 <div className="flex items-center justify-center lg:justify-start">
                   <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6 text-arctic-500 mr-2 sm:mr-3 flex-shrink-0" />
@@ -164,7 +164,7 @@ const HomePage: React.FC = () => {
                   <span>Get instant tax receipts</span>
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
                 <Link
                   to={isAuthenticated ? '/donate' : '/register'}
@@ -282,7 +282,7 @@ const HomePage: React.FC = () => {
             className="relative bg-white rounded-2xl shadow-lg border border-ice-200/50 p-6 sm:p-8 md:p-10 hover:shadow-xl transition-shadow duration-300 overflow-hidden"
           >
             {/* Polar Bear Background */}
-            <div 
+            <div
               className="absolute inset-0 bg-cover opacity-100 hidden md:block"
               style={{
                 backgroundImage: "url('https://pbs.twimg.com/media/GseIHU4bwAAdCK5?format=jpg&name=medium')",
@@ -291,10 +291,10 @@ const HomePage: React.FC = () => {
                 backgroundRepeat: "no-repeat"
               }}
             />
-            
+
             {/* Gradient overlay for better text readability */}
             <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 md:via-white/85 to-white md:to-transparent"></div>
-            
+
             {/* Content overlay */}
             <div className="relative z-10 text-center md:text-left max-w-2xl mx-auto md:mx-0">
               {/* Heart Icon */}
@@ -304,44 +304,44 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-ice-900 font-display mb-4 sm:mb-6 drop-shadow-sm">
-              Ready to donate with Isbjørn?
-            </h2>
-            
-            <div className="text-lg sm:text-xl md:text-2xl text-ice-600 mb-6 sm:mb-8">
-              <div className="flex flex-col space-y-2 sm:space-y-3">
-                <div className="flex items-center justify-center md:justify-start">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
-                    <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-ice-900 font-display mb-4 sm:mb-6 drop-shadow-sm">
+                Ready to donate with Isbjorn?
+              </h2>
+
+              <div className="text-lg sm:text-xl md:text-2xl text-ice-600 mb-6 sm:mb-8">
+                <div className="flex flex-col space-y-2 sm:space-y-3">
+                  <div className="flex items-center justify-center md:justify-start">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+                      <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
+                    </div>
+                    <span className="font-semibold">Choose your charity</span>
                   </div>
-                  <span className="font-semibold">Choose your charity</span>
-                </div>
-                <div className="flex items-center justify-center md:justify-start">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
-                    <CurrencyDollarIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
+                  <div className="flex items-center justify-center md:justify-start">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+                      <CurrencyDollarIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
+                    </div>
+                    <span className="font-semibold">Donate securely</span>
                   </div>
-                  <span className="font-semibold">Donate securely</span>
-                </div>
-                <div className="flex items-center justify-center md:justify-start">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
-                    <ChartBarIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
+                  <div className="flex items-center justify-center md:justify-start">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
+                      <ChartBarIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
+                    </div>
+                    <span className="font-semibold">Get instant IRD receipts</span>
                   </div>
-                  <span className="font-semibold">Get instant IRD receipts</span>
                 </div>
+                <p className="text-base sm:text-lg text-ice-500 mt-3 sm:mt-4 font-medium">Done in under 5 minutes</p>
               </div>
-              <p className="text-base sm:text-lg text-ice-500 mt-3 sm:mt-4 font-medium">Done in under 5 minutes</p>
-            </div>
-            
-            <div className="flex justify-center md:justify-start">
-              <Link 
-                to={isAuthenticated ? '/donate' : '/register'} 
-                className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-5 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center font-bold"
-              >
-                <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-                <span className="hidden sm:inline">Donate now</span>
-                <span className="sm:hidden">Donate now</span>
-              </Link>
-            </div>
+
+              <div className="flex justify-center md:justify-start">
+                <Link
+                  to={isAuthenticated ? '/donate' : '/register'}
+                  className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-5 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center font-bold"
+                >
+                  <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                  <span className="hidden sm:inline">Donate now</span>
+                  <span className="sm:hidden">Donate now</span>
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>

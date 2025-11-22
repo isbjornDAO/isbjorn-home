@@ -281,10 +281,16 @@ router.post('/stripe/create-payment-intent', [
     });
 
   } catch (error: any) {
-    logger.error('Error creating payment intent:', error);
+    logger.error('Error creating payment intent:', {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to create payment intent'
+      message: error.message || 'Failed to create payment intent',
+      code: error.code
     });
   }
 });

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract NodeRegistry is Ownable {
+    constructor() Ownable(msg.sender) {}
     struct ValidatorNode {
         uint256 id;
         address operator;
