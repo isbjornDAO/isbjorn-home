@@ -54,6 +54,9 @@ const allowedOrigins = [
   'http://localhost:3007',
   'http://localhost:3008',
   'http://localhost:3009',
+  // Production frontend URL (hardcoded as fallback)
+  'https://isbjorn-home.vercel.app',
+  // Environment-based frontend URL
   process.env.FRONTEND_URL || '',
   // Allow Railway domains
   'https://*.up.railway.app',
@@ -70,6 +73,10 @@ app.use(cors({
     }
     // Allow Railway domains
     if (origin.includes('.up.railway.app') || origin.includes('.railway.app')) {
+      return callback(null, true);
+    }
+    // Allow Vercel domains (preview and production)
+    if (origin.includes('.vercel.app')) {
       return callback(null, true);
     }
     return callback(new Error(`Not allowed by CORS: ${origin}`));
