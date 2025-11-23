@@ -1,17 +1,16 @@
 {
     "version": 2,
-    "name": "isbjorn-platform",
     "builds": [
+        {
+            "src": "backend/api/index.ts",
+            "use": "@vercel/node"
+        },
         {
             "src": "frontend/package.json",
             "use": "@vercel/static-build",
             "config": {
                 "distDir": "dist"
             }
-        },
-        {
-            "src": "backend/api/index.ts",
-            "use": "@vercel/node"
         }
     ],
     "routes": [
@@ -24,10 +23,10 @@
             "dest": "/frontend/$1"
         }
     ],
-    "env": {
-        "NODE_ENV": "production"
-    },
-    "regions": [
-        "syd1"
+    "ignore": [
+        ".git",
+        "node_modules",
+        "backend/node_modules",
+        "frontend/node_modules"
     ]
 }
