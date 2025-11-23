@@ -1,0 +1,56 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Development files
+*.log
+*.pid
+.env.local
+.env.development
+.env.test
+
+# Build artifacts
+dist
+build
+.next
+.cache
+
+# Database
+*.sqlite
+*.db
+dump.rdb
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Scripts
+scripts/
+deploy.sh
+run-platform.sh
+stop-platform.sh
+start-dev.*
+
+# Documentation (optional - remove if you want docs deployed)
+*.md
+!README.md
+
+# Smart contracts (deploy separately)
+smart-contracts/
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+__tests__/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store

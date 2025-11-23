@@ -20,46 +20,35 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-arctic-500 text-white px-6 py-3 rounded-lg font-medium
-           hover:bg-arctic-600 transition-all duration-200
-           focus:outline-none focus:ring-4 focus:ring-arctic-500/20
-           disabled:opacity-50 disabled:cursor-not-allowed
-           active:scale-[0.98] transform
-           touch-manipulation;
+    @apply bg-arctic-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-arctic-600 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-arctic-500/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transform touch-manipulation;
   }
 
   .btn-secondary {
-    @apply bg-ice-100 text-ice-900 px-6 py-3 rounded-lg font-medium
-           hover:bg-ice-200 transition-all duration-200
-           focus:outline-none focus:ring-4 focus:ring-ice-500/20
-           disabled:opacity-50 disabled:cursor-not-allowed
-           active:scale-[0.98] transform;
+    @apply bg-ice-100 text-ice-900 px-6 py-3 rounded-lg font-medium hover:bg-ice-200 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-ice-500/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transform;
   }
 
   .btn-ghost {
-    @apply text-ice-700 px-6 py-3 rounded-lg font-medium
-           hover:bg-ice-100 transition-all duration-200
-           focus:outline-none focus:ring-4 focus:ring-ice-500/20
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply text-ice-700 px-6 py-3 rounded-lg font-medium hover:bg-ice-100 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-ice-500/20 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-ice-200
-           hover:shadow-md transition-shadow duration-200;
+    @apply bg-white/80 backdrop-blur-md rounded-xl shadow-sm border border-white/40 hover:shadow-md transition-all duration-200;
   }
 
   .input-field {
-    @apply w-full px-4 py-2.5 rounded-lg border border-ice-300
-           focus:border-arctic-500 focus:ring-4 focus:ring-arctic-500/10
-           placeholder:text-ice-400 transition-all duration-200
-           disabled:bg-ice-50 disabled:cursor-not-allowed;
+    @apply w-full px-4 py-2.5 rounded-lg border border-ice-300 focus:border-arctic-500 focus:ring-4 focus:ring-arctic-500/10 placeholder:text-ice-400 transition-all duration-200 disabled:bg-ice-50 disabled:cursor-not-allowed;
   }
 
   .label {
@@ -71,13 +60,11 @@
   }
 
   .success-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-           bg-green-100 text-green-800;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800;
   }
 
   .pending-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-           bg-yellow-100 text-yellow-800;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
   }
 
   .glass-effect {
@@ -89,9 +76,9 @@
   }
 
   .ice-pattern {
-    background-image: 
-      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px),
-      repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px);
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255, 255, 255, .1) 35px, rgba(255, 255, 255, .1) 70px),
+      repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255, 255, 255, .05) 35px, rgba(255, 255, 255, .05) 70px);
   }
 }
 
@@ -101,8 +88,15 @@
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
   .animate-pulse-slow {
@@ -140,6 +134,7 @@
 
   /* Prevent zoom on input focus for iOS */
   @media screen and (max-width: 768px) {
+
     input[type="text"],
     input[type="email"],
     input[type="number"],

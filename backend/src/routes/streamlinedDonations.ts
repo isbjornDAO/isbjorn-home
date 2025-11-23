@@ -132,7 +132,7 @@ const searchValidation = [
  *         description: Processing failed
  */
 router.post(
-  '/streamlined', 
+  '/streamlined',
   rateLimitMiddleware({ windowMs: 60000, max: 5 }), // 5 donations per minute
   donationValidation,
   controller.processDonation
@@ -190,6 +190,31 @@ router.get(
   rateLimitMiddleware({ windowMs: 60000, max: 20 }), // 20 lookups per minute
   companyNumberValidation,
   controller.autoPopulateCompany
+);
+
+/**
+ * @swagger
+ * /api/companies/search:
+ *   get:
+ *     summary: Search for companies by name
+ *     tags: [Companies]
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Search query (min 2 chars)
+ *     responses:
+ *       200:
+ *         description: List of companies found
+ *       400:
+ *         description: Invalid search query
+ */
+router.get(
+  '/companies/search',
+  searchValidation,
+  controller.searchCompanies
 );
 
 /**

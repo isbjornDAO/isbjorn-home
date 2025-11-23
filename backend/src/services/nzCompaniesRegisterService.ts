@@ -95,13 +95,53 @@ export class NZCompaniesRegisterService {
         status: error.response?.status,
         data: error.response?.data,
       });
-      
+
       // Fallback to existing database record if API fails
       const existingCompany = await NZCompany.findOne({
         where: { nzCompanyNumber: companyNumber }
       });
-      
+
       return existingCompany;
+    }
+  }
+
+  /**
+   * Search for companies by name
+   */
+  async searchCompanies(query: string): Promise<Array<{
+    name: string;
+    companyNumber: string;
+    status: string;
+  }>> {
+    try {
+      // Rate limiting
+      await this.enforceRateLimit();
+
+      if (!this.apiKey) {
+        return this.getMockCompanySearch(query);
+      }
+
+      const response = await axios.get(`${this.baseUrl}/companies/search`, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        params: {
+          q: query,
+          limit: 10
+        },
+        timeout: 10000,
+      });
+
+      return response.data.items.map((item: any) => ({
+        name: item.entityName,
+        companyNumber: item.companyNumber,
+        status: item.entityStatusDescription
+      }));
+
+    } catch (error: any) {
+      logger.error(`Error searching companies for ${query}:`, error.message);
+      return this.getMockCompanySearch(query);
     }
   }
 
@@ -115,7 +155,7 @@ export class NZCompaniesRegisterService {
     issues: string[];
   }> {
     const company = await this.lookupCompany(companyNumber);
-    
+
     if (!company) {
       return {
         isValid: false,
@@ -142,7 +182,7 @@ export class NZCompaniesRegisterService {
       new Date(company.incorporationDate),
       new Date()
     );
-    
+
     if (monthsSinceIncorporation > 18 && !company.annualReturnFilingMonth) {
       issues.push('Company may be overdue for annual return filing');
     }
@@ -168,7 +208,7 @@ export class NZCompaniesRegisterService {
     gstNumber?: string;
   } | null> {
     const company = await this.lookupCompany(companyNumber);
-    
+
     if (!company) return null;
 
     return {
@@ -187,12 +227,12 @@ export class NZCompaniesRegisterService {
    */
   async batchVerifyCompanies(companyNumbers: string[]): Promise<Map<string, boolean>> {
     const results = new Map<string, boolean>();
-    
+
     for (const companyNumber of companyNumbers) {
       try {
         const verification = await this.verifyCompany(companyNumber);
         results.set(companyNumber, verification.isCompliant);
-        
+
         // Rate limiting for batch operations
         await new Promise(resolve => setTimeout(resolve, this.rateLimitDelay));
       } catch (error) {
@@ -200,7 +240,7 @@ export class NZCompaniesRegisterService {
         results.set(companyNumber, false);
       }
     }
-    
+
     return results;
   }
 
@@ -208,18 +248,18 @@ export class NZCompaniesRegisterService {
   private async enforceRateLimit(): Promise<void> {
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
-    
+
     if (timeSinceLastRequest < this.rateLimitDelay) {
-      await new Promise(resolve => 
+      await new Promise(resolve =>
         setTimeout(resolve, this.rateLimitDelay - timeSinceLastRequest)
       );
     }
-    
+
     this.lastRequestTime = Date.now();
   }
 
   private async createOrUpdateCompany(
-    companyNumber: string, 
+    companyNumber: string,
     data: CompaniesOfficeResponse
   ): Promise<NZCompany> {
     const companyData = {
@@ -294,7 +334,7 @@ export class NZCompaniesRegisterService {
       'Unit Trust': CompanyType.UNIT_TRUST,
       'Overseas Company': CompanyType.OVERSEAS_COMPANY,
     };
-    
+
     return mapping[typeDescription] || CompanyType.LIMITED;
   }
 
@@ -305,13 +345,13 @@ export class NZCompaniesRegisterService {
       'Liquidation': CompanyStatus.LIQUIDATION,
       'Receivership': CompanyStatus.RECEIVERSHIP,
     };
-    
+
     return mapping[statusDescription] || CompanyStatus.REGISTERED;
   }
 
   private getMonthsDifference(startDate: Date, endDate: Date): number {
-    return (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
-           (endDate.getMonth() - startDate.getMonth());
+    return (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+      (endDate.getMonth() - startDate.getMonth());
   }
 
   /**
@@ -335,7 +375,7 @@ export class NZCompaniesRegisterService {
         city: 'Wellington',
       }
     };
-    
+
     const companyInfo = mockCompanies[companyNumber] || {
       legalName: `Test Company ${companyNumber} Limited`,
       tradingName: `Test Co ${companyNumber}`,
@@ -343,7 +383,7 @@ export class NZCompaniesRegisterService {
       gstNumber: '111-222-333',
       city: 'Auckland',
     };
-    
+
     // Return mock data directly without database for now
     const mockCompany = {
       id: `mock-${companyNumber}`,
@@ -388,6 +428,27 @@ export class NZCompaniesRegisterService {
     } as any;
 
     return mockCompany;
+  }
+
+  private async getMockCompanySearch(query: string): Promise<Array<{
+    name: string;
+    companyNumber: string;
+    status: string;
+  }>> {
+    const mockCompanies = [
+      { name: 'Acme Corporation Limited', companyNumber: '1234567', status: 'Registered' },
+      { name: 'TechStart Solutions Limited', companyNumber: '7654321', status: 'Registered' },
+      { name: 'Isbjorn Conservation Ltd', companyNumber: '9429041234567', status: 'Registered' },
+      { name: 'Global Business Index Ltd', companyNumber: '9998887', status: 'Registered' },
+      { name: 'Test Company A', companyNumber: '1111111', status: 'Registered' },
+      { name: 'Test Company B', companyNumber: '2222222', status: 'Registered' },
+    ];
+
+    const lowerQuery = query.toLowerCase();
+    return mockCompanies.filter(c =>
+      c.name.toLowerCase().includes(lowerQuery) ||
+      c.companyNumber.includes(query)
+    );
   }
 }
 

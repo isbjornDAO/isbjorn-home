@@ -52,7 +52,7 @@ export class StreamlinedDonationController {
 
     } catch (error: any) {
       logger.error('Donation processing API error:', error);
-      
+
       res.status(500).json({
         success: false,
         message: 'Donation processing failed',
@@ -68,7 +68,7 @@ export class StreamlinedDonationController {
   autoPopulateCompany = async (req: Request, res: Response): Promise<void> => {
     try {
       const { companyNumber } = req.params;
-      
+
       if (!companyNumber || !/^\d{1,10}$/.test(companyNumber)) {
         res.status(400).json({
           success: false,
@@ -78,7 +78,7 @@ export class StreamlinedDonationController {
       }
 
       const result = await this.donationService.autoPopulateCompanyForm(companyNumber);
-      
+
       if (!result) {
         res.status(404).json({
           success: false,
@@ -95,10 +95,45 @@ export class StreamlinedDonationController {
 
     } catch (error: any) {
       logger.error('Company auto-populate error:', error);
-      
+
       res.status(500).json({
         success: false,
         message: 'Company lookup failed',
+        error: error.message
+      });
+    }
+  };
+
+  /**
+   * GET /api/companies/search
+   * Search companies by name
+   */
+  searchCompanies = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { q } = req.query;
+
+      if (!q || typeof q !== 'string' || q.length < 2) {
+        res.status(400).json({
+          success: false,
+          message: 'Search query must be at least 2 characters'
+        });
+        return;
+      }
+
+      const results = await this.companiesService.searchCompanies(q);
+
+      res.status(200).json({
+        success: true,
+        data: results,
+        count: results.length
+      });
+
+    } catch (error: any) {
+      logger.error('Company search error:', error);
+
+      res.status(500).json({
+        success: false,
+        message: 'Company search failed',
         error: error.message
       });
     }
@@ -121,7 +156,7 @@ export class StreamlinedDonationController {
 
     } catch (error: any) {
       logger.error('Verified charities dropdown error:', error);
-      
+
       res.status(500).json({
         success: false,
         message: 'Failed to load verified charities',
@@ -137,7 +172,7 @@ export class StreamlinedDonationController {
   searchCharities = async (req: Request, res: Response): Promise<void> => {
     try {
       const { q: query, limit = '10' } = req.query;
-      
+
       if (!query || typeof query !== 'string' || query.length < 2) {
         res.status(400).json({
           success: false,
@@ -147,7 +182,7 @@ export class StreamlinedDonationController {
       }
 
       const results = await this.charitiesService.searchCharitiesByName(
-        query, 
+        query,
         parseInt(limit as string)
       );
 
@@ -160,7 +195,7 @@ export class StreamlinedDonationController {
 
     } catch (error: any) {
       logger.error('Charity search error:', error);
-      
+
       res.status(500).json({
         success: false,
         message: 'Charity search failed',
@@ -208,7 +243,7 @@ export class StreamlinedDonationController {
 
     } catch (error: any) {
       logger.error('Company donations history error:', error);
-      
+
       res.status(500).json({
         success: false,
         message: 'Failed to load donation history',
@@ -224,7 +259,7 @@ export class StreamlinedDonationController {
   getComplianceDashboard = async (req: Request, res: Response): Promise<void> => {
     try {
       const { companyNumber } = req.params;
-      
+
       if (!companyNumber || !/^\d{1,10}$/.test(companyNumber)) {
         res.status(400).json({
           success: false,
@@ -235,16 +270,16 @@ export class StreamlinedDonationController {
 
       // Get company verification status
       const companyVerification = await this.companiesService.verifyCompany(companyNumber);
-      
+
       // Get donation history for current tax year
       const currentTaxYear = this.getCurrentNZTaxYear();
       const donations = await this.donationService.getCompanyDonationHistory(companyNumber, currentTaxYear);
-      
+
       // Calculate compliance metrics
       const totalDonations = donations.length;
       const compliantDonations = donations.filter(d => d.irdCompliant).length;
       const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
-      
+
       const complianceScore = this.calculateComplianceScore({
         companyCompliant: companyVerification.isCompliant,
         donationCompliance: totalDonations > 0 ? (compliantDonations / totalDonations) : 1,
@@ -275,7 +310,7 @@ export class StreamlinedDonationController {
 
     } catch (error: any) {
       logger.error('Compliance dashboard error:', error);
-      
+
       res.status(500).json({
         success: false,
         message: 'Failed to load compliance dashboard',
@@ -327,7 +362,7 @@ export class StreamlinedDonationController {
 
     } catch (error: any) {
       logger.error('Receipt download error:', error);
-      
+
       res.status(500).json({
         success: false,
         message: 'Receipt download failed',
@@ -341,7 +376,7 @@ export class StreamlinedDonationController {
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth(); // 0-based
-    
+
     // NZ tax year runs from April 1 to March 31
     return currentMonth >= 3 ? currentYear + 1 : currentYear; // April = month 3
   }
@@ -359,7 +394,7 @@ export class StreamlinedDonationController {
       archival: 15,
     };
 
-    const score = 
+    const score =
       (metrics.companyCompliant ? weights.company : 0) +
       (metrics.donationCompliance * weights.donations) +
       (metrics.receiptGeneration * weights.receipts) +
@@ -370,19 +405,19 @@ export class StreamlinedDonationController {
 
   private getComplianceNextSteps(score: number, companyIssues: string[]): string[] {
     const steps: string[] = [];
-    
+
     if (companyIssues.length > 0) {
       steps.push('Resolve company registration issues with Companies Office');
     }
-    
+
     if (score < 95) {
       steps.push('Review and regenerate any non-compliant receipts');
     }
-    
+
     if (score >= 95) {
       steps.push('Your donations are 100% IRD audit ready! 🎉');
     }
-    
+
     return steps;
   }
 }

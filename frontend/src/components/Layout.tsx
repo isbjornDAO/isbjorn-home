@@ -3,10 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Logo from './Logo';
 import Footer from './Footer';
-import { 
-  HomeIcon, 
-  HeartIcon, 
-  ChartBarIcon, 
+import {
+  HomeIcon,
+  HeartIcon,
+  ChartBarIcon,
   InformationCircleIcon,
   UserCircleIcon,
   Cog6ToothIcon,
@@ -31,14 +31,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-ice-50 to-white">
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-ice-200">
+      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-lg border-b border-white/20 shadow-sm">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to="/" className="flex items-center">
                 <Logo size="medium" />
               </Link>
-              
+
               <div className="hidden md:flex items-center space-x-1 ml-10">
                 {navigation.map((item) => {
                   const Icon = item.icon;
@@ -73,7 +73,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <UserCircleIcon className="w-5 h-5" />
                     <span className="hidden sm:inline">{user.companyName}</span>
                   </Link>
-                  
+
                   <Link
                     to="/integrations"
                     className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
@@ -81,7 +81,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   >
                     <LinkIcon className="w-5 h-5" />
                   </Link>
-                  
+
                   {user.role === 'admin' && (
                     <Link
                       to="/admin"
@@ -91,7 +91,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <Cog6ToothIcon className="w-5 h-5" />
                     </Link>
                   )}
-                  
+
                   <button
                     onClick={logout}
                     className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"

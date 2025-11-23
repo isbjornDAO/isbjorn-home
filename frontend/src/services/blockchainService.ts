@@ -64,8 +64,8 @@ export class BlockchainService {
       }
 
       const account = accounts[0];
-      this.signer = this.provider.getSigner(account);
-      
+      this.signer = await this.provider.getSigner(account);
+
       // Check if we're on the right network
       const network = await this.provider.getNetwork();
       if (network.chainId !== BigInt(FUJI_CHAIN_ID)) {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import CompanySearch from '@/components/CompanySearch';
 
 const RegisterPage: React.FC = () => {
   const { register, isLoading } = useAuth();
@@ -10,31 +11,28 @@ const RegisterPage: React.FC = () => {
     password: '',
     nzbn: '',
   });
-  const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState('');
 
-  const handleCompanyLookup = async () => {
-    if (!formData.nzbn || formData.nzbn.length < 10) return;
-
-    setIsLookingUp(true);
+  const handleCompanySelect = async (company: { name: string; number: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      nzbn: company.number,
+      companyName: company.name
+    }));
     setLookupError('');
 
+    // Optional: Trigger auto-populate to get full details if needed
     try {
-      const response = await fetch(`http://localhost:5000/api/companies/${formData.nzbn}/auto-populate`);
+      const response = await fetch(`http://localhost:5000/api/companies/${company.number}/auto-populate`);
       const data = await response.json();
-
       if (data.success && data.data) {
         setFormData(prev => ({
           ...prev,
-          companyName: data.data.legalName || prev.companyName
+          companyName: data.data.legalName || company.name
         }));
-      } else {
-        setLookupError('Company not found');
       }
     } catch (error) {
-      setLookupError('Failed to lookup company');
-    } finally {
-      setIsLookingUp(false);
+      console.error('Failed to fetch full company details');
     }
   };
 
@@ -60,26 +58,25 @@ const RegisterPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-center mb-6">Create Account</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label">NZBN / Company Number</label>
-            <div className="flex gap-2">
-              <input
-                name="nzbn"
-                value={formData.nzbn}
-                onChange={handleChange}
-                onBlur={handleCompanyLookup}
-                className="input-field"
-                placeholder="94290..."
-              />
-              <button
-                type="button"
-                onClick={handleCompanyLookup}
-                disabled={isLookingUp}
-                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-sm"
-              >
-                {isLookingUp ? '...' : 'Search'}
-              </button>
-            </div>
+            <label className="label">Search Company</label>
+            <CompanySearch
+              onSelect={handleCompanySelect}
+              placeholder="Search by company name or NZBN..."
+              className="mb-2"
+            />
             {lookupError && <p className="text-xs text-red-500 mt-1">{lookupError}</p>}
+          </div>
+
+          <div>
+            <label className="label">NZBN / Company Number</label>
+            <input
+              name="nzbn"
+              value={formData.nzbn}
+              onChange={handleChange}
+              className="input-field bg-gray-50"
+              placeholder="94290..."
+              readOnly
+            />
           </div>
 
           <div>

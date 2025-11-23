@@ -1,0 +1,36 @@
+import React from 'react';
+
+interface GlassCardProps {
+    children: React.ReactNode;
+    className?: string;
+    variant?: 'default' | 'dark' | 'light';
+    hoverEffect?: boolean;
+}
+
+const GlassCard: React.FC<GlassCardProps> = ({
+    children,
+    className = '',
+    variant = 'default',
+    hoverEffect = false
+}) => {
+    const variants = {
+        default: 'bg-glass-100 border-glass-border',
+        dark: 'bg-arctic-950/40 border-white/10',
+        light: 'bg-white/10 border-white/20',
+    };
+
+    return (
+        <div
+            className={`
+                backdrop-blur-xl rounded-3xl border shadow-glass
+                ${variants[variant]}
+                ${hoverEffect ? 'transition-all duration-300 hover:bg-glass-200 hover:shadow-glow hover:-translate-y-1' : ''}
+                ${className}
+            `}
+        >
+            {children}
+        </div>
+    );
+};
+
+export default GlassCard;
