@@ -20,6 +20,19 @@ const Logo: React.FC<LogoProps> = ({
 
   const logoUrls = {
     main: 'https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dcbcac4228310e9fda70_Isbjorn%20PNG%20(5).png',
+    alt: 'https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dc99fa55b6632e77070b_Isbjorn%20PNG%20(3).png'
+  };
+
+  return (
+    <img
+      src={logoUrls[variant]}
+      alt="Isbjorn"
+      className={clsx(
+        'object-contain',
+        sizeClasses[size],
+        className
+      )}
+      loading="lazy"
     />
   );
 };
