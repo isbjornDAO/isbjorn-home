@@ -165,6 +165,42 @@ router.get('/charities', async (req, res) => {
   }
 });
 
+// Admin endpoint to reset charity stats (protected by secret key)
+router.post('/admin/reset-charity-stats', async (req, res) => {
+  try {
+    const adminKey = req.headers['x-admin-key'] || req.query.key;
+    const expectedKey = process.env.ADMIN_SECRET_KEY || 'isbjorn-reset-2024';
+
+    if (adminKey !== expectedKey) {
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+      return;
+    }
+
+    await Charity.update(
+      { totalReceived: 0, donationCount: 0 },
+      { where: {} }
+    );
+
+    const charities = await Charity.findAll({
+      attributes: ['name', 'totalReceived', 'donationCount']
+    });
+
+    logger.info('Charity stats reset via admin endpoint');
+    res.json({
+      success: true,
+      message: 'All charity stats reset to 0',
+      charities: charities.map(c => ({
+        name: c.name,
+        totalReceived: c.totalReceived,
+        donationCount: c.donationCount
+      }))
+    });
+  } catch (error: any) {
+    logger.error('Error resetting charity stats:', error);
+    res.status(500).json({ success: false, message: 'Failed to reset stats' });
+  }
+});
+
 // Public stats for homepage (no mock numbers)
 router.get('/stats', async (req, res) => {
   try {
