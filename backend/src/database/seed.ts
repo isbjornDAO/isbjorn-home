@@ -71,8 +71,8 @@ class DatabaseSeeder {
           icon: '🐻‍❄️',
           bankAccount: '12-3456-0123456-00',
           irdNumber: 'IRD123456789',
-          totalReceived: 125000,
-          donationCount: 847,
+          totalReceived: 0,
+          donationCount: 0,
           isActive: true
         },
         {
@@ -90,8 +90,8 @@ class DatabaseSeeder {
           icon: '🛡️',
           bankAccount: '12-3456-0123457-00',
           irdNumber: 'IRD987654321',
-          totalReceived: 2450000,
-          donationCount: 15600,
+          totalReceived: 0,
+          donationCount: 0,
           isActive: true
         },
         {
@@ -109,8 +109,8 @@ class DatabaseSeeder {
           icon: '⭐',
           bankAccount: '12-3456-0123458-00',
           irdNumber: 'IRD456789123',
-          totalReceived: 1850000,
-          donationCount: 12400,
+          totalReceived: 0,
+          donationCount: 0,
           isActive: true
         },
         {
@@ -128,8 +128,8 @@ class DatabaseSeeder {
           icon: '🦜',
           bankAccount: '12-3456-0123459-00',
           irdNumber: 'IRD789123456',
-          totalReceived: 890000,
-          donationCount: 5600,
+          totalReceived: 0,
+          donationCount: 0,
           isActive: true
         },
         {
@@ -147,8 +147,8 @@ class DatabaseSeeder {
           icon: '👶',
           bankAccount: '12-3456-0123460-00',
           irdNumber: 'IRD321654987',
-          totalReceived: 675000,
-          donationCount: 4200,
+          totalReceived: 0,
+          donationCount: 0,
           isActive: true
         },
         {
@@ -166,8 +166,8 @@ class DatabaseSeeder {
           icon: '➕',
           bankAccount: '12-3456-0123461-00',
           irdNumber: 'IRD654987321',
-          totalReceived: 1200000,
-          donationCount: 8900,
+          totalReceived: 0,
+          donationCount: 0,
           isActive: true
         }
       ];

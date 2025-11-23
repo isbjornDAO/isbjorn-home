@@ -52,19 +52,9 @@ router.get('/charities', async (req, res) => {
         logoUrl: 'https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dcbcac4228310e9fda70_Isbjorn%20PNG%20(5).png',
         charityPhoto: 'https://images.unsplash.com/photo-1551446591-142875a901a1?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         icon: '🐻‍❄️',
-        totalReceived: 125000,
-        donationCount: 847,
-        verified: true,
-        impact: {
-          bearsHelped: '142',
-          iceProtected: '5,200 km²',
-          researchProjects: '18'
-        },
-        milestones: [
-          { title: 'Fund 100 polar bear tracking collars', progress: 72, target: 150000, raised: 108000 },
-          { title: 'Establish new Arctic research station', progress: 41, target: 300000, raised: 123000 },
-          { title: 'Community conservation grants program', progress: 19, target: 80000, raised: 15200 }
-        ]
+        totalReceived: 0,
+        donationCount: 0,
+        verified: true
       },
       {
         id: '2',
@@ -77,19 +67,9 @@ router.get('/charities', async (req, res) => {
         logoUrl: 'https://www.salvationarmy.org.nz/sites/default/files/uploads/20200828TSA-logo-PRIMARY-Large.png',
         charityPhoto: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         icon: '🛡️',
-        totalReceived: 2450000,
-        donationCount: 15600,
-        verified: true,
-        impact: {
-          familiesSupported: '120,000',
-          mealsProvided: '2.4M',
-          servicesOffered: '450'
-        },
-        milestones: [
-          { title: 'Emergency housing for 500 families', progress: 68, target: 800000, raised: 544000 },
-          { title: 'Mobile food services expansion', progress: 85, target: 200000, raised: 170000 },
-          { title: 'Youth mentorship program funding', progress: 34, target: 150000, raised: 51000 }
-        ]
+        totalReceived: 0,
+        donationCount: 0,
+        verified: true
       },
       {
         id: '3',
@@ -102,19 +82,9 @@ router.get('/charities', async (req, res) => {
         logoUrl: 'https://www.starship.org.nz/wp-content/uploads/2023/01/starship-foundation-logo.png',
         charityPhoto: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         icon: '⭐',
-        totalReceived: 1850000,
-        donationCount: 12400,
-        verified: true,
-        impact: {
-          childrenTreated: '145,000',
-          familiesSupported: '58,000',
-          researchProjects: '47'
-        },
-        milestones: [
-          { title: 'New pediatric MRI scanner', progress: 89, target: 2500000, raised: 2225000 },
-          { title: 'Mental health support expansion', progress: 56, target: 400000, raised: 224000 },
-          { title: 'Pacific Islands outreach program', progress: 23, target: 180000, raised: 41400 }
-        ]
+        totalReceived: 0,
+        donationCount: 0,
+        verified: true
       },
       {
         id: '4',
@@ -127,19 +97,9 @@ router.get('/charities', async (req, res) => {
         logoUrl: 'https://www.forestandbird.org.nz/sites/default/files/2019-04/FB-logo-green-2019.png',
         charityPhoto: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90bi1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         icon: '🦜',
-        totalReceived: 890000,
-        donationCount: 5600,
-        verified: true,
-        impact: {
-          hectaresProtected: '2,300',
-          speciesMonitored: '156',
-          volunteersActive: '8,500'
-        },
-        milestones: [
-          { title: 'Predator-proof fence for takahē sanctuary', progress: 76, target: 350000, raised: 266000 },
-          { title: 'Kākāpō habitat restoration project', progress: 45, target: 120000, raised: 54000 },
-          { title: 'Marine reserve monitoring equipment', progress: 12, target: 95000, raised: 11400 }
-        ]
+        totalReceived: 0,
+        donationCount: 0,
+        verified: true
       },
       {
         id: '5',
@@ -152,19 +112,9 @@ router.get('/charities', async (req, res) => {
         logoUrl: 'https://www.kidscan.org.nz/wp-content/uploads/2023/03/KidsCan-Logo-Horizontal-Colour.png',
         charityPhoto: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         icon: '👶',
-        totalReceived: 675000,
-        donationCount: 4200,
-        verified: true,
-        impact: {
-          childrenSupported: '60,000',
-          schoolsServed: '1,000',
-          itemsProvided: '3.2M'
-        },
-        milestones: [
-          { title: 'Winter clothing for 5,000 children', progress: 92, target: 125000, raised: 115000 },
-          { title: 'Expand breakfast program to 100 new schools', progress: 67, target: 80000, raised: 53600 },
-          { title: 'Health and hygiene supplies fund', progress: 38, target: 60000, raised: 22800 }
-        ]
+        totalReceived: 0,
+        donationCount: 0,
+        verified: true
       },
       {
         id: '6',
@@ -177,19 +127,9 @@ router.get('/charities', async (req, res) => {
         logoUrl: 'https://www.redcross.org.nz/assets/Logos/nzrc-logo-digital.png',
         charityPhoto: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         icon: '➕',
-        totalReceived: 1200000,
-        donationCount: 8900,
-        verified: true,
-        impact: {
-          peopleAssisted: '25,000',
-          emergencyResponses: '850',
-          communitiesServed: '180'
-        },
-        milestones: [
-          { title: 'Emergency relief supplies stockpile', progress: 58, target: 200000, raised: 116000 },
-          { title: 'Mobile disaster response units', progress: 73, target: 450000, raised: 328500 },
-          { title: 'Refugee integration support program', progress: 29, target: 75000, raised: 21750 }
-        ]
+        totalReceived: 0,
+        donationCount: 0,
+        verified: true
       }
     ];
     
@@ -215,19 +155,9 @@ router.get('/charities', async (req, res) => {
         logoUrl: 'https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dcbcac4228310e9fda70_Isbjorn%20PNG%20(5).png',
         charityPhoto: 'https://images.unsplash.com/photo-1551446591-142875a901a1?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         icon: '🐻‍❄️',
-        totalReceived: 125000,
-        donationCount: 847,
-        verified: true,
-        impact: {
-          bearsHelped: '142',
-          iceProtected: '5,200 km²',
-          researchProjects: '18'
-        },
-        milestones: [
-          { title: 'Fund 100 polar bear tracking collars', progress: 72, target: 150000, raised: 108000 },
-          { title: 'Establish new Arctic research station', progress: 41, target: 300000, raised: 123000 },
-          { title: 'Community conservation grants program', progress: 19, target: 80000, raised: 15200 }
-        ]
+        totalReceived: 0,
+        donationCount: 0,
+        verified: true
       }
     ];
     
