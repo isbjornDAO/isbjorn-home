@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmbeddedStripeCheckout from '../components/EmbeddedStripeCheckout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,6 +16,7 @@ const CharityDetailsPage: React.FC = () => {
   const [amount, setAmount] = useState('');
   const [receiptEmail, setReceiptEmail] = useState('');
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -43,6 +44,12 @@ const CharityDetailsPage: React.FC = () => {
   }, [user, receiptEmail]);
 
   const handleDonate = async () => {
+    // If not authenticated, show auth prompt
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
+
     if (!amount || !receiptEmail || !charity) return;
 
     const donationAmount = parseFloat(amount);
@@ -81,55 +88,53 @@ const CharityDetailsPage: React.FC = () => {
     );
   }
 
-  // Show sign-in prompt if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-ice-50 to-arctic-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl">{charity.icon || '🐻‍❄️'}</span>
-            </div>
-
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Donate to {charity.name}
-            </h2>
-            <p className="text-ice-600 mb-8">
-              Please sign in or create an account to continue with your donation.
-            </p>
-
-            <div className="space-y-4">
-              <Link
-                to="/login"
-                state={{ from: `/charity/${id}` }}
-                className="block w-full bg-gradient-to-r from-arctic-500 to-arctic-600 text-white py-4 rounded-xl font-bold text-lg hover:from-arctic-600 hover:to-arctic-700 transition-all"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/register"
-                state={{ from: `/charity/${id}` }}
-                className="block w-full border-2 border-arctic-500 text-arctic-600 py-4 rounded-xl font-bold text-lg hover:bg-arctic-50 transition-all"
-              >
-                Create Account
-              </Link>
-            </div>
-
-            <Link
-              to="/donate"
-              className="inline-flex items-center text-arctic-600 hover:text-arctic-800 mt-6 text-sm"
+  return (
+    <>
+      {/* Auth Prompt Modal */}
+      {showAuthPrompt && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative">
+            <button
+              onClick={() => setShowAuthPrompt(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
             >
-              <ArrowLeftIcon className="w-4 h-4 mr-1" />
-              Back to Charities
-            </Link>
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🐻‍❄️</span>
+              </div>
+
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Sign in to donate
+              </h2>
+              <p className="text-ice-600 mb-6">
+                Create an account to donate and receive tax receipts.
+              </p>
+
+              <div className="space-y-3">
+                <Link
+                  to="/register"
+                  state={{ from: `/charity/${id}` }}
+                  className="block w-full bg-gradient-to-r from-arctic-500 to-arctic-600 text-white py-3 rounded-xl font-bold hover:from-arctic-600 hover:to-arctic-700 transition-all"
+                >
+                  Create Account
+                </Link>
+                <Link
+                  to="/login"
+                  state={{ from: `/charity/${id}` }}
+                  className="block w-full border-2 border-arctic-500 text-arctic-600 py-3 rounded-xl font-bold hover:bg-arctic-50 transition-all"
+                >
+                  Sign In
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    );
-  }
+      )}
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-ice-50 to-arctic-50">
+      <div className="min-h-screen bg-gradient-to-br from-ice-50 to-arctic-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           to="/donate"
@@ -283,7 +288,8 @@ const CharityDetailsPage: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
