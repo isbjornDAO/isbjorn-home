@@ -1,4 +1,4 @@
-import { sequelize } from '../config/database-simple';
+import { sequelize } from '../config/database';
 import { Charity } from '../models/Charity.model';
 
 const testCharities = [
