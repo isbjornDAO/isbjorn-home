@@ -184,7 +184,7 @@ const HomePage: React.FC = () => {
                   {/* Polar bear icon */}
                   <span className="mr-2 sm:mr-3 text-xl sm:text-2xl group-hover:animate-bounce">🐻‍❄️</span>
 
-                  <span className="relative font-bold tracking-wide">Donate Now</span>
+                  <span className="relative font-bold tracking-wide">Ready to Donate?</span>
                   <ArrowRightIcon className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
@@ -364,7 +364,7 @@ const HomePage: React.FC = () => {
                   {/* Polar bear icon */}
                   <span className="mr-2 sm:mr-3 text-xl sm:text-2xl group-hover:animate-bounce">🐻‍❄️</span>
 
-                  <span className="relative font-bold tracking-wide">Donate Now</span>
+                  <span className="relative font-bold tracking-wide">Ready to Donate?</span>
                   <ArrowRightIcon className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
