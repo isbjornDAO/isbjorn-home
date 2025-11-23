@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-
+import { API_URL } from '@/utils/apiUrl';
 
 const DonationForm: React.FC = () => {
   const navigate = useNavigate();
 
-  
+
   const [charities, setCharities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -15,7 +14,7 @@ const DonationForm: React.FC = () => {
   useEffect(() => {
     const fetchCharities = async () => {
       try {
-        const response = await fetch(`/api/public/charities`);
+        const response = await fetch(`${API_URL}/public/charities`);
         const result = await response.json();
         
         if (result.success) {

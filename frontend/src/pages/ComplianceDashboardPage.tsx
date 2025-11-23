@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CheckCircleIcon, 
-  ExclamationCircleIcon, 
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
   DocumentDownloadIcon,
   CalendarIcon,
   CurrencyDollarIcon,
@@ -10,6 +10,7 @@ import {
   ShieldCheckIcon
 } from '@heroicons/react/solid';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { API_URL } from '@/utils/apiUrl';
 
 interface ComplianceData {
   complianceScore: number;
@@ -61,7 +62,7 @@ const ComplianceDashboardPage: React.FC = () => {
 
     try {
       // Load compliance dashboard
-      const complianceResponse = await fetch(`/api/companies/${companyNumber}/compliance-dashboard`);
+      const complianceResponse = await fetch(`${API_URL}/companies/${companyNumber}/compliance-dashboard`);
       const complianceResult = await complianceResponse.json();
 
       if (complianceResult.success) {
@@ -69,7 +70,7 @@ const ComplianceDashboardPage: React.FC = () => {
       }
 
       // Load donation history
-      const donationsResponse = await fetch(`/api/companies/${companyNumber}/donations?taxYear=${selectedTaxYear}`);
+      const donationsResponse = await fetch(`${API_URL}/companies/${companyNumber}/donations?taxYear=${selectedTaxYear}`);
       const donationsResult = await donationsResponse.json();
 
       if (donationsResult.success) {
@@ -85,7 +86,7 @@ const ComplianceDashboardPage: React.FC = () => {
   };
 
   const handleDownloadReceipt = (donationId: string) => {
-    window.open(`/api/receipts/${donationId}/download`, '_blank');
+    window.open(`${API_URL}/receipts/${donationId}/download`, '_blank');
   };
 
   const getComplianceScoreColor = (score: number) => {

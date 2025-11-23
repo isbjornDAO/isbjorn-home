@@ -10,6 +10,7 @@ import {
   CheckCircleIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
+import { API_URL } from '@/utils/apiUrl';
 
 interface DashboardStats {
   totalDonations: number;
@@ -37,7 +38,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/admin/dashboard', {
+      const response = await fetch(`${API_URL}/admin/dashboard`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

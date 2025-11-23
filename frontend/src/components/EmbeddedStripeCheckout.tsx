@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { API_URL } from '@/utils/apiUrl';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_placeholder');
 
@@ -114,7 +115,7 @@ const EmbeddedStripeCheckout: React.FC<EmbeddedStripeCheckoutProps> = ({
     // Create payment intent
     const createPaymentIntent = async () => {
       try {
-        const response = await fetch('/api/stripe/create-payment-intent', {
+        const response = await fetch(`${API_URL}/stripe/create-payment-intent`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

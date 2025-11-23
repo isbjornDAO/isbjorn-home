@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmbeddedStripeCheckout from '../components/EmbeddedStripeCheckout';
+import { API_URL } from '@/utils/apiUrl';
 
 const CharityDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +22,7 @@ const CharityDetailsPage: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch('/api/public/charities');
+        const res = await fetch(`${API_URL}/public/charities`);
         const data = await res.json();
         if (data?.success) {
           const found = data.data.find((c: any) => String(c.id) === String(id));

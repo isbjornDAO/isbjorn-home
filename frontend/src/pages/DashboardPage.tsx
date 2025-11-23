@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL } from '@/utils/apiUrl';
 
 interface DashboardStats {
   totalDonations: number;
@@ -16,7 +17,7 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/dashboard/stats', {
+        const response = await fetch(`${API_URL}/dashboard/stats`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
           }

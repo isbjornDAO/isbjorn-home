@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
 import CharityCard from '@/components/CharityCard';
+import { API_URL } from '@/utils/apiUrl';
 
 
 
@@ -75,7 +76,7 @@ const StreamlinedDonationForm: React.FC = () => {
   const autoPopulateCompany = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/donations/companies/${companyNumber}/auto-populate`);
+      const response = await fetch(`${API_URL}/donations/companies/${companyNumber}/auto-populate`);
       const result = await response.json();
       
       if (result.success) {
@@ -96,7 +97,7 @@ const StreamlinedDonationForm: React.FC = () => {
 
   const loadVerifiedCharities = async () => {
     try {
-      const response = await fetch('/api/donations/charities/verified-dropdown');
+      const response = await fetch(`${API_URL}/donations/charities/verified-dropdown`);
       const result = await response.json();
       
       if (result.success) {
