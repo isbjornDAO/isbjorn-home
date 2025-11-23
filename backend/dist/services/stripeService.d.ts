@@ -40,6 +40,10 @@ export declare class StripeService {
     private extractFeesFromPaymentIntent;
     createRefund(donationId: string, reason?: string): Promise<Stripe.Refund>;
     /**
+     * Handle successful payment from webhook
+     */
+    handleSuccessfulPayment(session: Stripe.Checkout.Session): Promise<void>;
+    /**
      * Create Stripe Checkout session for donations
      */
     createCheckoutSession(data: CreateCheckoutSessionRequest): Promise<CheckoutSessionResponse>;

@@ -216,8 +216,7 @@ export class StripeService {
       if (!donation) return;
 
       await donation.update({
-        status: DonationStatus.FAILED,
-        failureReason: 'Payment canceled by user',
+        status: DonationStatus.CANCELLED,
       });
 
       logger.info(`Payment canceled for donation ${donation.id}`);
@@ -227,25 +226,20 @@ export class StripeService {
   }
 
   private async getOrCreateCustomer(user: User): Promise<string> {
+    if (user.stripeCustomerId) {
+      return user.stripeCustomerId;
+    }
+
     try {
-      const existingCustomers = await stripe.customers.list({
-        email: user.email,
-        limit: 1,
-      });
-
-      if (existingCustomers.data.length > 0) {
-        return existingCustomers.data[0].id;
-      }
-
       const customer = await stripe.customers.create({
         email: user.email,
         name: user.companyName,
         metadata: {
           userId: user.id,
-          companyName: user.companyName,
         },
       });
 
+      await user.update({ stripeCustomerId: customer.id });
       return customer.id;
     } catch (error: any) {
       logger.error('Error creating Stripe customer:', error);

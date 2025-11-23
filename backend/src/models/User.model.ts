@@ -163,6 +163,12 @@ export class User extends Model {
     defaultCurrency: string;
   };
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  stripeCustomerId?: string;
+
   @HasMany(() => Donation)
   donations!: Donation[];
 

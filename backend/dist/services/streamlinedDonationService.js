@@ -11,20 +11,16 @@ const nzCompaniesRegisterService_1 = __importDefault(require("./nzCompaniesRegis
 const nzCharitiesService_1 = __importDefault(require("./nzCharitiesService"));
 const irdReceiptService_1 = __importDefault(require("./irdReceiptService"));
 const logger_1 = require("../utils/logger");
-const stripe_1 = __importDefault(require("stripe"));
+const stripe_1 = require("../utils/stripe");
+const AvalancheL1Service_1 = __importDefault(require("./AvalancheL1Service"));
 class StreamlinedDonationService {
     companiesService;
     charitiesService;
     receiptService;
-    stripe;
     constructor() {
         this.companiesService = new nzCompaniesRegisterService_1.default();
         this.charitiesService = new nzCharitiesService_1.default();
         this.receiptService = new irdReceiptService_1.default();
-        const key = process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key';
-        this.stripe = new stripe_1.default(key, {
-            apiVersion: '2023-10-16',
-        });
     }
     /**
      * THE 2-MINUTE DONATION PROCESS
@@ -72,12 +68,12 @@ class StreamlinedDonationService {
                 donor: request.companyContactEmail,
                 accountant: request.accountantEmail,
             });
-            // Step 7: Export to accounting software (async)
+            // Step 7: Export to accounting software (async flags only here)
             const accountingExports = await this.exportToAccountingSoftware(donation.id);
             // Step 8: Optional blockchain recording
             let blockchainTx;
             if (process.env.ENABLE_BLOCKCHAIN === 'true') {
-                blockchainTx = await this.recordOnBlockchain(donation);
+                blockchainTx = await this.recordOnBlockchain(donation, company, charity, request);
             }
             // Update donation as completed
             await donation.update({
@@ -231,9 +227,10 @@ class StreamlinedDonationService {
         return charity;
     }
     async processStripePayment(params) {
-        const isMock = (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_test_mock') || process.env.MOCK_STRIPE === 'true';
-        if (isMock) {
-            // Simulate a successful PaymentIntent
+        const isProduction = process.env.NODE_ENV === 'production';
+        const allowMocks = process.env.MOCK_STRIPE === 'true' && !isProduction;
+        if (allowMocks) {
+            // Development-only mock path
             return {
                 id: `pi_mock_${Date.now()}`,
                 object: 'payment_intent',
@@ -242,7 +239,7 @@ class StreamlinedDonationService {
                 status: 'succeeded',
             };
         }
-        const paymentIntent = await this.stripe.paymentIntents.create({
+        const paymentIntent = await stripe_1.stripe.paymentIntents.create({
             amount: params.amount,
             currency: 'nzd',
             payment_method: params.paymentMethodId,
@@ -283,17 +280,25 @@ class StreamlinedDonationService {
         return donation;
     }
     async exportToAccountingSoftware(donationId) {
-        // This would integrate with Xero/MYOB APIs
-        // For now, return mock success
         return {
-            xeroExported: true,
+            // Accounting sync is handled by dedicated integration flows, not this streamlined path
+            xeroExported: false,
             myobExported: false,
         };
     }
-    async recordOnBlockchain(donation) {
-        // Optional blockchain recording for transparency
-        // Implementation would depend on chosen blockchain
-        return `0x${Math.random().toString(16).substr(2, 64)}`;
+    async recordOnBlockchain(donation, company, charity, request) {
+        try {
+            const avaxPriceNzd = parseFloat(process.env.AVAX_PRICE_NZD || '50');
+            const amountInWei = AvalancheL1Service_1.default.nzdToWei(donation.donationAmountNzd, avaxPriceNzd);
+            const donorAddress = AvalancheL1Service_1.default.generateDonorAddress(company.nzCompanyNumber, request.companyContactEmail);
+            const charityAddress = AvalancheL1Service_1.default.generateCharityAddress(charity.id);
+            const txHash = await AvalancheL1Service_1.default.recordDonation(donation.id, donorAddress, charityAddress, amountInWei, donation.receiptNumber);
+            return txHash || undefined;
+        }
+        catch (error) {
+            logger_1.logger.error('Error recording donation on Avalanche L1:', error);
+            return undefined;
+        }
     }
 }
 exports.StreamlinedDonationService = StreamlinedDonationService;

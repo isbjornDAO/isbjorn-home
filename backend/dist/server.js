@@ -113,13 +113,18 @@ app.use(errorHandler_1.errorHandler);
 const server = (0, http_1.createServer)(app);
 async function startServer() {
     try {
-        await database_1.sequelize.authenticate();
-        logger_1.logger.info('Database connection established successfully');
-        // Database is already set up via migration
-        // if (NODE_ENV === 'development') {
-        //   await sequelize.sync({ alter: true });
-        //   logger.info('Database synchronized');
-        // }
+        // Database connection
+        try {
+            await database_1.sequelize.authenticate();
+            console.log('✅ Database connection established successfully.');
+            // Sync database models (create tables)
+            await database_1.sequelize.sync({ alter: true });
+            console.log('✅ Database models synchronized.');
+        }
+        catch (error) {
+            console.error('❌ Database connection failed:', error);
+            process.exit(1);
+        }
         await (0, redis_1.initializeRedis)();
         logger_1.logger.info('Redis connection established');
         try {

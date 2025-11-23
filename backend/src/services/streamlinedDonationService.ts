@@ -1,4 +1,5 @@
 import { IRDCompliantDonation, ComplianceStatus } from '../models/IRDCompliantDonation.model';
+import Stripe from 'stripe';
 import { NZCompany } from '../models/NZCompany.model';
 import { Charity } from '../models/Charity.model';
 import NZCompaniesRegisterService from './nzCompaniesRegisterService';
@@ -11,18 +12,18 @@ import AvalancheL1Service from './AvalancheL1Service';
 interface StreamlinedDonationRequest {
   // Step 1: Company auto-lookup
   nzCompanyNumber: string;
-  
+
   // Step 2: Charity selection from pre-verified dropdown
   charityId: string;
-  
+
   // Step 3: Amount and payment
   amount: number;
   stripePaymentMethodId: string;
-  
+
   // Optional
   message?: string;
   recurringMonthly?: boolean;
-  
+
   // Auto-populated from integrations
   companyContactEmail: string;
   accountantEmail?: string;
@@ -65,7 +66,7 @@ export class StreamlinedDonationService {
     request: StreamlinedDonationRequest
   ): Promise<StreamlinedDonationResponse> {
     const startTime = Date.now();
-    
+
     try {
       logger.info('Starting streamlined donation process', {
         companyNumber: request.nzCompanyNumber,
@@ -155,7 +156,7 @@ export class StreamlinedDonationService {
 
     } catch (error: any) {
       const processingTime = Date.now() - startTime;
-      
+
       logger.error('Streamlined donation failed', {
         error: error.message,
         processingTimeMs: processingTime,
@@ -182,7 +183,7 @@ export class StreamlinedDonationService {
       const charities = await Charity.findAll({
         where: { isActive: true },
         attributes: [
-          'id', 'name', /* no legalName in model */ 'category', 'logoUrl', 
+          'id', 'name', /* no legalName in model */ 'category', 'logoUrl',
           'description', 'donationCount', 'totalReceived'
         ],
         order: [['name', 'ASC']],
@@ -308,7 +309,7 @@ export class StreamlinedDonationService {
 
   private async getVerifiedCharity(charityId: string): Promise<Charity | null> {
     const charity = await Charity.findOne({
-      where: { 
+      where: {
         id: charityId,
         isDoneeOrganisation: true,
         isActive: true,

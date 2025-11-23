@@ -15,6 +15,11 @@ export declare class StreamlinedDonationController {
      */
     autoPopulateCompany: (req: Request, res: Response) => Promise<void>;
     /**
+     * GET /api/companies/search
+     * Search companies by name
+     */
+    searchCompanies: (req: Request, res: Response) => Promise<void>;
+    /**
      * GET /api/charities/verified-dropdown
      * Get pre-verified donee organisations for instant dropdown
      */

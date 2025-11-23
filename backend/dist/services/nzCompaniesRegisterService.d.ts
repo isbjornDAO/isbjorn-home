@@ -4,11 +4,20 @@ export declare class NZCompaniesRegisterService {
     private apiKey;
     private rateLimitDelay;
     private lastRequestTime;
+    private isProduction;
     constructor();
     /**
      * Auto-populate company details from NZ Companies Register
      */
     lookupCompany(companyNumber: string): Promise<NZCompany | null>;
+    /**
+     * Search for companies by name
+     */
+    searchCompanies(query: string): Promise<Array<{
+        name: string;
+        companyNumber: string;
+        status: string;
+    }>>;
     /**
      * Verify company details are current and compliant
      */
@@ -43,6 +52,7 @@ export declare class NZCompaniesRegisterService {
      * Mock data for development/testing when API key not available
      */
     private getMockCompanyData;
+    private getMockCompanySearch;
 }
 export default NZCompaniesRegisterService;
 //# sourceMappingURL=nzCompaniesRegisterService.d.ts.map

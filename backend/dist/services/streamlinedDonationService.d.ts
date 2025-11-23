@@ -29,7 +29,6 @@ export declare class StreamlinedDonationService {
     private companiesService;
     private charitiesService;
     private receiptService;
-    private stripe;
     constructor();
     /**
      * THE 2-MINUTE DONATION PROCESS

@@ -22,6 +22,7 @@ export enum DonationStatus {
   COMPLETED = 'completed',
   FAILED = 'failed',
   REFUNDED = 'refunded',
+  CANCELLED = 'cancelled',
 }
 
 export enum DonationCurrency {

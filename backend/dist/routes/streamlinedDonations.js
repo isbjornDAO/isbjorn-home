@@ -183,6 +183,26 @@ router.get('/companies/:companyNumber/auto-populate', (0, rateLimiter_1.rateLimi
 companyNumberValidation, controller.autoPopulateCompany);
 /**
  * @swagger
+ * /api/companies/search:
+ *   get:
+ *     summary: Search for companies by name
+ *     tags: [Companies]
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Search query (min 2 chars)
+ *     responses:
+ *       200:
+ *         description: List of companies found
+ *       400:
+ *         description: Invalid search query
+ */
+router.get('/companies/search', searchValidation, controller.searchCompanies);
+/**
+ * @swagger
  * /api/charities/verified-dropdown:
  *   get:
  *     summary: Get pre-verified donee organisations for dropdown

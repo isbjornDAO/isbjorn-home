@@ -12,10 +12,17 @@ class NZCharitiesService {
     apiKey;
     rateLimitDelay = 1000;
     lastRequestTime = 0;
+    isProduction;
     constructor() {
         this.apiKey = process.env.NZ_CHARITIES_API_KEY || '';
+        this.isProduction = process.env.NODE_ENV === 'production';
         if (!this.apiKey) {
-            logger_1.logger.warn('NZ Charities API key not configured - using mock data for development');
+            if (this.isProduction) {
+                logger_1.logger.error('NZ Charities API key not configured in production - real lookups will fail');
+            }
+            else {
+                logger_1.logger.warn('NZ Charities API key not configured - using mock data for development');
+            }
         }
     }
     /**
@@ -25,6 +32,9 @@ class NZCharitiesService {
         try {
             await this.enforceRateLimit();
             if (!this.apiKey) {
+                if (this.isProduction) {
+                    throw new Error('NZ_CHARITIES_API_KEY is required in production');
+                }
                 return this.getMockCharityVerification(charityName);
             }
             const response = await axios_1.default.get(`${this.baseUrl}/charities/search`, {
@@ -119,6 +129,9 @@ class NZCharitiesService {
         try {
             await this.enforceRateLimit();
             if (!this.apiKey) {
+                if (this.isProduction) {
+                    throw new Error('NZ_CHARITIES_API_KEY is required in production');
+                }
                 return {
                     isDoneeOrganisation: true,
                     doneeOrganisationNumber: 'MOCK-123456',
@@ -151,6 +164,9 @@ class NZCharitiesService {
         try {
             await this.enforceRateLimit();
             if (!this.apiKey) {
+                if (this.isProduction) {
+                    throw new Error('NZ_CHARITIES_API_KEY is required in production');
+                }
                 return this.getMockCharityData(diaCharitiesNumber);
             }
             const response = await axios_1.default.get(`${this.baseUrl}/charities/${diaCharitiesNumber}`, {
@@ -240,6 +256,9 @@ class NZCharitiesService {
             }
             // If no local results, search API
             if (!this.apiKey) {
+                if (this.isProduction) {
+                    throw new Error('NZ_CHARITIES_API_KEY is required in production');
+                }
                 return this.getMockSearchResults(query, limit);
             }
             await this.enforceRateLimit();

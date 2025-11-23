@@ -10,6 +10,7 @@ export declare class NZCharitiesService {
     private apiKey;
     private rateLimitDelay;
     private lastRequestTime;
+    private isProduction;
     constructor();
     /**
      * Real-time charity verification for dropdown population

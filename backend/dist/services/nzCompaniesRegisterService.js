@@ -12,12 +12,19 @@ class NZCompaniesRegisterService {
     apiKey;
     rateLimitDelay = 1000; // 1 second between requests
     lastRequestTime = 0;
+    isProduction;
     constructor() {
         this.apiKey = process.env.NZ_COMPANIES_API_KEY || '';
+        this.isProduction = process.env.NODE_ENV === 'production';
         if (!this.apiKey) {
-            logger_1.logger.warn('NZ Companies API key not configured - using mock data for development');
-            logger_1.logger.info('To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable');
-            logger_1.logger.info('Get API key from: https://www.business.govt.nz/developers/');
+            if (this.isProduction) {
+                logger_1.logger.error('NZ Companies API key not configured in production - real lookups will fail');
+            }
+            else {
+                logger_1.logger.warn('NZ Companies API key not configured - using mock data for development');
+                logger_1.logger.info('To enable real company lookups, set NZ_COMPANIES_API_KEY environment variable');
+                logger_1.logger.info('Get API key from: https://www.business.govt.nz/developers/');
+            }
         }
     }
     /**
@@ -28,6 +35,9 @@ class NZCompaniesRegisterService {
             // Rate limiting
             await this.enforceRateLimit();
             if (!this.apiKey) {
+                if (this.isProduction) {
+                    throw new Error('NZ_COMPANIES_API_KEY is required in production');
+                }
                 return this.getMockCompanyData(companyNumber);
             }
             const response = await axios_1.default.get(`${this.baseUrl}/companies/${companyNumber}`, {
@@ -51,6 +61,38 @@ class NZCompaniesRegisterService {
                 where: { nzCompanyNumber: companyNumber }
             });
             return existingCompany;
+        }
+    }
+    /**
+     * Search for companies by name
+     */
+    async searchCompanies(query) {
+        try {
+            // Rate limiting
+            await this.enforceRateLimit();
+            if (!this.apiKey) {
+                return this.getMockCompanySearch(query);
+            }
+            const response = await axios_1.default.get(`${this.baseUrl}/companies/search`, {
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                params: {
+                    q: query,
+                    limit: 10
+                },
+                timeout: 10000,
+            });
+            return response.data.items.map((item) => ({
+                name: item.entityName,
+                companyNumber: item.companyNumber,
+                status: item.entityStatusDescription
+            }));
+        }
+        catch (error) {
+            logger_1.logger.error(`Error searching companies for ${query}:`, error.message);
+            return this.getMockCompanySearch(query);
         }
     }
     /**
@@ -287,6 +329,19 @@ class NZCompaniesRegisterService {
             }
         };
         return mockCompany;
+    }
+    async getMockCompanySearch(query) {
+        const mockCompanies = [
+            { name: 'Acme Corporation Limited', companyNumber: '1234567', status: 'Registered' },
+            { name: 'TechStart Solutions Limited', companyNumber: '7654321', status: 'Registered' },
+            { name: 'Isbjorn Conservation Ltd', companyNumber: '9429041234567', status: 'Registered' },
+            { name: 'Global Business Index Ltd', companyNumber: '9998887', status: 'Registered' },
+            { name: 'Test Company A', companyNumber: '1111111', status: 'Registered' },
+            { name: 'Test Company B', companyNumber: '2222222', status: 'Registered' },
+        ];
+        const lowerQuery = query.toLowerCase();
+        return mockCompanies.filter(c => c.name.toLowerCase().includes(lowerQuery) ||
+            c.companyNumber.includes(query));
     }
 }
 exports.NZCompaniesRegisterService = NZCompaniesRegisterService;

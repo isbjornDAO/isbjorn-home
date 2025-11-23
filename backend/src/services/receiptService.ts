@@ -31,7 +31,8 @@ export class ReceiptService {
                 doc.text(`Donor: ${donation.user?.companyName || 'Anonymous'}`); // Assuming user relation loaded
                 doc.moveDown();
 
-                doc.fontSize(14).text(`Amount Donated: $${donation.amount} ${donation.currency.toUpperCase()}`, { bold: true });
+                doc.fontSize(14).font('Helvetica-Bold').text(`Amount Donated: $${donation.amount} ${donation.currency.toUpperCase()}`);
+                doc.font('Helvetica');
                 doc.moveDown();
 
                 // Legal Text

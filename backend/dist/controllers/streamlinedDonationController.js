@@ -9,6 +9,8 @@ const streamlinedDonationService_1 = __importDefault(require("../services/stream
 const nzCompaniesRegisterService_1 = __importDefault(require("../services/nzCompaniesRegisterService"));
 const nzCharitiesService_1 = __importDefault(require("../services/nzCharitiesService"));
 const logger_1 = require("../utils/logger");
+const IRDCompliantDonation_model_1 = require("../models/IRDCompliantDonation.model");
+const fs_1 = __importDefault(require("fs"));
 class StreamlinedDonationController {
     donationService;
     companiesService;
@@ -88,6 +90,36 @@ class StreamlinedDonationController {
             res.status(500).json({
                 success: false,
                 message: 'Company lookup failed',
+                error: error.message
+            });
+        }
+    };
+    /**
+     * GET /api/companies/search
+     * Search companies by name
+     */
+    searchCompanies = async (req, res) => {
+        try {
+            const { q } = req.query;
+            if (!q || typeof q !== 'string' || q.length < 2) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Search query must be at least 2 characters'
+                });
+                return;
+            }
+            const results = await this.companiesService.searchCompanies(q);
+            res.status(200).json({
+                success: true,
+                data: results,
+                count: results.length
+            });
+        }
+        catch (error) {
+            logger_1.logger.error('Company search error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Company search failed',
                 error: error.message
             });
         }
@@ -251,11 +283,31 @@ class StreamlinedDonationController {
     downloadReceipt = async (req, res) => {
         try {
             const { donationId } = req.params;
-            // Implementation would serve the PDF file
-            res.status(501).json({
-                success: false,
-                message: 'Receipt download not implemented yet'
+            const donation = await IRDCompliantDonation_model_1.IRDCompliantDonation.findByPk(donationId);
+            if (!donation || !donation.receiptPdfPath) {
+                res.status(404).json({
+                    success: false,
+                    message: 'Receipt not found',
+                });
+                return;
+            }
+            const filePath = donation.receiptPdfPath;
+            if (!fs_1.default.existsSync(filePath)) {
+                logger_1.logger.error('Receipt PDF path does not exist on disk', { donationId, filePath });
+                res.status(404).json({
+                    success: false,
+                    message: 'Receipt file missing',
+                });
+                return;
+            }
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="receipt-${donation.receiptNumber || donation.id}.pdf"`);
+            const stream = fs_1.default.createReadStream(filePath);
+            stream.on('error', (err) => {
+                logger_1.logger.error('Error streaming receipt PDF:', err);
+                res.status(500).end();
             });
+            stream.pipe(res);
         }
         catch (error) {
             logger_1.logger.error('Receipt download error:', error);

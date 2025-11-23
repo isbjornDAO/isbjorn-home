@@ -1,18 +1,12 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.stripeService = exports.StripeService = void 0;
-const stripe_1 = __importDefault(require("stripe"));
 const Donation_model_1 = require("../models/Donation.model");
 const User_model_1 = require("../models/User.model");
 const Project_model_1 = require("../models/Project.model");
 const AppError_1 = require("../utils/AppError");
 const logger_1 = require("../utils/logger");
-const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key', {
-    apiVersion: '2023-10-16',
-});
+const stripe_1 = require("../utils/stripe");
 class StripeService {
     async createPaymentIntent(data) {
         try {
@@ -28,7 +22,7 @@ class StripeService {
                 throw new AppError_1.AppError('Project is not accepting donations', 400);
             }
             const amountInCents = Math.round(data.amount * 100);
-            const paymentIntent = await stripe.paymentIntents.create({
+            const paymentIntent = await stripe_1.stripe.paymentIntents.create({
                 amount: amountInCents,
                 currency: data.currency.toLowerCase(),
                 customer: await this.getOrCreateCustomer(user),
@@ -63,7 +57,7 @@ class StripeService {
                     ipAddress: '',
                 },
             });
-            await stripe.paymentIntents.update(paymentIntent.id, {
+            await stripe_1.stripe.paymentIntents.update(paymentIntent.id, {
                 metadata: {
                     ...paymentIntent.metadata,
                     donationId: donation.id,
@@ -90,13 +84,14 @@ class StripeService {
         }
         let event;
         try {
-            event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+            event = stripe_1.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
         }
         catch (error) {
             logger_1.logger.error('Webhook signature verification failed:', error.message);
             throw new AppError_1.AppError('Webhook signature verification failed', 400);
         }
         logger_1.logger.info(`Processing webhook event: ${event.type}`);
+        logger_1.logger.info(`[TradFi Verification] Webhook received for event: ${event.type} - ID: ${event.id}`);
         switch (event.type) {
             case 'payment_intent.succeeded':
                 await this.handlePaymentSuccess(event.data.object);
@@ -182,14 +177,14 @@ class StripeService {
     }
     async getOrCreateCustomer(user) {
         try {
-            const existingCustomers = await stripe.customers.list({
+            const existingCustomers = await stripe_1.stripe.customers.list({
                 email: user.email,
                 limit: 1,
             });
             if (existingCustomers.data.length > 0) {
                 return existingCustomers.data[0].id;
             }
-            const customer = await stripe.customers.create({
+            const customer = await stripe_1.stripe.customers.create({
                 email: user.email,
                 name: user.companyName,
                 metadata: {
@@ -232,7 +227,7 @@ class StripeService {
             if (!donation.stripePaymentId) {
                 throw new AppError_1.AppError('No Stripe payment ID found', 400);
             }
-            const refund = await stripe.refunds.create({
+            const refund = await stripe_1.stripe.refunds.create({
                 charge: donation.stripePaymentId,
                 reason: reason,
                 metadata: {
@@ -255,50 +250,63 @@ class StripeService {
         }
     }
     /**
+     * Handle successful payment from webhook
+     */
+    async handleSuccessfulPayment(session) {
+        try {
+            const sessionId = session.id;
+            const metadata = session.metadata;
+            if (!metadata?.charityId) {
+                logger_1.logger.error(`No charity ID in session metadata: ${sessionId}`);
+                return;
+            }
+            // Find the donation by session ID
+            const donation = await Donation_model_1.Donation.findOne({
+                where: {
+                    metadata: {
+                        stripeSessionId: sessionId
+                    }
+                }
+            });
+            if (!donation) {
+                logger_1.logger.error(`No donation found for session: ${sessionId}`);
+                return;
+            }
+            // Update donation status
+            await donation.update({
+                status: Donation_model_1.DonationStatus.COMPLETED,
+                completedAt: new Date(),
+                stripePaymentIntentId: session.payment_intent,
+            });
+            logger_1.logger.info(`Donation ${donation.id} marked as completed for session ${sessionId}`);
+            // TODO: Send receipt email
+            // TODO: Update blockchain
+            // TODO: Send confirmation to charity
+        }
+        catch (error) {
+            logger_1.logger.error('Error handling successful payment:', error);
+            throw error;
+        }
+    }
+    /**
      * Create Stripe Checkout session for donations
      */
     async createCheckoutSession(data) {
         try {
-            // Check if Stripe is properly configured
-            const stripeKey = process.env.STRIPE_SECRET_KEY;
-            if (!stripeKey || stripeKey === 'sk_test_your_stripe_secret_key_here') {
-                // In development, create a mock checkout session
-                if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
-                    logger_1.logger.warn('Using mock Stripe checkout session for development');
-                    // Create donation record
-                    const tempUserId = 'temp-user-' + Date.now();
-                    const donation = await Donation_model_1.Donation.create({
-                        userId: tempUserId,
-                        charityId: data.charityId,
-                        amount: data.amount,
-                        currency: data.currency,
-                        status: Donation_model_1.DonationStatus.PENDING,
-                        stripePaymentIntentId: 'mock-session-' + Date.now(),
-                        taxDeductible: true,
-                        message: data.message,
-                        isAnonymous: !data.companyName,
-                        platformFee: this.calculatePlatformFee(data.amount),
-                        stripeFee: this.calculateStripeFee(data.amount),
-                        metadata: {
-                            stripeSessionId: 'mock-session-' + Date.now(),
-                            companyName: data.companyName,
-                            companyEmail: data.companyEmail,
-                            isAnonymousDonation: true,
-                            tempUserId: tempUserId,
-                            isMockSession: true,
-                        },
-                    });
-                    return {
-                        sessionId: 'mock-session-' + Date.now(),
-                        sessionUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donation-success?session_id=mock-session&amount=${data.amount}&charity=${data.charityName}`,
-                        donation,
-                    };
-                }
-                throw new AppError_1.AppError('Stripe is not properly configured. Please set a valid STRIPE_SECRET_KEY environment variable.', 500);
+            // Log the current Stripe configuration
+            logger_1.logger.info(`Stripe mode: ${stripe_1.stripeConfig.mode}`);
+            logger_1.logger.info(`Using Stripe key starting with: ${stripe_1.stripeConfig.secretKey.substring(0, 7)}...`);
+            // Show warning for live mode
+            if ((0, stripe_1.isLiveMode)()) {
+                logger_1.logger.warn('⚠️  LIVE MODE: Real money will be charged!');
+            }
+            else {
+                logger_1.logger.info('🧪 TEST MODE: No real money will be charged');
             }
             const amountInCents = Math.round(data.amount * 100);
+            logger_1.logger.info(`Creating Stripe checkout session for ${data.amount} ${data.currency} to ${data.charityName}`);
             // Create checkout session
-            const session = await stripe.checkout.sessions.create({
+            const session = await stripe_1.stripe.checkout.sessions.create({
                 line_items: [
                     {
                         price_data: {
@@ -306,6 +314,7 @@ class StripeService {
                             product_data: {
                                 name: `Donation to ${data.charityName}`,
                                 description: data.message || `Thank you for your donation to ${data.charityName}`,
+                                images: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'], // Arctic image
                             },
                             unit_amount: amountInCents,
                         },
@@ -313,9 +322,10 @@ class StripeService {
                     },
                 ],
                 mode: 'payment',
-                success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/donate`,
+                success_url: `${process.env.FRONTEND_URL || 'https://isbjorn-home-production.up.railway.app'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${process.env.FRONTEND_URL || 'https://isbjorn-home-production.up.railway.app'}/donate`,
                 customer_email: data.companyEmail,
+                billing_address_collection: 'required',
                 metadata: {
                     charityId: data.charityId,
                     charityName: data.charityName,
@@ -324,6 +334,7 @@ class StripeService {
                     isRecurring: data.isRecurring ? 'true' : 'false',
                 },
             });
+            logger_1.logger.info(`Stripe checkout session created: ${session.id}`);
             // For checkout sessions, we need to handle the case where there's no user
             // We'll create a donation with a temporary user ID that can be updated later
             const tempUserId = 'temp-user-' + Date.now();
@@ -359,7 +370,17 @@ class StripeService {
             logger_1.logger.error('Create checkout session error:', error);
             if (error instanceof AppError_1.AppError)
                 throw error;
-            throw new AppError_1.AppError('Failed to create checkout session', 500);
+            // Provide more specific error messages
+            if (error.type === 'StripeInvalidRequestError') {
+                throw new AppError_1.AppError(`Stripe configuration error: ${error.message}`, 400);
+            }
+            else if (error.type === 'StripeAuthenticationError') {
+                throw new AppError_1.AppError('Invalid Stripe API key. Please check your configuration.', 401);
+            }
+            else if (error.type === 'StripePermissionError') {
+                throw new AppError_1.AppError('Stripe permission error. Please check your account settings.', 403);
+            }
+            throw new AppError_1.AppError(`Failed to create checkout session: ${error.message}`, 500);
         }
     }
 }
