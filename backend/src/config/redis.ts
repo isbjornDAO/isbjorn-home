@@ -5,13 +5,25 @@ let redis: Redis | null = null;
 
 export const initializeRedis = async (): Promise<void> => {
   try {
-    redis = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD || undefined,
-      maxRetriesPerRequest: 3,
-      lazyConnect: true,
-    });
+    // Support REDIS_URL from Railway or individual config
+    const redisUrl = process.env.REDIS_URL || process.env.REDIS_PRIVATE_URL;
+
+    if (redisUrl) {
+      logger.info('Using REDIS_URL for connection');
+      redis = new Redis(redisUrl, {
+        maxRetriesPerRequest: 3,
+        lazyConnect: true,
+        tls: redisUrl.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined,
+      });
+    } else {
+      redis = new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        password: process.env.REDIS_PASSWORD || undefined,
+        maxRetriesPerRequest: 3,
+        lazyConnect: true,
+      });
+    }
 
     redis.on('connect', () => {
       logger.info('Redis connected successfully');

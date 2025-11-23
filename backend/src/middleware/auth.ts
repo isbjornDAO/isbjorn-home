@@ -3,6 +3,12 @@ import jwt from 'jsonwebtoken';
 import { User, UserRole } from '../models/User.model';
 import { AppError } from '../utils/AppError';
 
+// JWT secret with development fallback
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  console.warn('WARNING: JWT_SECRET not set in production! Authentication may be insecure.');
+}
+
 declare global {
   namespace Express {
     interface Request {
@@ -20,7 +26,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       return res.status(401).json({ error: 'Access token required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
     
     // For demo tokens, create a mock user object
     if (decoded.id.startsWith('demo-user')) {

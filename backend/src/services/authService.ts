@@ -3,6 +3,17 @@ import { User, UserRole } from '../models/User.model';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
 
+// JWT secrets with development fallbacks
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret-key-change-in-production';
+
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  logger.warn('WARNING: JWT_SECRET not set in production! Authentication may be insecure.');
+}
+if (!process.env.JWT_REFRESH_SECRET && process.env.NODE_ENV === 'production') {
+  logger.warn('WARNING: JWT_REFRESH_SECRET not set in production!');
+}
+
 interface RegisterData {
   email: string;
   password: string;
@@ -31,13 +42,13 @@ export class AuthService {
       role: user.role,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET! as string, {
+    const token = jwt.sign(payload, JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     } as any);
 
     const refreshToken = jwt.sign(
       { id: user.id },
-      process.env.JWT_REFRESH_SECRET! as string,
+      JWT_REFRESH_SECRET,
       { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d' } as any
     );
 
@@ -117,9 +128,9 @@ export class AuthService {
     }
   }
 
-  async refreshToken(refreshToken: string): Promise<{ token: string }> {
+  async refreshToken(refreshTokenStr: string): Promise<{ token: string }> {
     try {
-      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as any;
+      const decoded = jwt.verify(refreshTokenStr, JWT_REFRESH_SECRET) as any;
       
       const user = await User.findByPk(decoded.id);
       if (!user || !user.isActive) {
@@ -207,7 +218,7 @@ export class AuthService {
 
   verifyToken(token: string): any {
     try {
-      return jwt.verify(token, process.env.JWT_SECRET!);
+      return jwt.verify(token, JWT_SECRET);
     } catch (error) {
       throw new AppError('Invalid token', 401);
     }

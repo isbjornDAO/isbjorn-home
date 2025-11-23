@@ -13,51 +13,77 @@ import { Project } from '../models/Project.model';
 dotenv.config();
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const DB_TYPE = process.env.DB_TYPE || 'sqlite';
+const DATABASE_URL = process.env.DATABASE_URL;
 
-const sqliteConfig = {
-  dialect: 'sqlite' as const,
-  storage: process.env.DB_PATH || path.join(process.cwd(), 'database.sqlite'),
-  logging: NODE_ENV === 'development' ? console.log : false,
-  define: {
-    timestamps: true,
-    underscored: true,
-  },
-};
+const models = [User, Charity, Donation, Receipt, BlockchainTransaction, NZCompany, IRDCompliantDonation, Project];
 
-const postgresConfig = {
-  database: process.env.DB_NAME || 'isbjorn_dev',
-  username: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  dialect: 'postgres' as const,
-  logging: NODE_ENV === 'development' ? console.log : false,
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000,
-  },
-};
+function createSequelizeInstance(): Sequelize {
+  // If DATABASE_URL is provided (Railway), use it directly
+  if (DATABASE_URL) {
+    console.log('Using DATABASE_URL for PostgreSQL connection');
 
-const config = {
-  development: DB_TYPE === 'sqlite' ? sqliteConfig : postgresConfig,
-  test: DB_TYPE === 'sqlite' ? {
-    ...sqliteConfig,
-    storage: ':memory:',
-  } : postgresConfig,
-  production: DB_TYPE === 'sqlite' ? sqliteConfig : postgresConfig,
-};
+    return new Sequelize(DATABASE_URL, {
+      dialect: 'postgres',
+      logging: NODE_ENV === 'development' ? console.log : false,
+      dialectOptions: {
+        ssl: NODE_ENV === 'production' ? {
+          require: true,
+          rejectUnauthorized: false,
+        } : false,
+      },
+      pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+      },
+      models,
+      define: {
+        timestamps: true,
+        underscored: true,
+      },
+    });
+  }
 
-const env = NODE_ENV as keyof typeof config;
-const dbConfig = config[env];
+  // Fallback to individual config variables or SQLite
+  const DB_TYPE = process.env.DB_TYPE || 'sqlite';
 
-export const sequelize = new Sequelize({
-  ...dbConfig,
-  models: [User, Charity, Donation, Receipt, BlockchainTransaction, NZCompany, IRDCompliantDonation, Project],
-  define: {
-    timestamps: true,
-    underscored: true,
-  },
-});
+  if (DB_TYPE === 'sqlite') {
+    console.log('Using SQLite database');
+    return new Sequelize({
+      dialect: 'sqlite',
+      storage: process.env.DB_PATH || path.join(process.cwd(), 'database.sqlite'),
+      logging: NODE_ENV === 'development' ? console.log : false,
+      models,
+      define: {
+        timestamps: true,
+        underscored: true,
+      },
+    });
+  }
+
+  // PostgreSQL with individual config
+  console.log('Using PostgreSQL with individual config variables');
+  return new Sequelize({
+    database: process.env.DB_NAME || 'isbjorn_dev',
+    username: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    dialect: 'postgres',
+    logging: NODE_ENV === 'development' ? console.log : false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
+    models,
+    define: {
+      timestamps: true,
+      underscored: true,
+    },
+  });
+}
+
+export const sequelize = createSequelizeInstance();
