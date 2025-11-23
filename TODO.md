@@ -8,10 +8,12 @@
 ## 🔴 CRITICAL - Must Fix Now
 
 ### Backend Connection Issues
-- [ ] **Fix CORS between Vercel frontend and Railway backend**
+- [/] **Fix CORS between Vercel frontend and Railway backend**
   - Current Error: Frontend can't fetch from backend API
-  - Fix Pushed: Added Vercel URL to CORS allowlist
-  - Status: Waiting for Railway to redeploy (~2 min)
+  - Fix Pushed: Added Vercel URL to CORS allowlist in code
+  - Issue: Railway needs FRONTEND_URL environment variable set
+  - **ACTION REQUIRED:** Add FRONTEND_URL=https://isbjorn-home.vercel.app to Railway
+  - See: [RAILWAY_ENV_SETUP.md](./RAILWAY_ENV_SETUP.md) for full guide
   - Test: Visit https://isbjorn-home.vercel.app/donate
   - Expected: Should load charities instead of "Failed to load charities"
 
@@ -27,14 +29,15 @@
   - Or manually add via SQL/admin panel
 
 ### Environment Variables
-- [ ] **Add missing Railway backend environment variables**
-  - `JWT_SECRET` - Generate random string
+- [/] **Add missing Railway backend environment variables** 🔥 CRITICAL
+  - **MUST ADD NOW:** `FRONTEND_URL=https://isbjorn-home.vercel.app` (fixes CORS!)
+  - `NODE_ENV=production`
+  - `JWT_SECRET` - Generate with: `openssl rand -base64 32`
   - `STRIPE_SECRET_KEY` - From Stripe dashboard (test mode for now)
   - `STRIPE_PUBLISHABLE_KEY` - From Stripe dashboard
   - `STRIPE_WEBHOOK_SECRET` - From Stripe webhook config
-  - `FRONTEND_URL` - https://isbjorn-home.vercel.app
-  - `NODE_ENV` - production
   - `DATABASE_URL` - Auto-set by Railway Postgres
+  - **Full Guide:** See [RAILWAY_ENV_SETUP.md](./RAILWAY_ENV_SETUP.md)
 
 ---
 
