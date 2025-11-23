@@ -46,25 +46,9 @@ const allowedOrigins = [
     'http://localhost:3003',
     'http://localhost:3004',
     'http://localhost:3005',
-    process.env.FRONTEND_URL || '',
-    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
-].filter(Boolean);
 
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-}));
-
-// Body parsing
-app.use(express.json({ limit: '10mb' }));
+    // Body parsing
+    app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Compression
