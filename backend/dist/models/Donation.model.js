@@ -24,6 +24,7 @@ var DonationStatus;
     DonationStatus["COMPLETED"] = "completed";
     DonationStatus["FAILED"] = "failed";
     DonationStatus["REFUNDED"] = "refunded";
+    DonationStatus["CANCELLED"] = "cancelled";
 })(DonationStatus || (exports.DonationStatus = DonationStatus = {}));
 var DonationCurrency;
 (function (DonationCurrency) {

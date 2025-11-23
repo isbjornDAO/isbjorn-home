@@ -36,6 +36,7 @@ export declare class User extends Model {
         publicProfile: boolean;
         defaultCurrency: string;
     };
+    stripeCustomerId?: string;
     donations: Donation[];
     static hashPassword(user: User): Promise<void>;
     validatePassword(password: string): Promise<boolean>;

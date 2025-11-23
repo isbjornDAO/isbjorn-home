@@ -9,7 +9,8 @@ export declare enum DonationStatus {
     PROCESSING = "processing",
     COMPLETED = "completed",
     FAILED = "failed",
-    REFUNDED = "refunded"
+    REFUNDED = "refunded",
+    CANCELLED = "cancelled"
 }
 export declare enum DonationCurrency {
     NZD = "nzd",

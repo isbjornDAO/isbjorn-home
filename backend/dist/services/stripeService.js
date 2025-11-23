@@ -166,8 +166,7 @@ class StripeService {
             if (!donation)
                 return;
             await donation.update({
-                status: Donation_model_1.DonationStatus.FAILED,
-                failureReason: 'Payment canceled by user',
+                status: Donation_model_1.DonationStatus.CANCELLED,
             });
             logger_1.logger.info(`Payment canceled for donation ${donation.id}`);
         }
@@ -176,22 +175,18 @@ class StripeService {
         }
     }
     async getOrCreateCustomer(user) {
+        if (user.stripeCustomerId) {
+            return user.stripeCustomerId;
+        }
         try {
-            const existingCustomers = await stripe_1.stripe.customers.list({
-                email: user.email,
-                limit: 1,
-            });
-            if (existingCustomers.data.length > 0) {
-                return existingCustomers.data[0].id;
-            }
             const customer = await stripe_1.stripe.customers.create({
                 email: user.email,
                 name: user.companyName,
                 metadata: {
                     userId: user.id,
-                    companyName: user.companyName,
                 },
             });
+            await user.update({ stripeCustomerId: customer.id });
             return customer.id;
         }
         catch (error) {

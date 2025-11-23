@@ -72,6 +72,7 @@ let User = class User extends sequelize_typescript_1.Model {
     lastLoginAt;
     loginCount;
     preferences;
+    stripeCustomerId;
     donations;
     static async hashPassword(user) {
         if (user.changed('password') && user.password) {
@@ -234,6 +235,13 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], User.prototype, "preferences", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "stripeCustomerId", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => Donation_model_1.Donation),
     __metadata("design:type", Array)
