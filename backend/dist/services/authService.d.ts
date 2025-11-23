@@ -3,6 +3,7 @@ interface RegisterData {
     email: string;
     password: string;
     companyName: string;
+    nzbn?: string;
     taxId?: string;
     address?: {
         street: string;
@@ -21,7 +22,7 @@ export declare class AuthService {
     private generateTokens;
     register(data: RegisterData): Promise<LoginResponse>;
     login(email: string, password: string): Promise<LoginResponse>;
-    refreshToken(refreshToken: string): Promise<{
+    refreshToken(refreshTokenStr: string): Promise<{
         token: string;
     }>;
     getCurrentUser(userId: string): Promise<User>;

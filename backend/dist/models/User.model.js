@@ -57,6 +57,7 @@ let User = class User extends sequelize_typescript_1.Model {
     password;
     companyName;
     taxId;
+    nzbn;
     role;
     address;
     phone;
@@ -130,6 +131,13 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], User.prototype, "taxId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "nzbn", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.ENUM(...Object.values(UserRole)),

@@ -9,13 +9,25 @@ const logger_1 = require("../utils/logger");
 let redis = null;
 const initializeRedis = async () => {
     try {
-        redis = new ioredis_1.default({
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-            password: process.env.REDIS_PASSWORD || undefined,
-            maxRetriesPerRequest: 3,
-            lazyConnect: true,
-        });
+        // Support REDIS_URL from Railway or individual config
+        const redisUrl = process.env.REDIS_URL || process.env.REDIS_PRIVATE_URL;
+        if (redisUrl) {
+            logger_1.logger.info('Using REDIS_URL for connection');
+            redis = new ioredis_1.default(redisUrl, {
+                maxRetriesPerRequest: 3,
+                lazyConnect: true,
+                tls: redisUrl.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined,
+            });
+        }
+        else {
+            redis = new ioredis_1.default({
+                host: process.env.REDIS_HOST || 'localhost',
+                port: parseInt(process.env.REDIS_PORT || '6379'),
+                password: process.env.REDIS_PASSWORD || undefined,
+                maxRetriesPerRequest: 3,
+                lazyConnect: true,
+            });
+        }
         redis.on('connect', () => {
             logger_1.logger.info('Redis connected successfully');
         });

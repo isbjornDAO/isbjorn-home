@@ -63,6 +63,12 @@ export class User extends Model {
   taxId?: string;
 
   @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  nzbn?: string;
+
+  @Column({
     type: DataType.ENUM(...Object.values(UserRole)),
     defaultValue: UserRole.USER,
   })

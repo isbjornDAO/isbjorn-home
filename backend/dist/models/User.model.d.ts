@@ -10,6 +10,7 @@ export declare class User extends Model {
     password: string;
     companyName: string;
     taxId?: string;
+    nzbn?: string;
     role: UserRole;
     address?: {
         street: string;

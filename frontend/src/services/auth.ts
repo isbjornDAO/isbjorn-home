@@ -10,6 +10,7 @@ interface RegisterRequest {
   email: string;
   password: string;
   companyName: string;
+  nzbn?: string;
   taxId?: string;
   address?: {
     street: string;

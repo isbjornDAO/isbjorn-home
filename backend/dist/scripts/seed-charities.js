@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const database_simple_1 = require("../config/database-simple");
+const database_1 = require("../config/database");
 const Charity_model_1 = require("../models/Charity.model");
 const testCharities = [
     {
@@ -48,9 +48,9 @@ const testCharities = [
 ];
 async function seedCharities() {
     try {
-        await database_simple_1.sequelize.authenticate();
+        await database_1.sequelize.authenticate();
         console.log('Database connected successfully');
-        await database_simple_1.sequelize.sync();
+        await database_1.sequelize.sync();
         console.log('Database synced');
         // Clear existing charities
         await Charity_model_1.Charity.destroy({ where: {} });

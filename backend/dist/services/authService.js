@@ -8,6 +8,15 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_model_1 = require("../models/User.model");
 const AppError_1 = require("../utils/AppError");
 const logger_1 = require("../utils/logger");
+// JWT secrets with development fallbacks
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret-key-change-in-production';
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+    logger_1.logger.warn('WARNING: JWT_SECRET not set in production! Authentication may be insecure.');
+}
+if (!process.env.JWT_REFRESH_SECRET && process.env.NODE_ENV === 'production') {
+    logger_1.logger.warn('WARNING: JWT_REFRESH_SECRET not set in production!');
+}
 class AuthService {
     generateTokens(user) {
         const payload = {
@@ -15,10 +24,10 @@ class AuthService {
             email: user.email,
             role: user.role,
         };
-        const token = jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, {
+        const token = jsonwebtoken_1.default.sign(payload, JWT_SECRET, {
             expiresIn: process.env.JWT_EXPIRES_IN || '7d',
         });
-        const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d' });
+        const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, JWT_REFRESH_SECRET, { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d' });
         return { token, refreshToken };
     }
     async register(data) {
@@ -85,9 +94,9 @@ class AuthService {
             throw new AppError_1.AppError('Login failed', 500);
         }
     }
-    async refreshToken(refreshToken) {
+    async refreshToken(refreshTokenStr) {
         try {
-            const decoded = jsonwebtoken_1.default.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+            const decoded = jsonwebtoken_1.default.verify(refreshTokenStr, JWT_REFRESH_SECRET);
             const user = await User_model_1.User.findByPk(decoded.id);
             if (!user || !user.isActive) {
                 throw new AppError_1.AppError('Invalid refresh token', 401);
@@ -161,7 +170,7 @@ class AuthService {
     }
     verifyToken(token) {
         try {
-            return jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+            return jsonwebtoken_1.default.verify(token, JWT_SECRET);
         }
         catch (error) {
             throw new AppError_1.AppError('Invalid token', 401);

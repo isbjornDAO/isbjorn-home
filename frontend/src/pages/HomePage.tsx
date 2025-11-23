@@ -168,11 +168,24 @@ const HomePage: React.FC = () => {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
                 <Link
                   to={isAuthenticated ? '/donate' : '/register'}
-                  className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-3 sm:py-4 inline-flex items-center shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  className="group relative overflow-hidden bg-gradient-to-r from-arctic-500 via-arctic-600 to-arctic-500 bg-[length:200%_100%] animate-gradient text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-5 rounded-xl inline-flex items-center shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
                 >
-                  <span className="hidden sm:inline">Donate now</span>
-                  <span className="sm:hidden">Donate now</span>
-                  <ArrowRightIcon className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3" />
+                  {/* Snowflake particles */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-1 left-4 text-white/30 text-xs animate-fall-slow">❄</div>
+                    <div className="absolute top-0 left-1/4 text-white/20 text-sm animate-fall-medium">❄</div>
+                    <div className="absolute top-2 right-1/4 text-white/25 text-xs animate-fall-fast">❄</div>
+                    <div className="absolute top-1 right-8 text-white/20 text-sm animate-fall-slow">❄</div>
+                  </div>
+
+                  {/* Aurora shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                  {/* Polar bear icon */}
+                  <span className="mr-2 sm:mr-3 text-xl sm:text-2xl group-hover:animate-bounce">🐻‍❄️</span>
+
+                  <span className="relative font-bold tracking-wide">Donate Now</span>
+                  <ArrowRightIcon className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
@@ -335,11 +348,24 @@ const HomePage: React.FC = () => {
               <div className="flex justify-center md:justify-start">
                 <Link
                   to={isAuthenticated ? '/donate' : '/register'}
-                  className="btn-primary text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-5 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center font-bold"
+                  className="group relative overflow-hidden bg-gradient-to-r from-arctic-500 via-arctic-600 to-arctic-500 bg-[length:200%_100%] animate-gradient text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-5 rounded-xl inline-flex items-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
                 >
-                  <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-                  <span className="hidden sm:inline">Donate now</span>
-                  <span className="sm:hidden">Donate now</span>
+                  {/* Snowflake particles */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-1 left-4 text-white/30 text-xs animate-fall-slow">❄</div>
+                    <div className="absolute top-0 left-1/4 text-white/20 text-sm animate-fall-medium">❄</div>
+                    <div className="absolute top-2 right-1/4 text-white/25 text-xs animate-fall-fast">❄</div>
+                    <div className="absolute top-1 right-8 text-white/20 text-sm animate-fall-slow">❄</div>
+                  </div>
+
+                  {/* Aurora shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                  {/* Polar bear icon */}
+                  <span className="mr-2 sm:mr-3 text-xl sm:text-2xl group-hover:animate-bounce">🐻‍❄️</span>
+
+                  <span className="relative font-bold tracking-wide">Donate Now</span>
+                  <ArrowRightIcon className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
