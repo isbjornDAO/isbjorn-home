@@ -206,6 +206,15 @@
 - [x] Verified `/api/public/charities` returns 6 NZ charities
 - [x] Frontend build succeeds with all API URL fixes
 
+### UI Improvements (Nov 23)
+- [x] Added arctic-themed animations to "Donate Now" buttons (snowflakes, shimmer, polar bear icon)
+- [x] Added custom Tailwind animations: gradient, fall-slow/medium/fast, shimmer
+- [x] Redesigned RegisterPage with step-based flow:
+  - Step 1: Company search (via NZ Companies Register API)
+  - Step 2: Email, password, confirm password
+- [x] Added NZBN field to User model and auth interfaces
+- [x] Cleared fake donation stats from charity data
+
 ### Railway Deployment Readiness (Nov 23)
 - [x] Added DATABASE_URL support for Railway PostgreSQL (with SSL)
 - [x] Added REDIS_URL support for Railway Redis (with TLS)
