@@ -13,7 +13,8 @@
     "lint": "eslint src --ext .ts",
     "migrate": "tsx src/database/migrate.ts",
     "seed": "tsx src/database/seed.ts",
-    "setup": "tsx src/scripts/setup.ts"
+    "setup": "tsx src/scripts/setup.ts",
+    "reset-charity-stats": "tsx src/scripts/reset-charity-stats.ts"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.0",
