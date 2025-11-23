@@ -27,14 +27,16 @@
   - Or manually add via SQL/admin panel
 
 ### Environment Variables
-- [/] **Add missing Railway backend environment variables** 🔥 CRITICAL
-  - **MUST ADD NOW:** `FRONTEND_URL=https://isbjorn-home.vercel.app` (fixes CORS!)
-  - `NODE_ENV=production`
+- [/] **Add missing Railway backend environment variables**
+  - `NODE_ENV=production` - Required for production mode
   - `JWT_SECRET` - Generate with: `openssl rand -base64 32`
+  - `JWT_REFRESH_SECRET` - Generate with: `openssl rand -base64 32`
   - `STRIPE_SECRET_KEY` - From Stripe dashboard (test mode for now)
   - `STRIPE_PUBLISHABLE_KEY` - From Stripe dashboard
   - `STRIPE_WEBHOOK_SECRET` - From Stripe webhook config
   - `DATABASE_URL` - Auto-set by Railway Postgres
+  - `REDIS_URL` - Auto-set by Railway Redis (optional)
+  - Note: CORS now allows all .vercel.app domains automatically
   - **Full Guide:** See [RAILWAY_ENV_SETUP.md](./RAILWAY_ENV_SETUP.md)
 
 ---
@@ -203,6 +205,14 @@
 - [x] Verified backend health check returns healthy
 - [x] Verified `/api/public/charities` returns 6 NZ charities
 - [x] Frontend build succeeds with all API URL fixes
+
+### Railway Deployment Readiness (Nov 23)
+- [x] Added DATABASE_URL support for Railway PostgreSQL (with SSL)
+- [x] Added REDIS_URL support for Railway Redis (with TLS)
+- [x] Added `.vercel.app` domain to CORS allowed origins
+- [x] Added JWT secret fallbacks for development with production warnings
+- [x] Fixed seed scripts to use main database config
+- [x] All backend configs now auto-detect Railway environment variables
 
 ---
 
