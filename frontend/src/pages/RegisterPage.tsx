@@ -8,7 +8,8 @@ import {
   EnvelopeIcon,
   LockClosedIcon,
   CheckCircleIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 
 interface SelectedCompany {
@@ -75,7 +76,6 @@ const RegisterPage: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -87,84 +87,147 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ice-50 via-white to-arctic-50 flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full mb-4 shadow-lg">
-            <span className="text-3xl">🐻‍❄️</span>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-800 font-display">Create Account</h1>
-          <p className="text-ice-600 mt-2">Start donating to NZ charities today</p>
-        </motion.div>
-
-        {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-8">
-          <div className="flex items-center">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
-              step === 'search' ? 'bg-arctic-500 text-white shadow-lg' : 'bg-arctic-500 text-white'
-            }`}>
-              {selectedCompany ? <CheckCircleIcon className="w-6 h-6" /> : '1'}
-            </div>
-            <div className={`w-16 h-1 mx-2 rounded transition-all ${
-              selectedCompany ? 'bg-arctic-500' : 'bg-ice-200'
-            }`} />
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
-              step === 'details' ? 'bg-arctic-500 text-white shadow-lg' : 'bg-ice-200 text-ice-500'
-            }`}>
-              2
-            </div>
-          </div>
-        </div>
-
-        {/* Card */}
-        <motion.div
-          className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden"
-          layout
-        >
-          <AnimatePresence mode="wait">
-            {step === 'search' && (
+    <div className="min-h-screen bg-gradient-to-br from-ice-50 via-white to-arctic-50">
+      <AnimatePresence mode="wait">
+        {step === 'search' && (
+          <motion.div
+            key="search"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="min-h-screen flex flex-col"
+          >
+            {/* Large Hero Section for Company Search */}
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+              {/* Polar Bear Icon */}
               <motion.div
-                key="search"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="p-8"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 }}
+                className="mb-8"
               >
-                <div className="flex items-center mb-6">
-                  <div className="w-10 h-10 bg-arctic-100 rounded-full flex items-center justify-center mr-3">
-                    <BuildingOfficeIcon className="w-5 h-5 text-arctic-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-800">Find Your Company</h2>
-                    <p className="text-sm text-ice-500">Search by company name or NZBN</p>
-                  </div>
+                <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full flex items-center justify-center shadow-2xl">
+                  <span className="text-5xl sm:text-6xl">🐻‍❄️</span>
                 </div>
+              </motion.div>
 
-                <CompanySearch
-                  onSelect={handleCompanySelect}
-                  placeholder="e.g. Acme Ltd or 9429012345678"
-                  className="mb-4"
-                />
-
-                <p className="text-xs text-ice-400 text-center mt-6">
-                  We verify your company with the NZ Companies Register
+              {/* Main Heading */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-center mb-10 max-w-2xl"
+              >
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-800 font-display mb-4">
+                  Find Your Company
+                </h1>
+                <p className="text-xl sm:text-2xl text-ice-600">
+                  Search the NZ Companies Register to get started
                 </p>
               </motion.div>
-            )}
 
-            {step === 'details' && selectedCompany && (
+              {/* Large Search Box */}
               <motion.div
-                key="details"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="p-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="w-full max-w-3xl px-4"
               >
+                <div className="bg-white rounded-2xl shadow-2xl border border-ice-100 p-6 sm:p-10">
+                  <div className="flex items-center mb-6">
+                    <div className="w-14 h-14 bg-arctic-100 rounded-full flex items-center justify-center mr-4">
+                      <MagnifyingGlassIcon className="w-7 h-7 text-arctic-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">Company Search</h2>
+                      <p className="text-ice-500">Enter your company name or NZBN number</p>
+                    </div>
+                  </div>
+
+                  <CompanySearch
+                    onSelect={handleCompanySelect}
+                    placeholder="e.g. Acme Ltd or 9429012345678"
+                    className="mb-6"
+                  />
+
+                  <div className="flex items-center justify-center text-sm text-ice-400">
+                    <BuildingOfficeIcon className="w-4 h-4 mr-2" />
+                    <span>We verify your company with the official NZ Companies Register</span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Features below search */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl px-4"
+              >
+                {[
+                  { icon: '🔒', title: 'Secure', desc: 'Bank-level encryption' },
+                  { icon: '⚡', title: 'Instant', desc: 'IRD-compliant receipts' },
+                  { icon: '💚', title: 'Simple', desc: 'Just 1.5% fee' },
+                ].map((feature, i) => (
+                  <div key={i} className="text-center">
+                    <div className="text-3xl mb-2">{feature.icon}</div>
+                    <div className="font-semibold text-gray-800">{feature.title}</div>
+                    <div className="text-sm text-ice-500">{feature.desc}</div>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* Sign in link */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="mt-10 text-center"
+              >
+                <p className="text-ice-600">
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold">
+                    Sign in
+                  </Link>
+                </p>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 'details' && selectedCompany && (
+          <motion.div
+            key="details"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="min-h-screen flex items-center justify-center py-12 px-4"
+          >
+            <div className="w-full max-w-md">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full mb-4 shadow-lg">
+                  <span className="text-3xl">🐻‍❄️</span>
+                </div>
+                <h1 className="text-3xl font-bold text-gray-800 font-display">Almost There!</h1>
+                <p className="text-ice-600 mt-2">Just add your email and password</p>
+              </div>
+
+              {/* Progress indicator */}
+              <div className="flex items-center justify-center mb-8">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-arctic-500 text-white">
+                    <CheckCircleIcon className="w-6 h-6" />
+                  </div>
+                  <div className="w-16 h-1 mx-2 rounded bg-arctic-500" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-arctic-500 text-white shadow-lg">
+                    2
+                  </div>
+                </div>
+              </div>
+
+              {/* Card */}
+              <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-8">
                 {/* Selected Company Card */}
                 <div className="bg-gradient-to-r from-arctic-50 to-ice-50 rounded-xl p-4 mb-6 border border-arctic-100">
                   <div className="flex items-center justify-between">
@@ -256,7 +319,6 @@ const RegisterPage: React.FC = () => {
                     disabled={isLoading}
                     className="w-full group relative overflow-hidden bg-gradient-to-r from-arctic-500 via-arctic-600 to-arctic-500 bg-[length:200%_100%] animate-gradient text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {/* Shimmer effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
                     <span className="relative flex items-center justify-center">
@@ -278,26 +340,21 @@ const RegisterPage: React.FC = () => {
                     </span>
                   </button>
                 </form>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+              </div>
 
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-6 text-center"
-        >
-          <p className="text-sm text-ice-600">
-            Already have an account?{' '}
-            <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold">
-              Sign in
-            </Link>
-          </p>
-        </motion.div>
-      </div>
+              {/* Footer */}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-ice-600">
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
