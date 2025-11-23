@@ -1,21 +1,19 @@
 # Isbjorn Platform - Master TODO List
 
-**Last Updated:** 2025-11-23  
-**Status:** Backend & Frontend Deployed, CORS Issue Being Resolved
+**Last Updated:** 2025-11-23
+**Status:** Backend & Frontend Deployed, API Connection Fixed
 
 ---
 
 ## 🔴 CRITICAL - Must Fix Now
 
 ### Backend Connection Issues
-- [/] **Fix CORS between Vercel frontend and Railway backend**
-  - Current Error: Frontend can't fetch from backend API
-  - Fix Pushed: Added Vercel URL to CORS allowlist in code
-  - Issue: Railway needs FRONTEND_URL environment variable set
-  - **ACTION REQUIRED:** Add FRONTEND_URL=https://isbjorn-home.vercel.app to Railway
-  - See: [RAILWAY_ENV_SETUP.md](./RAILWAY_ENV_SETUP.md) for full guide
-  - Test: Visit https://isbjorn-home.vercel.app/donate
-  - Expected: Should load charities instead of "Failed to load charities"
+- [x] **Fix CORS between Vercel frontend and Railway backend**
+  - ~~Current Error: Frontend can't fetch from backend API~~
+  - FIXED: Backend CORS allows Vercel URLs
+  - FIXED: Frontend now uses `API_URL` utility with Railway backend URL
+  - Backend health: https://isbjorn-backend-production.up.railway.app/health returns healthy
+  - API returns 6 charities successfully (static data in dev mode)
 
 ### Database Setup
 - [ ] **Run database migrations on Railway PostgreSQL**
@@ -199,30 +197,37 @@
 - [x] Backend compiles successfully
 - [x] Frontend builds successfully
 
+### API Connection (Nov 23)
+- [x] Created shared `utils/apiUrl.ts` for centralized API URL configuration
+- [x] Updated all frontend pages to use `API_URL` instead of relative paths
+- [x] Verified backend health check returns healthy
+- [x] Verified `/api/public/charities` returns 6 NZ charities
+- [x] Frontend build succeeds with all API URL fixes
+
 ---
 
 ## 🎯 IMMEDIATE NEXT SESSION PLAN
 
 When you return, here's what to do first:
 
-1. **Check if CORS is fixed** (2 min)
+1. **Verify Vercel redeploy picked up API fixes** (2 min)
    - Visit https://isbjorn-home.vercel.app/donate
-   - If charities load: ✅ Move to step 2
-   - If still broken: Debug CORS further
+   - If charities load: Move to step 2
+   - Note: Static dev data shows 6 NZ charities
 
-2. **Run database migrations** (5 min)
-   - Railway dashboard → isbjorn-backend → Terminal
+2. **Add environment variables to Railway** (10 min)
+   - Railway dashboard -> Variables
+   - Add: `NODE_ENV=production`, `JWT_SECRET`, Stripe keys
+   - This will trigger a redeploy
+
+3. **Run database migrations** (5 min)
+   - Railway dashboard -> isbjorn-backend -> Terminal
    - Run: `npm run migrate`
    - Verify tables created
 
-3. **Seed test data** (5 min)
+4. **Seed initial data** (5 min)
    - Run: `npm run seed`
    - Or manually add one charity via SQL
-
-4. **Add environment variables** (10 min)
-   - Railway dashboard → Variables
-   - Add all missing vars from list above
-   - Redeploy backend
 
 5. **Test donation flow** (10 min)
    - Make test donation
@@ -242,10 +247,10 @@ When you return, here's what to do first:
 - **L1:** Avalanche (decision pending: Mainnet vs Fuji)
 
 ### Known Issues
-1. CORS between frontend/backend - Fix deployed, waiting for Railway redeploy
+1. ~~CORS between frontend/backend~~ - FIXED: Frontend uses Railway backend URL directly
 2. Database tables don't exist - Need to run migrations
-3. No seed data - Need to add test charity
-4. Missing env vars - Need to add to Railway
+3. No seed data - Need to add test charity (static data available in dev mode)
+4. Missing env vars - Need to add to Railway (NODE_ENV, JWT_SECRET, Stripe keys)
 
 ### Questions to Decide
 - [ ] Use Mainnet or Fuji for L1?
