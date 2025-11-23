@@ -157,31 +157,11 @@ const RegisterPage: React.FC = () => {
                 </div>
               </motion.div>
 
-              {/* Features below search */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl px-4"
-              >
-                {[
-                  { icon: '🔒', title: 'Secure', desc: 'Bank-level encryption' },
-                  { icon: '⚡', title: 'Instant', desc: 'IRD-compliant receipts' },
-                  { icon: '💚', title: 'Simple', desc: 'Just 1.5% fee' },
-                ].map((feature, i) => (
-                  <div key={i} className="text-center">
-                    <div className="text-3xl mb-2">{feature.icon}</div>
-                    <div className="font-semibold text-gray-800">{feature.title}</div>
-                    <div className="text-sm text-ice-500">{feature.desc}</div>
-                  </div>
-                ))}
-              </motion.div>
-
               {/* Sign in link */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
+                transition={{ delay: 0.4 }}
                 className="mt-10 text-center"
               >
                 <p className="text-ice-600">
