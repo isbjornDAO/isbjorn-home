@@ -170,6 +170,12 @@ const RegisterPage: React.FC = () => {
                     Sign in
                   </Link>
                 </p>
+                <p className="text-ice-400 text-sm mt-2">
+                  Can't find your company?{' '}
+                  <a href="mailto:icemira@pm.me" className="text-ice-500 hover:text-arctic-600 underline">
+                    Contact us
+                  </a>
+                </p>
               </motion.div>
             </div>
           </motion.div>
@@ -241,9 +247,8 @@ const RegisterPage: React.FC = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 rounded-xl border ${
-                        errors.email ? 'border-red-300 bg-red-50' : 'border-ice-200'
-                      } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
+                      className={`w-full px-4 py-3 rounded-xl border ${errors.email ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                        } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
                       placeholder="you@company.co.nz"
                     />
                     {errors.email && (
@@ -262,9 +267,8 @@ const RegisterPage: React.FC = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 rounded-xl border ${
-                        errors.password ? 'border-red-300 bg-red-50' : 'border-ice-200'
-                      } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
+                      className={`w-full px-4 py-3 rounded-xl border ${errors.password ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                        } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
                       placeholder="Min 8 characters"
                     />
                     {errors.password && (
@@ -283,9 +287,8 @@ const RegisterPage: React.FC = () => {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 rounded-xl border ${
-                        errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-ice-200'
-                      } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
+                      className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                        } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
                       placeholder="Re-enter password"
                     />
                     {errors.confirmPassword && (
@@ -329,6 +332,12 @@ const RegisterPage: React.FC = () => {
                   <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold">
                     Sign in
                   </Link>
+                </p>
+                <p className="text-ice-400 text-sm mt-2">
+                  Can't find your company?{' '}
+                  <a href="mailto:icemira@pm.me" className="text-ice-500 hover:text-arctic-600 underline">
+                    Contact us
+                  </a>
                 </p>
               </div>
             </div>

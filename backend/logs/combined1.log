@@ -7443,3 +7443,12 @@
 {"level":"info","message":"Server running on port 5001 in development mode","service":"isbjorn-api","timestamp":"2025-11-23 00:53:15"}
 {"level":"info","message":"API Documentation: http://localhost:5001/api-docs","service":"isbjorn-api","timestamp":"2025-11-23 00:53:15"}
 {"duration":"10ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":404,"timestamp":"2025-11-23 00:56:59","url":"/api/companies/search?q=Isbjorn","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"Starting database migration...","service":"isbjorn-api","timestamp":"2025-11-24 15:59:34"}
+{"level":"info","message":"Database connection established successfully.","service":"isbjorn-api","timestamp":"2025-11-24 15:59:34"}
+{"level":"info","message":"🎉 Database migration completed successfully!","service":"isbjorn-api","timestamp":"2025-11-24 15:59:34"}
+{"level":"info","message":"Database connection established successfully","service":"isbjorn-api","timestamp":"2025-11-24 16:01:06"}
+{"level":"info","message":"Database synchronized successfully","service":"isbjorn-api","timestamp":"2025-11-24 16:01:06"}
+{"level":"info","message":"🌱 Starting database seeding...","service":"isbjorn-api","timestamp":"2025-11-24 16:01:06"}
+{"level":"info","message":"✅ Users seeded successfully","service":"isbjorn-api","timestamp":"2025-11-24 16:01:06"}
+{"level":"info","message":"✅ Charities seeded successfully","service":"isbjorn-api","timestamp":"2025-11-24 16:01:07"}
+{"level":"info","message":"✅ Projects seeded successfully","service":"isbjorn-api","timestamp":"2025-11-24 16:01:07"}

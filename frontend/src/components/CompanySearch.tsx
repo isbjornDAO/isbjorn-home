@@ -45,6 +45,18 @@ const CompanySearch: React.FC<CompanySearchProps> = ({
 
             setIsLoading(true);
             try {
+                // Check if searching for "Test" - allow test account creation
+                if (query.toLowerCase().includes('test')) {
+                    setResults([{
+                        name: 'Test Company Ltd',
+                        companyNumber: '1234567890123',
+                        status: 'Registered'
+                    }]);
+                    setIsOpen(true);
+                    setIsLoading(false);
+                    return;
+                }
+
                 const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/companies/search`, {
                     params: { q: query }
                 });

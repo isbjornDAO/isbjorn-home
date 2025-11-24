@@ -15,7 +15,7 @@ $projectId = "389403df-96c8-4a8c-a411-6fd64f2a4f15"
 # Headers
 $headers = @{
     "Authorization" = "Bearer $token"
-    "Content-Type" = "application/json"
+    "Content-Type"  = "application/json"
 }
 
 # Get services
@@ -42,23 +42,26 @@ Write-Host "Found service: $serviceName" -ForegroundColor Green
 # Environment variables to set
 $envVars = @{
     "FRONTEND_URL" = "https://isbjorn-home.vercel.app"
-    "NODE_ENV" = "production"
-    "PORT" = "5000"
+    "NODE_ENV"     = "production"
+    "PORT"         = "5000"
+    # Stripe keys should be set manually via Railway dashboard or passed as parameters
+    # DO NOT commit actual keys to git
 }
 
 # Set each variable
 foreach ($key in $envVars.Keys) {
     $value = $envVars[$key]
-    Write-Host "Setting $key = $value..." -ForegroundColor Yellow
+    Write-Host "Setting $key..." -ForegroundColor Yellow
     
     $mutation = @{
         query = "mutation { variableUpsert(input: { projectId: \`"$projectId\`", serviceId: \`"$serviceId\`", name: \`"$key\`", value: \`"$value\`" }) { id } }"
     } | ConvertTo-Json
     
     try {
-        $result = Invoke-RestMethod -Uri $apiUrl -Method Post -Headers $headers -Body $mutation
+        Invoke-RestMethod -Uri $apiUrl -Method Post -Headers $headers -Body $mutation | Out-Null
         Write-Host "  ✓ Set successfully" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "  ✗ Failed: $_" -ForegroundColor Red
     }
 }
