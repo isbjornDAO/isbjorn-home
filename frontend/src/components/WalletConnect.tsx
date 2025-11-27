@@ -1,72 +1,75 @@
-import React, { useState, useEffect } from 'react';
-import { blockchainService } from '../services/blockchainService';
+import React from 'react';
+import { useWallet } from '../contexts/WalletContext';
 
-const WalletConnect: React.FC = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState<string | null>(null);
-  const [isConnecting, setIsConnecting] = useState(false);
-
-  useEffect(() => {
-    // Check if wallet is already connected
-    setIsConnected(blockchainService.isConnected());
-    setAddress(blockchainService.getSignerAddress());
-  }, []);
-
-  const handleConnect = async () => {
-    setIsConnecting(true);
-    try {
-      const connectedAddress = await blockchainService.connectWallet();
-      if (connectedAddress) {
-        setIsConnected(true);
-        setAddress(connectedAddress);
-      }
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  const handleDisconnect = () => {
-    // For now, just reset the state
-    // In a real app, you might want to disconnect from the provider
-    setIsConnected(false);
-    setAddress(null);
-  };
+export const WalletConnect: React.FC = () => {
+  const { account, connectWallet, disconnectWallet, isConnecting, error } = useWallet();
 
   const formatAddress = (addr: string) => {
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
   };
 
-  return (
-    <div className="flex items-center space-x-4">
-      {!isConnected ? (
-        <button
-          onClick={handleConnect}
-          disabled={isConnecting}
-          className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
-        </button>
-      ) : (
-        <div className="flex items-center space-x-3">
-          <div className="bg-green-100 text-green-800 px-3 py-2 rounded-lg text-sm font-medium">
-            <span className="w-2 h-2 bg-green-500 rounded-full inline-block mr-2"></span>
-            Connected
-          </div>
-          <div className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm font-mono">
-            {address ? formatAddress(address) : 'Unknown'}
-          </div>
-          <button
-            onClick={handleDisconnect}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            Disconnect
-          </button>
+  const handleConnect = async () => {
+    await connectWallet();
+  };
+
+  if (account) {
+    return (
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col items-end">
+          <span className="text-sm font-medium text-gray-200">Connected</span>
+          <span className="text-xs text-gray-400 font-mono">{formatAddress(account)}</span>
         </div>
+        <button
+          onClick={disconnectWallet}
+          className="px-4 py-2 text-sm font-medium text-red-400 bg-red-400/10 rounded-lg hover:bg-red-400/20 transition-colors"
+        >
+          Disconnect
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      <button
+        onClick={handleConnect}
+        disabled={isConnecting}
+        className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isConnecting ? (
+          <>
+            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Connecting...
+          </>
+        ) : (
+          <>
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 7H5C3.89543 7 3 7.89543 3 9V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V9C21 7.89543 20.1046 7 19 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M16 7V5C16 3.89543 15.1046 3 14 3H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M16 14H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Connect Core Wallet
+          </>
+        )}
+      </button>
+      {error && (
+        <p className="mt-2 text-xs text-red-400 max-w-xs text-center">
+          {error}
+          {error.includes('No crypto wallet found') && (
+            <a
+              href="https://core.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mt-1 text-orange-400 hover:text-orange-300 underline"
+            >
+              Install Core Wallet
+            </a>
+          )}
+        </p>
       )}
     </div>
   );
 };
-
-export default WalletConnect;

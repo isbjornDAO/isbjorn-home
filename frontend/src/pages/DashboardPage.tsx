@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_URL } from '@/utils/apiUrl';
+import { WalletConnect } from '@/components/WalletConnect';
 
 interface DashboardStats {
   totalDonations: number;
@@ -84,18 +85,26 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="card p-6">
-              <h3 className="text-xl font-bold text-ice-900 mb-4">Quick Actions</h3>
-              <div className="space-y-4">
-                <a 
-                  href="/donate" 
-                  className="btn-primary inline-block text-center px-6 py-3"
-                >
-                  Make a Donation
-                </a>
-                <div className="text-ice-600 text-sm mt-2">
-                  Ready to support more charities? Start a new donation.
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="card p-6">
+                <h3 className="text-xl font-bold text-ice-900 mb-4">Quick Actions</h3>
+                <div className="space-y-4">
+                  <a
+                    href="/donate"
+                    className="btn-primary inline-block text-center px-6 py-3"
+                  >
+                    Make a Donation
+                  </a>
+                  <div className="text-ice-600 text-sm mt-2">
+                    Ready to support more charities? Start a new donation.
+                  </div>
                 </div>
+              </div>
+
+              <div className="card p-6">
+                <h3 className="text-xl font-bold text-ice-900 mb-4">Wallet Management</h3>
+                <p className="text-ice-600 text-sm mb-4">Connect your Core Wallet to manage your crypto donations.</p>
+                <WalletConnect />
               </div>
             </div>
           </div>

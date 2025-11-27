@@ -1,0 +1,239 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import {
+  ChartBarIcon,
+  UsersIcon,
+  HeartIcon,
+  CurrencyDollarIcon,
+  ShieldCheckIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+  ClockIcon
+} from '@heroicons/react/24/outline';
+import { API_URL } from '@/utils/apiUrl';
+
+interface DashboardStats {
+  totalDonations: number;
+  const [stats, setStats] = useState<DashboardStats | null > (null);
+const [loading, setLoading] = useState(true);
+const [selectedTab, setSelectedTab] = useState('overview');
+
+useEffect(() => {
+  fetchDashboardData();
+}, []);
+
+const fetchDashboardData = async () => {
+  try {
+    const response = await fetch(`${API_URL}/admin/dashboard`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      setStats(data.data);
+    }
+  } catch (error) {
+    console.error('Failed to fetch dashboard data:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const tabs = [
+  { id: 'overview', name: 'Overview', icon: ChartBarIcon },
+  { id: 'donations', name: 'Donations', icon: HeartIcon },
+  { id: 'charities', name: 'Charities', icon: ShieldCheckIcon },
+  { id: 'users', name: 'Users', icon: UsersIcon },
+  { id: 'system', name: 'System', icon: ExclamationTriangleIcon },
+];
+
+if (loading) {
+  return (
+    <div className="min-h-screen bg-ice-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-arctic-600"></div>
+    </div>
+  );
+}
+
+return (
+  <div className="min-h-screen bg-ice-50">
+    {/* Header */}
+    <div className="bg-white shadow">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-6">
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage the Isbjorn donation platform
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Tabs */}
+      <div className="border-b border-gray-200 mb-8">
+        <nav className="-mb-px flex space-x-8">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedTab(tab.id)}
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${selectedTab === tab.id
+                  ? 'border-arctic-500 text-arctic-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+              >
+                <Icon className="w-5 h-5 mr-2" />
+                {tab.name}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Overview Tab */}
+      {selectedTab === 'overview' && stats && (
+        <div className="space-y-6">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard
+              title="Total Donations"
+              value={stats.totalDonations.toLocaleString()}
+              icon={HeartIcon}
+              color="bg-red-500"
+              change="+12% this month"
+            />
+            <StatCard
+              title="Total Amount"
+              value={`$${stats.totalAmount.toLocaleString()}`}
+              icon={CurrencyDollarIcon}
+              color="bg-green-500"
+              change="+8% this month"
+            />
+            <StatCard
+              title="Active Charities"
+              value={stats.totalCharities.toString()}
+              icon={ShieldCheckIcon}
+              color="bg-blue-500"
+              change="+3 this month"
+            />
+            <StatCard
+              title="Registered Users"
+              value={stats.totalUsers.toString()}
+              icon={UsersIcon}
+              color="bg-purple-500"
+              change="+25% this month"
+            />
+          </div>
+
+          {/* System Health */}
+          <div className="bg-white rounded-lg shadow p-6">
+            name="Email"
+            status={stats.systemHealth.email}
+                />
+          </div>
+        </div>
+
+            {/* Recent Activity */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Recent Donations</h3>
+        </div>
+        <div className="divide-y divide-gray-200">
+          {stats.recentDonations.slice(0, 10).map((donation, index) => (
+            <div key={index} className="px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-arctic-100 rounded-full flex items-center justify-center">
+                    <HeartIcon className="w-4 h-4 text-arctic-600" />
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-900">
+                    {donation.donorName}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    to {donation.charityName}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">
+                  ${donation.amount.toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {new Date(donation.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+        )}
+
+    {/* Donations Tab */}
+    {selectedTab === 'donations' && (
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">All Donations</h3>
+        </div>
+        <div className="p-6">
+          <p className="text-gray-500">Donation management interface would go here...</p>
+        </div>
+      </div>
+    )}
+
+    {/* Other tabs can be expanded similarly */}
+  </div>
+    </div >
+  );
+};
+
+// Stat Card Component
+const StatCard: React.FC<{
+  title: string;
+  value: string;
+  icon: any;
+  color: string;
+  change?: string;
+}> = ({ title, value, icon: Icon, color, change }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-white rounded-lg shadow p-6"
+  >
+    <div className="flex items-center">
+      <div className={`flex-shrink-0 p-3 rounded-md ${color}`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+      <div className="ml-4 flex-1">
+        <p className="text-sm font-medium text-gray-500">{title}</p>
+        <p className="text-2xl font-semibold text-gray-900">{value}</p>
+        {change && (
+          <p className="text-sm text-green-600">{change}</p>
+        )}
+      </div>
+    </div>
+  </motion.div>
+);
+
+// Health Indicator Component
+const HealthIndicator: React.FC<{
+  name: string;
+  status: boolean;
+}> = ({ name, status }) => (
+  <div className="flex items-center">
+    {status ? (
+      <CheckCircleIcon className="w-5 h-5 text-green-500 mr-2" />
+    ) : (
+      <ExclamationTriangleIcon className="w-5 h-5 text-red-500 mr-2" />
+    )}
+    <span className="text-sm text-gray-900">{name}</span>
+  </div>
+);
+
+export default AdminDashboard;

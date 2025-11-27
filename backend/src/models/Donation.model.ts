@@ -131,6 +131,18 @@ export class Donation extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
+  provider?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  sessionId?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
   blockchainTxHash?: string;
 
   @Column({

@@ -31,6 +31,8 @@ export declare class Donation extends Model {
     status: DonationStatus;
     stripePaymentId?: string;
     stripePaymentIntentId?: string;
+    provider?: string;
+    sessionId?: string;
     blockchainTxHash?: string;
     blockchainConfirmations: number;
     blockchainStatus?: string;

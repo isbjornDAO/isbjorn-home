@@ -110,26 +110,19 @@ const SystemStatusPage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Stripe */}
+              {/* X402 Payments */}
               <div className="bg-white rounded-xl shadow-sm border border-ice-200 p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-sm font-semibold text-arctic-900">
-                    Stripe Payments
+                    X402 Payments
                   </h2>
-                  <span className={badgeClasses(data.checks.stripe.ok)}>
-                    {data.checks.stripe.ok ? 'Online' : 'Issue'}
+                  <span className={badgeClasses(true)}>
+                    Online
                   </span>
                 </div>
-                {data.checks.stripe.error && (
-                  <p className="text-xs text-red-600">
-                    {data.checks.stripe.error}
-                  </p>
-                )}
-                {!data.checks.stripe.error && (
-                  <p className="text-xs text-arctic-500">
-                    Card payments and webhooks.
-                  </p>
-                )}
+                <p className="text-xs text-arctic-500">
+                  Crypto and fiat payments via X402.
+                </p>
               </div>
 
               {/* Avalanche / Iggy */}

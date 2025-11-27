@@ -38,6 +38,7 @@ export declare class User extends Model {
         defaultCurrency: string;
     };
     stripeCustomerId?: string;
+    x402WalletId?: string;
     donations: Donation[];
     static hashPassword(user: User): Promise<void>;
     validatePassword(password: string): Promise<boolean>;

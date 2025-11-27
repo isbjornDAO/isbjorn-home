@@ -175,6 +175,12 @@ export class User extends Model {
   })
   stripeCustomerId?: string;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  x402WalletId?: string;
+
   @HasMany(() => Donation)
   donations!: Donation[];
 

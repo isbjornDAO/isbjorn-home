@@ -24,7 +24,7 @@ export interface Donation {
   currency: string;
   projectId: string;
   status: 'pending' | 'completed' | 'failed';
-  stripePaymentId?: string;
+  x402PaymentId?: string;
   blockchainTxHash?: string;
   receiptUrl?: string;
   taxDeductible: boolean;

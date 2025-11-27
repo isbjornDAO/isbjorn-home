@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
-import EmbeddedStripeCheckout from '../components/EmbeddedStripeCheckout';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_URL } from '@/utils/apiUrl';
 
@@ -58,26 +57,36 @@ const CharityDetailsPage: React.FC = () => {
       return;
     }
 
-    setShowEmbeddedCheckout(true);
-  };
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/x402-checkout/create-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify({
+          amount: donationAmount,
+          currency: 'NZD',
+          charityId: charity.id,
+          charityName: charity.name,
+          companyEmail: receiptEmail,
+          companyName: user?.companyName
+        })
+      });
 
-  const handlePaymentSuccess = (paymentIntent: any) => {
-    setShowEmbeddedCheckout(false);
-    navigate('/donation-success', {
-      state: {
-        amount,
-        charity: charity?.name,
-        paymentIntentId: paymentIntent.id
+      const data = await response.json();
+      if (data.success && data.sessionUrl) {
+        window.location.href = data.sessionUrl;
+      } else {
+        alert('Failed to create checkout session. Please try again.');
       }
-    });
-  };
-
-  const handlePaymentError = (error: string) => {
-    alert(`Payment failed: ${error}`);
-  };
-
-  const handlePaymentCancel = () => {
-    setShowEmbeddedCheckout(false);
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading || !charity) {
@@ -135,36 +144,15 @@ const CharityDetailsPage: React.FC = () => {
       )}
 
       <div className="min-h-screen bg-gradient-to-br from-ice-50 to-arctic-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link
-          to="/donate"
-          className="inline-flex items-center text-arctic-600 hover:text-arctic-800 mb-8 transition-colors duration-200 font-medium"
-        >
-          <ArrowLeftIcon className="w-5 h-5 mr-2" />
-          Back to Charities
-        </Link>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Link
+            to="/donate"
+            className="inline-flex items-center text-arctic-600 hover:text-arctic-800 mb-8 transition-colors duration-200 font-medium"
+          >
+            <ArrowLeftIcon className="w-5 h-5 mr-2" />
+            Back to Charities
+          </Link>
 
-        {showEmbeddedCheckout ? (
-          <div className="max-w-2xl mx-auto">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-arctic-900 mb-2">
-                Complete Your Donation
-              </h2>
-              <p className="text-arctic-600">
-                You're donating ${amount} to {charity.name}
-              </p>
-            </div>
-
-            <EmbeddedStripeCheckout
-              amount={parseFloat(amount)}
-              currency="NZD"
-              charityName={charity.name}
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
-              onCancel={handlePaymentCancel}
-            />
-          </div>
-        ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-start">
             {/* Left Side - Charity Information */}
             <div className="space-y-8">
@@ -218,11 +206,10 @@ const CharityDetailsPage: React.FC = () => {
                         key={suggestedAmount}
                         type="button"
                         onClick={() => setAmount(suggestedAmount.toString())}
-                        className={`py-3 px-4 border-2 rounded-lg font-semibold transition-all duration-200 ${
-                          amount === suggestedAmount.toString()
-                            ? 'border-arctic-500 bg-arctic-50 text-arctic-700'
-                            : 'border-ice-300 text-arctic-600 hover:border-arctic-300 hover:bg-ice-50'
-                        }`}
+                        className={`py-3 px-4 border-2 rounded-lg font-semibold transition-all duration-200 ${amount === suggestedAmount.toString()
+                          ? 'border-arctic-500 bg-arctic-50 text-arctic-700'
+                          : 'border-ice-300 text-arctic-600 hover:border-arctic-300 hover:bg-ice-50'
+                          }`}
                       >
                         ${suggestedAmount}
                       </button>
@@ -272,22 +259,23 @@ const CharityDetailsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleDonate}
-                  disabled={!amount || !receiptEmail}
+                  disabled={!amount || !receiptEmail || loading}
                   className="w-full group relative overflow-hidden bg-gradient-to-r from-arctic-500 via-arctic-600 to-arctic-500 bg-[length:200%_100%] animate-gradient text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                   <span className="mr-2">🐻‍❄️</span>
-                  <span className="relative">Donate{amount && ` $${amount}`}</span>
+                  <span className="relative">
+                    {loading ? 'Processing...' : `Donate ${amount ? `$${amount}` : ''}`}
+                  </span>
                 </button>
 
                 <p className="text-center text-sm text-arctic-500">
-                  Your payment is processed securely by Stripe
+                  Powered by X402 Payments
                 </p>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
       </div>
     </>
   );

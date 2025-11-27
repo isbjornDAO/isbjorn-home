@@ -45,6 +45,8 @@ let Donation = class Donation extends sequelize_typescript_1.Model {
     status;
     stripePaymentId;
     stripePaymentIntentId;
+    provider;
+    sessionId;
     blockchainTxHash;
     blockchainConfirmations;
     blockchainStatus;
@@ -168,6 +170,20 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Donation.prototype, "stripePaymentIntentId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Donation.prototype, "provider", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Donation.prototype, "sessionId", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,

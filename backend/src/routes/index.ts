@@ -1,3 +1,4 @@
+// Backend route definitions for Isbjorn Home
 import express from 'express';
 import authRoutes from './auth';
 import donationRoutes from './donations';
@@ -11,8 +12,10 @@ import { workingAuthRoutes } from './working-auth';
 import publicRoutes from './public';
 import { body, validationResult } from 'express-validator';
 import { stripeService } from '../services/stripeService';
-import { logger } from '../utils/logger';
+import { x402Service } from '../services/x402Service';
 import { stripe } from '../utils/stripe';
+import x402 from '../utils/x402';
+import { logger } from '../utils/logger';
 import NZCompaniesRegisterService from '../services/nzCompaniesRegisterService';
 import NZCharitiesService from '../services/nzCharitiesService';
 import AvalancheL1Service from '../services/AvalancheL1Service';
@@ -144,7 +147,65 @@ router.use('/admin', adminRoutes);
 router.use('/public', publicRoutes);
 router.use('/integrations', integrationsRoutes);
 
-// Stripe Checkout routes
+// X402 Checkout session creation
+router.post('/x402-checkout/create-session', [
+  body('amount').isFloat({ min: 1 }).withMessage('Amount must be at least $1'),
+  body('currency').isIn(['NZD', 'USD', 'AUD']).withMessage('Currency must be NZD, USD, or AUD'),
+  body('charityId').isString().notEmpty().withMessage('Charity ID is required'),
+  body('charityName').isString().notEmpty().withMessage('Charity name is required'),
+  body('companyName').optional().isString(),
+  body('companyEmail').isEmail().withMessage('Valid company email is required'),
+  body('message').optional().isString(),
+  body('isRecurring').optional().isBoolean(),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    const {
+      amount,
+      currency,
+      charityId,
+      charityName,
+      companyName,
+      companyEmail,
+      message,
+      isRecurring = false
+    } = req.body;
+
+    const session = await x402Service.createCheckoutSession({
+      amount,
+      currency,
+      charityId,
+      charityName,
+      companyName,
+      companyEmail,
+      message,
+      isRecurring
+    });
+
+    res.json({
+      success: true,
+      sessionId: session.sessionId,
+      sessionUrl: session.sessionUrl,
+      donationId: session.donation.id
+    });
+
+  } catch (error: any) {
+    logger.error('Error creating checkout session:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to create checkout session'
+    });
+  }
+});
+
+// Stripe Checkout session creation (legacy support)
 router.post('/stripe-checkout/create-session', [
   body('amount').isFloat({ min: 1 }).withMessage('Amount must be at least $1'),
   body('currency').isIn(['NZD', 'USD', 'AUD']).withMessage('Currency must be NZD, USD, or AUD'),
@@ -202,7 +263,44 @@ router.post('/stripe-checkout/create-session', [
   }
 });
 
-// Stripe webhook handler
+// X402 webhook endpoint
+router.post('/x402/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const webhookSecret = process.env.X402_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    logger.error('X402_WEBHOOK_SECRET not configured');
+    return res.status(400).json({ error: 'Webhook secret not configured' });
+  }
+
+  let event;
+
+  try {
+    event = x402.verifyWebhook(req.body, webhookSecret);
+  } catch (err: any) {
+    logger.error('Webhook signature verification failed:', err.message);
+    return res.status(400).json({ error: 'Invalid signature' });
+  }
+
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await x402Service.handleSuccessfulPayment(event.data.object);
+        break;
+      case 'payment_intent.succeeded':
+        // optional handling
+        break;
+      default:
+        logger.info(`Unhandled X402 event type: ${event.type}`);
+    }
+
+    res.json({ received: true });
+  } catch (error: any) {
+    logger.error('X402 webhook handler error:', error);
+    res.status(500).json({ error: 'Webhook handler failed' });
+  }
+});
+
+// Stripe webhook endpoint (legacy)
 router.post('/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -217,35 +315,30 @@ router.post('/stripe/webhook', express.raw({ type: 'application/json' }), async 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig!, webhookSecret);
   } catch (err: any) {
-    logger.error('Webhook signature verification failed:', err.message);
+    logger.error('Stripe webhook signature verification failed:', err.message);
     return res.status(400).json({ error: 'Invalid signature' });
   }
 
   try {
     switch (event.type) {
       case 'checkout.session.completed':
-        const session = event.data.object;
-        logger.info(`Payment successful for session: ${session.id}`);
-        await stripeService.handleSuccessfulPayment(session);
+        await stripeService.handleSuccessfulPayment(event.data.object);
         break;
-
       case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
-        logger.info(`Payment intent succeeded: ${paymentIntent.id}`);
+        // optional handling
         break;
-
       default:
-        logger.info(`Unhandled event type: ${event.type}`);
+        logger.info(`Unhandled Stripe event type: ${event.type}`);
     }
 
     res.json({ received: true });
   } catch (error: any) {
-    logger.error('Webhook handler error:', error);
+    logger.error('Stripe webhook handler error:', error);
     res.status(500).json({ error: 'Webhook handler failed' });
   }
 });
 
-// Create payment intent for embedded checkout
+// Create payment intent for embedded checkout (Stripe legacy)
 router.post('/stripe/create-payment-intent', [
   body('amount').isFloat({ min: 1 }).withMessage('Amount must be at least $1'),
   body('currency').isIn(['NZD', 'USD', 'AUD']).withMessage('Currency must be NZD, USD, or AUD'),
@@ -295,10 +388,11 @@ router.post('/stripe/create-payment-intent', [
   }
 });
 
-router.get('/stripe-checkout/session/:sessionId', async (req, res) => {
+// X402 session retrieval (placeholder)
+router.get('/x402-checkout/session/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
-
+    // TODO: integrate with X402 SDK to fetch session status
     res.json({
       success: true,
       sessionId,
@@ -318,5 +412,6 @@ router.get('/stripe-checkout/session/:sessionId', async (req, res) => {
 router.use('/companies', streamlinedDonationRoutes);
 router.use('/charities', streamlinedDonationRoutes);
 router.use('/receipts', streamlinedDonationRoutes);
+router.use('/wallet', require('../routes/wallet').default);
 
 export default router;

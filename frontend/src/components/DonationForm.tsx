@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useX402 } from '../hooks/x402Hook';
 import { useAuth } from '../contexts/AuthContext'; // Assuming context exists
-import EmbeddedStripeCheckout from './EmbeddedStripeCheckout';
 
 const DonationForm: React.FC = () => {
     const [amount, setAmount] = useState<number>(100);
-    const [paymentMethod, setPaymentMethod] = useState<'x402' | 'stripe'>('x402');
     const { createPayment, loading: x402Loading, error: x402Error, payment: x402Payment } = useX402();
     const { user } = useAuth();
     const [step, setStep] = useState<'select' | 'process' | 'success'>('select');
@@ -68,8 +66,8 @@ const DonationForm: React.FC = () => {
                             key={val}
                             onClick={() => setAmount(val)}
                             className={`py-2 px-4 rounded-lg border-2 font-medium transition-all ${amount === val
-                                    ? 'border-arctic-500 bg-arctic-50 text-arctic-700'
-                                    : 'border-gray-200 hover:border-arctic-200 text-gray-600'
+                                ? 'border-arctic-500 bg-arctic-50 text-arctic-700'
+                                : 'border-gray-200 hover:border-arctic-200 text-gray-600'
                                 }`}
                         >
                             ${val}
@@ -88,75 +86,27 @@ const DonationForm: React.FC = () => {
                 </div>
             </div>
 
-            {/* Payment Method */}
-            <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-700 mb-3">Payment Method</label>
-                <div className="grid grid-cols-2 gap-4">
-                    <button
-                        onClick={() => setPaymentMethod('x402')}
-                        className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === 'x402'
-                                ? 'border-arctic-500 bg-arctic-50'
-                                : 'border-gray-200 hover:border-arctic-200'
-                            }`}
-                    >
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
-                            x402
-                        </div>
-                        <span className="font-semibold text-gray-900">Crypto / x402</span>
-                        <span className="text-xs text-green-600 font-medium">Zero Fees</span>
-                    </button>
-
-                    <button
-                        onClick={() => setPaymentMethod('stripe')}
-                        className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${paymentMethod === 'stripe'
-                                ? 'border-arctic-500 bg-arctic-50'
-                                : 'border-gray-200 hover:border-arctic-200'
-                            }`}
-                    >
-                        <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
-                            S
-                        </div>
-                        <span className="font-semibold text-gray-900">Card / Stripe</span>
-                        <span className="text-xs text-gray-500">Standard Fees</span>
-                    </button>
-                </div>
-            </div>
-
             {/* Action */}
-            {paymentMethod === 'x402' ? (
-                <div className="space-y-4">
-                    <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-800">
-                        <p className="font-semibold mb-1">⚡ Powered by x402</p>
-                        <p>Instant tax receipt • Automated compliance • 100% to conservation</p>
-                    </div>
-
-                    {x402Error && (
-                        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-                            {x402Error}
-                        </div>
-                    )}
-
-                    <button
-                        onClick={handleX402Donate}
-                        disabled={x402Loading}
-                        className="w-full bg-arctic-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-arctic-700 transition-all shadow-lg shadow-arctic-200 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {x402Loading ? 'Processing...' : `Donate $${amount} via x402`}
-                    </button>
+            <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-800">
+                    <p className="font-semibold mb-1">⚡ Powered by x402</p>
+                    <p>Instant tax receipt • Automated compliance • 100% to conservation</p>
                 </div>
-            ) : (
-                <EmbeddedStripeCheckout
-                    amount={amount}
-                    currency="USD"
-                    charityName="Isbjorn Foundation"
-                    onSuccess={(intent) => {
-                        console.log('Stripe success', intent);
-                        setStep('success');
-                    }}
-                    onError={(err) => console.error(err)}
-                    onCancel={() => { }}
-                />
-            )}
+
+                {x402Error && (
+                    <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                        {x402Error}
+                    </div>
+                )}
+
+                <button
+                    onClick={handleX402Donate}
+                    disabled={x402Loading}
+                    className="w-full bg-arctic-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-arctic-700 transition-all shadow-lg shadow-arctic-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    {x402Loading ? 'Processing...' : `Donate $${amount} via x402`}
+                </button>
+            </div>
         </div>
     );
 };

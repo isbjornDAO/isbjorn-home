@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import CompanySearch from '@/components/CompanySearch';
+import { WalletConnect } from '@/components/WalletConnect';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BuildingOfficeIcon,
@@ -212,8 +213,14 @@ const RegisterPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Card */}
               <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-8">
+                {/* Wallet Connection */}
+                <div className="mb-8 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                  <h3 className="text-sm font-semibold text-orange-800 mb-2 text-center">Crypto-Friendly? Connect Wallet</h3>
+                  <p className="text-xs text-orange-600 text-center mb-4">Connect your Core Wallet to enable instant crypto payments.</p>
+                  <WalletConnect />
+                </div>
+
                 {/* Selected Company Card */}
                 <div className="bg-gradient-to-r from-arctic-50 to-ice-50 rounded-xl p-4 mb-6 border border-arctic-100">
                   <div className="flex items-center justify-between">
