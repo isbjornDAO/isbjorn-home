@@ -3,7 +3,10 @@ import { Donation, DonationStatus } from '../models/Donation.model';
 import { User } from '../models/User.model';
 import { logger } from '../utils/logger';
 
+console.log('X402 Service imported x402:', JSON.stringify(x402, null, 2));
+
 interface CreateCheckoutSessionParams {
+    userId: string;
     amount: number;
     currency: string;
     charityId: string;
@@ -19,6 +22,7 @@ export class X402Service {
         try {
             // Create a pending donation record
             const donation = await Donation.create({
+                userId: params.userId,
                 amount: params.amount,
                 currency: params.currency,
                 charityId: params.charityId,

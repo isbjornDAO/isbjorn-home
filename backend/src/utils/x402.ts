@@ -2,20 +2,13 @@
 // Note: The x402-sdk package structure is different than initially assumed
 // This is a placeholder implementation until proper X402 API documentation is available
 
-interface X402Config {
-    apiKey: string;
-}
+console.log('Initializing X402 mock client (plain object)...');
 
-class X402Client {
-    private apiKey: string;
-
-    constructor(config: X402Config) {
-        this.apiKey = config.apiKey;
-    }
-
-    checkout = {
+const x402 = {
+    checkout: {
         sessions: {
             create: async (params: any) => {
+                console.log('x402.checkout.sessions.create called with:', params);
                 // TODO: Implement actual X402 checkout session creation
                 // This is a placeholder that returns a mock session
                 return {
@@ -27,9 +20,8 @@ class X402Client {
                 };
             }
         }
-    };
-
-    wallets = {
+    },
+    wallets: {
         create: async (params: any) => {
             // TODO: Implement actual X402 wallet creation
             return {
@@ -57,9 +49,8 @@ class X402Client {
                 currency: 'AVAX'
             };
         }
-    };
-
-    verifyWebhook(payload: any, secret: string) {
+    },
+    verifyWebhook: (payload: any, secret: string) => {
         // TODO: Implement actual X402 webhook signature verification
         // For now, just parse and return the payload
         try {
@@ -69,10 +60,8 @@ class X402Client {
             throw new Error('Invalid webhook payload');
         }
     }
-}
+};
 
-const x402 = new X402Client({
-    apiKey: process.env.X402_API_KEY || '',
-});
+console.log('X402 Client initialized:', JSON.stringify(x402, null, 2));
 
 export default x402;

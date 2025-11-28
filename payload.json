@@ -1,0 +1,7 @@
+{
+    "amount": 25,
+    "currency": "NZD",
+    "charityId": "test-charity-id",
+    "charityName": "Test Charity",
+    "companyEmail": "test@example.com"
+}

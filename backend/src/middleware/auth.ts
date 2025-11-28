@@ -27,7 +27,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    
+
     // For demo tokens, create a mock user object
     if (decoded.id.startsWith('demo-user')) {
       req.user = {
@@ -41,15 +41,19 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     }
 
     // For real tokens, check database
+    console.log('Verifying token for user ID:', decoded.id);
     const user = await User.findByPk(decoded.id);
+    console.log('User found:', user ? user.id : 'null');
 
     if (!user || !user.isActive) {
+      console.log('User not found or inactive');
       return res.status(401).json({ error: 'Invalid token' });
     }
 
     req.user = user;
     next();
   } catch (error) {
+    console.error('Auth error:', error);
     return res.status(403).json({ error: 'Invalid or expired token' });
   }
 };

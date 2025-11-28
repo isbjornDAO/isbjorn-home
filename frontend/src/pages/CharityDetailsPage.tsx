@@ -43,13 +43,21 @@ const CharityDetailsPage: React.FC = () => {
   }, [user, receiptEmail]);
 
   const handleDonate = async () => {
+    console.log('handleDonate called');
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('API_URL:', API_URL);
+
     // If not authenticated, show auth prompt
     if (!isAuthenticated) {
+      console.log('User not authenticated, showing prompt');
       setShowAuthPrompt(true);
       return;
     }
 
-    if (!amount || !receiptEmail || !charity) return;
+    if (!amount || !receiptEmail || !charity) {
+      console.log('Missing required fields:', { amount, receiptEmail, charity });
+      return;
+    }
 
     const donationAmount = parseFloat(amount);
     if (donationAmount < 1) {
@@ -59,6 +67,7 @@ const CharityDetailsPage: React.FC = () => {
 
     setLoading(true);
     try {
+      console.log('Sending request to:', `${API_URL}/x402-checkout/create-session`);
       const response = await fetch(`${API_URL}/x402-checkout/create-session`, {
         method: 'POST',
         headers: {
@@ -75,10 +84,15 @@ const CharityDetailsPage: React.FC = () => {
         })
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
+
       if (data.success && data.sessionUrl) {
+        console.log('Redirecting to:', data.sessionUrl);
         window.location.href = data.sessionUrl;
       } else {
+        console.error('Session creation failed:', data);
         alert('Failed to create checkout session. Please try again.');
       }
     } catch (error) {

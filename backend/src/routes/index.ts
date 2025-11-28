@@ -21,6 +21,7 @@ import NZCharitiesService from '../services/nzCharitiesService';
 import AvalancheL1Service from '../services/AvalancheL1Service';
 import emailReceiptService from '../services/EmailReceiptService';
 import { irdComplianceService } from '../services/irdComplianceService';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -157,7 +158,7 @@ router.post('/x402-checkout/create-session', [
   body('companyEmail').isEmail().withMessage('Valid company email is required'),
   body('message').optional().isString(),
   body('isRecurring').optional().isBoolean(),
-], async (req, res) => {
+], authenticateToken, async (req: any, res: any) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -178,7 +179,12 @@ router.post('/x402-checkout/create-session', [
       isRecurring = false
     } = req.body;
 
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: 'User not authenticated' });
+    }
+
     const session = await x402Service.createCheckoutSession({
+      userId: req.user.id,
       amount,
       currency,
       charityId,
