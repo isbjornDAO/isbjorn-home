@@ -38,6 +38,12 @@ class AuthService {
             if (existingUser) {
                 throw new AppError_1.AppError('Email already registered', 400);
             }
+            const existingCompany = await User_model_1.User.findOne({
+                where: { companyName: data.companyName },
+            });
+            if (existingCompany) {
+                throw new AppError_1.AppError('Company name already registered', 400);
+            }
             const user = await User_model_1.User.create({
                 ...data,
                 email: data.email.toLowerCase(),

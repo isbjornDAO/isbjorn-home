@@ -19,12 +19,12 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5000',
         changeOrigin: true
       },
       // Safety net: catch any calls missing the /api prefix (e.g. /auth/...)
       '/auth': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth/, '/api/auth')
       }
@@ -37,13 +37,46 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    chunkSizeWarningLimit: 1000, // Wallet libraries are large but lazy-loaded
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          stripe: ['@stripe/stripe-js', '@stripe/react-stripe-js'],
-          blockchain: ['ethers'],
-          charts: ['recharts']
+        manualChunks: (id) => {
+          // Core React libraries
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            return 'vendor';
+          }
+          // Stripe payment libraries
+          if (id.includes('@stripe')) {
+            return 'stripe';
+          }
+          // Blockchain/Ethereum libraries
+          if (id.includes('ethers')) {
+            return 'blockchain';
+          }
+          // WalletConnect and related wallet SDKs
+          if (id.includes('@walletconnect') || id.includes('@reown') || id.includes('walletconnect')) {
+            return 'walletconnect';
+          }
+          // MetaMask SDK
+          if (id.includes('metamask') || id.includes('@metamask')) {
+            return 'metamask-sdk';
+          }
+          // Coinbase wallet
+          if (id.includes('@coinbase') || id.includes('@base-org')) {
+            return 'coinbase-wallet';
+          }
+          // Charts library
+          if (id.includes('recharts')) {
+            return 'charts';
+          }
+          // Framer Motion animations
+          if (id.includes('framer-motion')) {
+            return 'animations';
+          }
+          // Node modules (split large vendor chunks)
+          if (id.includes('node_modules')) {
+            return 'vendor-libs';
+          }
         }
       }
     }

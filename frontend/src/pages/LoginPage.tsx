@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { EnvelopeIcon, LockClosedIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 const LoginPage: React.FC = () => {
   const { login, isLoading } = useAuth();
@@ -25,52 +28,118 @@ const LoginPage: React.FC = () => {
     });
   };
 
+  const handleForgotPassword = () => {
+    toast('Please contact support at icemira@pm.me to reset your password.', {
+      icon: '📧',
+      duration: 5000,
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-ice-50 flex items-center justify-center">
-      <div className="card p-8 max-w-md w-full">
-        <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="label">Email</label>
-            <input 
-              type="email" 
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="input-field" 
-              placeholder="your@company.com"
-              required
-            />
-          </div>
-          <div>
-            <label className="label">Password</label>
-            <input 
-              type="password" 
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="input-field" 
-              placeholder="••••••••"
-              required
-            />
-          </div>
-          <button 
-            type="submit" 
-            disabled={isLoading}
-            className="btn-primary w-full disabled:opacity-50"
+    <div className="min-h-screen bg-gradient-to-br from-ice-50 via-white to-arctic-50 flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
+      >
+        {/* Header */}
+        <div className="text-center mb-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full mb-2 shadow-lg"
           >
-            {isLoading ? 'Signing In...' : 'Sign In'}
-          </button>
-        </form>
-        <div className="mt-6 text-center">
+            <span className="text-2xl">🐻‍❄️</span>
+          </motion.div>
+          <h1 className="text-xl font-bold text-gray-800 font-display mb-1">Welcome Back</h1>
+          <p className="text-sm text-ice-600">Sign in to your account</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-5">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <EnvelopeIcon className="w-4 h-4 inline mr-1" />
+                Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl border border-ice-200 focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm"
+                placeholder="you@company.co.nz"
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  <LockClosedIcon className="w-4 h-4 inline mr-1" />
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-sm text-arctic-600 hover:text-arctic-700 font-medium"
+                >
+                  Forgot password?
+                </button>
+              </div>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl border border-ice-200 focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full group relative overflow-hidden bg-gradient-to-r from-arctic-500 via-arctic-600 to-arctic-500 bg-[length:200%_100%] animate-gradient text-white py-2.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+              <span className="relative flex items-center justify-center">
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing In...
+                  </>
+                ) : (
+                  <>
+                    Sign In
+                    <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </span>
+            </button>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-3 text-center">
           <p className="text-sm text-ice-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-arctic-600 hover:text-arctic-700 font-medium">
-              Sign up
+            New to Isbjorn?{' '}
+            <Link to="/register" className="text-arctic-600 hover:text-arctic-700 font-semibold">
+              Create an account
             </Link>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

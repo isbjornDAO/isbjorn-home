@@ -1,75 +1,115 @@
 import React from 'react';
-import { useWallet } from '../contexts/WalletContext';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export const WalletConnect: React.FC = () => {
-  const { account, connectWallet, disconnectWallet, isConnecting, error } = useWallet();
-
-  const formatAddress = (addr: string) => {
-    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
-  };
-
-  const handleConnect = async () => {
-    await connectWallet();
-  };
-
-  if (account) {
-    return (
-      <div className="flex items-center gap-4">
-        <div className="flex flex-col items-end">
-          <span className="text-sm font-medium text-gray-200">Connected</span>
-          <span className="text-xs text-gray-400 font-mono">{formatAddress(account)}</span>
-        </div>
-        <button
-          onClick={disconnectWallet}
-          className="px-4 py-2 text-sm font-medium text-red-400 bg-red-400/10 rounded-lg hover:bg-red-400/20 transition-colors"
-        >
-          Disconnect
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col items-center">
-      <button
-        onClick={handleConnect}
-        disabled={isConnecting}
-        className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {isConnecting ? (
-          <>
-            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Connecting...
-          </>
-        ) : (
-          <>
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 7H5C3.89543 7 3 7.89543 3 9V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V9C21 7.89543 20.1046 7 19 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M16 7V5C16 3.89543 15.1046 3 14 3H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M16 14H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Connect Core Wallet
-          </>
-        )}
-      </button>
-      {error && (
-        <p className="mt-2 text-xs text-red-400 max-w-xs text-center">
-          {error}
-          {error.includes('No crypto wallet found') && (
-            <a
-              href="https://core.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block mt-1 text-orange-400 hover:text-orange-300 underline"
-            >
-              Install Core Wallet
-            </a>
-          )}
-        </p>
-      )}
-    </div>
+    <ConnectButton.Custom>
+      {({
+        account,
+        chain,
+        openAccountModal,
+        openChainModal,
+        openConnectModal,
+        authenticationStatus,
+        mounted,
+      }) => {
+        const ready = mounted && authenticationStatus !== 'loading';
+        const connected =
+          ready &&
+          account &&
+          chain &&
+          (!authenticationStatus ||
+            authenticationStatus === 'authenticated');
+
+        return (
+          <div
+            {...(!ready && {
+              'aria-hidden': true,
+              'style': {
+                opacity: 0,
+                pointerEvents: 'none',
+                userSelect: 'none',
+              },
+            })}
+            className="flex justify-center"
+          >
+            {(() => {
+              if (!connected) {
+                return (
+                  <button
+                    onClick={openConnectModal}
+                    type="button"
+                    className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-arctic-600 rounded-lg hover:bg-arctic-700 transition-colors w-full justify-center"
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19 7H5C3.89543 7 3 7.89543 3 9V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V9C21 7.89543 20.1046 7 19 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M16 7V5C16 3.89543 15.1046 3 14 3H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M16 14H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    Connect Wallet
+                  </button>
+                );
+              }
+
+              if (chain.unsupported) {
+                return (
+                  <button
+                    onClick={openChainModal}
+                    type="button"
+                    className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                  >
+                    Wrong network
+                  </button>
+                );
+              }
+
+              return (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={openChainModal}
+                    type="button"
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-arctic-700 bg-arctic-50 rounded-lg hover:bg-arctic-100 transition-colors"
+                  >
+                    {chain.hasIcon && (
+                      <div
+                        style={{
+                          background: chain.iconBackground,
+                          width: 20,
+                          height: 20,
+                          borderRadius: 999,
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {chain.iconUrl && (
+                          <img
+                            alt={chain.name ?? 'Chain icon'}
+                            src={chain.iconUrl}
+                            style={{ width: 20, height: 20 }}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {chain.name}
+                  </button>
+
+                  <button
+                    onClick={openAccountModal}
+                    type="button"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-arctic-600 rounded-lg hover:bg-arctic-700 transition-colors"
+                  >
+                    {account.displayName}
+                    <span className="text-xs opacity-75">
+                      {account.displayBalance
+                        ? ` (${account.displayBalance})`
+                        : ''}
+                    </span>
+                  </button>
+                </div>
+              );
+            })()}
+          </div>
+        );
+      }}
+    </ConnectButton.Custom>
   );
 };
