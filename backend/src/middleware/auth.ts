@@ -1,3 +1,10 @@
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { User, UserRole } from '../models/User.model';
+import { logger } from '../utils/logger';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
+
 declare global {
   namespace Express {
     interface Request {
