@@ -32,7 +32,7 @@ export class DonationController {
             const payment = await x402Service.createPayment({
                 amount,
                 currency: currency || 'USD',
-                recipient: process.env.ISBJORN_WALLET || '0xIsbjornWallet'
+                recipient: process.env.ISBJORN_WALLET || '0x0C39f0970CF3118Fd004A3f069E59dabc6714980'
             });
 
             // 3. Update donation with payment ID

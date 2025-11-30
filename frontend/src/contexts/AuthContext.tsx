@@ -76,6 +76,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuthStatus();
   }, [checkAuthStatus]);
 
+  const getErrorMessage = (error: any) => {
+    if (error.response?.data?.message) return error.response.data.message;
+    if (error.response?.data?.error) return error.response.data.error;
+    return error.message || 'An error occurred';
+  };
+
   const login = async (email: string, password: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
@@ -90,12 +96,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.success(`Welcome back, ${user.companyName}!`);
       navigate('/dashboard');
     } catch (error: any) {
+      const message = getErrorMessage(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error.message || 'Login failed',
+        error: message,
       }));
-      toast.error(error.message || 'Login failed');
+      // apiService already shows toast for non-422 errors
+      if (error.response?.status === 422) {
+        toast.error(message);
+      }
       throw error;
     }
   };
@@ -114,12 +124,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast.success('Registration successful! Welcome to Isbjorn.');
       navigate('/dashboard');
     } catch (error: any) {
+      const message = getErrorMessage(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error.message || 'Registration failed',
+        error: message,
       }));
-      toast.error(error.message || 'Registration failed');
+      // apiService already shows toast for non-422 errors
+      if (error.response?.status === 422) {
+        toast.error(message);
+      }
       throw error;
     }
   };

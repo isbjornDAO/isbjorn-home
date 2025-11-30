@@ -68,6 +68,7 @@ const CharityDetailsPage: React.FC = () => {
     setLoading(true);
     try {
       console.log('Sending request to:', `${API_URL}/x402-checkout/create-session`);
+      console.log('Auth Token:', localStorage.getItem('authToken'));
       const response = await fetch(`${API_URL}/x402-checkout/create-session`, {
         method: 'POST',
         headers: {
@@ -93,11 +94,13 @@ const CharityDetailsPage: React.FC = () => {
         window.location.href = data.sessionUrl;
       } else {
         console.error('Session creation failed:', data);
-        alert('Failed to create checkout session. Please try again.');
+        const errorMessage = data.message || data.error || 'Failed to create checkout session. Please try again.';
+        alert(errorMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating checkout session:', error);
-      alert('An error occurred. Please try again.');
+      const message = error.message || 'An error occurred. Please try again.';
+      alert(message);
     } finally {
       setLoading(false);
     }

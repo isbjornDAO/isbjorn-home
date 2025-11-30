@@ -66,6 +66,14 @@ export class AuthService {
         throw new AppError('Email already registered', 400);
       }
 
+      const existingCompany = await User.findOne({
+        where: { companyName: data.companyName },
+      });
+
+      if (existingCompany) {
+        throw new AppError('Company name already registered', 400);
+      }
+
       const user = await User.create({
         ...data,
         email: data.email.toLowerCase(),
@@ -132,14 +140,14 @@ export class AuthService {
   async refreshToken(refreshTokenStr: string): Promise<{ token: string }> {
     try {
       const decoded = jwt.verify(refreshTokenStr, JWT_REFRESH_SECRET) as any;
-      
+
       const user = await User.findByPk(decoded.id);
       if (!user || !user.isActive) {
         throw new AppError('Invalid refresh token', 401);
       }
 
       const { token } = this.generateTokens(user);
-      
+
       return { token };
     } catch (error: any) {
       logger.error('Token refresh error:', error);
@@ -181,9 +189,9 @@ export class AuthService {
         }, {});
 
       await user.update(filteredUpdates);
-      
+
       logger.info(`User profile updated: ${user.email}`);
-      
+
       return user;
     } catch (error: any) {
       logger.error('Profile update error:', error);
@@ -208,7 +216,7 @@ export class AuthService {
       }
 
       await user.update({ password: newPassword });
-      
+
       logger.info(`Password changed for user: ${user.email}`);
     } catch (error: any) {
       logger.error('Password change error:', error);

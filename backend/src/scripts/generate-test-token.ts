@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-productio
 
 const token = jwt.sign(
     {
-        id: 'demo-user-123',
+        id: 'd139f010-4408-41ef-b1a1-60c21587dad7',
         email: 'demo@example.com',
         role: 'user'
     },

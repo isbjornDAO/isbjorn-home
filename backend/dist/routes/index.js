@@ -25,6 +25,7 @@ const nzCharitiesService_1 = __importDefault(require("../services/nzCharitiesSer
 const AvalancheL1Service_1 = __importDefault(require("../services/AvalancheL1Service"));
 const EmailReceiptService_1 = __importDefault(require("../services/EmailReceiptService"));
 const irdComplianceService_1 = require("../services/irdComplianceService");
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
 // Basic API health info (lightweight)
 router.get('/health', (req, res) => {
@@ -148,7 +149,7 @@ router.post('/x402-checkout/create-session', [
     (0, express_validator_1.body)('companyEmail').isEmail().withMessage('Valid company email is required'),
     (0, express_validator_1.body)('message').optional().isString(),
     (0, express_validator_1.body)('isRecurring').optional().isBoolean(),
-], async (req, res) => {
+], auth_1.authenticateToken, async (req, res) => {
     try {
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
@@ -158,7 +159,11 @@ router.post('/x402-checkout/create-session', [
             });
         }
         const { amount, currency, charityId, charityName, companyName, companyEmail, message, isRecurring = false } = req.body;
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
         const session = await x402Service_1.x402Service.createCheckoutSession({
+            userId: req.user.id,
             amount,
             currency,
             charityId,
