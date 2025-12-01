@@ -23,8 +23,8 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <WagmiProvider config={config}>
         <RainbowKitProvider>
           <WalletProvider>
             <BrowserRouter
@@ -61,7 +61,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             </BrowserRouter>
           </WalletProvider>
         </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+      </WagmiProvider>
+    </QueryClientProvider>
   </React.StrictMode>
 );
