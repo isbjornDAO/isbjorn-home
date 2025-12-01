@@ -1,4 +1,7 @@
 import React from 'react';
+
+console.log('🚀 App starting... React version:', React.version);
+
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';

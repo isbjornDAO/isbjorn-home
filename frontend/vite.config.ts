@@ -40,44 +40,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000, // Wallet libraries are large but lazy-loaded
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Core React libraries
-          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-            return 'vendor';
-          }
-          // Stripe payment libraries
-          if (id.includes('@stripe')) {
-            return 'stripe';
-          }
-          // Blockchain/Ethereum libraries
-          if (id.includes('ethers')) {
-            return 'blockchain';
-          }
-          // WalletConnect and related wallet SDKs
-          if (id.includes('@walletconnect') || id.includes('@reown') || id.includes('walletconnect')) {
-            return 'walletconnect';
-          }
-          // MetaMask SDK
-          if (id.includes('metamask') || id.includes('@metamask')) {
-            return 'metamask-sdk';
-          }
-          // Coinbase wallet
-          if (id.includes('@coinbase') || id.includes('@base-org')) {
-            return 'coinbase-wallet';
-          }
-          // Charts library
-          if (id.includes('recharts')) {
-            return 'charts';
-          }
-          // Framer Motion animations
-          if (id.includes('framer-motion')) {
-            return 'animations';
-          }
-          // Node modules (split large vendor chunks)
-          if (id.includes('node_modules')) {
-            return 'vendor-libs';
-          }
-        }
+        // Let Vite handle chunk splitting automatically
+        manualChunks: undefined
       }
     }
   }
