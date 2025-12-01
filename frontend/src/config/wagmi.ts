@@ -1,7 +1,6 @@
 import { createConfig, http } from 'wagmi';
 import { avalanche, avalancheFuji } from 'wagmi/chains';
 import {
-  metaMaskWallet,
   rainbowWallet,
   walletConnectWallet,
   coreWallet,
@@ -15,7 +14,7 @@ const wallets = [
   },
   {
     groupName: 'Other Wallets',
-    wallets: [metaMaskWallet, rainbowWallet, walletConnectWallet],
+    wallets: [rainbowWallet, walletConnectWallet],
   },
 ];
 
