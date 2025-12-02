@@ -1,9 +1,10 @@
+import 'dotenv/config';
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
+
 import { createServer } from 'http';
 import { sequelize } from './config/database';
 import { logger } from './utils/logger';
@@ -18,7 +19,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
 
-dotenv.config();
+
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -116,7 +117,7 @@ app.use('/api', routes);
 if (NODE_ENV === 'production') {
   // Serve static files from frontend build
   app.use(express.static(path.join(__dirname, '../../frontend/dist')));
-  
+
   // Handle all other routes by serving the frontend index.html (SPA routing)
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
@@ -133,7 +134,7 @@ async function startServer() {
     try {
       await sequelize.authenticate();
       console.log('✅ Database connection established successfully.');
-      
+
       // Sync database models (create tables)
       await sequelize.sync({ alter: true });
       console.log('✅ Database models synchronized.');
