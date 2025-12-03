@@ -10,7 +10,8 @@ import {
   LockClosedIcon,
   CheckCircleIcon,
   ArrowRightIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  UserIcon,
 } from '@heroicons/react/24/outline';
 
 interface SelectedCompany {
@@ -22,7 +23,9 @@ const RegisterPage: React.FC = () => {
   const { register, isLoading } = useAuth();
   const [step, setStep] = useState<'search' | 'details'>('search');
   const [selectedCompany, setSelectedCompany] = useState<SelectedCompany | null>(null);
+  const [isIndividual, setIsIndividual] = useState(false);
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -31,11 +34,22 @@ const RegisterPage: React.FC = () => {
 
   const handleCompanySelect = (company: { name: string; number: string }) => {
     setSelectedCompany(company);
+    setIsIndividual(false);
+    setStep('details');
+  };
+
+  const handleIndividualClick = () => {
+    setSelectedCompany(null);
+    setIsIndividual(true);
     setStep('details');
   };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
+
+    if (isIndividual && !formData.name) {
+      newErrors.name = 'Name is required';
+    }
 
     if (!formData.email) {
       newErrors.email = 'Email is required';
@@ -60,12 +74,12 @@ const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm() || !selectedCompany) return;
+    if (!validateForm()) return;
 
     try {
       await register({
-        companyName: selectedCompany.name,
-        nzbn: selectedCompany.number,
+        companyName: isIndividual ? formData.name : (selectedCompany?.name || ''),
+        nzbn: selectedCompany?.number,
         email: formData.email,
         password: formData.password,
       });
@@ -85,6 +99,7 @@ const RegisterPage: React.FC = () => {
   const handleBack = () => {
     setStep('search');
     setSelectedCompany(null);
+    setIsIndividual(false);
   };
 
   return (
@@ -112,19 +127,16 @@ const RegisterPage: React.FC = () => {
                 </div>
               </motion.div>
 
-              {/* One-click wallet sign in */}
+              {/* One-click wallet sign in - THIN WHITE CARD */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="w-full max-w-2xl px-4 mb-8"
+                className="w-full max-w-3xl px-4 mb-8"
               >
-                <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 text-white text-center">
-                  <h3 className="text-2xl font-bold mb-3">One-click wallet sign in</h3>
-                  <p className="text-blue-100 mb-4">Connect your wallet for instant access</p>
-                  <div className="flex justify-center">
-                    <WalletConnect />
-                  </div>
+                <div className="bg-white rounded-xl shadow-md border border-ice-200 px-6 py-3 flex items-center justify-between">
+                  <span className="text-ice-700 font-medium">One-click wallet sign in</span>
+                  <WalletConnect />
                 </div>
               </motion.div>
 
@@ -136,28 +148,28 @@ const RegisterPage: React.FC = () => {
                 className="text-center mb-10 max-w-2xl"
               >
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-800 font-display mb-4">
-                  Find Your Company
+                  Get Started
                 </h1>
                 <p className="text-xl sm:text-2xl text-ice-600">
-                  Search the NZ Companies Register to get started
+                  Register as a company or donate as an individual
                 </p>
               </motion.div>
 
-              {/* Large Search Box */}
+              {/* Company Search Box */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="w-full max-w-3xl px-4"
+                className="w-full max-w-3xl px-4 mb-4"
               >
                 <div className="bg-white rounded-2xl shadow-2xl border border-ice-100 p-6 sm:p-10">
                   <div className="flex items-center mb-6">
                     <div className="w-14 h-14 bg-arctic-100 rounded-full flex items-center justify-center mr-4">
-                      <MagnifyingGlassIcon className="w-7 h-7 text-arctic-600" />
+                      <BuildingOfficeIcon className="w-7 h-7 text-arctic-600" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Company Search</h2>
-                      <p className="text-ice-500">Enter your company name or NZBN number</p>
+                      <h2 className="text-2xl font-bold text-gray-800">Register as Company</h2>
+                      <p className="text-ice-500">For NZ businesses wanting tax receipts</p>
                     </div>
                   </div>
 
@@ -174,6 +186,33 @@ const RegisterPage: React.FC = () => {
                 </div>
               </motion.div>
 
+              {/* Individual Option */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="w-full max-w-3xl px-4"
+              >
+                <button
+                  onClick={handleIndividualClick}
+                  className="w-full bg-white rounded-2xl shadow-2xl border border-ice-100 hover:border-arctic-300 p-6 sm:p-10 transition-all group"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-colors">
+                      <UserIcon className="w-7 h-7 text-blue-600" />
+                    </div>
+                    <div className="text-left">
+                      <h2 className="text-2xl font-bold text-gray-800">Donate as Individual</h2>
+                      <p className="text-ice-500">Quick registration for personal donations</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center text-sm text-ice-400">
+                    <UserIcon className="w-4 h-4 mr-2" />
+                    <span>No company verification needed</span>
+                  </div>
+                </button>
+              </motion.div>
+
               {/* Sign in link */}
               <motion.div
                 initial={{ opacity: 0 }}
@@ -188,7 +227,7 @@ const RegisterPage: React.FC = () => {
                   </Link>
                 </p>
                 <p className="text-ice-500 text-base mt-3">
-                  Can't find your company?{' '}
+                  Need help?{' '}
                   <a href="mailto:icemira@pm.me" className="text-arctic-500 hover:text-arctic-600 underline font-medium">
                     Contact us
                   </a>
@@ -198,7 +237,7 @@ const RegisterPage: React.FC = () => {
           </motion.div>
         )}
 
-        {step === 'details' && selectedCompany && (
+        {step === 'details' && (
           <motion.div
             key="details"
             initial={{ opacity: 0, y: 20 }}
@@ -213,7 +252,9 @@ const RegisterPage: React.FC = () => {
                   <span className="text-2xl">🐻‍❄️</span>
                 </div>
                 <h1 className="text-2xl font-bold text-gray-800 font-display">Almost There!</h1>
-                <p className="text-sm text-ice-600 mt-1">Just add your email and password</p>
+                <p className="text-sm text-ice-600 mt-1">
+                  {isIndividual ? 'Create your account' : 'Just add your email and password'}
+                </p>
               </div>
 
               {/* Progress indicator */}
@@ -230,16 +271,24 @@ const RegisterPage: React.FC = () => {
               </div>
 
               <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-5">
-                {/* Selected Company Card */}
+                {/* Selected Company or Individual Card */}
                 <div className="bg-gradient-to-r from-arctic-50 to-ice-50 rounded-xl p-3 mb-4 border border-arctic-100">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-arctic-500 rounded-full flex items-center justify-center mr-3">
-                        <CheckCircleIcon className="w-6 h-6 text-white" />
+                        {isIndividual ? (
+                          <UserIcon className="w-6 h-6 text-white" />
+                        ) : (
+                          <CheckCircleIcon className="w-6 h-6 text-white" />
+                        )}
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">{selectedCompany.name}</p>
-                        <p className="text-sm text-ice-500">NZBN: {selectedCompany.number}</p>
+                        <p className="font-semibold text-gray-800">
+                          {isIndividual ? 'Individual Donor' : selectedCompany?.name}
+                        </p>
+                        {!isIndividual && selectedCompany && (
+                          <p className="text-sm text-ice-500">NZBN: {selectedCompany.number}</p>
+                        )}
                       </div>
                     </div>
                     <button
@@ -252,6 +301,27 @@ const RegisterPage: React.FC = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-3">
+                  {/* Name (for individuals only) */}
+                  {isIndividual && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        <UserIcon className="w-3 h-3 inline mr-1" />
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className={`w-full px-3 py-2 text-sm rounded-xl border ${
+                          errors.name ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                        } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
+                        placeholder="Your full name"
+                      />
+                      {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                    </div>
+                  )}
+
                   {/* Email */}
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -263,13 +333,12 @@ const RegisterPage: React.FC = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 text-sm rounded-xl border ${errors.email ? 'border-red-300 bg-red-50' : 'border-ice-200'
-                        } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
-                      placeholder="you@company.co.nz"
+                      className={`w-full px-3 py-2 text-sm rounded-xl border ${
+                        errors.email ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                      } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
+                      placeholder="you@example.com"
                     />
-                    {errors.email && (
-                      <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                    )}
+                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
 
                   {/* Password */}
@@ -283,13 +352,12 @@ const RegisterPage: React.FC = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 text-sm rounded-xl border ${errors.password ? 'border-red-300 bg-red-50' : 'border-ice-200'
-                        } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
+                      className={`w-full px-3 py-2 text-sm rounded-xl border ${
+                        errors.password ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                      } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
                       placeholder="Min 8 characters"
                     />
-                    {errors.password && (
-                      <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-                    )}
+                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                   </div>
 
                   {/* Confirm Password */}
@@ -303,8 +371,9 @@ const RegisterPage: React.FC = () => {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className={`w-full px-3 py-2 text-sm rounded-xl border ${errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-ice-200'
-                        } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
+                      className={`w-full px-3 py-2 text-sm rounded-xl border ${
+                        errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                      } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
                       placeholder="Re-enter password"
                     />
                     {errors.confirmPassword && (
@@ -323,9 +392,25 @@ const RegisterPage: React.FC = () => {
                     <span className="relative flex items-center justify-center">
                       {isLoading ? (
                         <>
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
                           </svg>
                           Creating Account...
                         </>
@@ -350,8 +435,11 @@ const RegisterPage: React.FC = () => {
                   </Link>
                 </p>
                 <p className="text-ice-500 text-sm mt-2">
-                  Can't find your company?{' '}
-                  <a href="mailto:icemira@pm.me" className="text-arctic-500 hover:text-arctic-600 underline font-medium">
+                  Need help?{' '}
+                  <a
+                    href="mailto:icemira@pm.me"
+                    className="text-arctic-500 hover:text-arctic-600 underline font-medium"
+                  >
                     Contact us
                   </a>
                 </p>
