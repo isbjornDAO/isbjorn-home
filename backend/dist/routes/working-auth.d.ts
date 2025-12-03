@@ -1,3 +1,3 @@
-declare const router: import("express-serve-static-core").Router;
+declare const router: any;
 export { router as workingAuthRoutes };
 //# sourceMappingURL=working-auth.d.ts.map

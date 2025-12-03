@@ -1,6 +1,6 @@
-export declare const rateLimiter: import("express-rate-limit").RateLimitRequestHandler;
+export declare const rateLimiter: any;
 export declare const rateLimitMiddleware: (options: {
     windowMs: number;
     max: number;
-}) => import("express-rate-limit").RateLimitRequestHandler;
+}) => any;
 //# sourceMappingURL=rateLimiter.d.ts.map
