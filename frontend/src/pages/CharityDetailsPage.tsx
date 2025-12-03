@@ -89,6 +89,19 @@ const CharityDetailsPage: React.FC = () => {
       const data = await response.json();
       console.log('Response data:', data);
 
+      // Handle authentication errors
+      if (response.status === 401 || response.status === 403) {
+        const errorCode = data.code || '';
+        if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'TOKEN_INVALID' || errorCode === 'TOKEN_ERROR') {
+          console.error('Token error:', data);
+          // Clear invalid token and redirect to login
+          localStorage.removeItem('authToken');
+          alert('Your session has expired. Please log in again.');
+          window.location.href = '/login';
+          return;
+        }
+      }
+
       if (data.success && data.sessionUrl) {
         console.log('Redirecting to:', data.sessionUrl);
         window.location.href = data.sessionUrl;
