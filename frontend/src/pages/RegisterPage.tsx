@@ -148,11 +148,34 @@ const RegisterPage: React.FC = () => {
                 className="text-center mb-10 max-w-2xl"
               >
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-800 font-display mb-4">
-                  Get Started
+                  Who are you?
                 </h1>
                 <p className="text-xl sm:text-2xl text-ice-600">
                   Register as a company or donate as an individual
                 </p>
+              </motion.div>
+
+              {/* Individual Option - MOVED TO TOP */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="w-full max-w-3xl px-4 mb-4"
+              >
+                <button
+                  onClick={handleIndividualClick}
+                  className="w-full bg-white rounded-2xl shadow-2xl border border-ice-100 hover:border-arctic-300 p-6 sm:p-10 transition-all group"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-colors">
+                      <UserIcon className="w-7 h-7 text-blue-600" />
+                    </div>
+                    <div className="text-left">
+                      <h2 className="text-2xl font-bold text-gray-800">Donate as Individual</h2>
+                      <p className="text-ice-500">Quick registration for personal donations</p>
+                    </div>
+                  </div>
+                </button>
               </motion.div>
 
               {/* Company Search Box */}
@@ -184,33 +207,6 @@ const RegisterPage: React.FC = () => {
                     <span>We verify your company with the official NZ Companies Register</span>
                   </div>
                 </div>
-              </motion.div>
-
-              {/* Individual Option */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
-                className="w-full max-w-3xl px-4"
-              >
-                <button
-                  onClick={handleIndividualClick}
-                  className="w-full bg-white rounded-2xl shadow-2xl border border-ice-100 hover:border-arctic-300 p-6 sm:p-10 transition-all group"
-                >
-                  <div className="flex items-center mb-6">
-                    <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-colors">
-                      <UserIcon className="w-7 h-7 text-blue-600" />
-                    </div>
-                    <div className="text-left">
-                      <h2 className="text-2xl font-bold text-gray-800">Donate as Individual</h2>
-                      <p className="text-ice-500">Quick registration for personal donations</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center text-sm text-ice-400">
-                    <UserIcon className="w-4 h-4 mr-2" />
-                    <span>No company verification needed</span>
-                  </div>
-                </button>
               </motion.div>
 
               {/* Sign in link */}
@@ -306,7 +302,7 @@ const RegisterPage: React.FC = () => {
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
                         <UserIcon className="w-3 h-3 inline mr-1" />
-                        Full Name
+                        Username
                       </label>
                       <input
                         type="text"
@@ -316,7 +312,7 @@ const RegisterPage: React.FC = () => {
                         className={`w-full px-3 py-2 text-sm rounded-xl border ${
                           errors.name ? 'border-red-300 bg-red-50' : 'border-ice-200'
                         } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
-                        placeholder="Your full name"
+                        placeholder="Your username"
                       />
                       {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                     </div>
@@ -379,6 +375,12 @@ const RegisterPage: React.FC = () => {
                     {errors.confirmPassword && (
                       <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
                     )}
+                  </div>
+
+                  {/* Wallet Sign In - Just above Create Account button */}
+                  <div className="bg-white rounded-xl shadow-md border border-ice-200 px-4 py-2 flex items-center justify-between">
+                    <span className="text-ice-700 text-sm font-medium">One-click wallet sign in</span>
+                    <WalletConnect />
                   </div>
 
                   {/* Submit Button */}
