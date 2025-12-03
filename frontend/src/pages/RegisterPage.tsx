@@ -215,9 +215,8 @@ const RegisterPage: React.FC = () => {
 
               <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-5">
                 {/* Wallet Connection */}
-                <div className="mb-4 p-3 bg-orange-50 rounded-xl border border-orange-100">
-                  <h3 className="text-xs font-semibold text-orange-800 mb-1 text-center">Crypto-Friendly? Connect Wallet</h3>
-                  <p className="text-xs text-orange-600 text-center mb-2">Connect your Core Wallet to enable instant crypto payments.</p>
+                <div className="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                  <p className="text-xs text-blue-700 text-center mb-2 font-medium">Connect your Core Wallet to enable instant crypto payments.</p>
                   <WalletConnect />
                 </div>
 
