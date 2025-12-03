@@ -188,20 +188,20 @@ const RegisterPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="min-h-screen flex items-center justify-center py-12 px-4"
+            className="min-h-screen flex items-center justify-center py-6 px-4"
           >
             <div className="w-full max-w-md">
               {/* Header */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full mb-4 shadow-lg">
-                  <span className="text-3xl">🐻‍❄️</span>
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full mb-3 shadow-lg">
+                  <span className="text-2xl">🐻‍❄️</span>
                 </div>
-                <h1 className="text-3xl font-bold text-gray-800 font-display">Almost There!</h1>
-                <p className="text-ice-600 mt-2">Just add your email and password</p>
+                <h1 className="text-2xl font-bold text-gray-800 font-display">Almost There!</h1>
+                <p className="text-sm text-ice-600 mt-1">Just add your email and password</p>
               </div>
 
               {/* Progress indicator */}
-              <div className="flex items-center justify-center mb-8">
+              <div className="flex items-center justify-center mb-4">
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-arctic-500 text-white">
                     <CheckCircleIcon className="w-6 h-6" />
@@ -213,16 +213,15 @@ const RegisterPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-8">
+              <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-5">
                 {/* Wallet Connection */}
-                <div className="mb-8 p-4 bg-orange-50 rounded-xl border border-orange-100">
-                  <h3 className="text-sm font-semibold text-orange-800 mb-2 text-center">Crypto-Friendly? Connect Wallet</h3>
-                  <p className="text-xs text-orange-600 text-center mb-4">Connect your Core Wallet to enable instant crypto payments.</p>
+                <div className="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                  <p className="text-xs text-blue-700 text-center mb-2 font-medium">Connect your Core Wallet to enable instant crypto payments.</p>
                   <WalletConnect />
                 </div>
 
                 {/* Selected Company Card */}
-                <div className="bg-gradient-to-r from-arctic-50 to-ice-50 rounded-xl p-4 mb-6 border border-arctic-100">
+                <div className="bg-gradient-to-r from-arctic-50 to-ice-50 rounded-xl p-3 mb-4 border border-arctic-100">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-arctic-500 rounded-full flex items-center justify-center mr-3">
@@ -242,11 +241,11 @@ const RegisterPage: React.FC = () => {
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-3">
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <EnvelopeIcon className="w-4 h-4 inline mr-1" />
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <EnvelopeIcon className="w-3 h-3 inline mr-1" />
                       Email Address
                     </label>
                     <input
@@ -254,7 +253,7 @@ const RegisterPage: React.FC = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 rounded-xl border ${errors.email ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                      className={`w-full px-3 py-2 text-sm rounded-xl border ${errors.email ? 'border-red-300 bg-red-50' : 'border-ice-200'
                         } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
                       placeholder="you@company.co.nz"
                     />
@@ -265,8 +264,8 @@ const RegisterPage: React.FC = () => {
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <LockClosedIcon className="w-4 h-4 inline mr-1" />
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <LockClosedIcon className="w-3 h-3 inline mr-1" />
                       Password
                     </label>
                     <input
@@ -274,7 +273,7 @@ const RegisterPage: React.FC = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 rounded-xl border ${errors.password ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                      className={`w-full px-3 py-2 text-sm rounded-xl border ${errors.password ? 'border-red-300 bg-red-50' : 'border-ice-200'
                         } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
                       placeholder="Min 8 characters"
                     />
@@ -285,8 +284,8 @@ const RegisterPage: React.FC = () => {
 
                   {/* Confirm Password */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <LockClosedIcon className="w-4 h-4 inline mr-1" />
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <LockClosedIcon className="w-3 h-3 inline mr-1" />
                       Confirm Password
                     </label>
                     <input
@@ -294,7 +293,7 @@ const RegisterPage: React.FC = () => {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-ice-200'
+                      className={`w-full px-3 py-2 text-sm rounded-xl border ${errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-ice-200'
                         } focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all`}
                       placeholder="Re-enter password"
                     />
@@ -307,7 +306,7 @@ const RegisterPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full group relative overflow-hidden bg-gradient-to-r from-arctic-500 via-arctic-600 to-arctic-500 bg-[length:200%_100%] animate-gradient text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full group relative overflow-hidden bg-gradient-to-r from-arctic-500 via-arctic-600 to-arctic-500 bg-[length:200%_100%] animate-gradient text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
@@ -333,14 +332,14 @@ const RegisterPage: React.FC = () => {
               </div>
 
               {/* Footer */}
-              <div className="mt-6 text-center">
-                <p className="text-sm text-ice-600">
+              <div className="mt-3 text-center">
+                <p className="text-xs text-ice-600">
                   Already have an account?{' '}
                   <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold">
                     Sign in
                   </Link>
                 </p>
-                <p className="text-ice-400 text-sm mt-2">
+                <p className="text-ice-400 text-xs mt-1">
                   Can't find your company?{' '}
                   <a href="mailto:icemira@pm.me" className="text-ice-500 hover:text-arctic-600 underline">
                     Contact us

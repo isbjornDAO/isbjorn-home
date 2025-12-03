@@ -13,11 +13,11 @@ const authenticateToken = async (req, res, next) => {
         const authHeader = req.headers.authorization;
         const token = authHeader && authHeader.split(' ')[1];
         if (!token) {
-            return res.status(401).json({ error: 'Access token required' });
+            return res.status(401).json({ error: 'Access token required', code: 'TOKEN_MISSING' });
         }
-        logger_1.logger.info(`[Auth] Verifying token: ${token.substring(0, 10)}...`);
+        logger_1.logger.info(`[Auth] Verifying token: ${token.substring(0, 10)}... using JWT_SECRET (first 10 chars): ${JWT_SECRET.substring(0, 10)}...`);
         const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET);
-        logger_1.logger.info(`[Auth] Token verified. Decoded ID: ${decoded.id}`);
+        logger_1.logger.info(`[Auth] Token verified successfully. Decoded ID: ${decoded.id}, Email: ${decoded.email}`);
         // For demo tokens, create a mock user object
         if (decoded.id.startsWith('demo-user')) {
             req.user = {
@@ -41,8 +41,21 @@ const authenticateToken = async (req, res, next) => {
         next();
     }
     catch (error) {
-        logger_1.logger.error('Auth error:', error);
-        return res.status(403).json({ error: 'Invalid or expired token' });
+        logger_1.logger.error('[Auth] Token verification failed:', {
+            error: error.message,
+            name: error.name,
+            expiredAt: error.expiredAt,
+            JWT_SECRET_exists: !!process.env.JWT_SECRET,
+            JWT_SECRET_length: process.env.JWT_SECRET?.length || 0
+        });
+        // Provide more specific error messages
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+        }
+        else if (error.name === 'JsonWebTokenError') {
+            return res.status(403).json({ error: 'Invalid token', code: 'TOKEN_INVALID' });
+        }
+        return res.status(403).json({ error: 'Invalid or expired token', code: 'TOKEN_ERROR' });
     }
 };
 exports.authenticateToken = authenticateToken;

@@ -7,6 +7,6 @@ declare global {
         }
     }
 }
-export declare const authenticateToken: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
-export declare const requireAdmin: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>>;
+export declare const authenticateToken: (req: Request, res: Response, next: NextFunction) => Promise<any>;
+export declare const requireAdmin: (req: Request, res: Response, next: NextFunction) => any;
 //# sourceMappingURL=auth.d.ts.map

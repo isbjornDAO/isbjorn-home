@@ -1,3 +1,2 @@
-import { Sequelize } from 'sequelize-typescript';
-export declare const sequelize: Sequelize;
+export declare const sequelize: any;
 //# sourceMappingURL=database-sqlite.d.ts.map

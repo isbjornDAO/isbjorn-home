@@ -19,12 +19,12 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-      return res.status(401).json({ error: 'Access token required' });
+      return res.status(401).json({ error: 'Access token required', code: 'TOKEN_MISSING' });
     }
 
-    logger.info(`[Auth] Verifying token: ${token.substring(0, 10)}...`);
+    logger.info(`[Auth] Verifying token: ${token.substring(0, 10)}... using JWT_SECRET (first 10 chars): ${JWT_SECRET.substring(0, 10)}...`);
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    logger.info(`[Auth] Token verified. Decoded ID: ${decoded.id}`);
+    logger.info(`[Auth] Token verified successfully. Decoded ID: ${decoded.id}, Email: ${decoded.email}`);
 
     // For demo tokens, create a mock user object
     if (decoded.id.startsWith('demo-user')) {
@@ -51,8 +51,22 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     req.user = user;
     next();
   } catch (error: any) {
-    logger.error('Auth error:', error);
-    return res.status(403).json({ error: 'Invalid or expired token' });
+    logger.error('[Auth] Token verification failed:', {
+      error: error.message,
+      name: error.name,
+      expiredAt: error.expiredAt,
+      JWT_SECRET_exists: !!process.env.JWT_SECRET,
+      JWT_SECRET_length: process.env.JWT_SECRET?.length || 0
+    });
+
+    // Provide more specific error messages
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+    } else if (error.name === 'JsonWebTokenError') {
+      return res.status(403).json({ error: 'Invalid token', code: 'TOKEN_INVALID' });
+    }
+
+    return res.status(403).json({ error: 'Invalid or expired token', code: 'TOKEN_ERROR' });
   }
 };
 
