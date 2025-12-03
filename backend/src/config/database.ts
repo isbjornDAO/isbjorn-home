@@ -18,8 +18,8 @@ const DATABASE_URL = process.env.DATABASE_URL;
 const models = [User, Charity, Donation, Receipt, BlockchainTransaction, NZCompany, IRDCompliantDonation, Project];
 
 function createSequelizeInstance(): Sequelize {
-  // If DATABASE_URL is provided (Railway), use it directly
-  if (DATABASE_URL) {
+  // If DATABASE_URL is provided and valid (Railway), use it directly
+  if (DATABASE_URL && DATABASE_URL.trim() && DATABASE_URL.includes('://')) {
     console.log('Using DATABASE_URL for PostgreSQL connection');
 
     return new Sequelize(DATABASE_URL, {
