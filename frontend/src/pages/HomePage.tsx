@@ -318,7 +318,7 @@ const HomePage: React.FC = () => {
               </div>
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-ice-900 font-display mb-4 sm:mb-6 drop-shadow-sm">
-                Ready to donate with Isbjorn?
+                Start donating today
               </h2>
 
               <div className="text-lg sm:text-xl md:text-2xl text-ice-600 mb-6 sm:mb-8">
