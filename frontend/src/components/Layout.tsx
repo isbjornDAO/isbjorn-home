@@ -113,7 +113,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </nav>
       </header>
 
-      <main className="flex-1">
+      <main>
         {children}
       </main>
 

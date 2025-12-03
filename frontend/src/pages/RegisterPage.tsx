@@ -112,6 +112,22 @@ const RegisterPage: React.FC = () => {
                 </div>
               </motion.div>
 
+              {/* One-click wallet sign in */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="w-full max-w-2xl px-4 mb-8"
+              >
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 text-white text-center">
+                  <h3 className="text-2xl font-bold mb-3">One-click wallet sign in</h3>
+                  <p className="text-blue-100 mb-4">Connect your wallet for instant access</p>
+                  <div className="flex justify-center">
+                    <WalletConnect />
+                  </div>
+                </div>
+              </motion.div>
+
               {/* Main Heading */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -165,15 +181,15 @@ const RegisterPage: React.FC = () => {
                 transition={{ delay: 0.4 }}
                 className="mt-10 text-center"
               >
-                <p className="text-ice-600">
+                <p className="text-ice-600 text-lg">
                   Already have an account?{' '}
-                  <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold">
+                  <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold text-xl">
                     Sign in
                   </Link>
                 </p>
-                <p className="text-ice-400 text-sm mt-2">
+                <p className="text-ice-500 text-base mt-3">
                   Can't find your company?{' '}
-                  <a href="mailto:icemira@pm.me" className="text-ice-500 hover:text-arctic-600 underline">
+                  <a href="mailto:icemira@pm.me" className="text-arctic-500 hover:text-arctic-600 underline font-medium">
                     Contact us
                   </a>
                 </p>
@@ -214,12 +230,6 @@ const RegisterPage: React.FC = () => {
               </div>
 
               <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-5">
-                {/* Wallet Connection */}
-                <div className="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-100">
-                  <p className="text-xs text-blue-700 text-center mb-2 font-medium">Connect your Core Wallet to enable instant crypto payments.</p>
-                  <WalletConnect />
-                </div>
-
                 {/* Selected Company Card */}
                 <div className="bg-gradient-to-r from-arctic-50 to-ice-50 rounded-xl p-3 mb-4 border border-arctic-100">
                   <div className="flex items-center justify-between">
@@ -332,16 +342,16 @@ const RegisterPage: React.FC = () => {
               </div>
 
               {/* Footer */}
-              <div className="mt-3 text-center">
-                <p className="text-xs text-ice-600">
+              <div className="mt-6 text-center">
+                <p className="text-ice-600 text-base">
                   Already have an account?{' '}
-                  <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold">
+                  <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold text-lg">
                     Sign in
                   </Link>
                 </p>
-                <p className="text-ice-400 text-xs mt-1">
+                <p className="text-ice-500 text-sm mt-2">
                   Can't find your company?{' '}
-                  <a href="mailto:icemira@pm.me" className="text-ice-500 hover:text-arctic-600 underline">
+                  <a href="mailto:icemira@pm.me" className="text-arctic-500 hover:text-arctic-600 underline font-medium">
                     Contact us
                   </a>
                 </p>
