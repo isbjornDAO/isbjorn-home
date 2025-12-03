@@ -418,6 +418,5 @@ router.get('/x402-checkout/session/:sessionId', async (req, res) => {
 router.use('/companies', streamlinedDonationRoutes);
 router.use('/charities', streamlinedDonationRoutes);
 router.use('/receipts', streamlinedDonationRoutes);
-router.use('/wallet', require('../routes/wallet').default);
 
 export default router;

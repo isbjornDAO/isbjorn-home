@@ -74,14 +74,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Link>
 
                   <Link
-                    to="/wallet"
-                    className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
-                    title="My Wallet"
-                  >
-                    <CurrencyDollarIcon className="w-5 h-5" />
-                  </Link>
-
-                  <Link
                     to="/integrations"
                     className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
                     title="Accounting Integrations"
