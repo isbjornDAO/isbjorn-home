@@ -73,14 +73,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <span className="hidden sm:inline">{user.companyName}</span>
                   </Link>
 
-                  <Link
-                    to="/integrations"
-                    className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
-                    title="Accounting Integrations"
-                  >
-                    <LinkIcon className="w-5 h-5" />
-                  </Link>
-
                   {user.role === 'admin' && (
                     <Link
                       to="/admin"

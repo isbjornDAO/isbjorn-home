@@ -17,7 +17,6 @@ const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
 const ReceiptPage = lazy(() => import('@/pages/ReceiptPage'));
 const CharityDetailsPage = lazy(() => import('@/pages/CharityDetailsPage'));
-const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage'));
 const SystemStatusPage = lazy(() => import('@/pages/SystemStatusPage'));
 const BusinessDashboard = lazy(() => import('@/pages/BusinessDashboard'));
 const DonationForm = lazy(() => import('@/components/DonationForm'));
@@ -59,14 +58,6 @@ function App() {
                 element={
                   <ProtectedRoute requiredRole="admin">
                     <AdminPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/integrations"
-                element={
-                  <ProtectedRoute>
-                    <IntegrationsPage />
                   </ProtectedRoute>
                 }
               />
