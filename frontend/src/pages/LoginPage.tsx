@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
           backgroundImage: `url(${polarBearBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.15 // Even lighter background
+          opacity: 0.08 // Even lighter background
         }}
       />
       {/* Overlay to ensure text readability if needed, or just let the background shine through */}

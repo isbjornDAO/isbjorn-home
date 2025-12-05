@@ -315,8 +315,8 @@ const HomePage: React.FC = () => {
               className="absolute inset-0 bg-cover transition-opacity duration-700"
               style={{
                 backgroundImage: "url('https://pbs.twimg.com/media/GseIHU4bwAAdCK5?format=jpg&name=medium')",
-                backgroundPosition: "center",
-                backgroundSize: "cover",
+                backgroundPosition: "-20% 10%",
+                backgroundSize: "130%",
                 backgroundRepeat: "no-repeat",
                 opacity: ctaImageLoaded ? 1 : 0
               }}
