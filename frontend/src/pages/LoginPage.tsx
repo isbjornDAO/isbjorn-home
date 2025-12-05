@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { EnvelopeIcon, LockClosedIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
-import polarBearBg from '@/assets/polar-bears-swimming.jpg';
+import polarBearBg from '@/assets/login-bg.avif';
 
 const LoginPage: React.FC = () => {
   const { login, isLoading } = useAuth();
@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-white">
       {/* Background Image */}
       <div
         className="absolute inset-0 z-0"
@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
           backgroundImage: `url(${polarBearBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.85 // Slight transparency as requested
+          opacity: 0.25 // Very light transparent as requested
         }}
       />
       {/* Overlay to ensure text readability if needed, or just let the background shine through */}

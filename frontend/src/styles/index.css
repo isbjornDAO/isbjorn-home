@@ -15,8 +15,9 @@
     @apply border-ice-200;
   }
 
+  html,
   body {
-    @apply bg-ice-50 text-ice-900 antialiased text-render-mobile tap-highlight-transparent;
+    @apply bg-ice-50 text-ice-900 antialiased text-render-mobile tap-highlight-transparent h-full m-0 p-0;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 

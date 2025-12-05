@@ -83,7 +83,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-white">
       {/* Background Image - Matching Login Style */}
       <div
         className="absolute inset-0 z-0"
@@ -91,7 +91,7 @@ const RegisterPage: React.FC = () => {
           backgroundImage: `url(${polarBearBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.85
+          opacity: 0.25 // Very light transparent as requested
         }}
       />
       <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] z-0" />
