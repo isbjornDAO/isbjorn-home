@@ -327,7 +327,7 @@ const HomePage: React.FC = () => {
                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                       <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
                     </div>
-                    <span className="font-semibold">Community-voted funding. Done in less than 2 minutes.</span>
+                    <span className="font-semibold">Choose your charity</span>
                   </div>
                   <div className="flex items-center justify-center md:justify-start">
                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
