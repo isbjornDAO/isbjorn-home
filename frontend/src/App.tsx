@@ -15,6 +15,7 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 const AdminPage = lazy(() => import('@/pages/AdminPage'));
 const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
+const LiveStreamsPage = lazy(() => import('@/pages/LiveStreamsPage'));
 const ReceiptPage = lazy(() => import('@/pages/ReceiptPage'));
 const CharityDetailsPage = lazy(() => import('@/pages/CharityDetailsPage'));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage'));
@@ -47,6 +48,7 @@ function App() {
 
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/live" element={<LiveStreamsPage />} />
               <Route
                 path="/dashboard"
                 element={
