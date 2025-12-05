@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,11 +8,19 @@ import {
   EnvelopeIcon,
   LockClosedIcon,
   ArrowRightIcon,
-  IdentificationIcon
+  IdentificationIcon,
+  XMarkIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 import polarBearBg from '@/assets/polar-bears-swimming.jpg';
 
 type AccountType = 'individual' | 'business';
+
+interface NZBNResult {
+  nzbn: string;
+  name: string;
+  status: string;
+}
 
 const RegisterPage: React.FC = () => {
   const { register, isLoading } = useAuth();
@@ -25,12 +33,100 @@ const RegisterPage: React.FC = () => {
     confirmPassword: '',
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<NZBNResult[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<NZBNResult | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Mock NZBN search - replace with real API call
+  const searchNZBN = async (query: string) => {
+    if (!query || query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Mock data - replace with real NZBN API
+    const mockCompanies: NZBNResult[] = [
+      { nzbn: '9429000000001', name: 'Acme Corporation Limited', status: 'Registered' },
+      { nzbn: '9429000000002', name: 'Tech Innovations NZ Ltd', status: 'Registered' },
+      { nzbn: '9429000000003', name: 'Green Energy Solutions', status: 'Registered' },
+      { nzbn: '9429000000004', name: 'Pacific Consulting Group', status: 'Registered' },
+      { nzbn: '9429000000005', name: 'Auckland Software Development', status: 'Registered' },
+    ];
+
+    const filtered = mockCompanies.filter(company =>
+      company.name.toLowerCase().includes(query.toLowerCase()) ||
+      company.nzbn.includes(query)
+    );
+
+    setSearchResults(filtered);
+    setIsSearching(false);
+  };
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (accountType === 'business' && !selectedCompany) {
+        searchNZBN(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, accountType, selectedCompany]);
+
+  // Click outside to close results
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Clear selection when switching account types
+  useEffect(() => {
+    if (accountType === 'individual') {
+      handleClearSelection();
+    }
+  }, [accountType]);
+
+  const handleSelectCompany = (company: NZBNResult) => {
+    setSelectedCompany(company);
+    setFormData(prev => ({
+      ...prev,
+      name: company.name,
+      nzbn: company.nzbn
+    }));
+    setSearchQuery('');
+    setShowResults(false);
+    setSearchResults([]);
+  };
+
+  const handleClearSelection = () => {
+    setSelectedCompany(null);
+    setFormData(prev => ({
+      ...prev,
+      name: '',
+      nzbn: ''
+    }));
+    setSearchQuery('');
+  };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!formData.name) {
-      newErrors.name = accountType === 'business' ? 'Company name is required' : 'Full name is required';
+      newErrors.name = accountType === 'business' ? 'Company name is required' : 'Username is required';
     }
 
     if (accountType === 'business' && !formData.nzbn) {
@@ -152,7 +248,7 @@ const RegisterPage: React.FC = () => {
                 {accountType === 'individual' ? (
                   <>
                     <UserIcon className="w-4 h-4 inline mr-1" />
-                    Full Name
+                    Username
                   </>
                 ) : (
                   <>
@@ -161,20 +257,91 @@ const RegisterPage: React.FC = () => {
                   </>
                 )}
               </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 rounded-xl border ${errors.name ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
-                placeholder={accountType === 'individual' ? "John Doe" : "Acme Inc."}
-              />
+
+              {accountType === 'business' && selectedCompany ? (
+                <div className="relative">
+                  <div className="flex items-center justify-between p-3 bg-arctic-50 border-2 border-arctic-500 rounded-xl">
+                    <div className="flex-1">
+                      <div className="font-semibold text-arctic-900">{selectedCompany.name}</div>
+                      <div className="text-xs text-arctic-600 mt-1">NZBN: {selectedCompany.nzbn}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleClearSelection}
+                      className="ml-2 p-1 hover:bg-arctic-100 rounded-full transition-colors"
+                    >
+                      <XMarkIcon className="w-5 h-5 text-arctic-600" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative" ref={searchRef}>
+                  <div className="relative">
+                    {accountType === 'business' && (
+                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ice-400" />
+                    )}
+                    <input
+                      type="text"
+                      name="name"
+                      value={accountType === 'business' ? searchQuery : formData.name}
+                      onChange={(e) => {
+                        if (accountType === 'business') {
+                          setSearchQuery(e.target.value);
+                          setShowResults(true);
+                        } else {
+                          handleChange(e);
+                        }
+                      }}
+                      onFocus={() => {
+                        if (accountType === 'business') {
+                          setShowResults(true);
+                        }
+                      }}
+                      className={`w-full ${accountType === 'business' ? 'pl-9' : ''} px-3 py-2 rounded-xl border ${errors.name ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
+                      placeholder={accountType === 'individual' ? "johndoe" : "Search by company name or NZBN..."}
+                    />
+                  </div>
+
+                  {/* Search Results Dropdown */}
+                  {accountType === 'business' && showResults && (searchResults.length > 0 || isSearching) && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-ice-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                      {isSearching ? (
+                        <div className="p-4 text-center text-ice-600">
+                          <div className="animate-spin w-5 h-5 border-2 border-arctic-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                          Searching...
+                        </div>
+                      ) : (
+                        searchResults.map((company) => (
+                          <button
+                            key={company.nzbn}
+                            type="button"
+                            onClick={() => handleSelectCompany(company)}
+                            className="w-full text-left px-4 py-3 hover:bg-arctic-50 transition-colors border-b border-ice-100 last:border-b-0"
+                          >
+                            <div className="font-medium text-ice-900">{company.name}</div>
+                            <div className="text-xs text-ice-600 mt-1">
+                              NZBN: {company.nzbn} • {company.status}
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {accountType === 'business' && showResults && searchQuery.length >= 2 && !isSearching && searchResults.length === 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-ice-200 rounded-xl shadow-lg p-4 text-center text-ice-600">
+                      No companies found. Try a different search term.
+                    </div>
+                  )}
+                </div>
+              )}
+
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
 
-            {/* Business Number (Conditional) */}
+            {/* Business Number (Conditional) - Hidden when company is selected */}
             <AnimatePresence>
-              {accountType === 'business' && (
+              {accountType === 'business' && !selectedCompany && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
@@ -183,18 +350,27 @@ const RegisterPage: React.FC = () => {
                   className="overflow-hidden"
                 >
                   <div className="pb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <IdentificationIcon className="w-4 h-4 inline mr-1" />
-                      Business Number (NZBN)
-                    </label>
-                    <input
-                      type="text"
-                      name="nzbn"
-                      value={formData.nzbn}
-                      onChange={handleChange}
-                      className={`w-full px-3 py-2 rounded-xl border ${errors.nzbn ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
-                      placeholder="94290..."
-                    />
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-sm font-medium text-gray-700">
+                        <IdentificationIcon className="w-4 h-4 inline mr-1" />
+                        Or search by NZBN
+                      </label>
+                    </div>
+                    <div className="relative">
+                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ice-400" />
+                      <input
+                        type="text"
+                        name="nzbn"
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                          setShowResults(true);
+                        }}
+                        onFocus={() => setShowResults(true)}
+                        className={`w-full pl-9 px-3 py-2 rounded-xl border ${errors.nzbn ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
+                        placeholder="Search by NZBN number..."
+                      />
+                    </div>
                     {errors.nzbn && <p className="text-red-500 text-xs mt-1">{errors.nzbn}</p>}
                   </div>
                 </motion.div>
