@@ -23,6 +23,8 @@ interface PublicStats {
 
 const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth();
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
+  const [ctaImageLoaded, setCtaImageLoaded] = useState(false);
   const partnerLogos = [
     // Integration Partners - with brand colors
     {
@@ -137,12 +139,22 @@ const HomePage: React.FC = () => {
             className="flex flex-col lg:flex-row items-center justify-center gap-8 sm:gap-12 lg:gap-16"
           >
             {/* Circular Background Image */}
-            <div
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: heroImageLoaded ? 1 : 0 }}
+              transition={{ duration: 0.6 }}
               className="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px] rounded-full bg-cover bg-center shadow-xl hover:shadow-2xl transition-shadow duration-300 flex-shrink-0"
               style={{
                 backgroundImage: "url('https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/621732317d36fa50a319746c_Mission%20(1).png')"
               }}
-            />
+            >
+              <img
+                src="https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/621732317d36fa50a319746c_Mission%20(1).png"
+                alt="Mission"
+                className="w-0 h-0 opacity-0"
+                onLoad={() => setHeroImageLoaded(true)}
+              />
+            </motion.div>
 
             {/* Content */}
             <div className="text-center lg:text-left flex-1">
@@ -265,8 +277,12 @@ const HomePage: React.FC = () => {
                     <img
                       src={feature.icon as string}
                       alt={feature.title}
-                      className="w-20 h-20 sm:w-28 sm:h-28 object-contain"
+                      className="w-20 h-20 sm:w-28 sm:h-28 object-contain transition-opacity duration-500"
                       loading="lazy"
+                      style={{ opacity: 0 }}
+                      onLoad={(e) => {
+                        (e.target as HTMLImageElement).style.opacity = '1';
+                      }}
                     />
                   </div>
                   <div className="min-h-[100px] sm:min-h-[120px] flex flex-col justify-center">
@@ -296,14 +312,22 @@ const HomePage: React.FC = () => {
           >
             {/* Polar Bear Background */}
             <div
-              className="absolute inset-0 bg-cover opacity-100 hidden md:block"
+              className="absolute inset-0 bg-cover hidden md:block transition-opacity duration-700"
               style={{
                 backgroundImage: "url('https://pbs.twimg.com/media/GseIHU4bwAAdCK5?format=jpg&name=medium')",
                 backgroundPosition: "-20% 10%",
                 backgroundSize: "130%",
-                backgroundRepeat: "no-repeat"
+                backgroundRepeat: "no-repeat",
+                opacity: ctaImageLoaded ? 1 : 0
               }}
-            />
+            >
+              <img
+                src="https://pbs.twimg.com/media/GseIHU4bwAAdCK5?format=jpg&name=medium"
+                alt=""
+                className="w-0 h-0 opacity-0"
+                onLoad={() => setCtaImageLoaded(true)}
+              />
+            </div>
 
             {/* Gradient overlay for better text readability */}
             <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 md:via-white/85 to-white md:to-transparent"></div>
@@ -327,7 +351,7 @@ const HomePage: React.FC = () => {
                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                       <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
                     </div>
-                    <span className="font-semibold">Choose your charity</span>
+                    <span className="font-semibold">Community voting</span>
                   </div>
                   <div className="flex items-center justify-center md:justify-start">
                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
@@ -342,7 +366,7 @@ const HomePage: React.FC = () => {
                     <span className="font-semibold">Get instant IRD receipts</span>
                   </div>
                 </div>
-                <p className="text-base sm:text-lg text-ice-500 mt-3 sm:mt-4 font-medium">Done in under 5 minutes</p>
+                <p className="text-base sm:text-lg text-ice-500 mt-3 sm:mt-4 font-medium">Done in 2 minutes</p>
               </div>
 
               <div className="flex justify-center md:justify-start">
