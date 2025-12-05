@@ -312,11 +312,11 @@ const HomePage: React.FC = () => {
           >
             {/* Polar Bear Background */}
             <div
-              className="absolute inset-0 bg-cover hidden md:block transition-opacity duration-700"
+              className="absolute inset-0 bg-cover transition-opacity duration-700"
               style={{
                 backgroundImage: "url('https://pbs.twimg.com/media/GseIHU4bwAAdCK5?format=jpg&name=medium')",
-                backgroundPosition: "-20% 10%",
-                backgroundSize: "130%",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
                 opacity: ctaImageLoaded ? 1 : 0
               }}
@@ -330,7 +330,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Gradient overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 md:via-white/85 to-white md:to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/60 md:from-white/90 md:via-white/70 md:to-transparent"></div>
 
             {/* Content overlay */}
             <div className="relative z-10 text-center md:text-left max-w-2xl mx-auto md:mx-0">
