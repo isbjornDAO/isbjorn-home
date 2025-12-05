@@ -34,12 +34,6 @@ const RegisterPage: React.FC = () => {
     }
 
     if (accountType === 'business' && !formData.nzbn) {
-      // Optional: enforce NZBN if business? For now, let's make it required as per "activates a business number box" implication
-      // or maybe it's optional. Let's make it required for businesses to distinguish them.
-      // Re-reading: "activates a business number box" implies existence. Let's act as if it's required for verified businesses.
-      // But looking at previous code, Company Search was prominent, so NZBN likely expected.
-      // However, to keep it simple as requested, let's just make it visible. Validation can be loose or strict.
-      // Let's require it for 'business' to make the distinction meaningful.
       if (!formData.nzbn) newErrors.nzbn = 'Business number is required';
     }
 

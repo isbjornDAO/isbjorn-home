@@ -119,8 +119,8 @@ const HomePage: React.FC = () => {
     },
     {
       icon: 'https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61f5e24f4c389a939113cc19_TRANSPARENCY.png' as const,
-      title: 'Simple 1.5% Fee',
-      description: 'One transparent fee covers everything. No hidden costs.',
+      title: 'Open spending',
+      description: 'Transparent payments to NGOs, backed by community voting.',
       isImage: true as const,
     },
   ];
@@ -318,7 +318,7 @@ const HomePage: React.FC = () => {
               </div>
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-ice-900 font-display mb-4 sm:mb-6 drop-shadow-sm">
-                Ready to donate with Isbjorn?
+                Start donating today
               </h2>
 
               <div className="text-lg sm:text-xl md:text-2xl text-ice-600 mb-6 sm:mb-8">
@@ -327,7 +327,7 @@ const HomePage: React.FC = () => {
                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                       <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
                     </div>
-                    <span className="font-semibold">Choose your charity</span>
+                    <span className="font-semibold">Community-voted funding. Done in less than 2 minutes.</span>
                   </div>
                   <div className="flex items-center justify-center md:justify-start">
                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">

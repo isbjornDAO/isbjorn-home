@@ -1,4 +1,3 @@
-import winston from 'winston';
-declare const logger: winston.Logger;
+declare const logger: any;
 export { logger };
 //# sourceMappingURL=logger.d.ts.map
