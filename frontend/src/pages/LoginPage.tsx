@@ -38,24 +38,11 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-white">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url(${polarBearBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.08 // Even lighter background
-        }}
-      />
-      {/* Overlay to ensure text readability if needed, or just let the background shine through */}
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] z-0" />
-
+    <div className="min-h-screen flex items-center justify-center px-4 bg-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-md"
       >
         {/* Header */}
         <div className="text-center mb-4">
@@ -69,6 +56,15 @@ const LoginPage: React.FC = () => {
           </motion.div>
           <h1 className="text-xl font-bold text-gray-800 font-display mb-1">Welcome Back</h1>
           <p className="text-sm text-ice-600">Sign in to your account</p>
+
+          {/* Decorative Image */}
+          <div className="mt-4 mx-auto w-32 h-32 rounded-2xl overflow-hidden shadow-md">
+            <img
+              src={polarBearBg}
+              alt="Polar Bear"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
 
         {/* Card */}
