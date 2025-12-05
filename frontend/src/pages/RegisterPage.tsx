@@ -54,11 +54,12 @@ const RegisterPage: React.FC = () => {
 
     // Mock data - replace with real NZBN API
     const mockCompanies: NZBNResult[] = [
-      { nzbn: '9429000000001', name: 'Acme Corporation Limited', status: 'Registered' },
-      { nzbn: '9429000000002', name: 'Tech Innovations NZ Ltd', status: 'Registered' },
-      { nzbn: '9429000000003', name: 'Green Energy Solutions', status: 'Registered' },
-      { nzbn: '9429000000004', name: 'Pacific Consulting Group', status: 'Registered' },
-      { nzbn: '9429000000005', name: 'Auckland Software Development', status: 'Registered' },
+      { nzbn: '9429000000001', name: 'Test Company', status: 'Registered' },
+      { nzbn: '9429000000002', name: 'Acme Corporation Limited', status: 'Registered' },
+      { nzbn: '9429000000003', name: 'Tech Innovations NZ Ltd', status: 'Registered' },
+      { nzbn: '9429000000004', name: 'Green Energy Solutions', status: 'Registered' },
+      { nzbn: '9429000000005', name: 'Pacific Consulting Group', status: 'Registered' },
+      { nzbn: '9429000000006', name: 'Auckland Software Development', status: 'Registered' },
     ];
 
     const filtered = mockCompanies.filter(company =>
@@ -339,43 +340,6 @@ const RegisterPage: React.FC = () => {
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
 
-            {/* Business Number (Conditional) - Hidden when company is selected */}
-            <AnimatePresence>
-              {accountType === 'business' && !selectedCompany && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="pb-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-sm font-medium text-gray-700">
-                        <IdentificationIcon className="w-4 h-4 inline mr-1" />
-                        Or search by NZBN
-                      </label>
-                    </div>
-                    <div className="relative">
-                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ice-400" />
-                      <input
-                        type="text"
-                        name="nzbn"
-                        value={searchQuery}
-                        onChange={(e) => {
-                          setSearchQuery(e.target.value);
-                          setShowResults(true);
-                        }}
-                        onFocus={() => setShowResults(true)}
-                        className={`w-full pl-9 px-3 py-2 rounded-xl border ${errors.nzbn ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
-                        placeholder="Search by NZBN number..."
-                      />
-                    </div>
-                    {errors.nzbn && <p className="text-red-500 text-xs mt-1">{errors.nzbn}</p>}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* Email */}
             <div>
