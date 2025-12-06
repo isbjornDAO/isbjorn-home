@@ -94,7 +94,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50">
+    <div className="relative bg-gradient-to-br from-white via-ice-50 to-arctic-50">
       {/* Curved Banner at Top - Slither Size */}
       <div
         className="relative w-full h-32 overflow-hidden"
