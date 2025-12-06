@@ -10,7 +10,8 @@ import {
   ArrowRightIcon,
   IdentificationIcon,
   XMarkIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 import polarBearBg from '@/assets/polar-bears-swimming.jpg';
 
@@ -20,6 +21,14 @@ interface NZBNResult {
   nzbn: string;
   name: string;
   status: string;
+}
+
+interface NewsUpdate {
+  id: string;
+  charity: string;
+  title: string;
+  excerpt: string;
+  timestamp: string;
 }
 
 const RegisterPage: React.FC = () => {
@@ -39,6 +48,31 @@ const RegisterPage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Recent news from nonprofits
+  const newsUpdates: NewsUpdate[] = [
+    {
+      id: '1',
+      charity: 'Red Cross NZ',
+      title: 'Cyclone Recovery: 500 Families Housed',
+      excerpt: 'Emergency relief operations continue in Auckland region.',
+      timestamp: '2 hours ago'
+    },
+    {
+      id: '2',
+      charity: 'Forest & Bird',
+      title: 'Kakapo Population Hits Record High',
+      excerpt: 'Conservation efforts show significant progress.',
+      timestamp: '5 hours ago'
+    },
+    {
+      id: '3',
+      charity: 'UNICEF NZ',
+      title: 'Clean Water Reaches 10,000 Homes',
+      excerpt: 'Pacific communities gain access to safe drinking water.',
+      timestamp: '1 day ago'
+    }
+  ];
 
   // Mock NZBN search - replace with real API call
   const searchNZBN = async (query: string) => {
@@ -188,7 +222,15 @@ const RegisterPage: React.FC = () => {
           backgroundImage: `url(${polarBearBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.05
+          opacity: 0.15
+        }}
+      />
+
+      {/* Inverse White Vignette - lighter in center, darker at edges */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.3) 100%)'
         }}
       />
 
@@ -498,6 +540,34 @@ const RegisterPage: React.FC = () => {
             </p>
           </div>
         </motion.div>
+      </div>
+
+      {/* News Sidebar - Left */}
+      <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 w-72 space-y-3">
+        <div className="mb-4">
+          <h3 className="text-sm font-bold text-gray-700 mb-2">Recent Updates</h3>
+          <p className="text-xs text-gray-600">See the latest from verified charities</p>
+        </div>
+        {newsUpdates.map((news, index) => (
+          <motion.div
+            key={news.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.2 }}
+            className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-100"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs font-bold text-arctic-600">{news.charity}</span>
+            </div>
+            <h3 className="font-bold text-gray-900 text-sm mb-1">{news.title}</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">{news.excerpt}</p>
+            <div className="flex items-center text-xs text-gray-500 mt-2">
+              <ClockIcon className="w-3 h-3 mr-1" />
+              {news.timestamp}
+            </div>
+          </motion.div>
+        ))}
       </div>
     </div>
   );

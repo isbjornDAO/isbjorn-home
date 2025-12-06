@@ -86,7 +86,15 @@ const LoginPage: React.FC = () => {
           backgroundImage: `url(${polarBearBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.05
+          opacity: 0.15
+        }}
+      />
+
+      {/* Inverse White Vignette - lighter in center, darker at edges */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.3) 100%)'
         }}
       />
 
@@ -258,8 +266,8 @@ const LoginPage: React.FC = () => {
           </motion.div>
       </motion.div>
 
-      {/* News Sidebar - Right */}
-      <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 w-72 space-y-3">
+      {/* News Sidebar - Left */}
+      <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 w-72 space-y-3">
         <div className="mb-4">
           <h3 className="text-sm font-bold text-gray-700 mb-2">Recent Updates</h3>
           <p className="text-xs text-gray-600">See the latest from verified charities</p>
@@ -267,7 +275,7 @@ const LoginPage: React.FC = () => {
         {newsUpdates.map((news, index) => (
           <motion.div
             key={news.id}
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.2 }}
             className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-100"
@@ -284,6 +292,75 @@ const LoginPage: React.FC = () => {
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Info Sidebar - Right */}
+      <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 w-72">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 p-6"
+        >
+          <h2 className="text-lg font-bold text-gray-900 mb-4">How Isbjorn Works</h2>
+
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-7 h-7 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                1
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">Business Donations</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Businesses donate to verified NZ charities with instant IRD-compliant tax receipts.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-7 h-7 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                2
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">Donation Nodes</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Funds distributed through transparent blockchain nodes ensuring full traceability.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-7 h-7 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                3
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">Community Voting</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  DAO members vote on fund allocation, ensuring democratic distribution.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-7 h-7 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                4
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">Live Impact Tracking</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Watch charities in action through live streams and real-time updates.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 p-3 bg-gradient-to-br from-arctic-50 to-ice-50 rounded-lg border border-arctic-200">
+            <p className="text-xs text-gray-600 text-center">
+              🐻‍❄️ <strong>Powered by Avalanche</strong><br />
+              Transparent, secure, climate-positive
+            </p>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
