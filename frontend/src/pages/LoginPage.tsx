@@ -78,7 +78,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-white">
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-gradient-to-br from-white via-ice-50 to-arctic-50">
       {/* Background Image */}
       <div
         className="absolute inset-0 z-0"
@@ -86,33 +86,52 @@ const LoginPage: React.FC = () => {
           backgroundImage: `url(${polarBearBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.08
+          opacity: 0.05
         }}
       />
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] z-0" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-4xl relative z-10"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Login Card */}
-          <div>
-            <div className="text-center mb-6">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 }}
-                className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-2xl mb-3 shadow-lg"
-              >
-                <span className="text-3xl">🐻‍❄️</span>
-              </motion.div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
-              <p className="text-gray-600">Sign in to continue making an impact</p>
+      {/* Rotating News Sidebar */}
+      <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 w-64 space-y-3">
+        {newsUpdates.map((news, index) => (
+          <motion.div
+            key={news.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.2 }}
+            className="bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-md border border-gray-100"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+              <span className="text-xs font-bold text-arctic-600">{news.charity}</span>
             </div>
+            <h3 className="font-semibold text-gray-900 text-sm mb-1">{news.title}</h3>
+            <p className="text-xs text-gray-600 line-clamp-2">{news.excerpt}</p>
+          </motion.div>
+        ))}
+      </div>
 
-            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8">
+      {/* Main Login Card - Centered */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md relative z-10"
+      >
+          {/* Header */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-3xl mb-4 shadow-xl"
+            >
+              <span className="text-4xl">🐻‍❄️</span>
+            </motion.div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
+            <p className="text-gray-600">Sign in to make an impact</p>
+          </div>
+
+          {/* Login Card */}
+          <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200 p-8">
               {/* Quick Sign In */}
               <div className="mb-6">
                 <p className="text-sm text-gray-600 text-center mb-4">Choose your preferred sign-in method</p>
@@ -221,65 +240,42 @@ const LoginPage: React.FC = () => {
                   {isLoading ? 'Signing in...' : 'Sign in'}
                 </button>
               </form>
-            </div>
+          </div>
 
-            <p className="mt-6 text-center text-gray-600">
+          {/* Sign Up Link */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
               New to Isbjorn?{' '}
-              <Link to="/register" className="text-arctic-600 hover:text-arctic-700 font-bold">
-                Create an account
+              <Link to="/register" className="text-arctic-600 hover:text-arctic-700 font-bold transition-colors">
+                Create an account →
               </Link>
             </p>
           </div>
 
-          {/* Recent News */}
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Recent Updates</h2>
-              <p className="text-gray-600">See the latest impact from verified charities</p>
-            </div>
-
-            <div className="space-y-4">
-              {newsUpdates.map((news, index) => (
-                <motion.div
-                  key={news.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm font-bold text-arctic-600">{news.charity}</span>
-                    </div>
-                    <div className="flex items-center text-xs text-gray-500">
-                      <ClockIcon className="w-4 h-4 mr-1" />
-                      {news.timestamp}
-                    </div>
-                  </div>
-                  <h3 className="font-bold text-gray-900 text-base mb-2">{news.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{news.excerpt}</p>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="bg-gradient-to-br from-arctic-50 to-ice-50 rounded-2xl p-6 border border-arctic-100">
-              <div className="text-center">
-                <div className="text-3xl mb-2">🌍</div>
-                <h3 className="font-bold text-gray-900 mb-2">Join the Impact</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Over <span className="font-bold text-arctic-600">$2.4M</span> donated to NZ charities through transparent blockchain technology
-                </p>
-                <Link
-                  to="/register"
-                  className="inline-block bg-arctic-600 text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-arctic-700 transition-colors"
-                >
-                  Get Started
-                </Link>
+          {/* Bottom Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8 text-center"
+          >
+            <div className="flex items-center justify-center gap-6 text-sm">
+              <div>
+                <div className="font-bold text-arctic-600 text-lg">$2.4M+</div>
+                <div className="text-gray-600 text-xs">Donated</div>
+              </div>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <div>
+                <div className="font-bold text-arctic-600 text-lg">500+</div>
+                <div className="text-gray-600 text-xs">Charities</div>
+              </div>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <div>
+                <div className="font-bold text-arctic-600 text-lg">100%</div>
+                <div className="text-gray-600 text-xs">Transparent</div>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
       </motion.div>
     </div>
   );
