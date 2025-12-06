@@ -301,7 +301,7 @@ const LoginPage: React.FC = () => {
       </motion.div>
 
       {/* News Sidebar - Left */}
-      <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 w-72 space-y-3">
+      <div className="hidden lg:block absolute left-8 top-24 w-72 space-y-3">
         <div className="mb-4">
           <h3 className="text-sm font-bold text-gray-700 mb-2">Recent Updates</h3>
           <p className="text-xs text-gray-600">See the latest from verified charities</p>
@@ -329,7 +329,7 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Info Sidebar - Right */}
-      <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 w-72">
+      <div className="hidden lg:block absolute right-8 top-24 w-72">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
