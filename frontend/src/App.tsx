@@ -22,6 +22,7 @@ const SystemStatusPage = lazy(() => import('@/pages/SystemStatusPage'));
 const BusinessDashboard = lazy(() => import('@/pages/BusinessDashboard'));
 const WalletPage = lazy(() => import('@/pages/WalletPage'));
 const DonationForm = lazy(() => import('@/components/DonationForm'));
+const MapPage = lazy(() => import('@/pages/MapPage'));
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
           <Suspense fallback={<LoadingSpinner fullScreen />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
-
+              <Route path="/map" element={<MapPage />} />
               <Route path="/donate" element={<DonatePage />} />
 
               {/* Advanced Donation Flows */}
