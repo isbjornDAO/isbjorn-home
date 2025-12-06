@@ -239,12 +239,12 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50">
-      {/* Curved Banner at Top */}
+      {/* Curved Banner at Top - Slither Size */}
       <div
-        className="relative w-full h-72 overflow-hidden"
+        className="relative w-full h-32 overflow-hidden"
         style={{
-          borderBottomLeftRadius: '50% 15%',
-          borderBottomRightRadius: '50% 15%',
+          borderBottomLeftRadius: '50% 8%',
+          borderBottomRightRadius: '50% 8%',
         }}
       >
         <div
@@ -259,7 +259,7 @@ const RegisterPage: React.FC = () => {
       </div>
 
       {/* Main Content Container */}
-      <div className="relative flex items-center justify-center px-4 py-4 -mt-40 overflow-hidden">
+      <div className="relative flex items-center justify-center px-4 py-2 -mt-16 overflow-hidden">
 
       {/* Main Registration Card - Centered */}
       <motion.div
