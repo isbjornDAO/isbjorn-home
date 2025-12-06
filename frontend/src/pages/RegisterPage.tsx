@@ -180,7 +180,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-white">
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-gradient-to-br from-white via-ice-50 to-arctic-50">
       {/* Background Image */}
       <div
         className="absolute inset-0 z-0"
@@ -188,33 +188,32 @@ const RegisterPage: React.FC = () => {
           backgroundImage: `url(${polarBearBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.08
+          opacity: 0.05
         }}
       />
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] z-0" />
 
+      {/* Main Registration Card - Centered */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-5xl relative z-10"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md relative z-10"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Registration Form */}
-          <div>
-            <div className="text-center mb-4">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 }}
-                className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full mb-2 shadow-lg"
-              >
-                <span className="text-2xl">🐻‍❄️</span>
-              </motion.div>
-              <h1 className="text-xl font-bold text-gray-800 font-display mb-1">Create an Account</h1>
-              <p className="text-sm text-ice-600">Join Isbjorn today</p>
-            </div>
+          {/* Header */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-3xl mb-4 shadow-xl"
+            >
+              <span className="text-4xl">🐻‍❄️</span>
+            </motion.div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Create an account</h1>
+            <p className="text-gray-600">Join Isbjorn today</p>
+          </div>
 
-            <div className="bg-white rounded-2xl shadow-xl border border-ice-100 overflow-hidden p-6">
+          {/* Registration Card */}
+          <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200 p-8">
 
           {/* Account Type Slider */}
           <div className="bg-ice-50 p-1 rounded-xl flex items-center mb-6 relative">
@@ -421,87 +420,85 @@ const RegisterPage: React.FC = () => {
           </form>
         </div>
 
-            {/* Footer */}
-            <div className="mt-3 text-center">
-              <p className="text-sm text-ice-600">
-                Already have an account?{' '}
-                <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-semibold">
-                  Sign in
-                </Link>
-              </p>
+          {/* Sign In Link */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Already have an account?{' '}
+              <Link to="/login" className="text-arctic-600 hover:text-arctic-700 font-bold transition-colors">
+                Sign in →
+              </Link>
+            </p>
+          </div>
+      </motion.div>
+
+      {/* Info Sidebar - Right */}
+      <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 w-72">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 p-6"
+        >
+          <h2 className="text-lg font-bold text-gray-900 mb-4">How Isbjorn Works</h2>
+
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-7 h-7 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                1
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">Business Donations</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Businesses donate to verified NZ charities with instant IRD-compliant tax receipts.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-7 h-7 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                2
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">Donation Nodes</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Funds distributed through transparent blockchain nodes ensuring full traceability.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-7 h-7 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                3
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">Community Voting</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  DAO members vote on fund allocation, ensuring democratic distribution.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-7 h-7 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                4
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">Live Impact Tracking</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Watch charities in action through live streams and real-time updates.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Info Card */}
-          <div>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-gradient-to-br from-arctic-50 to-ice-50 rounded-2xl shadow-xl border border-arctic-100 p-6"
-            >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">How Isbjorn Works</h2>
-
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    1
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Business Donations</h3>
-                    <p className="text-sm text-gray-600">
-                      Businesses donate to verified NZ charities with instant IRD-compliant tax receipts.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    2
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Donation Nodes</h3>
-                    <p className="text-sm text-gray-600">
-                      Funds are distributed through transparent blockchain nodes ensuring full traceability.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    3
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Community Voting</h3>
-                    <p className="text-sm text-gray-600">
-                      Isbjorn DAO members vote on fund allocation, ensuring democratic and transparent distribution.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-arctic-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    4
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 mb-1">Live Impact Tracking</h3>
-                    <p className="text-sm text-gray-600">
-                      Watch charities in action through live streams and real-time impact updates.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-white rounded-xl border border-arctic-200">
-                <p className="text-xs text-gray-600 text-center">
-                  🐻‍❄️ <strong>Powered by Avalanche blockchain</strong><br />
-                  All transactions are transparent, secure, and climate-positive
-                </p>
-              </div>
-            </motion.div>
+          <div className="mt-6 p-3 bg-gradient-to-br from-arctic-50 to-ice-50 rounded-lg border border-arctic-200">
+            <p className="text-xs text-gray-600 text-center">
+              🐻‍❄️ <strong>Powered by Avalanche</strong><br />
+              Transparent, secure, climate-positive
+            </p>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 };

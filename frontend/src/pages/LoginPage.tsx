@@ -90,26 +90,6 @@ const LoginPage: React.FC = () => {
         }}
       />
 
-      {/* Rotating News Sidebar */}
-      <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 w-64 space-y-3">
-        {newsUpdates.map((news, index) => (
-          <motion.div
-            key={news.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.2 }}
-            className="bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-md border border-gray-100"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-              <span className="text-xs font-bold text-arctic-600">{news.charity}</span>
-            </div>
-            <h3 className="font-semibold text-gray-900 text-sm mb-1">{news.title}</h3>
-            <p className="text-xs text-gray-600 line-clamp-2">{news.excerpt}</p>
-          </motion.div>
-        ))}
-      </div>
-
       {/* Main Login Card - Centered */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -277,6 +257,34 @@ const LoginPage: React.FC = () => {
             </div>
           </motion.div>
       </motion.div>
+
+      {/* News Sidebar - Right */}
+      <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 w-72 space-y-3">
+        <div className="mb-4">
+          <h3 className="text-sm font-bold text-gray-700 mb-2">Recent Updates</h3>
+          <p className="text-xs text-gray-600">See the latest from verified charities</p>
+        </div>
+        {newsUpdates.map((news, index) => (
+          <motion.div
+            key={news.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.2 }}
+            className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-100"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs font-bold text-arctic-600">{news.charity}</span>
+            </div>
+            <h3 className="font-bold text-gray-900 text-sm mb-1">{news.title}</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">{news.excerpt}</p>
+            <div className="flex items-center text-xs text-gray-500 mt-2">
+              <ClockIcon className="w-3 h-3 mr-1" />
+              {news.timestamp}
+            </div>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };
