@@ -1,7 +1,7 @@
 declare const config: {
     dialect: "sqlite";
-    storage: string;
-    logging: boolean | ((message?: any, ...optionalParams: any[]) => void);
+    storage: any;
+    logging: any;
     define: {
         timestamps: boolean;
         underscored: boolean;

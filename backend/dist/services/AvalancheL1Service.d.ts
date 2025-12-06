@@ -37,10 +37,10 @@ declare class AvalancheL1Service {
      */
     getNetworkInfo(): Promise<{
         chainId: number;
-        name: string;
-        walletAddress: string;
-        balance: string;
-        contractAddress: string;
+        name: any;
+        walletAddress: any;
+        balance: any;
+        contractAddress: any;
     }>;
     /**
      * Health check for Avalanche L1 connection

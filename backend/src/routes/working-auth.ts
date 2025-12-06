@@ -2,14 +2,25 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.model';
 import { logger } from '../utils/logger';
+import { Wallet } from 'ethers';
 
 const router = express.Router();
 
-// Working registration - bypasses bcrypt for now
+// Generate a new wallet for the user
+function generateWallet() {
+  const wallet = Wallet.createRandom();
+  return {
+    address: wallet.address,
+    privateKey: wallet.privateKey, // In production, encrypt this!
+    mnemonic: wallet.mnemonic?.phrase || '',
+  };
+}
+
+// Working registration with password hashing and auto-wallet generation
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, companyName } = req.body;
-    
+    const { email, password, companyName, nzbn, walletAddress } = req.body;
+
     if (!email || !password || !companyName) {
       return res.status(400).json({
         success: false,
@@ -26,16 +37,32 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create user using Sequelize ORM (bypasses password hashing hooks)
+    // Generate wallet if not provided (user signed up with email/password)
+    let userWalletAddress = walletAddress;
+    let generatedWallet = null;
+
+    if (!walletAddress) {
+      generatedWallet = generateWallet();
+      userWalletAddress = generatedWallet.address;
+      logger.info(`Auto-generated wallet for ${email}: ${userWalletAddress}`);
+    }
+
+    // Create user with password hashing enabled
     const user = await User.create({
       email: email.toLowerCase(),
-      password: password, // Plain text for demo - hash in production
+      password: password, // Will be hashed by the model's beforeCreate hook
       companyName,
+      nzbn: nzbn || undefined,
+      x402WalletId: userWalletAddress,
       role: 'user',
       isActive: true,
-      emailVerified: true
-    }, {
-      hooks: false // This bypasses the password hashing hook
+      emailVerified: true,
+      preferences: {
+        receiveNewsletter: true,
+        receiveImpactReports: true,
+        publicProfile: false,
+        defaultCurrency: 'nzd',
+      },
     });
 
     // Generate tokens
@@ -51,17 +78,34 @@ router.post('/register', async (req, res) => {
       { expiresIn: '30d' }
     );
 
-    res.status(201).json({
+    const responseData: any = {
       success: true,
       user: {
         id: user.dataValues.id,
         email: user.dataValues.email,
         companyName: user.dataValues.companyName,
-        role: user.dataValues.role
+        nzbn: user.dataValues.nzbn,
+        role: user.dataValues.role,
+        x402WalletId: userWalletAddress,
       },
       token,
       refreshToken
-    });
+    };
+
+    // Include wallet details if we generated one
+    // WARNING: In production, NEVER send privateKey or mnemonic to client
+    // This should be encrypted and stored securely, or let user manage their own wallet
+    if (generatedWallet) {
+      responseData.wallet = {
+        address: generatedWallet.address,
+        // For demo only - in production, use secure key management
+        privateKey: generatedWallet.privateKey,
+        mnemonic: generatedWallet.mnemonic,
+      };
+      logger.warn('Sending wallet private key in response - DEMO ONLY! Implement secure key management for production.');
+    }
+
+    res.status(201).json(responseData);
 
   } catch (error) {
     logger.error('Registration error:', error);
@@ -72,33 +116,55 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Working login
+// Working login with password validation
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email and password required'
-      });
+    const { email, password, walletAddress } = req.body;
+
+    // Support both email/password and wallet-based login
+    let user;
+
+    if (walletAddress) {
+      // Wallet-based login
+      user = await User.findOne({ where: { x402WalletId: walletAddress.toLowerCase() } });
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Wallet not registered'
+        });
+      }
+    } else {
+      // Email/password login
+      if (!email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email and password required'
+        });
+      }
+
+      user = await User.findOne({ where: { email: email.toLowerCase() } });
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+
+      // Use the model's validatePassword method (bcrypt comparison)
+      const isValidPassword = await user.validatePassword(password);
+      if (!isValidPassword) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
     }
 
-    const user = await User.findOne({ where: { email: email.toLowerCase() } });
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      });
-    }
-
-    // Simple password check for demo
-    if (user.dataValues.password !== password) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      });
-    }
+    // Update last login
+    await user.update({
+      lastLoginAt: new Date(),
+      loginCount: user.loginCount + 1,
+    });
 
     const token = jwt.sign(
       { id: user.dataValues.id, email: user.dataValues.email, role: user.dataValues.role },
@@ -118,7 +184,9 @@ router.post('/login', async (req, res) => {
         id: user.dataValues.id,
         email: user.dataValues.email,
         companyName: user.dataValues.companyName,
-        role: user.dataValues.role
+        nzbn: user.dataValues.nzbn,
+        role: user.dataValues.role,
+        x402WalletId: user.dataValues.x402WalletId,
       },
       token,
       refreshToken
@@ -152,7 +220,11 @@ router.get('/me', async (req, res) => {
       id: user.dataValues.id,
       email: user.dataValues.email,
       companyName: user.dataValues.companyName,
+      nzbn: user.dataValues.nzbn,
       role: user.dataValues.role,
+      x402WalletId: user.dataValues.x402WalletId,
+      lastLoginAt: user.dataValues.lastLoginAt,
+      loginCount: user.dataValues.loginCount,
     });
   } catch (error) {
     logger.error('Get current user error:', error);
