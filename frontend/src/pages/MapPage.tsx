@@ -1,123 +1,154 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPinIcon,
-  ChartBarIcon,
-  UserGroupIcon,
   BanknotesIcon,
-  CheckBadgeIcon
+  HandThumbUpIcon,
+  DocumentTextIcon,
+  ChartBarIcon,
+  UserIcon,
+  ArrowTrendingUpIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 
-interface CharityLocation {
+interface Activity {
   id: string;
-  name: string;
+  type: 'donation' | 'vote' | 'proposal' | 'ranking';
+  message: string;
   location: string;
-  position: { x: number; y: number };
-  impact: string;
-  donations: number;
-  votingPower: number;
+  timestamp: number;
 }
 
-interface TopContributor {
+interface Node {
   id: string;
   name: string;
-  totalDonated: number;
-  votingPower: number;
-  impact: string;
+  region: string;
+  x: number;
+  y: number;
+  type: 'donor' | 'charity';
+}
+
+interface Connection {
+  from: Node;
+  to: Node;
+  amount: number;
 }
 
 const MapPage: React.FC = () => {
-  const [selectedLocation, setSelectedLocation] = useState<CharityLocation | null>(null);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
 
-  // Mock charity locations across New Zealand
-  const charityLocations: CharityLocation[] = [
-    {
-      id: '1',
-      name: 'Red Cross NZ - Auckland',
-      location: 'Auckland',
-      position: { x: 65, y: 20 },
-      impact: '500 families housed',
-      donations: 125000,
-      votingPower: 30
-    },
-    {
-      id: '2',
-      name: 'Forest & Bird - Wellington',
-      location: 'Wellington',
-      position: { x: 70, y: 60 },
-      impact: 'Kakapo population +15%',
-      donations: 85000,
-      votingPower: 20
-    },
-    {
-      id: '3',
-      name: 'UNICEF NZ - Christchurch',
-      location: 'Christchurch',
-      position: { x: 75, y: 80 },
-      impact: '10,000 homes with clean water',
-      donations: 95000,
-      votingPower: 25
-    },
-    {
-      id: '4',
-      name: 'Salvation Army - Hamilton',
-      location: 'Hamilton',
-      position: { x: 62, y: 30 },
-      impact: '200 meals daily',
-      donations: 45000,
-      votingPower: 12
-    },
-    {
-      id: '5',
-      name: 'WWF NZ - Dunedin',
-      location: 'Dunedin',
-      position: { x: 68, y: 88 },
-      impact: '50 hectares restored',
-      donations: 38000,
-      votingPower: 13
-    }
+  // Regional nodes on NZ map
+  const nodes: Node[] = [
+    // Charities
+    { id: 'c1', name: 'Red Cross', region: 'Auckland', x: 65, y: 22, type: 'charity' },
+    { id: 'c2', name: 'Forest & Bird', region: 'Wellington', x: 70, y: 60, type: 'charity' },
+    { id: 'c3', name: 'UNICEF NZ', region: 'Christchurch', x: 75, y: 78, type: 'charity' },
+    { id: 'c4', name: 'WWF NZ', region: 'Dunedin', x: 68, y: 88, type: 'charity' },
+    // Donors
+    { id: 'd1', name: 'Tech Co', region: 'Auckland', x: 60, y: 18, type: 'donor' },
+    { id: 'd2', name: 'Green Energy', region: 'Wellington', x: 75, y: 56, type: 'donor' },
+    { id: 'd3', name: 'Local Business', region: 'Christchurch', x: 80, y: 74, type: 'donor' },
+    { id: 'd4', name: 'Individual', region: 'Hamilton', x: 62, y: 28, type: 'donor' },
   ];
 
-  // Top contributors with voting power
-  const topContributors: TopContributor[] = [
-    {
-      id: '1',
-      name: 'Tech Innovations NZ Ltd',
-      totalDonated: 185000,
-      votingPower: 35,
-      impact: '3 charities supported'
-    },
-    {
-      id: '2',
-      name: 'Green Energy Solutions',
-      totalDonated: 142000,
-      votingPower: 28,
-      impact: '5 charities supported'
-    },
-    {
-      id: '3',
-      name: 'Pacific Consulting Group',
-      totalDonated: 98000,
-      votingPower: 19,
-      impact: '2 charities supported'
-    },
-    {
-      id: '4',
-      name: 'Auckland Software Dev',
-      totalDonated: 76000,
-      votingPower: 15,
-      impact: '4 charities supported'
-    },
-    {
-      id: '5',
-      name: 'Individual Contributors',
-      totalDonated: 45000,
-      votingPower: 3,
-      impact: '8 charities supported'
-    }
+  const charities = nodes.filter(n => n.type === 'charity');
+  const donors = nodes.filter(n => n.type === 'donor');
+
+  // Mock activity generator
+  const activityTemplates = [
+    { type: 'donation' as const, template: (donor: string, charity: string, amount: number) =>
+      `${donor} donated $${amount.toLocaleString()} to ${charity}` },
+    { type: 'vote' as const, template: (voter: string, proposal: string) =>
+      `${voter} voted on "${proposal}"` },
+    { type: 'proposal' as const, template: (proposer: string, title: string) =>
+      `${proposer} proposed "${title}"` },
+    { type: 'ranking' as const, template: (charity: string, rank: number) =>
+      `${charity} ranked #${rank} this month` },
   ];
 
-  const totalDonations = charityLocations.reduce((sum, loc) => sum + loc.donations, 0);
+  const proposalTitles = [
+    'Increase Emergency Relief Funding',
+    'Support Wildlife Conservation',
+    'Fund Clean Water Initiative',
+    'Expand Food Bank Network',
+    'Climate Action Project'
+  ];
+
+  // Generate random activity
+  useEffect(() => {
+    const generateActivity = () => {
+      const template = activityTemplates[Math.floor(Math.random() * activityTemplates.length)];
+      let message = '';
+      let location = '';
+
+      if (template.type === 'donation') {
+        const donor = donors[Math.floor(Math.random() * donors.length)];
+        const charity = charities[Math.floor(Math.random() * charities.length)];
+        const amount = Math.floor(Math.random() * 50000) + 5000;
+        message = template.template(donor.name, charity.name, amount);
+        location = donor.region;
+
+        // Add connection animation
+        setConnections(prev => [...prev, { from: donor, to: charity, amount }]);
+        setTimeout(() => {
+          setConnections(prev => prev.slice(1));
+        }, 3000);
+      } else if (template.type === 'vote') {
+        const voter = donors[Math.floor(Math.random() * donors.length)];
+        const proposal = proposalTitles[Math.floor(Math.random() * proposalTitles.length)];
+        message = template.template(voter.name, proposal);
+        location = voter.region;
+      } else if (template.type === 'proposal') {
+        const proposer = donors[Math.floor(Math.random() * donors.length)];
+        const title = proposalTitles[Math.floor(Math.random() * proposalTitles.length)];
+        message = template.template(proposer.name, title);
+        location = proposer.region;
+      } else {
+        const charity = charities[Math.floor(Math.random() * charities.length)];
+        const rank = Math.floor(Math.random() * 10) + 1;
+        message = template.template(charity.name, rank);
+        location = charity.region;
+      }
+
+      const newActivity: Activity = {
+        id: Date.now().toString(),
+        type: template.type,
+        message,
+        location,
+        timestamp: Date.now()
+      };
+
+      setActivities(prev => [newActivity, ...prev].slice(0, 6));
+    };
+
+    // Generate initial activities
+    for (let i = 0; i < 3; i++) {
+      setTimeout(generateActivity, i * 1000);
+    }
+
+    // Continue generating activities
+    const interval = setInterval(generateActivity, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getActivityIcon = (type: Activity['type']) => {
+    switch (type) {
+      case 'donation': return BanknotesIcon;
+      case 'vote': return HandThumbUpIcon;
+      case 'proposal': return DocumentTextIcon;
+      case 'ranking': return ChartBarIcon;
+    }
+  };
+
+  const getActivityColor = (type: Activity['type']) => {
+    switch (type) {
+      case 'donation': return 'from-green-400 to-green-600';
+      case 'vote': return 'from-blue-400 to-blue-600';
+      case 'proposal': return 'from-purple-400 to-purple-600';
+      case 'ranking': return 'from-yellow-400 to-yellow-600';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ice-50 to-white py-12 px-4">
@@ -126,225 +157,250 @@ const MapPage: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-2xl mb-4 shadow-lg">
             <MapPinIcon className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Impact Map</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Track charitable impact across New Zealand. Voting power is allocated based on contributions to the DAO.
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">DAO Activity Map</h1>
+          <p className="text-lg text-gray-600">
+            Live view of donations, voting, proposals, and rankings across New Zealand
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Map Visualization */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-2"
-          >
-            <div className="bg-white rounded-2xl shadow-xl border border-ice-100 p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Charity Locations</h2>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <BanknotesIcon className="w-5 h-5" />
-                  <span className="font-semibold">${(totalDonations / 1000).toFixed(0)}K Total Impact</span>
-                </div>
-              </div>
-
-              {/* Simple NZ Map Visualization */}
-              <div className="relative bg-gradient-to-br from-arctic-50 to-ice-100 rounded-xl overflow-hidden" style={{ height: '500px' }}>
-                {/* NZ Map Shape (simplified) */}
-                <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-xl border border-ice-100 p-6 lg:p-8">
+              <div className="relative bg-gradient-to-br from-arctic-50 to-ice-100 rounded-xl overflow-hidden" style={{ height: '600px' }}>
+                {/* Flat NZ Map Shape */}
+                <svg className="absolute inset-0 w-full h-full opacity-15" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                  {/* Simplified flat NZ silhouette */}
                   <path
-                    d="M 60,15 L 68,12 L 72,15 L 70,25 L 65,35 L 68,45 L 70,55 L 72,65 L 75,75 L 72,85 L 68,92 L 62,90 L 58,82 L 60,72 L 58,62 L 62,52 L 60,42 L 58,32 L 62,22 Z"
+                    d="M 58,10 L 68,8 L 72,12 L 70,22 L 65,32 L 68,42 L 70,52 L 72,62 L 75,72 L 72,82 L 68,90 L 62,88 L 58,80 L 60,70 L 58,60 L 62,50 L 60,40 L 58,30 L 62,20 Z"
                     fill="currentColor"
-                    className="text-arctic-200"
+                    className="text-arctic-300"
+                    stroke="currentColor"
+                    strokeWidth="0.5"
                   />
                 </svg>
 
-                {/* Charity Markers */}
-                {charityLocations.map((location, index) => (
-                  <motion.button
-                    key={location.id}
+                {/* Animated Connection Lines */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                  <AnimatePresence>
+                    {connections.map((conn, idx) => (
+                      <motion.line
+                        key={`${conn.from.id}-${conn.to.id}-${idx}`}
+                        x1={`${conn.from.x}%`}
+                        y1={`${conn.from.y}%`}
+                        x2={`${conn.to.x}%`}
+                        y2={`${conn.to.y}%`}
+                        stroke="url(#gradient)"
+                        strokeWidth="2"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: 1, opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5 }}
+                      />
+                    ))}
+                  </AnimatePresence>
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+                      <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.8" />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.8" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+                {/* Nodes */}
+                {nodes.map((node, index) => (
+                  <motion.div
+                    key={node.id}
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    onClick={() => setSelectedLocation(location)}
-                    className={`absolute group cursor-pointer transform -translate-x-1/2 -translate-y-1/2 ${
-                      selectedLocation?.id === location.id ? 'z-30' : 'z-20'
-                    }`}
-                    style={{
-                      left: `${location.position.x}%`,
-                      top: `${location.position.y}%`
-                    }}
+                    transition={{ delay: index * 0.05 }}
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
+                    style={{ left: `${node.x}%`, top: `${node.y}%` }}
                   >
-                    {/* Pulse Effect */}
-                    <span className="absolute inset-0 w-8 h-8 -m-1 bg-arctic-500 rounded-full opacity-30 animate-ping"></span>
+                    {/* Pulse effect */}
+                    <motion.span
+                      className={`absolute inset-0 w-8 h-8 -m-2 rounded-full ${
+                        node.type === 'charity' ? 'bg-green-500' : 'bg-blue-500'
+                      } opacity-20`}
+                      animate={{ scale: [1, 1.5, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
 
-                    {/* Marker */}
+                    {/* Node circle */}
                     <div
-                      className={`relative w-6 h-6 rounded-full transition-all ${
-                        selectedLocation?.id === location.id
-                          ? 'bg-arctic-600 scale-150 shadow-lg'
-                          : 'bg-arctic-500 group-hover:scale-125 group-hover:bg-arctic-600'
+                      className={`relative w-4 h-4 rounded-full shadow-lg ${
+                        node.type === 'charity'
+                          ? 'bg-gradient-to-br from-green-400 to-green-600'
+                          : 'bg-gradient-to-br from-blue-400 to-blue-600'
                       }`}
                     >
-                      <MapPinIcon className="w-4 h-4 text-white absolute inset-1" />
-                    </div>
-
-                    {/* Tooltip */}
-                    <div className="absolute left-8 top-0 hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-xl z-50">
-                      <div className="font-semibold">{location.name}</div>
-                      <div className="text-gray-300">${(location.donations / 1000).toFixed(0)}K donated</div>
-                      <div className="absolute left-0 top-1/2 -ml-1 w-2 h-2 bg-gray-900 transform -translate-y-1/2 rotate-45"></div>
-                    </div>
-                  </motion.button>
-                ))}
-
-                {/* Legend */}
-                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                  <div className="text-xs font-semibold text-gray-700 mb-2">Impact Scale</div>
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <div className="w-3 h-3 rounded-full bg-arctic-500"></div>
-                    <span>Active Charity</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Selected Location Details */}
-              {selectedLocation && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-6 p-4 bg-gradient-to-br from-arctic-50 to-ice-50 rounded-xl border border-arctic-200"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-bold text-gray-900 mb-1">{selectedLocation.name}</h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <MapPinIcon className="w-4 h-4" />
-                          {selectedLocation.location}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <BanknotesIcon className="w-4 h-4" />
-                          ${(selectedLocation.donations / 1000).toFixed(0)}K donated
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <ChartBarIcon className="w-4 h-4" />
-                          {selectedLocation.votingPower}% voting power
-                        </div>
+                      {/* Tooltip */}
+                      <div className="absolute left-6 top-0 hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-xl z-50">
+                        <div className="font-semibold">{node.name}</div>
+                        <div className="text-gray-300">{node.region}</div>
+                        <div className="text-gray-400 text-[10px]">{node.type === 'charity' ? 'Charity' : 'Donor'}</div>
                       </div>
-                      <p className="mt-2 text-sm text-gray-700">
-                        <strong>Impact:</strong> {selectedLocation.impact}
-                      </p>
                     </div>
-                    <button
-                      onClick={() => setSelectedLocation(null)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
 
-          {/* Voting Power Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
-          >
-            {/* How Voting Works */}
-            <div className="bg-white rounded-2xl shadow-xl border border-ice-100 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-lg flex items-center justify-center">
-                  <UserGroupIcon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">How Voting Works</h3>
-              </div>
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex items-start gap-2">
-                  <CheckBadgeIcon className="w-5 h-5 text-arctic-500 flex-shrink-0 mt-0.5" />
-                  <p><strong>Contribution-Based:</strong> Your voting power is proportional to your donations to the DAO</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckBadgeIcon className="w-5 h-5 text-arctic-500 flex-shrink-0 mt-0.5" />
-                  <p><strong>Democratic:</strong> Community votes on fund allocation to verified NZ charities</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckBadgeIcon className="w-5 h-5 text-arctic-500 flex-shrink-0 mt-0.5" />
-                  <p><strong>Transparent:</strong> All votes and distributions tracked on-chain</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Top Contributors */}
-            <div className="bg-white rounded-2xl shadow-xl border border-ice-100 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-lg flex items-center justify-center">
-                  <ChartBarIcon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Top Contributors</h3>
-              </div>
-              <div className="space-y-3">
-                {topContributors.map((contributor, index) => (
-                  <motion.div
-                    key={contributor.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="p-3 bg-gradient-to-r from-ice-50 to-arctic-50 rounded-lg border border-ice-200"
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-arctic-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                          {index + 1}
-                        </div>
-                        <span className="font-semibold text-gray-900 text-sm">{contributor.name}</span>
-                      </div>
-                      <span className="text-xs font-bold text-arctic-600">{contributor.votingPower}%</span>
-                    </div>
-                    <div className="ml-8 text-xs text-gray-600">
-                      ${(contributor.totalDonated / 1000).toFixed(0)}K • {contributor.impact}
-                    </div>
-                    {/* Voting Power Bar */}
-                    <div className="ml-8 mt-2 h-1.5 bg-ice-100 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${contributor.votingPower}%` }}
-                        transition={{ delay: index * 0.05 + 0.2, duration: 0.5 }}
-                        className="h-full bg-gradient-to-r from-arctic-500 to-arctic-600"
-                      />
+                    {/* Label */}
+                    <div className="absolute top-5 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-gray-700 whitespace-nowrap pointer-events-none">
+                      {node.region}
                     </div>
                   </motion.div>
                 ))}
+
+                {/* Floating particles (work indicators) */}
+                {[...Array(8)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1.5 h-1.5 bg-arctic-400 rounded-full opacity-40"
+                    style={{
+                      left: `${20 + Math.random() * 60}%`,
+                      top: `${10 + Math.random() * 80}%`
+                    }}
+                    animate={{
+                      y: [-10, -30, -10],
+                      x: [0, Math.random() * 20 - 10, 0],
+                      opacity: [0, 0.6, 0]
+                    }}
+                    transition={{
+                      duration: 3 + Math.random() * 2,
+                      repeat: Infinity,
+                      delay: i * 0.5
+                    }}
+                  />
+                ))}
+
+                {/* Legend */}
+                <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+                  <div className="text-xs font-semibold text-gray-700 mb-2">Legend</div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="w-3 h-3 rounded-full bg-gradient-to-br from-blue-400 to-blue-600"></div>
+                      <span className="text-gray-600">Donors</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <div className="w-3 h-3 rounded-full bg-gradient-to-br from-green-400 to-green-600"></div>
+                      <span className="text-gray-600">Charities</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Activity Feed */}
+          <div className="space-y-6">
+            {/* Activity Stream */}
+            <div className="bg-white rounded-2xl shadow-xl border border-ice-100 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <h3 className="text-lg font-bold text-gray-900">Live Activity</h3>
+              </div>
+              <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                <AnimatePresence initial={false}>
+                  {activities.map((activity) => {
+                    const Icon = getActivityIcon(activity.type);
+                    const colorClass = getActivityColor(activity.type);
+
+                    return (
+                      <motion.div
+                        key={activity.id}
+                        initial={{ opacity: 0, x: 20, height: 0 }}
+                        animate={{ opacity: 1, x: 0, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-3 bg-gradient-to-r from-ice-50 to-white rounded-lg border border-ice-200">
+                          <div className="flex items-start gap-3">
+                            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${colorClass} flex items-center justify-center flex-shrink-0`}>
+                              <Icon className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-gray-700 leading-snug">{activity.message}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <MapPinIcon className="w-3 h-3 text-gray-400" />
+                                <span className="text-xs text-gray-500">{activity.location}</span>
+                                <span className="text-xs text-gray-400">•</span>
+                                <span className="text-xs text-gray-400">Just now</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
               </div>
             </div>
 
-            {/* Stats Summary */}
+            {/* Quick Stats */}
             <div className="bg-gradient-to-br from-arctic-500 to-arctic-600 rounded-2xl shadow-xl p-6 text-white">
-              <h3 className="text-lg font-bold mb-4">DAO Impact</h3>
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <ArrowTrendingUpIcon className="w-5 h-5" />
+                Today's Activity
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-arctic-100">Total Donations</span>
-                  <span className="font-bold text-xl">${(totalDonations / 1000).toFixed(0)}K</span>
+                  <div className="flex items-center gap-2">
+                    <BanknotesIcon className="w-5 h-5 text-arctic-100" />
+                    <span className="text-arctic-100 text-sm">Donations</span>
+                  </div>
+                  <span className="font-bold text-xl">24</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-arctic-100">Active Charities</span>
-                  <span className="font-bold text-xl">{charityLocations.length}</span>
+                  <div className="flex items-center gap-2">
+                    <HandThumbUpIcon className="w-5 h-5 text-arctic-100" />
+                    <span className="text-arctic-100 text-sm">Votes Cast</span>
+                  </div>
+                  <span className="font-bold text-xl">156</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-arctic-100">DAO Members</span>
-                  <span className="font-bold text-xl">{topContributors.length}</span>
+                  <div className="flex items-center gap-2">
+                    <DocumentTextIcon className="w-5 h-5 text-arctic-100" />
+                    <span className="text-arctic-100 text-sm">Proposals</span>
+                  </div>
+                  <span className="font-bold text-xl">7</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <UserIcon className="w-5 h-5 text-arctic-100" />
+                    <span className="text-arctic-100 text-sm">Active Members</span>
+                  </div>
+                  <span className="font-bold text-xl">89</span>
                 </div>
               </div>
             </div>
-          </motion.div>
+
+            {/* How It Works */}
+            <div className="bg-white rounded-2xl shadow-xl border border-ice-100 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">How It Works</h3>
+              <div className="space-y-3 text-sm text-gray-600">
+                <div className="flex items-start gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-arctic-500 flex-shrink-0 mt-0.5" />
+                  <p><strong>Donate:</strong> Contribute to verified charities</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-arctic-500 flex-shrink-0 mt-0.5" />
+                  <p><strong>Vote:</strong> Your voting power grows with contributions</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-arctic-500 flex-shrink-0 mt-0.5" />
+                  <p><strong>Propose:</strong> Suggest new funding initiatives</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircleIcon className="w-5 h-5 text-arctic-500 flex-shrink-0 mt-0.5" />
+                  <p><strong>Track:</strong> All activity is transparent on-chain</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
