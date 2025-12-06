@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { HeartIcon } from '@heroicons/react/24/outline';
 import { API_URL } from '@/utils/apiUrl';
 
 const DonationForm: React.FC = () => {
@@ -61,6 +62,9 @@ const DonationForm: React.FC = () => {
           }}
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mb-6 shadow-xl">
+            <HeartIcon className="w-10 h-10 text-white" />
+          </div>
           <h1 className="text-3xl sm:text-4xl font-bold font-display mb-3 sm:mb-4">
             Choose a Charity
           </h1>
