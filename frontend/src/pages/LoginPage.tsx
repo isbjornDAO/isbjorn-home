@@ -38,25 +38,33 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-white">
-      {/* Background Image */}
+    <div className="relative min-h-screen bg-white">
+      {/* Curved Banner at Top */}
       <div
-        className="absolute inset-0 z-0"
+        className="relative w-full h-72 overflow-hidden"
         style={{
-          backgroundImage: `url(${polarBearBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.25 // Very light transparent as requested
+          borderBottomLeftRadius: '50% 15%',
+          borderBottomRightRadius: '50% 15%',
         }}
-      />
-      {/* Overlay to ensure text readability if needed, or just let the background shine through */}
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] z-0" />
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md relative z-10"
       >
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${polarBearBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-arctic-500/20 to-arctic-600/30" />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex items-center justify-center px-4 -mt-40 pb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md relative z-10"
+        >
         {/* Header */}
         <div className="text-center mb-4">
           <motion.div
@@ -154,7 +162,8 @@ const LoginPage: React.FC = () => {
             </Link>
           </p>
         </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 };
