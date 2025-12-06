@@ -14,6 +14,8 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 import polarBearBg from '@/assets/polar-bears-swimming.jpg';
 
 type AccountType = 'individual' | 'business';
@@ -34,6 +36,8 @@ interface NewsUpdate {
 
 const RegisterPage: React.FC = () => {
   const { register, isLoading } = useAuth();
+  const { openConnectModal } = useConnectModal();
+  const { address, isConnected } = useAccount();
   const [accountType, setAccountType] = useState<AccountType>('individual');
   const [formData, setFormData] = useState({
     name: '', // Maps to companyName
@@ -221,8 +225,20 @@ const RegisterPage: React.FC = () => {
     });
   };
 
+  const handleWalletSignup = () => {
+    if (isConnected && address) {
+      toast.success(`Connected: ${address.slice(0, 6)}...${address.slice(-4)}`, {
+        icon: '🔗',
+        duration: 3000,
+      });
+      // Here you would typically authenticate with the backend using the wallet address
+    } else if (openConnectModal) {
+      openConnectModal();
+    }
+  };
+
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-gradient-to-br from-white via-ice-50 to-arctic-50">
+    <div className="relative min-h-screen flex items-center justify-center px-4 py-12 overflow-hidden bg-gradient-to-br from-white via-ice-50 to-arctic-50">
       {/* Background Image */}
       <div
         className="absolute inset-0 z-0"
@@ -268,7 +284,7 @@ const RegisterPage: React.FC = () => {
           {/* Quick Sign Up */}
           <div className="mb-6">
             <p className="text-sm text-gray-600 text-center mb-4">Choose your preferred sign-up method</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => handleSocialLogin('Google')}
@@ -304,6 +320,21 @@ const RegisterPage: React.FC = () => {
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
                 <span className="text-xs font-semibold text-gray-700 group-hover:text-arctic-600">X</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleWalletSignup}
+                className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
+              >
+                <svg className="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+                  <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+                  <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+                </svg>
+                <span className="text-xs font-semibold text-gray-700 group-hover:text-arctic-600">
+                  {isConnected ? 'Connected' : 'Wallet'}
+                </span>
               </button>
             </div>
           </div>

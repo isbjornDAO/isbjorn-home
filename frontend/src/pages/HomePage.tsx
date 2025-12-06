@@ -312,12 +312,9 @@ const HomePage: React.FC = () => {
           >
             {/* Polar Bear Background */}
             <div
-              className="absolute inset-0 bg-cover sm:bg-contain md:bg-cover transition-opacity duration-700"
+              className="absolute inset-0 bg-center md:bg-right bg-cover bg-no-repeat transition-opacity duration-700"
               style={{
                 backgroundImage: "url('https://pbs.twimg.com/media/GseIHU4bwAAdCK5?format=jpg&name=medium')",
-                backgroundPosition: "center center",
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
                 opacity: ctaImageLoaded ? 1 : 0
               }}
             >
@@ -351,7 +348,7 @@ const HomePage: React.FC = () => {
                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
                       <HeartIcon className="w-3 h-3 sm:w-4 sm:h-4 text-arctic-600" />
                     </div>
-                    <span className="font-semibold">Community voting</span>
+                    <span className="font-semibold">Community powered decisions</span>
                   </div>
                   <div className="flex items-center justify-center md:justify-start">
                     <div className="w-6 h-6 sm:w-8 sm:h-8 bg-arctic-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 shadow-sm">
