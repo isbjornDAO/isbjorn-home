@@ -32,7 +32,8 @@ function App() {
           <Suspense fallback={<LoadingSpinner fullScreen />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/info" element={<HowItWorksPage />} />
+              <Route path="/donate-nodes" element={<HowItWorksPage />} />
+              <Route path="/map" element={<HowItWorksPage />} />
 
               <Route path="/donate" element={<DonatePage />} />
 
