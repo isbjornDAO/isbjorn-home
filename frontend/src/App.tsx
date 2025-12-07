@@ -7,6 +7,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 const HomePage = lazy(() => import('@/pages/HomePage'));
+const HowItWorksPage = lazy(() => import('@/pages/HowItWorksPage'));
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
 const StreamlinedDonatePage = lazy(() => import('@/pages/StreamlinedDonatePage'));
 const DonationSuccessPage = lazy(() => import('@/pages/DonationSuccessPage'));
@@ -31,6 +32,7 @@ function App() {
           <Suspense fallback={<LoadingSpinner fullScreen />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/info" element={<HowItWorksPage />} />
 
               <Route path="/donate" element={<DonatePage />} />
 

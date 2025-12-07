@@ -10,7 +10,8 @@ import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   LinkIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -23,6 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navigation = [
     { name: 'Home', href: '/', icon: HomeIcon },
+    { name: 'Info', href: '/info', icon: InformationCircleIcon },
     { name: 'Donate', href: '/donate', icon: HeartIcon },
   ];
 
