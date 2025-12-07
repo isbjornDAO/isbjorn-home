@@ -6,7 +6,6 @@ import { EnvelopeIcon, LockClosedIcon, ArrowRightIcon } from '@heroicons/react/2
 import toast from 'react-hot-toast';
 
 import polarBearBg from '@/assets/login-bg.avif';
-import polarBearIcon from '@/assets/bearrr.gif';
 
 const LoginPage: React.FC = () => {
   const { login, isLoading } = useAuth();
@@ -64,13 +63,9 @@ const LoginPage: React.FC = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 }}
-            className="inline-flex items-center justify-center mb-3"
+            className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full mb-2 shadow-lg"
           >
-            <img
-              src={polarBearIcon}
-              alt="Polar bear mascot"
-              className="w-32 h-32 object-contain"
-            />
+            <span className="text-2xl">🐻‍❄️</span>
           </motion.div>
           <h1 className="text-xl font-bold text-gray-800 font-display mb-1">Welcome Back</h1>
           <p className="text-sm text-ice-600">Sign in to your account</p>
