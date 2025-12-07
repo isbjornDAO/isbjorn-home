@@ -6,7 +6,7 @@ import { EnvelopeIcon, LockClosedIcon, ArrowRightIcon } from '@heroicons/react/2
 import toast from 'react-hot-toast';
 
 import polarBearBg from '@/assets/login-bg.avif';
-import polarBearIcon from '@/assets/polar-bear-coffee.png';
+import polarBearIcon from '@/assets/bearrr.gif';
 
 const LoginPage: React.FC = () => {
   const { login, isLoading } = useAuth();
