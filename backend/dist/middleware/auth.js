@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.requireAdmin = exports.authenticateToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_model_1 = require("../models/User.model");
+const User_mongoose_1 = require("../models/User.mongoose");
 const logger_1 = require("../utils/logger");
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
 const authenticateToken = async (req, res, next) => {
@@ -31,8 +31,8 @@ const authenticateToken = async (req, res, next) => {
         }
         // For real tokens, check database
         logger_1.logger.info(`Verifying token for user ID: ${decoded.id}`);
-        const user = await User_model_1.User.findByPk(decoded.id);
-        logger_1.logger.info(`User found: ${user ? user.id : 'null'}`);
+        const user = await User_mongoose_1.User.findById(decoded.id);
+        logger_1.logger.info(`User found: ${user ? user._id : 'null'}`);
         if (!user || !user.isActive) {
             logger_1.logger.warn('User not found or inactive');
             return res.status(401).json({ error: 'Invalid token' });
@@ -63,7 +63,7 @@ const requireAdmin = (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({ error: 'Authentication required' });
     }
-    if (req.user.role !== User_model_1.UserRole.ADMIN) {
+    if (req.user.role !== User_mongoose_1.UserRole.ADMIN) {
         return res.status(403).json({ error: 'Admin access required' });
     }
     next();

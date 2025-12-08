@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { User, UserRole } from '../models/User.model';
+import { User, UserRole, IUser } from '../models/User.mongoose';
 import { logger } from '../utils/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-productio
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: IUser;
     }
   }
 }
@@ -40,8 +40,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
     // For real tokens, check database
     logger.info(`Verifying token for user ID: ${decoded.id}`);
-    const user = await User.findByPk(decoded.id);
-    logger.info(`User found: ${user ? user.id : 'null'}`);
+    const user = await User.findById(decoded.id);
+    logger.info(`User found: ${user ? user._id : 'null'}`);
 
     if (!user || !user.isActive) {
       logger.warn('User not found or inactive');

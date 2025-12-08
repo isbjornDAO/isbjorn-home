@@ -20,14 +20,17 @@ function generateTokens(user: IUser) {
     role: user.role,
   };
 
+  const tokenExpiry = process.env.JWT_EXPIRES_IN || '7d';
+  const refreshTokenExpiry = process.env.JWT_REFRESH_EXPIRES_IN || '30d';
+
   const token = jwt.sign(payload, JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  });
+    expiresIn: tokenExpiry,
+  } as jwt.SignOptions);
 
   const refreshToken = jwt.sign(
     { id: user._id },
     JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d' }
+    { expiresIn: refreshTokenExpiry } as jwt.SignOptions
   );
 
   return { token, refreshToken };

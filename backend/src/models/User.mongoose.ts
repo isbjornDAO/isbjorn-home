@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, CallbackError } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 export enum UserRole {
@@ -7,7 +7,6 @@ export enum UserRole {
 }
 
 export interface IUser extends Document {
-  _id: string;
   email?: string;
   password?: string;
   walletAddress?: string;
@@ -188,8 +187,8 @@ const UserSchema = new Schema<IUser>(
   {
     timestamps: true,
     toJSON: {
-      transform: function(doc, ret) {
-        ret.id = ret._id;
+      transform: function(doc: any, ret: any) {
+        ret.id = ret._id.toString();
         delete ret._id;
         delete ret.__v;
         delete ret.password;
@@ -209,7 +208,7 @@ UserSchema.index({ companyName: 1 });
 UserSchema.index({ createdAt: -1 });
 
 // Hash password before saving
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function(next: (err?: CallbackError) => void) {
   if (!this.isModified('password') || !this.password) {
     return next();
   }
@@ -230,13 +229,13 @@ UserSchema.methods.validatePassword = async function(password: string): Promise<
 };
 
 // Validation: Require either email+password OR walletAddress OR OAuth
-UserSchema.pre('validate', function(next) {
+UserSchema.pre('validate', function(next: (err?: CallbackError) => void) {
   const hasEmailAuth = this.email && this.password;
   const hasWalletAuth = this.walletAddress;
   const hasOAuth = this.oauth && (this.oauth.google?.id || this.oauth.twitter?.id || this.oauth.proton?.id);
 
   if (!hasEmailAuth && !hasWalletAuth && !hasOAuth) {
-    next(new Error('User must have either email+password, wallet address, or OAuth provider'));
+    next(new Error('User must have either email+password, wallet address, or OAuth provider') as CallbackError);
   } else {
     next();
   }

@@ -11,7 +11,7 @@ const router = express.Router();
  */
 router.get('/urls', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!._id.toString();
     const urls = accountingIntegrationService.getIntegrationUrls(userId);
     
     res.json({
@@ -92,7 +92,7 @@ router.get('/myob/callback', async (req, res) => {
  */
 router.get('/status', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!._id.toString();
     const settings = accountingIntegrationService.getIntegrationStatus(userId);
     
     if (!settings) {
@@ -133,7 +133,7 @@ router.get('/status', authenticateToken, async (req, res) => {
  */
 router.patch('/settings', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!._id.toString();
     const { autoSync, syncReceipts, syncFees } = req.body;
     
     const updatedSettings = accountingIntegrationService.updateIntegrationSettings(userId, {
@@ -161,7 +161,7 @@ router.patch('/settings', authenticateToken, async (req, res) => {
  */
 router.delete('/disconnect/:type?', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!._id.toString();
     const integrationType = req.params.type as IntegrationType;
     
     accountingIntegrationService.disconnectIntegration(userId, integrationType);
@@ -183,7 +183,7 @@ router.delete('/disconnect/:type?', authenticateToken, async (req, res) => {
  */
 router.post('/test', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!._id.toString();
     const validations = await accountingIntegrationService.validateIntegrations();
     const userValidation = validations.get(userId);
     
@@ -269,7 +269,7 @@ router.get('/ird-info', authenticateToken, async (req, res) => {
  */
 router.post('/sync-test', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user!.id;
+    const userId = req.user!._id.toString();
     const { donationId } = req.body;
     
     // This would trigger a manual sync for testing purposes

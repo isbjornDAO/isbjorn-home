@@ -13,7 +13,7 @@ const router = express_1.default.Router();
 exports.dashboardRoutes = router;
 router.get('/stats', auth_1.authenticateToken, async (req, res) => {
     try {
-        const userId = req.user?.id;
+        const userId = req.user?._id.toString();
         const userDonations = await Donation_model_1.Donation.findAll({
             where: { userId },
             include: [

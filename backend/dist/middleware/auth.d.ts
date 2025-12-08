@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from '../models/User.model';
+import { IUser } from '../models/User.mongoose';
 declare global {
     namespace Express {
         interface Request {
-            user?: User;
+            user?: IUser;
         }
     }
 }
-export declare const authenticateToken: (req: Request, res: Response, next: NextFunction) => Promise<any>;
-export declare const requireAdmin: (req: Request, res: Response, next: NextFunction) => any;
+export declare const authenticateToken: (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+export declare const requireAdmin: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>>;
 //# sourceMappingURL=auth.d.ts.map

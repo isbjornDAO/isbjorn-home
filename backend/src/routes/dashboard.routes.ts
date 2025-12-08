@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get('/stats', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user?.id;
+    const userId = req.user?._id.toString();
 
     const userDonations = await Donation.findAll({
       where: { userId },

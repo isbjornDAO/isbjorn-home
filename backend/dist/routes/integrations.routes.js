@@ -16,7 +16,7 @@ exports.integrationsRoutes = router;
  */
 router.get('/urls', auth_1.authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user._id.toString();
         const urls = accountingIntegrationService_1.accountingIntegrationService.getIntegrationUrls(userId);
         res.json({
             success: true,
@@ -80,7 +80,7 @@ router.get('/myob/callback', async (req, res) => {
  */
 router.get('/status', auth_1.authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user._id.toString();
         const settings = accountingIntegrationService_1.accountingIntegrationService.getIntegrationStatus(userId);
         if (!settings) {
             return res.json({
@@ -118,7 +118,7 @@ router.get('/status', auth_1.authenticateToken, async (req, res) => {
  */
 router.patch('/settings', auth_1.authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user._id.toString();
         const { autoSync, syncReceipts, syncFees } = req.body;
         const updatedSettings = accountingIntegrationService_1.accountingIntegrationService.updateIntegrationSettings(userId, {
             autoSync,
@@ -144,7 +144,7 @@ router.patch('/settings', auth_1.authenticateToken, async (req, res) => {
  */
 router.delete('/disconnect/:type?', auth_1.authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user._id.toString();
         const integrationType = req.params.type;
         accountingIntegrationService_1.accountingIntegrationService.disconnectIntegration(userId, integrationType);
         res.json({
@@ -164,7 +164,7 @@ router.delete('/disconnect/:type?', auth_1.authenticateToken, async (req, res) =
  */
 router.post('/test', auth_1.authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user._id.toString();
         const validations = await accountingIntegrationService_1.accountingIntegrationService.validateIntegrations();
         const userValidation = validations.get(userId);
         if (!userValidation) {
@@ -244,7 +244,7 @@ router.get('/ird-info', auth_1.authenticateToken, async (req, res) => {
  */
 router.post('/sync-test', auth_1.authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user._id.toString();
         const { donationId } = req.body;
         // This would trigger a manual sync for testing purposes
         // In production, this would be restricted to admin users or removed
