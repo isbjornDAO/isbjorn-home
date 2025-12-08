@@ -225,8 +225,11 @@ const RegisterPage: React.FC = () => {
       // Redirect to Google OAuth
       window.location.href = `${API_URL}/auth/google`;
     } else if (provider === 'X') {
-      // Redirect to Twitter/X OAuth
-      window.location.href = `${API_URL}/auth/twitter`;
+      // X/Twitter coming soon
+      toast('X (Twitter) sign up coming soon! 🔜', {
+        icon: '🐦',
+        duration: 3000,
+      });
     } else if (provider === 'Proton Mail') {
       // Proton Mail doesn't have OAuth - show message
       toast.error('Proton Mail OAuth not available. Please use email signup with your Proton address.', {
