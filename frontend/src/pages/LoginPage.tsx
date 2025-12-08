@@ -45,56 +45,6 @@ const LoginPage: React.FC = () => {
     }
   }, [isConnected]);
 
-  // Handle wallet authentication when connected
-  useEffect(() => {
-    const authenticateWallet = async () => {
-      // Only attempt authentication once per wallet connection
-      if (isConnected && address && !isAuthenticated && !walletAuthAttempted) {
-        setWalletAuthAttempted(true);
-
-        try {
-          // Create message to sign
-          const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
-
-          // Request signature
-          const signature = await signMessageAsync({ message });
-
-          // Send to backend for verification and authentication
-          const response = await apiService.post<{
-            user: any;
-            token: string;
-            refreshToken: string;
-          }>('/auth/wallet-login', {
-            address,
-            message,
-            signature,
-          });
-
-          // Store token and user data
-          localStorage.setItem('authToken', response.token);
-          if (response.refreshToken) {
-            localStorage.setItem('refreshToken', response.refreshToken);
-          }
-
-          toast.success('Wallet connected and authenticated!');
-
-          // Navigate to dashboard
-          navigate('/dashboard');
-        } catch (error: any) {
-          console.error('Wallet authentication error:', error);
-          if (error.message?.includes('User rejected')) {
-            toast.error('Signature rejected. Please sign the message to authenticate.');
-          } else {
-            toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
-          }
-          // Don't reset walletAuthAttempted here - user can try again by disconnecting and reconnecting
-        }
-      }
-    };
-
-    authenticateWallet();
-  }, [isConnected, address, isAuthenticated, walletAuthAttempted, signMessageAsync, navigate]);
-
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
     {
@@ -150,8 +100,47 @@ const LoginPage: React.FC = () => {
     });
   };
 
-  const handleWalletLogin = () => {
-    if (openConnectModal) {
+  const handleWalletLogin = async () => {
+    // If already connected, authenticate
+    if (isConnected && address && !walletAuthAttempted) {
+      setWalletAuthAttempted(true);
+      try {
+        // Create message to sign
+        const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
+
+        // Request signature
+        const signature = await signMessageAsync({ message });
+
+        // Send to backend for verification and authentication
+        const response = await apiService.post<{
+          user: any;
+          token: string;
+          refreshToken: string;
+        }>('/auth/wallet-login', {
+          address,
+          message,
+          signature,
+        });
+
+        // Store token and user data
+        localStorage.setItem('authToken', response.token);
+        if (response.refreshToken) {
+          localStorage.setItem('refreshToken', response.refreshToken);
+        }
+
+        toast.success('Wallet connected and authenticated!');
+        navigate('/dashboard');
+      } catch (error: any) {
+        console.error('Wallet authentication error:', error);
+        setWalletAuthAttempted(false); // Allow retry
+        if (error.message?.includes('User rejected')) {
+          toast.error('Signature rejected. Please sign the message to authenticate.');
+        } else {
+          toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
+        }
+      }
+    } else if (openConnectModal) {
+      // Not connected yet, open connect modal
       openConnectModal();
     }
   };
@@ -171,21 +160,27 @@ const LoginPage: React.FC = () => {
     <div className="relative min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50">
       {/* Curved Banner at Top */}
       <div
-        className="relative w-full h-40 overflow-hidden z-0"
+        className="relative w-full h-40 z-0"
         style={{
           borderBottomLeftRadius: '50% 8%',
           borderBottomRightRadius: '50% 8%',
+          overflow: 'visible',
         }}
       >
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 overflow-hidden"
           style={{
             backgroundImage: `url(${polarBearBg})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center top',
+            backgroundPosition: 'center bottom',
+            borderBottomLeftRadius: '50% 8%',
+            borderBottomRightRadius: '50% 8%',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-white/10" />
+        <div className="absolute inset-0 bg-white/40" style={{
+          borderBottomLeftRadius: '50% 8%',
+          borderBottomRightRadius: '50% 8%',
+        }} />
       </div>
 
       {/* Main Content Container */}
