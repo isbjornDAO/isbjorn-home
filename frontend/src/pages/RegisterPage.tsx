@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import polarBearBg from '@/assets/polar-bears-swimming.jpg';
+import bearrrGif from '@/assets/bearrr.gif';
 
 type AccountType = 'individual' | 'business';
 
@@ -273,9 +274,9 @@ const RegisterPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-2xl mb-3 shadow-xl"
+              className="inline-flex items-center justify-center mb-3"
             >
-              <span className="text-3xl">🐻‍❄️</span>
+              <img src={bearrrGif} alt="Bearrr mascot" className="w-28 h-28 object-contain" />
             </motion.div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Create an account</h1>
             <p className="text-sm text-gray-600">Join Isbjorn today</p>

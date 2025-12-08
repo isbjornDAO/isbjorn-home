@@ -9,6 +9,7 @@ import { useAccount, useSignMessage } from 'wagmi';
 import { apiService } from '@/services/api';
 
 import polarBearBg from '@/assets/login-bg.avif';
+import bearrrGif from '@/assets/bearrr.gif';
 
 interface NewsUpdate {
   id: string;
@@ -182,9 +183,9 @@ const LoginPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-3xl mb-4 shadow-xl"
+              className="inline-flex items-center justify-center mb-4"
             >
-              <span className="text-4xl">🐻‍❄️</span>
+              <img src={bearrrGif} alt="Bearrr mascot" className="w-32 h-32 object-contain" />
             </motion.div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
             <p className="text-gray-600">Sign in to make an impact</p>
