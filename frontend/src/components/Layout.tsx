@@ -116,7 +116,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     Sign In
                   </Link>
                   <Link
-                    to={isAuthenticated ? '/donate' : '/register'}
+                    to="/donate"
                     className="btn-primary text-sm px-3 sm:px-6 py-2 sm:py-3"
                   >
                     <span className="hidden sm:inline">Donate now</span>
