@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { EnvelopeIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount } from 'wagmi';
+import { useAccount, useSignMessage } from 'wagmi';
+import { apiService } from '@/services/api';
 
 import polarBearBg from '@/assets/login-bg.avif';
 
@@ -18,13 +19,71 @@ interface NewsUpdate {
 }
 
 const LoginPage: React.FC = () => {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const [walletAuthInProgress, setWalletAuthInProgress] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Handle wallet authentication when connected
+  useEffect(() => {
+    const authenticateWallet = async () => {
+      if (isConnected && address && !isAuthenticated && !walletAuthInProgress) {
+        setWalletAuthInProgress(true);
+        try {
+          // Create message to sign
+          const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
+
+          // Request signature
+          const signature = await signMessageAsync({ message });
+
+          // Send to backend for verification and authentication
+          const response = await apiService.post<{
+            user: any;
+            token: string;
+            refreshToken: string;
+          }>('/auth/wallet-login', {
+            address,
+            message,
+            signature,
+          });
+
+          // Store token and user data
+          localStorage.setItem('authToken', response.token);
+          if (response.refreshToken) {
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
+
+          toast.success('Wallet connected and authenticated!');
+
+          // Navigate to dashboard
+          navigate('/dashboard');
+        } catch (error: any) {
+          console.error('Wallet authentication error:', error);
+          if (error.message?.includes('User rejected')) {
+            toast.error('Signature rejected. Please sign the message to authenticate.');
+          } else {
+            toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
+          }
+          setWalletAuthInProgress(false);
+        }
+      }
+    };
+
+    authenticateWallet();
+  }, [isConnected, address, isAuthenticated, walletAuthInProgress, signMessageAsync, navigate]);
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
@@ -74,21 +133,15 @@ const LoginPage: React.FC = () => {
     });
   };
 
-  const handleSocialLogin = (provider: string) => {
-    toast(`${provider} login coming soon`, {
+  const handleGoogleLogin = () => {
+    toast('Google login coming soon', {
       icon: '🔜',
       duration: 3000,
     });
   };
 
   const handleWalletLogin = () => {
-    if (isConnected && address) {
-      toast.success(`Connected: ${address.slice(0, 6)}...${address.slice(-4)}`, {
-        icon: '🔗',
-        duration: 3000,
-      });
-      // Here you would typically authenticate with the backend using the wallet address
-    } else if (openConnectModal) {
+    if (openConnectModal) {
       openConnectModal();
     }
   };
@@ -145,7 +198,7 @@ const LoginPage: React.FC = () => {
                 <div className="flex flex-col gap-2">
                   <button
                     type="button"
-                    onClick={() => handleSocialLogin('Google')}
+                    onClick={handleGoogleLogin}
                     className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -159,31 +212,9 @@ const LoginPage: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={() => handleSocialLogin('Proton Mail')}
-                    className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 32 32" fill="none">
-                      <path d="M16 2C8.3 2 2 8.3 2 16s6.3 14 14 14 14-6.3 14-14S23.7 2 16 2zm0 24c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="#6D4AFF"/>
-                      <path d="M16 8c-4.4 0-8 3.6-8 8v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c0-4.4-3.6-8-8-8zm4 12h-8v-4c0-2.2 1.8-4 4-4s4 1.8 4 4v4z" fill="#6D4AFF"/>
-                    </svg>
-                    <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">Continue with Proton</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSocialLogin('X')}
-                    className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">Continue with X</span>
-                  </button>
-
-                  <button
-                    type="button"
                     onClick={handleWalletLogin}
-                    className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
+                    disabled={walletAuthInProgress}
+                    className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
@@ -191,7 +222,7 @@ const LoginPage: React.FC = () => {
                       <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
                     </svg>
                     <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">
-                      {isConnected ? 'Wallet Connected' : 'Continue with Wallet'}
+                      {walletAuthInProgress ? 'Authenticating...' : isConnected ? `Connected: ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Continue with Wallet'}
                     </span>
                   </button>
                 </div>
