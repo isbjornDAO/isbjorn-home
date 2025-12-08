@@ -22,6 +22,7 @@ const SystemStatusPage = lazy(() => import('@/pages/SystemStatusPage'));
 const BusinessDashboard = lazy(() => import('@/pages/BusinessDashboard'));
 const WalletPage = lazy(() => import('@/pages/WalletPage'));
 const DonationForm = lazy(() => import('@/components/DonationForm'));
+const AuthCallbackPage = lazy(() => import('@/pages/AuthCallbackPage'));
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
 
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route
                 path="/dashboard"
                 element={

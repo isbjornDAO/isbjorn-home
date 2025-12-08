@@ -8154,3 +8154,49 @@
 {"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-12-02 22:01:45"}
 {"level":"info","message":"Server running on port 5001 in development mode","service":"isbjorn-api","timestamp":"2025-12-02 22:01:45"}
 {"level":"info","message":"API Documentation: http://localhost:5001/api-docs","service":"isbjorn-api","timestamp":"2025-12-02 22:01:45"}
+{"code":"ECONNREFUSED","hostname":"_mongodb._tcp.cluster.mongodb.net","level":"error","message":"❌ MongoDB connection failed: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net","service":"isbjorn-api","stack":"Error: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)","syscall":"querySrv","timestamp":"2025-12-08 00:46:52"}
+{"level":"warn","message":"⚠️ Running without database in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:46:52"}
+{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"level":"error","message":"Redis connection error: connect ECONNREFUSED 127.0.0.1:6379","port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-12-08 00:46:52"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-08 00:46:52"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-08 00:46:52"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:46:52"}
+{"level":"info","message":"Health check: http://localhost:5000/health","service":"isbjorn-api","timestamp":"2025-12-08 00:46:52"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-08 00:46:52"}
+{"level":"info","message":"SIGTERM signal received: closing HTTP server","service":"isbjorn-api","timestamp":"2025-12-08 00:47:00"}
+{"code":"ECONNREFUSED","hostname":"_mongodb._tcp.cluster.mongodb.net","level":"error","message":"❌ MongoDB connection failed: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net","service":"isbjorn-api","stack":"Error: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)","syscall":"querySrv","timestamp":"2025-12-08 00:47:04"}
+{"level":"warn","message":"⚠️ Running without database in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:47:04"}
+{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"level":"error","message":"Redis connection error: connect ECONNREFUSED 127.0.0.1:6379","port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-12-08 00:47:04"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-08 00:47:04"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-08 00:47:04"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:47:04"}
+{"level":"info","message":"Health check: http://localhost:5000/health","service":"isbjorn-api","timestamp":"2025-12-08 00:47:04"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-08 00:47:04"}
+{"level":"info","message":"SIGTERM signal received: closing HTTP server","service":"isbjorn-api","timestamp":"2025-12-08 00:47:09"}
+{"code":"ECONNREFUSED","hostname":"_mongodb._tcp.cluster.mongodb.net","level":"error","message":"❌ MongoDB connection failed: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net","service":"isbjorn-api","stack":"Error: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)","syscall":"querySrv","timestamp":"2025-12-08 00:47:12"}
+{"level":"warn","message":"⚠️ Running without database in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:47:12"}
+{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"level":"error","message":"Redis connection error: connect ECONNREFUSED 127.0.0.1:6379","port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-12-08 00:47:12"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-08 00:47:12"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-08 00:47:12"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:47:12"}
+{"level":"info","message":"Health check: http://localhost:5000/health","service":"isbjorn-api","timestamp":"2025-12-08 00:47:12"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-08 00:47:12"}
+{"level":"info","message":"SIGTERM signal received: closing HTTP server","service":"isbjorn-api","timestamp":"2025-12-08 00:47:40"}
+{"code":"ECONNREFUSED","hostname":"_mongodb._tcp.cluster.mongodb.net","level":"error","message":"❌ MongoDB connection failed: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net","service":"isbjorn-api","stack":"Error: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)","syscall":"querySrv","timestamp":"2025-12-08 00:47:43"}
+{"level":"warn","message":"⚠️ Running without database in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:47:43"}
+{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"level":"error","message":"Redis connection error: connect ECONNREFUSED 127.0.0.1:6379","port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-12-08 00:47:43"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-08 00:47:43"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-08 00:47:43"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:47:43"}
+{"level":"info","message":"Health check: http://localhost:5000/health","service":"isbjorn-api","timestamp":"2025-12-08 00:47:43"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-08 00:47:43"}
+{"level":"info","message":"SIGTERM signal received: closing HTTP server","service":"isbjorn-api","timestamp":"2025-12-08 00:47:50"}
+{"level":"warn","message":"Google OAuth not configured - missing credentials","service":"isbjorn-api","timestamp":"2025-12-08 00:47:57"}
+{"level":"warn","message":"Twitter/X OAuth not configured - missing credentials","service":"isbjorn-api","timestamp":"2025-12-08 00:47:57"}
+{"code":"ECONNREFUSED","hostname":"_mongodb._tcp.cluster.mongodb.net","level":"error","message":"❌ MongoDB connection failed: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net","service":"isbjorn-api","stack":"Error: querySrv ECONNREFUSED _mongodb._tcp.cluster.mongodb.net\n    at QueryReqWrap.onresolve [as oncomplete] (node:internal/dns/promises:294:17)","syscall":"querySrv","timestamp":"2025-12-08 00:47:57"}
+{"level":"warn","message":"⚠️ Running without database in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:47:57"}
+{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-111,"level":"error","message":"Redis connection error: connect ECONNREFUSED 127.0.0.1:6379","port":6379,"service":"isbjorn-api","stack":"Error: connect ECONNREFUSED 127.0.0.1:6379\n    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)","syscall":"connect","timestamp":"2025-12-08 00:47:57"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-08 00:47:57"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-08 00:47:57"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-08 00:47:57"}
+{"level":"info","message":"Health check: http://localhost:5000/health","service":"isbjorn-api","timestamp":"2025-12-08 00:47:57"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-08 00:47:57"}

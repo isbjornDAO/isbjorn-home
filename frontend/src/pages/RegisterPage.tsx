@@ -219,10 +219,26 @@ const RegisterPage: React.FC = () => {
   };
 
   const handleSocialLogin = (provider: string) => {
-    toast(`${provider} sign up coming soon`, {
-      icon: '🔜',
-      duration: 3000,
-    });
+    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+    if (provider === 'Google') {
+      // Redirect to Google OAuth
+      window.location.href = `${API_URL}/auth/google`;
+    } else if (provider === 'X') {
+      // Redirect to Twitter/X OAuth
+      window.location.href = `${API_URL}/auth/twitter`;
+    } else if (provider === 'Proton Mail') {
+      // Proton Mail doesn't have OAuth - show message
+      toast.error('Proton Mail OAuth not available. Please use email signup with your Proton address.', {
+        icon: 'ℹ️',
+        duration: 5000,
+      });
+    } else {
+      toast(`${provider} sign up coming soon`, {
+        icon: '🔜',
+        duration: 3000,
+      });
+    }
   };
 
   const handleWalletSignup = async () => {
@@ -298,9 +314,22 @@ const RegisterPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-3xl mb-4 shadow-xl"
+              className="inline-flex items-center justify-center mb-4"
             >
-              <span className="text-4xl">🐻‍❄️</span>
+              {/* TODO: Replace with actual bearrrr.gif path once uploaded to /frontend/src/assets/ */}
+              <img
+                src="/bearrrr.gif"
+                alt="Isbjorn Bear"
+                className="w-24 h-24 object-contain"
+                onError={(e) => {
+                  // Fallback to emoji if image not found
+                  e.currentTarget.style.display = 'none';
+                  const fallback = document.createElement('div');
+                  fallback.className = 'inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-3xl shadow-xl';
+                  fallback.innerHTML = '<span class="text-4xl">🐻‍❄️</span>';
+                  e.currentTarget.parentElement?.appendChild(fallback);
+                }}
+              />
             </motion.div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Create an account</h1>
             <p className="text-gray-600">Join Isbjorn today</p>

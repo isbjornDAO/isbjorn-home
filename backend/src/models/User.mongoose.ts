@@ -43,6 +43,25 @@ export interface IUser extends Document {
   };
   stripeCustomerId?: string;
   x402WalletId?: string;
+  oauth?: {
+    google?: {
+      id: string;
+      email?: string;
+      displayName?: string;
+      photo?: string;
+    };
+    twitter?: {
+      id: string;
+      username?: string;
+      displayName?: string;
+      photo?: string;
+    };
+    proton?: {
+      id: string;
+      email?: string;
+      displayName?: string;
+    };
+  };
   createdAt: Date;
   updatedAt: Date;
 
@@ -146,6 +165,25 @@ const UserSchema = new Schema<IUser>(
     },
     stripeCustomerId: String,
     x402WalletId: String,
+    oauth: {
+      google: {
+        id: String,
+        email: String,
+        displayName: String,
+        photo: String,
+      },
+      twitter: {
+        id: String,
+        username: String,
+        displayName: String,
+        photo: String,
+      },
+      proton: {
+        id: String,
+        email: String,
+        displayName: String,
+      },
+    },
   },
   {
     timestamps: true,
@@ -191,13 +229,14 @@ UserSchema.methods.validatePassword = async function(password: string): Promise<
   return bcrypt.compare(password, this.password);
 };
 
-// Validation: Require either email+password OR walletAddress
+// Validation: Require either email+password OR walletAddress OR OAuth
 UserSchema.pre('validate', function(next) {
   const hasEmailAuth = this.email && this.password;
   const hasWalletAuth = this.walletAddress;
+  const hasOAuth = this.oauth && (this.oauth.google?.id || this.oauth.twitter?.id || this.oauth.proton?.id);
 
-  if (!hasEmailAuth && !hasWalletAuth) {
-    next(new Error('User must have either email+password or wallet address'));
+  if (!hasEmailAuth && !hasWalletAuth && !hasOAuth) {
+    next(new Error('User must have either email+password, wallet address, or OAuth provider'));
   } else {
     next();
   }

@@ -12,7 +12,9 @@ import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 import { requestLogger } from './middleware/requestLogger';
 import authRoutes from './routes/auth.mongoose';
+import oauthRoutes from './routes/oauth';
 import { initializeRedis } from './config/redis';
+import { initializePassport } from './config/passport';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
@@ -90,6 +92,10 @@ if (NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// Initialize Passport
+const passportInstance = initializePassport();
+app.use(passportInstance.initialize());
+
 app.use(requestLogger);
 app.use('/api', rateLimiter);
 
@@ -114,6 +120,9 @@ if (NODE_ENV === 'development') {
 
 // Mount auth routes
 app.use('/api/auth', authRoutes);
+
+// Mount OAuth routes
+app.use('/api/auth', oauthRoutes);
 
 // Serve static files from the frontend build in production
 if (NODE_ENV === 'production') {
