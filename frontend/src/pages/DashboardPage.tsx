@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { API_URL } from '@/utils/apiUrl';
+import { apiService } from '@/services/api';
 import { WalletConnect } from '@/components/WalletConnect';
 
 interface DashboardStats {
@@ -18,15 +18,8 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch(`${API_URL}/dashboard/stats`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
-        }
+        const data = await apiService.get<DashboardStats>('/dashboard/stats');
+        setStats(data);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {

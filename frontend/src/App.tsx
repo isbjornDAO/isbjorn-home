@@ -21,6 +21,7 @@ const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage'));
 const SystemStatusPage = lazy(() => import('@/pages/SystemStatusPage'));
 const BusinessDashboard = lazy(() => import('@/pages/BusinessDashboard'));
 const WalletPage = lazy(() => import('@/pages/WalletPage'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const DonationForm = lazy(() => import('@/components/DonationForm'));
 
 function App() {
@@ -76,6 +77,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <WalletPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
                   </ProtectedRoute>
                 }
               />

@@ -89,10 +89,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <LinkIcon className="w-5 h-5" />
                   </Link>
 
+                  <Link
+                    to="/profile"
+                    className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
+                    title="Profile Settings"
+                  >
+                    <Cog6ToothIcon className="w-5 h-5" />
+                  </Link>
+
                   {user.role === 'admin' && (
                     <Link
                       to="/admin"
-                      className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
+                      className="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
                       title="Admin Panel"
                     >
                       <Cog6ToothIcon className="w-5 h-5" />

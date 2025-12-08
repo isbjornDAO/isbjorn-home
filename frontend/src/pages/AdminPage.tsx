@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiService } from '@/services/api';
 
 interface AdminStats {
   totalUsers: number;
@@ -23,15 +24,8 @@ const AdminPage: React.FC = () => {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/admin/stats', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
-        }
+        const data = await apiService.get<AdminStats>('/admin/stats');
+        setStats(data);
       } catch (error) {
         console.error('Error fetching admin data:', error);
       } finally {

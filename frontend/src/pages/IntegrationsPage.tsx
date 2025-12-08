@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiService } from '@/services/api';
 
 interface IntegrationStatus {
   connected: boolean;
@@ -39,24 +40,13 @@ const IntegrationsPage: React.FC = () => {
 
   const fetchIntegrationData = async () => {
     try {
-      const [statusResponse, urlsResponse] = await Promise.all([
-        fetch('http://localhost:5000/api/integrations/status', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }),
-        fetch('http://localhost:5000/api/integrations/urls', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        })
+      const [statusData, urlsData] = await Promise.all([
+        apiService.get<{ data: IntegrationStatus }>('/integrations/status'),
+        apiService.get<{ data: IntegrationUrls }>('/integrations/urls')
       ]);
 
-      if (statusResponse.ok) {
-        const statusData = await statusResponse.json();
-        setStatus(statusData.data);
-      }
-
-      if (urlsResponse.ok) {
-        const urlsData = await urlsResponse.json();
-        setUrls(urlsData.data);
-      }
+      setStatus(statusData.data);
+      setUrls(urlsData.data);
     } catch (error) {
       console.error('Error fetching integration data:', error);
     } finally {
@@ -67,19 +57,8 @@ const IntegrationsPage: React.FC = () => {
   const updateSettings = async (updates: Partial<IntegrationStatus>) => {
     setUpdating(true);
     try {
-      const response = await fetch('http://localhost:5000/api/integrations/settings', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(updates)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStatus(prev => ({ ...prev!, ...data.data }));
-      }
+      const data = await apiService.patch<{ data: Partial<IntegrationStatus> }>('/integrations/settings', updates);
+      setStatus(prev => ({ ...prev!, ...data.data }));
     } catch (error) {
       console.error('Error updating settings:', error);
     } finally {
@@ -89,18 +68,12 @@ const IntegrationsPage: React.FC = () => {
 
   const disconnectIntegration = async (type?: string) => {
     try {
-      const url = type 
-        ? `http://localhost:5000/api/integrations/disconnect/${type}`
-        : 'http://localhost:5000/api/integrations/disconnect';
-        
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
+      const endpoint = type
+        ? `/integrations/disconnect/${type}`
+        : '/integrations/disconnect';
 
-      if (response.ok) {
-        await fetchIntegrationData();
-      }
+      await apiService.delete(endpoint);
+      await fetchIntegrationData();
     } catch (error) {
       console.error('Error disconnecting integration:', error);
     }
@@ -108,15 +81,8 @@ const IntegrationsPage: React.FC = () => {
 
   const testConnection = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/integrations/test', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        alert(`Connection test: ${data.data.message}\nXero: ${data.data.xero ? 'Connected' : 'Failed'}\nMYOB: ${data.data.myob ? 'Connected' : 'Failed'}`);
-      }
+      const data = await apiService.post<{ data: { message: string; xero: boolean; myob: boolean } }>('/integrations/test');
+      alert(`Connection test: ${data.data.message}\nXero: ${data.data.xero ? 'Connected' : 'Failed'}\nMYOB: ${data.data.myob ? 'Connected' : 'Failed'}`);
     } catch (error) {
       console.error('Error testing connection:', error);
     }

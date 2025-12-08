@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import axios from 'axios';
+import { apiService } from '@/services/api';
 
 interface DonationHistory {
     id: string;
@@ -19,9 +19,9 @@ const BusinessDashboard: React.FC = () => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const response = await axios.get('/api/x402/history');
-                if (response.data.success) {
-                    setDonations(response.data.data);
+                const response = await apiService.get<{ success: boolean; data: DonationHistory[] }>('/x402/history');
+                if (response.success) {
+                    setDonations(response.data);
                 }
             } catch (error) {
                 console.error('Failed to fetch history', error);
