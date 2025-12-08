@@ -32,8 +32,8 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              <li><Link to="/donate" className="text-ice-400 hover:text-ice-100 transition-colors">Donate Now</Link></li>
-              <li><Link to="/register" className="text-ice-400 hover:text-ice-100 transition-colors">Create Account</Link></li>
+              <li><Link to="/signup" className="text-ice-400 hover:text-ice-100 transition-colors">Sign Up</Link></li>
+              <li><Link to="/signup" className="text-ice-400 hover:text-ice-100 transition-colors">Create Account</Link></li>
               <li><Link to="/login" className="text-ice-400 hover:text-ice-100 transition-colors">Sign In</Link></li>
             </ul>
           </div>

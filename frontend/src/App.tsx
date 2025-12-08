@@ -47,7 +47,8 @@ function App() {
               <Route path="/donate-business" element={<DonationForm />} />
 
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/signup" element={<RegisterPage />} />
+              <Route path="/register" element={<Navigate to="/signup" replace />} />
               <Route
                 path="/dashboard"
                 element={

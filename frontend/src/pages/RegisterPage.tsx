@@ -253,10 +253,10 @@ const RegisterPage: React.FC = () => {
           style={{
             backgroundImage: `url(${polarBearBg})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: 'center 30%',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-arctic-500/20 to-arctic-600/30" />
+        <div className="absolute inset-0 bg-white/75" />
       </div>
 
       {/* Main Content Container */}
@@ -266,7 +266,8 @@ const RegisterPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-md relative"
+        style={{ zIndex: 10000 }}
       >
           {/* Header */}
           <div className="text-center mb-4">
@@ -274,9 +275,10 @@ const RegisterPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="inline-flex items-center justify-center mb-3"
+              className="inline-flex items-center justify-center mb-3 relative"
+              style={{ zIndex: 10001 }}
             >
-              <img src={bearrrGif} alt="Bearrr mascot" className="w-28 h-28 object-contain" />
+              <img src={bearrrGif} alt="Bearrr mascot" className="w-28 h-28 object-contain drop-shadow-2xl relative" style={{ zIndex: 10002 }} />
             </motion.div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Create an account</h1>
             <p className="text-sm text-gray-600">Join Isbjorn today</p>

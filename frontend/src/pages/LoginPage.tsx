@@ -172,12 +172,12 @@ const LoginPage: React.FC = () => {
           style={{
             backgroundImage: `url(${polarBearBg})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center top',
+            backgroundPosition: 'center 30%',
             borderBottomLeftRadius: '50% 8%',
             borderBottomRightRadius: '50% 8%',
           }}
         />
-        <div className="absolute inset-0 bg-white/60" style={{
+        <div className="absolute inset-0 bg-white/75" style={{
           borderBottomLeftRadius: '50% 8%',
           borderBottomRightRadius: '50% 8%',
         }} />
@@ -191,7 +191,7 @@ const LoginPage: React.FC = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md relative -mt-40"
-        style={{ zIndex: 9999 }}
+        style={{ zIndex: 10000 }}
       >
           {/* Header */}
           <div className="text-center mb-6">
@@ -200,9 +200,9 @@ const LoginPage: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
               className="inline-flex items-center justify-center mb-6 relative"
-              style={{ zIndex: 9999 }}
+              style={{ zIndex: 10001 }}
             >
-              <img src={bearrrGif} alt="Bearrr mascot" className="w-64 h-64 object-contain drop-shadow-2xl relative" style={{ zIndex: 9999 }} />
+              <img src={bearrrGif} alt="Bearrr mascot" className="w-64 h-64 object-contain drop-shadow-2xl relative" style={{ zIndex: 10002 }} />
             </motion.div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
             <p className="text-gray-600">Sign in to make an impact</p>
@@ -318,7 +318,7 @@ const LoginPage: React.FC = () => {
             <p className="text-gray-600">
               New to Isbjorn?{' '}
               <Link
-                to="/register"
+                to="/signup"
                 onClick={handleSignUpClick}
                 className="text-arctic-600 hover:text-arctic-700 font-bold transition-colors"
               >
