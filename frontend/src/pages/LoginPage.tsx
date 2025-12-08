@@ -8,7 +8,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useAccount, useSignMessage } from 'wagmi';
 import { apiService } from '@/services/api';
 
-import polarBearBg from '@/assets/login-bg.avif';
+import polarBearBg from '@/assets/login-bg.jpg';
 import bearrrGif from '@/assets/bearrr.gif';
 
 interface NewsUpdate {
