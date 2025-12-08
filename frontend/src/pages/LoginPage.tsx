@@ -169,9 +169,9 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50">
-      {/* Curved Banner at Top - Very Light */}
+      {/* Curved Banner at Top */}
       <div
-        className="relative w-full h-48 overflow-hidden"
+        className="relative w-full h-40 overflow-hidden"
         style={{
           borderBottomLeftRadius: '50% 8%',
           borderBottomRightRadius: '50% 8%',
@@ -185,17 +185,17 @@ const LoginPage: React.FC = () => {
             backgroundPosition: 'center top',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/85 to-white/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/30 to-white/50" />
       </div>
 
       {/* Main Content Container */}
-      <div className="relative flex items-center justify-center px-4 py-8 overflow-hidden">
+      <div className="relative flex items-center justify-center px-4 overflow-hidden">
 
       {/* Main Login Card - Centered */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md relative z-10 mt-4"
+        className="w-full max-w-md relative z-20 -mt-48"
       >
           {/* Header */}
           <div className="text-center mb-6">
@@ -205,7 +205,7 @@ const LoginPage: React.FC = () => {
               transition={{ delay: 0.1 }}
               className="inline-flex items-center justify-center mb-6"
             >
-              <img src={bearrrGif} alt="Bearrr mascot" className="w-52 h-52 object-contain" />
+              <img src={bearrrGif} alt="Bearrr mascot" className="w-64 h-64 object-contain drop-shadow-2xl" />
             </motion.div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
             <p className="text-gray-600">Sign in to make an impact</p>
@@ -357,7 +357,7 @@ const LoginPage: React.FC = () => {
       </motion.div>
 
       {/* News Sidebar - Left */}
-      <div className="hidden lg:block absolute left-8 top-60 w-72 space-y-3">
+      <div className="hidden lg:block absolute left-8 top-48 w-72 space-y-3">
         <div className="mb-4">
           <h3 className="text-sm font-bold text-gray-700 mb-2">Recent Updates</h3>
           <p className="text-xs text-gray-600">See the latest from verified charities</p>
@@ -385,7 +385,7 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Info Sidebar - Right */}
-      <div className="hidden lg:block absolute right-8 top-60 w-72">
+      <div className="hidden lg:block absolute right-8 top-48 w-72">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
