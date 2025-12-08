@@ -160,8 +160,9 @@ const LoginPage: React.FC = () => {
     <div className="relative min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50">
       {/* Curved Banner at Top */}
       <div
-        className="relative w-full h-48 z-0"
+        className="relative w-full h-48"
         style={{
+          zIndex: 0,
           borderBottomLeftRadius: '50% 8%',
           borderBottomRightRadius: '50% 8%',
           overflow: 'visible',

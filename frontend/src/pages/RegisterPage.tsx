@@ -7,7 +7,6 @@ import {
   UserIcon,
   EnvelopeIcon,
   LockClosedIcon,
-  ArrowRightIcon,
   IdentificationIcon,
   XMarkIcon,
   MagnifyingGlassIcon,
@@ -240,56 +239,63 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50">
-      {/* Curved Banner at Top - Slither Size */}
+      {/* Curved Banner at Top */}
       <div
-        className="relative w-full h-32 overflow-hidden"
+        className="relative w-full h-48"
         style={{
+          zIndex: 0,
           borderBottomLeftRadius: '50% 8%',
           borderBottomRightRadius: '50% 8%',
+          overflow: 'visible',
         }}
       >
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 overflow-hidden"
           style={{
             backgroundImage: `url(${polarBearBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center 30%',
+            borderBottomLeftRadius: '50% 8%',
+            borderBottomRightRadius: '50% 8%',
           }}
         />
-        <div className="absolute inset-0 bg-white/75" />
+        <div className="absolute inset-0 bg-white/75" style={{
+          borderBottomLeftRadius: '50% 8%',
+          borderBottomRightRadius: '50% 8%',
+        }} />
       </div>
 
       {/* Main Content Container */}
-      <div className="relative flex items-center justify-center px-4 py-2 -mt-16 overflow-hidden">
+      <div className="relative flex items-center justify-center px-4 overflow-hidden">
 
       {/* Main Registration Card - Centered */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md relative"
+        className="w-full max-w-md relative -mt-40"
         style={{ zIndex: 10000 }}
       >
           {/* Header */}
-          <div className="text-center mb-4">
+          <div className="text-center mb-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="inline-flex items-center justify-center mb-3 relative"
+              className="inline-flex items-center justify-center mb-6 relative"
               style={{ zIndex: 10001 }}
             >
-              <img src={bearrrGif} alt="Bearrr mascot" className="w-28 h-28 object-contain drop-shadow-2xl relative" style={{ zIndex: 10002 }} />
+              <img src={bearrrGif} alt="Bearrr mascot" className="w-64 h-64 object-contain drop-shadow-2xl relative" style={{ zIndex: 10002 }} />
             </motion.div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Create an account</h1>
-            <p className="text-sm text-gray-600">Join Isbjorn today</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Create an account</h1>
+            <p className="text-gray-600">Join Isbjorn to make an impact</p>
           </div>
 
           {/* Registration Card */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 p-5">
+          <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200 p-8">
 
           {/* Quick Sign Up */}
-          <div className="mb-4">
-            <p className="text-xs text-gray-600 text-center mb-3">Choose your preferred sign-up method</p>
+          <div className="mb-6">
+            <p className="text-sm text-gray-600 text-center mb-4">Choose your preferred sign-up method</p>
             <div className="flex flex-col gap-2">
               <button
                 type="button"
@@ -385,7 +391,7 @@ const RegisterPage: React.FC = () => {
 
             {/* Name Field (Dynamic Label) */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {accountType === 'individual' ? (
                   <>
                     <UserIcon className="w-4 h-4 inline mr-1" />
@@ -438,7 +444,7 @@ const RegisterPage: React.FC = () => {
                           setShowResults(true);
                         }
                       }}
-                      className={`w-full ${accountType === 'business' ? 'pl-9' : ''} px-3 py-2 rounded-xl border ${errors.name ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
+                      className={`w-full ${accountType === 'business' ? 'pl-11' : 'pl-4'} pr-4 py-3 rounded-xl border-2 ${errors.name ? 'border-red-300' : 'border-gray-200'} focus:ring-2 focus:ring-arctic-500 focus:border-arctic-500 transition-all`}
                       placeholder={accountType === 'individual' ? "johndoe" : "Search by company name or NZBN..."}
                     />
                   </div>
@@ -483,52 +489,61 @@ const RegisterPage: React.FC = () => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <EnvelopeIcon className="w-4 h-4 inline mr-1" />
-                Email Address
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Email
               </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 rounded-xl border ${errors.email ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
-                placeholder="you@example.com"
-              />
+              <div className="relative">
+                <EnvelopeIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full pl-11 pr-4 py-3 rounded-xl border-2 ${errors.email ? 'border-red-300' : 'border-gray-200'} focus:ring-2 focus:ring-arctic-500 focus:border-arctic-500 transition-all`}
+                  placeholder="you@company.co.nz"
+                  required
+                />
+              </div>
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <LockClosedIcon className="w-4 h-4 inline mr-1" />
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Password
               </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 rounded-xl border ${errors.password ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <LockClosedIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full pl-11 pr-4 py-3 rounded-xl border-2 ${errors.password ? 'border-red-300' : 'border-gray-200'} focus:ring-2 focus:ring-arctic-500 focus:border-arctic-500 transition-all`}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <LockClosedIcon className="w-4 h-4 inline mr-1" />
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Confirm Password
               </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`w-full px-3 py-2 rounded-xl border ${errors.confirmPassword ? 'border-red-300' : 'border-ice-200'} focus:ring-2 focus:ring-arctic-500 focus:border-transparent transition-all text-sm`}
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <LockClosedIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`w-full pl-11 pr-4 py-3 rounded-xl border-2 ${errors.confirmPassword ? 'border-red-300' : 'border-gray-200'} focus:ring-2 focus:ring-arctic-500 focus:border-arctic-500 transition-all`}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
               {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
             </div>
 
@@ -536,26 +551,9 @@ const RegisterPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full group relative overflow-hidden bg-gradient-to-r from-arctic-500 via-arctic-600 to-arctic-500 bg-[length:200%_100%] animate-gradient text-white py-2.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-arctic-500 to-arctic-600 text-white py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
-              <span className="relative flex items-center justify-center">
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    Sign Up
-                    <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </span>
+              {isLoading ? 'Creating account...' : 'Sign up'}
             </button>
           </form>
         </div>
@@ -569,10 +567,63 @@ const RegisterPage: React.FC = () => {
               </Link>
             </p>
           </div>
+
+          {/* Bottom Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8 text-center"
+          >
+            <div className="flex items-center justify-center gap-6 text-sm">
+              <div>
+                <div className="font-bold text-arctic-600 text-lg">$2.4M+</div>
+                <div className="text-gray-600 text-xs">Donated</div>
+              </div>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <div>
+                <div className="font-bold text-arctic-600 text-lg">500+</div>
+                <div className="text-gray-600 text-xs">Charities</div>
+              </div>
+              <div className="w-px h-8 bg-gray-300"></div>
+              <div>
+                <div className="font-bold text-arctic-600 text-lg">100%</div>
+                <div className="text-gray-600 text-xs">Transparent</div>
+              </div>
+            </div>
+          </motion.div>
       </motion.div>
 
+      {/* News Sidebar - Left */}
+      <div className="hidden lg:block absolute left-8 top-24 w-72 space-y-3 z-10">
+        <div className="mb-4">
+          <h3 className="text-sm font-bold text-gray-700 mb-2">Recent Updates</h3>
+          <p className="text-xs text-gray-600">See the latest from verified charities</p>
+        </div>
+        {newsUpdates.map((news, index) => (
+          <motion.div
+            key={news.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.2 }}
+            className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-100"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs font-bold text-arctic-600">{news.charity}</span>
+            </div>
+            <h3 className="font-bold text-gray-900 text-sm mb-1">{news.title}</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">{news.excerpt}</p>
+            <div className="flex items-center text-xs text-gray-500 mt-2">
+              <ClockIcon className="w-3 h-3 mr-1" />
+              {news.timestamp}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
       {/* Info Sidebar - Right */}
-      <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 w-72">
+      <div className="hidden lg:block absolute right-8 top-24 w-72 z-10">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -638,34 +689,6 @@ const RegisterPage: React.FC = () => {
             </p>
           </div>
         </motion.div>
-      </div>
-
-      {/* News Sidebar - Left */}
-      <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 w-72 space-y-3">
-        <div className="mb-4">
-          <h3 className="text-sm font-bold text-gray-700 mb-2">Recent Updates</h3>
-          <p className="text-xs text-gray-600">See the latest from verified charities</p>
-        </div>
-        {newsUpdates.map((news, index) => (
-          <motion.div
-            key={news.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.2 }}
-            className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-100"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-xs font-bold text-arctic-600">{news.charity}</span>
-            </div>
-            <h3 className="font-bold text-gray-900 text-sm mb-1">{news.title}</h3>
-            <p className="text-xs text-gray-600 leading-relaxed">{news.excerpt}</p>
-            <div className="flex items-center text-xs text-gray-500 mt-2">
-              <ClockIcon className="w-3 h-3 mr-1" />
-              {news.timestamp}
-            </div>
-          </motion.div>
-        ))}
       </div>
       </div>
     </div>
