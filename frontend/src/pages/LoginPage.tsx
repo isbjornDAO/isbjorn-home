@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -8,6 +8,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 
 import polarBearBg from '@/assets/login-bg.avif';
+import bearrGif from '@/assets/bearrr.gif';
 
 interface NewsUpdate {
   id: string;
@@ -25,6 +26,15 @@ const LoginPage: React.FC = () => {
     email: '',
     password: '',
   });
+  const hasAuthenticatedRef = useRef(false);
+
+  // Auto-authenticate when wallet connects
+  useEffect(() => {
+    if (isConnected && address && !hasAuthenticatedRef.current) {
+      hasAuthenticatedRef.current = true;
+      handleWalletLogin();
+    }
+  }, [isConnected, address]);
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
@@ -159,17 +169,9 @@ const LoginPage: React.FC = () => {
               className="inline-flex items-center justify-center mb-4"
             >
               <img
-                src="/bearrrr.gif"
+                src={bearrGif}
                 alt="Isbjorn Bear"
                 className="w-24 h-24 object-contain"
-                onError={(e) => {
-                  // Fallback to emoji if image not found
-                  e.currentTarget.style.display = 'none';
-                  const fallback = document.createElement('div');
-                  fallback.className = 'inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-3xl shadow-xl';
-                  fallback.innerHTML = '<span class="text-4xl">🐻‍❄️</span>';
-                  e.currentTarget.parentElement?.appendChild(fallback);
-                }}
               />
             </motion.div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>

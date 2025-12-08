@@ -337,6 +337,26 @@ export class AuthService {
     }
   }
 
+  async updateUserProfile(userId: string, updates: { companyName?: string }): Promise<void> {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new AppError('User not found', 404);
+      }
+
+      if (updates.companyName) {
+        user.companyName = updates.companyName;
+      }
+
+      await user.save();
+      logger.info(`Profile updated for user: ${userId}`);
+    } catch (error: any) {
+      logger.error('Profile update error:', error);
+      if (error instanceof AppError) throw error;
+      throw new AppError('Profile update failed', 500);
+    }
+  }
+
   verifyToken(token: string): any {
     try {
       return jwt.verify(token, JWT_SECRET);

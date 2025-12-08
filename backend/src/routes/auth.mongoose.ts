@@ -116,6 +116,31 @@ router.get('/me', async (req, res, next) => {
 });
 
 /**
+ * PATCH /api/auth/update-profile
+ * Update user profile
+ */
+router.patch('/update-profile', async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!token) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    const decoded = authService.verifyToken(token);
+    const { companyName } = req.body;
+
+    if (!companyName || !companyName.trim()) {
+      return res.status(400).json({ message: 'Company name is required' });
+    }
+
+    await authService.updateUserProfile(decoded.id, { companyName: companyName.trim() });
+    res.json({ message: 'Profile updated successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * POST /api/auth/refresh
  * Refresh access token
  */
