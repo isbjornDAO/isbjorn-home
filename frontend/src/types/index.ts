@@ -1,6 +1,7 @@
 export interface User {
   id: string;
-  email: string;
+  email?: string;
+  walletAddress?: string;
   companyName: string;
   role: 'user' | 'admin';
   taxId?: string;
