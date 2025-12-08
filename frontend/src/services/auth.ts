@@ -21,6 +21,13 @@ interface RegisterRequest {
   };
 }
 
+interface WalletAuthRequest {
+  walletAddress: string;
+  signature: string;
+  message: string;
+  companyName?: string;
+}
+
 interface AuthResponse {
   user: User;
   token: string;
@@ -34,6 +41,14 @@ class AuthService {
 
   async register(data: RegisterRequest): Promise<AuthResponse> {
     return apiService.post<AuthResponse>('/auth/register', data);
+  }
+
+  async getWalletMessage(walletAddress: string): Promise<{ message: string }> {
+    return apiService.post<{ message: string }>('/auth/wallet/message', { walletAddress });
+  }
+
+  async loginWithWallet(data: WalletAuthRequest): Promise<AuthResponse> {
+    return apiService.post<AuthResponse>('/auth/wallet/authenticate', data);
   }
 
   async getCurrentUser(): Promise<User> {

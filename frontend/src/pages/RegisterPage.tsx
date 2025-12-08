@@ -35,7 +35,7 @@ interface NewsUpdate {
 }
 
 const RegisterPage: React.FC = () => {
-  const { register, isLoading } = useAuth();
+  const { register, loginWithWallet, isLoading } = useAuth();
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
   const [accountType, setAccountType] = useState<AccountType>('individual');
@@ -225,15 +225,40 @@ const RegisterPage: React.FC = () => {
     });
   };
 
-  const handleWalletSignup = () => {
-    if (isConnected && address) {
-      toast.success(`Connected: ${address.slice(0, 6)}...${address.slice(-4)}`, {
-        icon: '🔗',
-        duration: 3000,
-      });
-      // Here you would typically authenticate with the backend using the wallet address
-    } else if (openConnectModal) {
-      openConnectModal();
+  const handleWalletSignup = async () => {
+    if (!isConnected || !address) {
+      if (openConnectModal) {
+        openConnectModal();
+      }
+      return;
+    }
+
+    try {
+      // Import signMessage dynamically
+      const { signMessage } = await import('wagmi/actions');
+      const wagmiConfig = await import('@/config/wagmi');
+      const { authService } = await import('@/services/auth');
+
+      toast.loading('Preparing message to sign...', { id: 'wallet-auth' });
+
+      // Get message from backend
+      const { message } = await authService.getWalletMessage(address);
+
+      toast.loading('Please sign the message in your wallet...', { id: 'wallet-auth' });
+
+      // Sign the message
+      const signature = await signMessage(wagmiConfig.config, { message });
+
+      toast.loading('Authenticating...', { id: 'wallet-auth' });
+
+      // Authenticate with backend
+      const companyName = formData.name || `Wallet ${address.slice(0, 6)}`;
+      await loginWithWallet(address, signature, message, companyName);
+
+      toast.success('Wallet authentication successful!', { id: 'wallet-auth' });
+    } catch (error: any) {
+      console.error('Wallet signup failed:', error);
+      toast.error(error.message || 'Wallet signup failed. Please try again.', { id: 'wallet-auth' });
     }
   };
 

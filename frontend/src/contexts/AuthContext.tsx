@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  loginWithWallet: (walletAddress: string, signature: string, message: string, companyName?: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
   refreshToken: () => Promise<void>;
@@ -138,6 +139,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginWithWallet = async (walletAddress: string, signature: string, message: string, companyName?: string) => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const { user, token } = await authService.loginWithWallet({ walletAddress, signature, message, companyName });
+      localStorage.setItem('authToken', token);
+      setState({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+      toast.success(`Welcome, ${user.companyName}!`);
+      navigate('/dashboard');
+    } catch (error: any) {
+      const message = getErrorMessage(error);
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: message,
+      }));
+      toast.error(message);
+      throw error;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('authToken');
     setState({
@@ -172,6 +198,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...state,
         login,
         register,
+        loginWithWallet,
         logout,
         updateUser,
         refreshToken,
