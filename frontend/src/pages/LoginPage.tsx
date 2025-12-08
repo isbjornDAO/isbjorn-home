@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const [walletAuthInProgress, setWalletAuthInProgress] = useState(false);
+  const [walletAuthAttempted, setWalletAuthAttempted] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -38,11 +38,20 @@ const LoginPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
+  // Reset wallet auth state when disconnected
+  useEffect(() => {
+    if (!isConnected) {
+      setWalletAuthAttempted(false);
+    }
+  }, [isConnected]);
+
   // Handle wallet authentication when connected
   useEffect(() => {
     const authenticateWallet = async () => {
-      if (isConnected && address && !isAuthenticated && !walletAuthInProgress) {
-        setWalletAuthInProgress(true);
+      // Only attempt authentication once per wallet connection
+      if (isConnected && address && !isAuthenticated && !walletAuthAttempted) {
+        setWalletAuthAttempted(true);
+
         try {
           // Create message to sign
           const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
@@ -78,13 +87,13 @@ const LoginPage: React.FC = () => {
           } else {
             toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
           }
-          setWalletAuthInProgress(false);
+          // Don't reset walletAuthAttempted here - user can try again by disconnecting and reconnecting
         }
       }
     };
 
     authenticateWallet();
-  }, [isConnected, address, isAuthenticated, walletAuthInProgress, signMessageAsync, navigate]);
+  }, [isConnected, address, isAuthenticated, walletAuthAttempted, signMessageAsync, navigate]);
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
@@ -147,11 +156,22 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleSignUpClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isAuthenticated) {
+      e.preventDefault();
+      toast('You are already logged in!', {
+        icon: 'ℹ️',
+        duration: 3000,
+      });
+      navigate('/dashboard');
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50">
-      {/* Curved Banner at Top - Slither Size */}
+      {/* Curved Banner at Top - Very Light */}
       <div
-        className="relative w-full h-32 overflow-hidden"
+        className="relative w-full h-48 overflow-hidden"
         style={{
           borderBottomLeftRadius: '50% 8%',
           borderBottomRightRadius: '50% 8%',
@@ -162,30 +182,30 @@ const LoginPage: React.FC = () => {
           style={{
             backgroundImage: `url(${polarBearBg})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: 'center top',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-arctic-500/20 to-arctic-600/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/85 to-white/90" />
       </div>
 
       {/* Main Content Container */}
-      <div className="relative flex items-center justify-center px-4 py-4 -mt-16 overflow-hidden">
+      <div className="relative flex items-center justify-center px-4 py-8 overflow-hidden">
 
       {/* Main Login Card - Centered */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-md relative z-10 mt-4"
       >
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="inline-flex items-center justify-center mb-4"
+              className="inline-flex items-center justify-center mb-6"
             >
-              <img src={bearrrGif} alt="Bearrr mascot" className="w-32 h-32 object-contain" />
+              <img src={bearrrGif} alt="Bearrr mascot" className="w-52 h-52 object-contain" />
             </motion.div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
             <p className="text-gray-600">Sign in to make an impact</p>
@@ -214,7 +234,7 @@ const LoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleWalletLogin}
-                    disabled={walletAuthInProgress}
+                    disabled={walletAuthAttempted && isConnected}
                     className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -223,7 +243,7 @@ const LoginPage: React.FC = () => {
                       <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
                     </svg>
                     <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">
-                      {walletAuthInProgress ? 'Authenticating...' : isConnected ? `Connected: ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Continue with Wallet'}
+                      {walletAuthAttempted && isConnected ? 'Authenticating...' : isConnected ? `Connected: ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Continue with Wallet'}
                     </span>
                   </button>
                 </div>
@@ -300,7 +320,11 @@ const LoginPage: React.FC = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               New to Isbjorn?{' '}
-              <Link to="/register" className="text-arctic-600 hover:text-arctic-700 font-bold transition-colors">
+              <Link
+                to="/register"
+                onClick={handleSignUpClick}
+                className="text-arctic-600 hover:text-arctic-700 font-bold transition-colors"
+              >
                 Create an account →
               </Link>
             </p>
@@ -333,7 +357,7 @@ const LoginPage: React.FC = () => {
       </motion.div>
 
       {/* News Sidebar - Left */}
-      <div className="hidden lg:block absolute left-8 top-1/2 -translate-y-1/2 w-72 space-y-3">
+      <div className="hidden lg:block absolute left-8 top-60 w-72 space-y-3">
         <div className="mb-4">
           <h3 className="text-sm font-bold text-gray-700 mb-2">Recent Updates</h3>
           <p className="text-xs text-gray-600">See the latest from verified charities</p>
@@ -361,7 +385,7 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Info Sidebar - Right */}
-      <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2 w-72">
+      <div className="hidden lg:block absolute right-8 top-60 w-72">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
