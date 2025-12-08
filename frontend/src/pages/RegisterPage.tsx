@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -35,9 +35,10 @@ interface NewsUpdate {
 }
 
 const RegisterPage: React.FC = () => {
-  const { register, loginWithWallet, isLoading } = useAuth();
+  const { register, loginWithWallet, isLoading, isAuthenticated } = useAuth();
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
+  const navigate = useNavigate();
   const [accountType, setAccountType] = useState<AccountType>('individual');
   const [formData, setFormData] = useState({
     name: '', // Maps to companyName
@@ -55,13 +56,20 @@ const RegisterPage: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const hasAuthenticatedRef = useRef(false);
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
   // Auto-authenticate when wallet connects
   useEffect(() => {
-    if (isConnected && address && !hasAuthenticatedRef.current) {
+    if (isConnected && address && !hasAuthenticatedRef.current && !isAuthenticated) {
       hasAuthenticatedRef.current = true;
       handleWalletSignup();
     }
-  }, [isConnected, address]);
+  }, [isConnected, address, isAuthenticated]);
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
@@ -269,7 +277,15 @@ const RegisterPage: React.FC = () => {
       toast.success('Wallet authentication successful!', { id: 'wallet-auth' });
     } catch (error: any) {
       console.error('Wallet signup failed:', error);
-      toast.error(error.message || 'Wallet signup failed. Please try again.', { id: 'wallet-auth' });
+      // Reset ref so user can try again
+      hasAuthenticatedRef.current = false;
+
+      // Show appropriate error message
+      if (error.message?.includes('rejected') || error.message?.includes('denied')) {
+        toast.error('Signature request was rejected. Please try again.', { id: 'wallet-auth' });
+      } else {
+        toast.error(error.message || 'Wallet signup failed. Please try again.', { id: 'wallet-auth' });
+      }
     }
   };
 
