@@ -185,14 +185,14 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Main Content Container */}
-      <div className="relative flex items-center justify-center px-4 overflow-hidden">
+      <div className="relative flex items-center justify-center px-4">
 
       {/* Main Login Card - Centered */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md relative -mt-40"
-        style={{ zIndex: 10000 }}
+        style={{ zIndex: 99999, position: 'relative' }}
       >
           {/* Header */}
           <div className="text-center mb-6">
@@ -201,9 +201,13 @@ const LoginPage: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
               className="inline-flex items-center justify-center mb-6 relative"
-              style={{ zIndex: 10001 }}
+              style={{ zIndex: 100001, position: 'relative' }}
             >
-              <img src={bearrrGif} alt="Bearrr mascot" className="w-64 h-64 object-contain drop-shadow-2xl relative" style={{ zIndex: 10002 }} />
+              <img
+                src={bearrrGif}
+                alt="Bearrr mascot"
+                className="w-64 h-64 object-contain drop-shadow-2xl"
+              />
             </motion.div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
             <p className="text-gray-600">Sign in to make an impact</p>
@@ -353,6 +357,8 @@ const LoginPage: React.FC = () => {
             </div>
           </motion.div>
       </motion.div>
+
+      {/* Mascot moved into the main card below so it scrolls with the page and can overlay the header */}
 
       {/* News Sidebar - Left */}
       <div className="hidden lg:block absolute left-8 top-24 w-72 space-y-3 z-10">
