@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { apiService } from '@/services/api';
 import {
   ServerIcon,
@@ -41,19 +41,14 @@ const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   decimals = 0
 }) => {
   const [displayValue, setDisplayValue] = useState(0);
-  const countRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (countRef.current) {
-      clearInterval(countRef.current);
-    }
-
     const startTime = Date.now();
     const startValue = displayValue;
     const endValue = value;
     const difference = endValue - startValue;
 
-    countRef.current = setInterval(() => {
+    const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
@@ -65,17 +60,11 @@ const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
 
       if (progress >= 1) {
         setDisplayValue(endValue);
-        if (countRef.current) {
-          clearInterval(countRef.current);
-        }
+        clearInterval(interval);
       }
     }, 16); // ~60fps
 
-    return () => {
-      if (countRef.current) {
-        clearInterval(countRef.current);
-      }
-    };
+    return () => clearInterval(interval);
   }, [value]);
 
   return (
