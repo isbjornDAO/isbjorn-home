@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -14,7 +14,8 @@ import {
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount } from 'wagmi';
+import { useAccount, useSignMessage } from 'wagmi';
+import { apiService } from '@/services/api';
 import polarBearBg from '@/assets/polar-bears-swimming.jpg';
 import bearrrGif from '@/assets/bearrr.gif';
 
@@ -36,8 +37,11 @@ interface NewsUpdate {
 
 const RegisterPage: React.FC = () => {
   const { register, isLoading } = useAuth();
+  const navigate = useNavigate();
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const [walletAuthAttempted, setWalletAuthAttempted] = useState(false);
   const [accountType, setAccountType] = useState<AccountType>('individual');
   const [formData, setFormData] = useState({
     name: '', // Maps to companyName
@@ -79,7 +83,7 @@ const RegisterPage: React.FC = () => {
     }
   ];
 
-  // Mock NZBN search - replace with real API call
+  // Real NZBN search using the API
   const searchNZBN = async (query: string) => {
     if (!query || query.length < 2) {
       setSearchResults([]);
@@ -88,26 +92,24 @@ const RegisterPage: React.FC = () => {
 
     setIsSearching(true);
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      const response = await apiService.get<{
+        success: boolean;
+        data: Array<{ nzbn: string; name: string; status: string }>;
+      }>(`/public/nzbn/search?query=${encodeURIComponent(query)}`);
 
-    // Mock data - replace with real NZBN API
-    const mockCompanies: NZBNResult[] = [
-      { nzbn: '9429000000001', name: 'Test Company', status: 'Registered' },
-      { nzbn: '9429000000002', name: 'Acme Corporation Limited', status: 'Registered' },
-      { nzbn: '9429000000003', name: 'Tech Innovations NZ Ltd', status: 'Registered' },
-      { nzbn: '9429000000004', name: 'Green Energy Solutions', status: 'Registered' },
-      { nzbn: '9429000000005', name: 'Pacific Consulting Group', status: 'Registered' },
-      { nzbn: '9429000000006', name: 'Auckland Software Development', status: 'Registered' },
-    ];
-
-    const filtered = mockCompanies.filter(company =>
-      company.name.toLowerCase().includes(query.toLowerCase()) ||
-      company.nzbn.includes(query)
-    );
-
-    setSearchResults(filtered);
-    setIsSearching(false);
+      if (response.success) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('NZBN search error:', error);
+      setSearchResults([]);
+      toast.error('Failed to search companies');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   // Debounced search
@@ -225,14 +227,62 @@ const RegisterPage: React.FC = () => {
     });
   };
 
+  // Reset wallet auth state when disconnected
+  useEffect(() => {
+    if (!isConnected) {
+      setWalletAuthAttempted(false);
+    }
+  }, [isConnected]);
+
+  // Auto-authenticate when wallet connects
+  useEffect(() => {
+    const authenticateWallet = async () => {
+      if (isConnected && address && !walletAuthAttempted) {
+        setWalletAuthAttempted(true);
+        try {
+          // Create message to sign
+          const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
+
+          // Request signature
+          const signature = await signMessageAsync({ message });
+
+          // Send to backend for verification and authentication
+          const response = await apiService.post<{
+            user: any;
+            token: string;
+            refreshToken: string;
+          }>('/auth/wallet-login', {
+            address,
+            message,
+            signature,
+          });
+
+          // Store token and user data
+          localStorage.setItem('authToken', response.token);
+          if (response.refreshToken) {
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
+
+          toast.success('Wallet connected and authenticated!');
+          navigate('/dashboard');
+        } catch (error: any) {
+          console.error('Wallet authentication error:', error);
+          setWalletAuthAttempted(false); // Allow retry
+          if (error.message?.includes('User rejected')) {
+            toast.error('Signature rejected. Please sign the message to authenticate.');
+          } else {
+            toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
+          }
+        }
+      }
+    };
+
+    authenticateWallet();
+  }, [isConnected, address, walletAuthAttempted, signMessageAsync, navigate]);
+
   const handleWalletSignup = () => {
-    if (isConnected && address) {
-      toast.success(`Connected: ${address.slice(0, 6)}...${address.slice(-4)}`, {
-        icon: '🔗',
-        duration: 3000,
-      });
-      // Here you would typically authenticate with the backend using the wallet address
-    } else if (openConnectModal) {
+    if (openConnectModal) {
+      // Open connect modal - authentication will happen automatically via useEffect
       openConnectModal();
     }
   };

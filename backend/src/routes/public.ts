@@ -3,6 +3,7 @@ import { Charity } from '../models/Charity.model';
 import { IRDCompliantDonation } from '../models/IRDCompliantDonation.model';
 import { NZCompany } from '../models/NZCompany.model';
 import { logger } from '../utils/logger';
+import nzbnSearchRoutes from './nzbn-search';
 
 const router = express.Router();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -230,5 +231,8 @@ router.get('/stats', async (req, res) => {
     });
   }
 });
+
+// NZBN company search routes
+router.use('/nzbn', nzbnSearchRoutes);
 
 export default router;

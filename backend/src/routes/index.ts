@@ -10,6 +10,7 @@ import { adminRoutes } from './admin.routes';
 import { integrationsRoutes } from './integrations.routes';
 import { workingAuthRoutes } from './working-auth';
 import publicRoutes from './public';
+import simplePaymentRoutes from './simple-payment';
 import { body, validationResult } from 'express-validator';
 import { stripeService } from '../services/stripeService';
 import { x402Service } from '../services/x402Service';
@@ -137,7 +138,7 @@ router.get('/health/deep', async (req, res) => {
   }
 });
 
-// API routes  
+// API routes
 router.use('/auth', workingAuthRoutes);
 router.use('/donations', streamlinedDonationRoutes);
 router.use('/x402', x402DonationRoutes);
@@ -147,6 +148,7 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/admin', adminRoutes);
 router.use('/public', publicRoutes);
 router.use('/integrations', integrationsRoutes);
+router.use('/payment', simplePaymentRoutes);
 
 // X402 Checkout session creation
 router.post('/x402-checkout/create-session', [

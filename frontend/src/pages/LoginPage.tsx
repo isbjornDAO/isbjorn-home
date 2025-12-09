@@ -45,6 +45,52 @@ const LoginPage: React.FC = () => {
     }
   }, [isConnected]);
 
+  // Auto-authenticate when wallet connects
+  useEffect(() => {
+    const authenticateWallet = async () => {
+      if (isConnected && address && !walletAuthAttempted) {
+        setWalletAuthAttempted(true);
+        try {
+          // Create message to sign
+          const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
+
+          // Request signature
+          const signature = await signMessageAsync({ message });
+
+          // Send to backend for verification and authentication
+          const response = await apiService.post<{
+            user: any;
+            token: string;
+            refreshToken: string;
+          }>('/auth/wallet-login', {
+            address,
+            message,
+            signature,
+          });
+
+          // Store token and user data
+          localStorage.setItem('authToken', response.token);
+          if (response.refreshToken) {
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
+
+          toast.success('Wallet connected and authenticated!');
+          navigate('/dashboard');
+        } catch (error: any) {
+          console.error('Wallet authentication error:', error);
+          setWalletAuthAttempted(false); // Allow retry
+          if (error.message?.includes('User rejected')) {
+            toast.error('Signature rejected. Please sign the message to authenticate.');
+          } else {
+            toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
+          }
+        }
+      }
+    };
+
+    authenticateWallet();
+  }, [isConnected, address, walletAuthAttempted, signMessageAsync, navigate]);
+
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
     {
@@ -101,46 +147,8 @@ const LoginPage: React.FC = () => {
   };
 
   const handleWalletLogin = async () => {
-    // If already connected, authenticate
-    if (isConnected && address && !walletAuthAttempted) {
-      setWalletAuthAttempted(true);
-      try {
-        // Create message to sign
-        const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
-
-        // Request signature
-        const signature = await signMessageAsync({ message });
-
-        // Send to backend for verification and authentication
-        const response = await apiService.post<{
-          user: any;
-          token: string;
-          refreshToken: string;
-        }>('/auth/wallet-login', {
-          address,
-          message,
-          signature,
-        });
-
-        // Store token and user data
-        localStorage.setItem('authToken', response.token);
-        if (response.refreshToken) {
-          localStorage.setItem('refreshToken', response.refreshToken);
-        }
-
-        toast.success('Wallet connected and authenticated!');
-        navigate('/dashboard');
-      } catch (error: any) {
-        console.error('Wallet authentication error:', error);
-        setWalletAuthAttempted(false); // Allow retry
-        if (error.message?.includes('User rejected')) {
-          toast.error('Signature rejected. Please sign the message to authenticate.');
-        } else {
-          toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
-        }
-      }
-    } else if (openConnectModal) {
-      // Not connected yet, open connect modal
+    if (openConnectModal) {
+      // Open connect modal - authentication will happen automatically via useEffect
       openConnectModal();
     }
   };

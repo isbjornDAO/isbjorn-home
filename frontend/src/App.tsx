@@ -9,6 +9,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const DonatePage = lazy(() => import('@/pages/DonatePage'));
 const StreamlinedDonatePage = lazy(() => import('@/pages/StreamlinedDonatePage'));
+const SimpleDonatePage = lazy(() => import('@/pages/SimpleDonatePage'));
 const DonationSuccessPage = lazy(() => import('@/pages/DonationSuccessPage'));
 const ComplianceDashboardPage = lazy(() => import('@/pages/ComplianceDashboardPage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
@@ -37,6 +38,7 @@ function App() {
 
               {/* Advanced Donation Flows */}
               <Route path="/donate-streamlined" element={<StreamlinedDonatePage />} />
+              <Route path="/donate-simple" element={<SimpleDonatePage />} />
               <Route path="/donation/success" element={<DonationSuccessPage />} />
               <Route path="/compliance" element={<ComplianceDashboardPage />} />
               <Route path="/charity/:id" element={<CharityDetailsPage />} />

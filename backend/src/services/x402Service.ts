@@ -2,6 +2,7 @@ import x402 from '../utils/x402';
 import { Donation, DonationStatus } from '../models/Donation.model';
 import { User } from '../models/User.model';
 import { logger } from '../utils/logger';
+import emailReceiptService from './EmailReceiptService';
 
 console.log('X402 Service imported x402:', JSON.stringify(x402, null, 2));
 
@@ -89,7 +90,29 @@ export class X402Service {
 
             logger.info(`Donation ${donationId} marked as completed`);
 
-            // TODO: Trigger receipt generation email
+            // Trigger receipt generation email
+            try {
+                const receiptData = {
+                    donationId: donation.id,
+                    donorName: donation.donorName || 'Anonymous',
+                    donorEmail: donation.donorEmail,
+                    companyName: donation.donorName || 'N/A',
+                    companyNumber: 'N/A',
+                    charityName: donation.charityName,
+                    charityNumber: 'N/A',
+                    amount: donation.amount,
+                    currency: donation.currency.toUpperCase(),
+                    date: donation.completedAt || new Date(),
+                    receiptNumber: `IR-${donation.id.substring(0, 8).toUpperCase()}`,
+                    transactionId: donation.transactionId || 'N/A'
+                };
+
+                await emailReceiptService.sendReceipt(receiptData);
+                logger.info(`Tax receipt emailed for donation ${donationId}`);
+            } catch (receiptError) {
+                logger.error('Failed to send receipt email:', receiptError);
+                // Don't throw - donation was successful even if email failed
+            }
         } catch (error: any) {
             logger.error('X402 handleSuccessfulPayment error:', error);
             throw error;
