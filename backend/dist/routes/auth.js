@@ -4,7 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const ethers_1 = require("ethers");
 const authService_1 = require("../services/authService");
+const logger_1 = require("../utils/logger");
 const router = express_1.default.Router();
 router.post('/login', async (req, res, next) => {
     try {
@@ -30,6 +32,20 @@ router.post('/wallet-login', async (req, res, next) => {
         const { address, signature, message } = req.body;
         if (!address || !signature || !message) {
             return res.status(400).json({ message: 'Address, signature, and message are required' });
+        }
+        // Verify the signature cryptographically
+        try {
+            const recoveredAddress = (0, ethers_1.verifyMessage)(message, signature);
+            const normalizedAddress = address.toLowerCase();
+            const normalizedRecovered = recoveredAddress.toLowerCase();
+            if (normalizedAddress !== normalizedRecovered) {
+                logger_1.logger.warn(`Signature verification failed: claimed ${normalizedAddress}, recovered ${normalizedRecovered}`);
+                return res.status(401).json({ message: 'Invalid signature' });
+            }
+        }
+        catch (verifyError) {
+            logger_1.logger.error('Signature verification error:', verifyError);
+            return res.status(401).json({ message: 'Invalid signature format' });
         }
         const result = await authService_1.authService.walletLogin(address, signature, message);
         res.json(result);

@@ -5,8 +5,8 @@ import {
   CurrencyDollarIcon,
   ChartBarIcon,
   ClockIcon,
-  CheckCircleIcon,
-  BoltIcon
+  BoltIcon,
+  ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline';
 
 interface NodeStats {
@@ -119,10 +119,10 @@ const NodePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-ice-50 to-white flex items-center justify-center">
-        <div className="card p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-arctic-600 mx-auto mb-4"></div>
-          <p className="text-ice-600">Loading node statistics...</p>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-sm border border-blue-100 p-12 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading validator stats...</p>
         </div>
       </div>
     );
@@ -130,265 +130,253 @@ const NodePage: React.FC = () => {
 
   if (error || !nodeStats) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-ice-50 to-white flex items-center justify-center">
-        <div className="card p-8 text-center">
-          <h2 className="text-xl font-bold text-ice-900 mb-4">Error</h2>
-          <p className="text-ice-600">{error || 'Failed to load node data'}</p>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-sm border border-blue-100 p-12 text-center">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Connection Error</h2>
+          <p className="text-gray-600">{error || 'Failed to load validator data'}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-ice-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-4">
-            <ServerIcon className="w-10 h-10 text-arctic-600" />
-            <div>
-              <h1 className="text-3xl font-bold text-ice-900">Isbjorn L1 Validator</h1>
-              <p className="text-ice-600 mt-1">Real-time node performance and revenue tracking</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <ServerIcon className="w-8 h-8 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Isbjorn L1 Validator</h1>
+                <p className="text-gray-500 mt-1">Real-time performance metrics</p>
+              </div>
             </div>
-          </div>
 
-          {/* Status Badge */}
-          <div className="flex items-center space-x-2">
+            {/* Status Badge */}
             <div className={`flex items-center space-x-2 px-4 py-2 rounded-full ${
               nodeStats.isActive
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+                ? 'bg-blue-50 text-blue-700'
+                : 'bg-gray-100 text-gray-700'
             }`}>
               <div className={`w-2 h-2 rounded-full ${
-                nodeStats.isActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+                nodeStats.isActive ? 'bg-blue-500 animate-pulse' : 'bg-gray-500'
               }`}></div>
-              <span className="font-medium text-sm">
-                {nodeStats.isActive ? 'Active' : 'Inactive'}
+              <span className="font-semibold text-sm">
+                {nodeStats.isActive ? 'Live' : 'Offline'}
               </span>
-            </div>
-            <div className="px-4 py-2 rounded-full bg-arctic-100 text-arctic-800">
-              <span className="font-medium text-sm">Node #{nodeStats.nodeId}</span>
             </div>
           </div>
         </div>
 
-        {/* Revenue Animation Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Revenue Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {/* Daily Revenue */}
-          <div className="card p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-arctic-100/50 to-transparent rounded-full -mr-16 -mt-16"></div>
-            <div className="relative">
-              <div className="flex items-center space-x-2 mb-2">
-                <CurrencyDollarIcon className="w-5 h-5 text-arctic-600" />
-                <span className="text-sm font-medium text-ice-600">Daily Revenue</span>
-              </div>
-              <div className="text-3xl font-bold text-ice-900">
-                <AnimatedNumber
-                  value={nodeStats.dailyRevenue}
-                  prefix="$"
-                  decimals={2}
-                  duration={2000}
-                />
-              </div>
-              <div className="text-xs text-ice-500 mt-2">
-                From {nodeStats.transactionsProcessed} transactions
-              </div>
+          <div className="bg-white rounded-xl border border-blue-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-gray-600">Daily Revenue</span>
+              <CurrencyDollarIcon className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="text-4xl font-bold text-gray-900 mb-1">
+              <AnimatedNumber
+                value={nodeStats.dailyRevenue}
+                prefix="$"
+                decimals={2}
+                duration={2000}
+              />
+            </div>
+            <div className="text-xs text-gray-500">
+              {nodeStats.transactionsProcessed} transactions
             </div>
           </div>
 
           {/* Monthly Revenue */}
-          <div className="card p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-100/50 to-transparent rounded-full -mr-16 -mt-16"></div>
-            <div className="relative">
-              <div className="flex items-center space-x-2 mb-2">
-                <ChartBarIcon className="w-5 h-5 text-emerald-600" />
-                <span className="text-sm font-medium text-ice-600">Monthly Revenue</span>
-              </div>
-              <div className="text-3xl font-bold text-ice-900">
-                <AnimatedNumber
-                  value={nodeStats.monthlyRevenue}
-                  prefix="$"
-                  decimals={2}
-                  duration={2500}
-                />
-              </div>
-              <div className="text-xs text-ice-500 mt-2">
-                Projected: ${(nodeStats.dailyRevenue * 30).toFixed(2)}
-              </div>
+          <div className="bg-blue-50 rounded-xl border border-blue-200 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-blue-900">Monthly Revenue</span>
+              <ArrowTrendingUpIcon className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="text-4xl font-bold text-blue-900 mb-1">
+              <AnimatedNumber
+                value={nodeStats.monthlyRevenue}
+                prefix="$"
+                decimals={2}
+                duration={2500}
+              />
+            </div>
+            <div className="text-xs text-blue-600">
+              ~${(nodeStats.dailyRevenue * 30).toFixed(2)} projected
             </div>
           </div>
 
           {/* Total Rewards */}
-          <div className="card p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-100/50 to-transparent rounded-full -mr-16 -mt-16"></div>
-            <div className="relative">
-              <div className="flex items-center space-x-2 mb-2">
-                <BoltIcon className="w-5 h-5 text-amber-600" />
-                <span className="text-sm font-medium text-ice-600">Total Rewards</span>
-              </div>
-              <div className="text-3xl font-bold text-ice-900">
-                <AnimatedNumber
-                  value={nodeStats.totalRewards}
-                  decimals={4}
-                  suffix=" AVAX"
-                  duration={3000}
-                />
-              </div>
-              <div className="text-xs text-ice-500 mt-2">
-                Lifetime earnings
-              </div>
+          <div className="bg-white rounded-xl border border-blue-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-gray-600">Total Rewards</span>
+              <BoltIcon className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="text-4xl font-bold text-gray-900 mb-1">
+              <AnimatedNumber
+                value={nodeStats.totalRewards}
+                decimals={4}
+                suffix=" AVAX"
+                duration={3000}
+              />
+            </div>
+            <div className="text-xs text-gray-500">
+              Lifetime earnings
             </div>
           </div>
         </div>
 
         {/* Donation Tracking */}
-        <div className="card p-6 mb-8">
-          <h2 className="text-2xl font-bold text-ice-900 mb-6 flex items-center">
-            <ChartBarIcon className="w-6 h-6 mr-2 text-arctic-600" />
-            Donation Tracking
-          </h2>
+        <div className="bg-white rounded-xl border border-blue-100 p-6 mb-6">
+          <div className="flex items-center space-x-2 mb-6">
+            <ChartBarIcon className="w-5 h-5 text-blue-600" />
+            <h2 className="text-xl font-bold text-gray-900">Donation Activity</h2>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 bg-gradient-to-br from-arctic-50 to-ice-50 rounded-lg">
-              <div className="text-sm font-medium text-ice-600 mb-1">Total Donations</div>
-              <div className="text-2xl font-bold text-ice-900">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-sm text-gray-600 mb-2">Total Donations</div>
+              <div className="text-3xl font-bold text-blue-900">
                 <AnimatedNumber value={nodeStats.totalDonations} duration={1500} />
               </div>
             </div>
 
-            <div className="p-4 bg-gradient-to-br from-arctic-50 to-ice-50 rounded-lg">
-              <div className="text-sm font-medium text-ice-600 mb-1">Donation Volume</div>
-              <div className="text-2xl font-bold text-ice-900">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-sm text-gray-600 mb-2">Volume Processed</div>
+              <div className="text-3xl font-bold text-blue-900">
                 <AnimatedNumber
                   value={nodeStats.donationVolume}
                   prefix="$"
-                  decimals={2}
+                  decimals={0}
                   duration={2000}
                 />
               </div>
             </div>
 
-            <div className="p-4 bg-gradient-to-br from-arctic-50 to-ice-50 rounded-lg">
-              <div className="text-sm font-medium text-ice-600 mb-1">Transactions Processed</div>
-              <div className="text-2xl font-bold text-ice-900">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-sm text-gray-600 mb-2">Transactions</div>
+              <div className="text-3xl font-bold text-blue-900">
                 <AnimatedNumber value={nodeStats.transactionsProcessed} duration={1800} />
               </div>
             </div>
           </div>
 
-          {/* Processing Animation */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-arctic-100 to-ice-100 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-ice-700">Processing Pipeline</span>
-              <CheckCircleIcon className="w-5 h-5 text-green-600" />
+          {/* Processing Status */}
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-blue-900">Validator Status</span>
+              <span className="text-xs text-blue-600 font-medium">100% Verified</span>
             </div>
-            <div className="relative h-2 bg-ice-200 rounded-full overflow-hidden">
-              <div
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-arctic-500 to-arctic-600 rounded-full animate-pulse"
-                style={{ width: '100%' }}
-              ></div>
+            <div className="relative h-2 bg-blue-200 rounded-full overflow-hidden">
+              <div className="absolute top-0 left-0 h-full w-full bg-blue-600 rounded-full"></div>
             </div>
-            <div className="text-xs text-ice-600 mt-2">
-              All donations verified and recorded on Avalanche L1
+            <div className="text-xs text-blue-700 mt-3">
+              All donations verified on Avalanche L1
             </div>
           </div>
         </div>
 
         {/* Validator Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Node Information */}
-          <div className="card p-6">
-            <h3 className="text-xl font-bold text-ice-900 mb-4 flex items-center">
-              <ServerIcon className="w-5 h-5 mr-2 text-arctic-600" />
-              Node Information
-            </h3>
+          <div className="bg-white rounded-xl border border-blue-100 p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <ServerIcon className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-bold text-gray-900">Validator Info</h3>
+            </div>
             <div className="space-y-3">
-              <div className="flex justify-between py-2 border-b border-ice-100">
-                <span className="text-ice-600">Node ID</span>
-                <span className="font-mono font-medium text-ice-900">#{nodeStats.nodeId}</span>
+              <div className="flex justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">Node ID</span>
+                <span className="font-mono text-sm font-semibold text-gray-900">#{nodeStats.nodeId}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-ice-100">
-                <span className="text-ice-600">Operator</span>
-                <span className="font-mono text-sm text-ice-900">
-                  {nodeStats.operator.slice(0, 6)}...{nodeStats.operator.slice(-4)}
+              <div className="flex justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">Operator</span>
+                <span className="font-mono text-xs text-gray-900">
+                  {nodeStats.operator.slice(0, 8)}...{nodeStats.operator.slice(-6)}
                 </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-ice-100">
-                <span className="text-ice-600">Stake Amount</span>
-                <span className="font-medium text-ice-900">{nodeStats.stakeAmount} AVAX</span>
+              <div className="flex justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">Stake</span>
+                <span className="font-semibold text-gray-900">{nodeStats.stakeAmount.toLocaleString()} AVAX</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-ice-100">
-                <span className="text-ice-600">Deploy Time</span>
-                <span className="font-medium text-ice-900">
+              <div className="flex justify-between py-2 border-b border-gray-100">
+                <span className="text-sm text-gray-600">Deployed</span>
+                <span className="text-sm text-gray-900">
                   {new Date(nodeStats.deployTime * 1000).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="text-ice-600 flex items-center">
+                <span className="text-sm text-gray-600 flex items-center">
                   <ClockIcon className="w-4 h-4 mr-1" />
                   Uptime
                 </span>
-                <span className="font-medium text-ice-900">{formatUptime(nodeStats.uptime)}</span>
+                <span className="font-semibold text-blue-600">{formatUptime(nodeStats.uptime)}</span>
               </div>
             </div>
           </div>
 
           {/* Performance Metrics */}
-          <div className="card p-6">
-            <h3 className="text-xl font-bold text-ice-900 mb-4 flex items-center">
-              <ChartBarIcon className="w-5 h-5 mr-2 text-arctic-600" />
-              Performance Metrics
-            </h3>
+          <div className="bg-white rounded-xl border border-blue-100 p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <ChartBarIcon className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-bold text-gray-900">Performance</h3>
+            </div>
             <div className="space-y-4">
               <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-ice-600">Network Health</span>
-                  <span className="font-medium text-green-600">Excellent</span>
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-gray-600">Network Health</span>
+                  <span className="font-semibold text-blue-600">98%</span>
                 </div>
-                <div className="w-full bg-ice-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full" style={{ width: '98%' }}></div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-ice-600">Transaction Success Rate</span>
-                  <span className="font-medium text-arctic-600">99.8%</span>
-                </div>
-                <div className="w-full bg-ice-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-arctic-500 to-arctic-600 h-2 rounded-full" style={{ width: '99.8%' }}></div>
+                <div className="w-full bg-blue-100 rounded-full h-1.5">
+                  <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: '98%' }}></div>
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-ice-600">Validation Efficiency</span>
-                  <span className="font-medium text-emerald-600">97.5%</span>
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-gray-600">Success Rate</span>
+                  <span className="font-semibold text-blue-600">99.8%</span>
                 </div>
-                <div className="w-full bg-ice-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full" style={{ width: '97.5%' }}></div>
+                <div className="w-full bg-blue-100 rounded-full h-1.5">
+                  <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: '99.8%' }}></div>
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-gradient-to-r from-arctic-50 to-ice-50 rounded-lg">
-                <div className="text-sm font-medium text-ice-700 mb-1">Average Block Time</div>
-                <div className="text-2xl font-bold text-arctic-700">2.1s</div>
-                <div className="text-xs text-ice-500 mt-1">Consistently fast validation</div>
+              <div>
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-gray-600">Efficiency</span>
+                  <span className="font-semibold text-blue-600">97.5%</span>
+                </div>
+                <div className="w-full bg-blue-100 rounded-full h-1.5">
+                  <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: '97.5%' }}></div>
+                </div>
+              </div>
+
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="text-xs text-gray-600 mb-1">Avg Block Time</div>
+                <div className="text-3xl font-bold text-blue-900">2.1<span className="text-xl">s</span></div>
+                <div className="text-xs text-blue-600 mt-1">Fast & reliable</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Info Banner */}
-        <div className="mt-8 card p-6 bg-gradient-to-r from-arctic-50 to-ice-50 border border-arctic-200">
+        <div className="mt-6 bg-blue-50 rounded-xl border border-blue-200 p-6">
           <div className="flex items-start space-x-3">
-            <BoltIcon className="w-6 h-6 text-arctic-600 flex-shrink-0 mt-1" />
+            <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+              <BoltIcon className="w-5 h-5 text-blue-600" />
+            </div>
             <div>
-              <h4 className="font-bold text-ice-900 mb-2">About Isbjorn L1 Validator</h4>
-              <p className="text-ice-700 text-sm leading-relaxed">
-                The Isbjorn L1 validator runs on Avalanche's infrastructure, processing all donation transactions
-                on-chain with complete transparency. Revenue is generated from transaction fees and validation rewards,
-                which helps sustain the platform while ensuring all charitable donations are immutably recorded.
+              <h4 className="font-bold text-gray-900 mb-2">About the Validator</h4>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                The Isbjorn L1 validator runs on Avalanche infrastructure, processing all donation transactions with complete transparency.
+                Revenue from transaction fees and staking rewards helps sustain the platform while ensuring all charitable donations are immutably recorded on-chain.
               </p>
             </div>
           </div>

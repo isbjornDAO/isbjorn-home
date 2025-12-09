@@ -16,6 +16,9 @@ const working_auth_1 = require("./working-auth");
 const public_1 = __importDefault(require("./public"));
 const simple_payment_1 = __importDefault(require("./simple-payment"));
 const user_routes_1 = __importDefault(require("./user.routes"));
+const node_routes_1 = require("./node.routes");
+const collectables_routes_1 = __importDefault(require("./collectables.routes"));
+const rewards_routes_1 = __importDefault(require("./rewards.routes"));
 const express_validator_1 = require("express-validator");
 const stripeService_1 = require("../services/stripeService");
 const x402Service_1 = require("../services/x402Service");
@@ -143,6 +146,9 @@ router.use('/public', public_1.default);
 router.use('/integrations', integrations_routes_1.integrationsRoutes);
 router.use('/payment', simple_payment_1.default);
 router.use('/user', user_routes_1.default);
+router.use('/node', node_routes_1.nodeRoutes);
+router.use('/collectables', collectables_routes_1.default);
+router.use('/rewards', rewards_routes_1.default);
 // X402 Checkout session creation
 router.post('/x402-checkout/create-session', [
     (0, express_validator_1.body)('amount').isFloat({ min: 1 }).withMessage('Amount must be at least $1'),

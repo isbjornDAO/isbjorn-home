@@ -260,7 +260,7 @@ const AnimatedFlightPath: React.FC<{ path: FlightPath; onClick?: () => void }> =
           autoClose={false}
           closeOnClick={false}
         >
-          <div className="text-xs">
+          <div className="text-xs min-w-[180px]">
             <div className="font-bold text-gray-900">{typeIcons[path.type]} {path.fromName} → {path.toName}</div>
             <div className="text-green-600 font-semibold">
               ${(path.amount / 1000).toFixed(0)}K
@@ -835,7 +835,7 @@ const MapPage: React.FC = () => {
           <div className="flex items-center justify-between gap-8">
             {/* Live Updates Indicator */}
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse shadow-sm"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-teal-500 shadow-lg" style="animation: pulse 1.5s ease-in-out infinite;"></div>
               <span className="text-sm font-semibold text-gray-800">Live Updates</span>
             </div>
 
@@ -877,15 +877,15 @@ const MapPage: React.FC = () => {
           {/* Map */}
           <div className="lg:col-span-2">
 
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden relative" style={{ height: '700px' }}>
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden relative border-2 border-gray-100" style={{ height: '700px' }}>
               {/* Subtle ambient overlay */}
               <div className="absolute inset-0 pointer-events-none z-[999] overflow-hidden">
                 {/* Gentle radial gradient for depth */}
-                <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-gray-50/20" />
+                <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-gray-100/30" />
               </div>
 
               {/* Filter Controls */}
-              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-2 z-[1000] max-w-[200px]">
+              <div className="absolute top-4 left-4 bg-white/98 backdrop-blur-md rounded-xl shadow-xl p-3 z-[1000] max-w-[220px] border-2 border-gray-200">
                 <h4 className="font-bold text-xs text-gray-900 mb-2">Filters</h4>
                 <div className="space-y-1 text-xs">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -961,7 +961,7 @@ const MapPage: React.FC = () => {
               {/* Live Status Indicator */}
               <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-md px-3 py-2 z-[1000] border border-teal-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse shadow-sm"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-teal-500 shadow-lg" style="animation: pulse 1.5s ease-in-out infinite;"></div>
                   <span className="text-xs font-medium text-gray-700">
                     Live • {charityBases.length} locations active
                   </span>
@@ -1004,8 +1004,8 @@ const MapPage: React.FC = () => {
                 scrollWheelZoom={true}
               >
                 <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'copy; OpenStreetMap attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'copy; CartoDB'
+                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
                 />
 
                 {/* Climate Impact Zones */}
@@ -1034,7 +1034,7 @@ const MapPage: React.FC = () => {
                       pathOptions={{
                         color: colors.color,
                         fillColor: colors.fillColor,
-                        fillOpacity: 0.15,
+                        fillOpacity: 0.22,
                         weight: 2,
                         dashArray: '8, 4'
                       }}
@@ -1425,7 +1425,7 @@ const MapPage: React.FC = () => {
                     <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">📢</span>
-                        <div className="text-xs">
+                        <div className="text-xs min-w-[180px]">
                           <span className="font-bold text-blue-900">{post.awarenessCount} people</span>
                           <span className="text-blue-700"> raised awareness about this issue</span>
                         </div>

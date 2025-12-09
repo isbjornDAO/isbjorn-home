@@ -15,10 +15,27 @@ const BlockchainTransaction_model_1 = require("../models/BlockchainTransaction.m
 const NZCompany_model_1 = require("../models/NZCompany.model");
 const IRDCompliantDonation_model_1 = require("../models/IRDCompliantDonation.model");
 const Project_model_1 = require("../models/Project.model");
+const Collectable_model_1 = require("../models/Collectable.model");
+const UserCollectable_model_1 = require("../models/UserCollectable.model");
+const Reward_model_1 = require("../models/Reward.model");
+const UserReward_model_1 = require("../models/UserReward.model");
 dotenv_1.default.config();
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const DATABASE_URL = process.env.DATABASE_URL;
-const models = [User_model_1.User, Charity_model_1.Charity, Donation_model_1.Donation, Receipt_model_1.Receipt, BlockchainTransaction_model_1.BlockchainTransaction, NZCompany_model_1.NZCompany, IRDCompliantDonation_model_1.IRDCompliantDonation, Project_model_1.Project];
+const models = [
+    User_model_1.User,
+    Charity_model_1.Charity,
+    Donation_model_1.Donation,
+    Receipt_model_1.Receipt,
+    BlockchainTransaction_model_1.BlockchainTransaction,
+    NZCompany_model_1.NZCompany,
+    IRDCompliantDonation_model_1.IRDCompliantDonation,
+    Project_model_1.Project,
+    Collectable_model_1.Collectable,
+    UserCollectable_model_1.UserCollectable,
+    Reward_model_1.Reward,
+    UserReward_model_1.UserReward,
+];
 function createSequelizeInstance() {
     // If DATABASE_URL is provided (Railway), use it directly
     if (DATABASE_URL) {

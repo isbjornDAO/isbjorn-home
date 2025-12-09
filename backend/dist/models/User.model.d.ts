@@ -52,6 +52,9 @@ export declare class User extends Model {
     lastDonationDate?: Date;
     donationStreak: number;
     longestDonationStreak: number;
+    lastActive?: Date;
+    currentStreak: number;
+    longestStreak: number;
     donations: Donation[];
     static hashPassword(user: User): Promise<void>;
     validatePassword(password: string): Promise<boolean>;

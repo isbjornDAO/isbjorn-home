@@ -1,7 +1,7 @@
 import express from 'express';
 import AvalancheL1Service from '../services/AvalancheL1Service';
 import { logger } from '../utils/logger';
-import { db } from '../config/database';
+import { sequelize } from '../config/database';
 
 const router = express.Router();
 
@@ -33,22 +33,17 @@ router.get('/stats', async (req, res) => {
     let donationVolume = 0;
 
     try {
-      if (db && typeof db.get === 'function') {
-        const donationStats = await db.get(`
-          SELECT
-            COUNT(*) as count,
-            COALESCE(SUM(amount), 0) as volume
-          FROM donations
-          WHERE status = 'completed'
-        `);
+      const [results] = await sequelize.query(`
+        SELECT
+          COUNT(*) as count,
+          COALESCE(SUM(amount), 0) as volume
+        FROM donations
+        WHERE status = 'completed'
+      `);
 
-        totalDonations = donationStats?.count || 0;
-        donationVolume = donationStats?.volume || 0;
-      } else {
-        // Use mock data if database is not available
-        totalDonations = 150;
-        donationVolume = 45000;
-      }
+      const donationStats = results[0] as any;
+      totalDonations = parseInt(donationStats?.count || '0');
+      donationVolume = parseFloat(donationStats?.volume || '0');
     } catch (dbError) {
       logger.error('Error fetching donation stats from database:', dbError);
       // Use mock data on error

@@ -2,7 +2,7 @@ import { Reward } from '../models/Reward.model';
 import { UserReward } from '../models/UserReward.model';
 import { User } from '../models/User.model';
 import { Op } from 'sequelize';
-import sequelize from '../config/database';
+import { sequelize } from '../config/database';
 
 export class RewardService {
   /**

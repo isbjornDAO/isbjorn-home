@@ -1,5 +1,5 @@
 import { Collectable, CollectableRarity } from '../models/Collectable.model';
-import sequelize from '../config/database';
+import { sequelize } from '../config/database';
 
 const collectables = [
   // Donation Milestones

@@ -85,6 +85,9 @@ let User = class User extends sequelize_typescript_1.Model {
     lastDonationDate;
     donationStreak;
     longestDonationStreak;
+    lastActive;
+    currentStreak;
+    longestStreak;
     donations;
     static async hashPassword(user) {
         if (user.changed('password') && user.password) {
@@ -131,6 +134,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
+    sequelize_typescript_1.Unique,
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
         allowNull: true,
@@ -333,6 +337,27 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], User.prototype, "longestDonationStreak", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DATE,
+        allowNull: true,
+    }),
+    __metadata("design:type", Date)
+], User.prototype, "lastActive", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        defaultValue: 0,
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "currentStreak", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        defaultValue: 0,
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "longestStreak", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => Donation_model_1.Donation),
     __metadata("design:type", Array)

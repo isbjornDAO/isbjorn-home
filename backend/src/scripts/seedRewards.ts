@@ -1,5 +1,5 @@
 import { Reward } from '../models/Reward.model';
-import sequelize from '../config/database';
+import { sequelize } from '../config/database';
 
 const rewards = [
   {

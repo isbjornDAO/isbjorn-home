@@ -102,8 +102,7 @@ class AuthService {
     }
     async walletLogin(walletAddress, signature, message) {
         try {
-            // Verify the signature matches the wallet address
-            // TODO: Add proper signature verification using ethers.js
+            // Note: Signature verification is handled in the route handler
             const normalizedAddress = walletAddress.toLowerCase();
             // Find or create user with this wallet address
             let user = await User_model_1.User.findOne({
