@@ -37,24 +37,31 @@ export class User extends Model {
   @Unique
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
     validate: {
       isEmail: true,
     },
   })
-  email!: string;
+  email?: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
-  password!: string;
+  password?: string;
+
+  @Unique
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  walletAddress?: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
-  companyName!: string;
+  companyName?: string;
 
   @Column({
     type: DataType.STRING,
@@ -194,6 +201,7 @@ export class User extends Model {
   }
 
   async validatePassword(password: string): Promise<boolean> {
+    if (!this.password) return false;
     return bcrypt.compare(password, this.password);
   }
 

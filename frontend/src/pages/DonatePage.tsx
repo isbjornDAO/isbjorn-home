@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '@/utils/apiUrl';
+import polarBearDonateBg from '@/assets/polar-bear-donate-bg.jpg';
 
 const DonationForm: React.FC = () => {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ const DonationForm: React.FC = () => {
         <div
           className="absolute inset-0 bg-cover bg-center opacity-20"
           style={{
-            backgroundImage: "url('/src/assets/polar-bear-donate-bg.jpg')",
+            backgroundImage: `url(${polarBearDonateBg})`,
             backgroundPosition: "center 40%"
           }}
         />

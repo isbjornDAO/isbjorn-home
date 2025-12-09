@@ -137,6 +137,59 @@ export class AuthService {
     }
   }
 
+  async walletLogin(walletAddress: string, signature: string, message: string): Promise<LoginResponse> {
+    try {
+      // Verify the signature matches the wallet address
+      // TODO: Add proper signature verification using ethers.js
+      const normalizedAddress = walletAddress.toLowerCase();
+
+      // Find or create user with this wallet address
+      let user = await User.findOne({
+        where: { walletAddress: normalizedAddress },
+      });
+
+      if (!user) {
+        // Create new user with wallet
+        user = await User.create({
+          walletAddress: normalizedAddress,
+          companyName: `User ${normalizedAddress.substring(0, 6)}`,
+          role: UserRole.USER,
+          isActive: true,
+          preferences: {
+            receiveNewsletter: true,
+            receiveImpactReports: true,
+            publicProfile: false,
+            defaultCurrency: 'nzd',
+          },
+        });
+        logger.info(`New wallet user created: ${normalizedAddress}`);
+      }
+
+      if (!user.isActive) {
+        throw new AppError('Account is deactivated', 401);
+      }
+
+      await user.update({
+        lastLoginAt: new Date(),
+        loginCount: user.loginCount + 1,
+      });
+
+      const { token, refreshToken } = this.generateTokens(user);
+
+      logger.info(`Wallet user logged in: ${normalizedAddress}`);
+
+      return {
+        user,
+        token,
+        refreshToken,
+      };
+    } catch (error: any) {
+      logger.error('Wallet login error:', error);
+      if (error instanceof AppError) throw error;
+      throw new AppError('Wallet login failed', 500);
+    }
+  }
+
   async refreshToken(refreshTokenStr: string): Promise<{ token: string }> {
     try {
       const decoded = jwt.verify(refreshTokenStr, JWT_REFRESH_SECRET) as any;
