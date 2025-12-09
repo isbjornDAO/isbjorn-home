@@ -20,8 +20,8 @@ export declare enum DonationCurrency {
 }
 export declare class Donation extends Model {
     id: string;
-    userId: string;
-    charityId: string;
+    userId?: string;
+    charityId?: string;
     companyId?: string;
     projectId?: string;
     amount: number;
@@ -33,6 +33,10 @@ export declare class Donation extends Model {
     stripePaymentIntentId?: string;
     provider?: string;
     sessionId?: string;
+    transactionId?: string;
+    charityName?: string;
+    donorName?: string;
+    donorEmail?: string;
     blockchainTxHash?: string;
     blockchainConfirmations: number;
     blockchainStatus?: string;

@@ -25,6 +25,19 @@ router.post('/register', async (req, res, next) => {
         next(error);
     }
 });
+router.post('/wallet-login', async (req, res, next) => {
+    try {
+        const { address, signature, message } = req.body;
+        if (!address || !signature || !message) {
+            return res.status(400).json({ message: 'Address, signature, and message are required' });
+        }
+        const result = await authService_1.authService.walletLogin(address, signature, message);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 router.get('/me', async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;

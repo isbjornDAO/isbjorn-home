@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigation = [
     { name: 'Home', href: '/', icon: HomeIcon },
     { name: 'Donate', href: '/donate', icon: HeartIcon },
-    { name: 'Impact Map', href: '/map', icon: MapIcon },
+    { name: 'Map', href: '/map', icon: MapIcon },
   ];
 
   const isActive = (path: string) => location.pathname === path;

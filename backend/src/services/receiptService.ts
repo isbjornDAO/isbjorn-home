@@ -2,6 +2,7 @@ import PDFDocument from 'pdfkit';
 import fs from 'fs';
 import path from 'path';
 import { logger } from '../utils/logger';
+import { s3Service } from '../utils/s3';
 import { Donation } from '../models/Donation.model';
 
 export class ReceiptService {
@@ -48,6 +49,38 @@ export class ReceiptService {
                 reject(error);
             }
         });
+    }
+
+    /**
+     * Generate and upload receipt to S3
+     */
+    async generateAndUploadReceipt(donation: Donation): Promise<string> {
+        try {
+            // Generate PDF receipt
+            const receiptBuffer = await this.generateReceipt(donation);
+
+            // Upload to S3
+            const s3Url = await s3Service.uploadReceipt(donation.id, receiptBuffer);
+
+            logger.info(`Receipt generated and uploaded for donation ${donation.id}: ${s3Url}`);
+            return s3Url;
+        } catch (error) {
+            logger.error('Error generating and uploading receipt:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get download URL for a receipt
+     */
+    async getReceiptDownloadUrl(donationId: string): Promise<string> {
+        try {
+            const downloadUrl = await s3Service.getReceiptDownloadUrl(donationId);
+            return downloadUrl;
+        } catch (error) {
+            logger.error('Error getting receipt download URL:', error);
+            throw error;
+        }
     }
 }
 

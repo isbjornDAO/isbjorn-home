@@ -22,6 +22,7 @@ export declare class AuthService {
     private generateTokens;
     register(data: RegisterData): Promise<LoginResponse>;
     login(email: string, password: string): Promise<LoginResponse>;
+    walletLogin(walletAddress: string, signature: string, message: string): Promise<LoginResponse>;
     refreshToken(refreshTokenStr: string): Promise<{
         token: string;
     }>;

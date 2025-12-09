@@ -47,6 +47,10 @@ let Donation = class Donation extends sequelize_typescript_1.Model {
     stripePaymentIntentId;
     provider;
     sessionId;
+    transactionId;
+    charityName;
+    donorName;
+    donorEmail;
     blockchainTxHash;
     blockchainConfirmations;
     blockchainStatus;
@@ -88,7 +92,7 @@ __decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => User_model_1.User),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.UUID,
-        allowNull: false,
+        allowNull: true,
     }),
     __metadata("design:type", String)
 ], Donation.prototype, "userId", void 0);
@@ -96,7 +100,7 @@ __decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => Charity_model_1.Charity),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.UUID,
-        allowNull: false,
+        allowNull: true,
     }),
     __metadata("design:type", String)
 ], Donation.prototype, "charityId", void 0);
@@ -184,6 +188,34 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Donation.prototype, "sessionId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Donation.prototype, "transactionId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Donation.prototype, "charityName", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Donation.prototype, "donorName", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], Donation.prototype, "donorEmail", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,

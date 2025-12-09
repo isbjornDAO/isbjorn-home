@@ -14,6 +14,8 @@ const admin_routes_1 = require("./admin.routes");
 const integrations_routes_1 = require("./integrations.routes");
 const working_auth_1 = require("./working-auth");
 const public_1 = __importDefault(require("./public"));
+const simple_payment_1 = __importDefault(require("./simple-payment"));
+const user_routes_1 = __importDefault(require("./user.routes"));
 const express_validator_1 = require("express-validator");
 const stripeService_1 = require("../services/stripeService");
 const x402Service_1 = require("../services/x402Service");
@@ -129,7 +131,7 @@ router.get('/health/deep', async (req, res) => {
         });
     }
 });
-// API routes  
+// API routes
 router.use('/auth', working_auth_1.workingAuthRoutes);
 router.use('/donations', streamlinedDonations_1.default);
 router.use('/x402', x402Donations_1.default);
@@ -139,6 +141,8 @@ router.use('/dashboard', dashboard_routes_1.dashboardRoutes);
 router.use('/admin', admin_routes_1.adminRoutes);
 router.use('/public', public_1.default);
 router.use('/integrations', integrations_routes_1.integrationsRoutes);
+router.use('/payment', simple_payment_1.default);
+router.use('/user', user_routes_1.default);
 // X402 Checkout session creation
 router.post('/x402-checkout/create-session', [
     (0, express_validator_1.body)('amount').isFloat({ min: 1 }).withMessage('Amount must be at least $1'),

@@ -55,6 +55,7 @@ var UserRole;
 let User = class User extends sequelize_typescript_1.Model {
     email;
     password;
+    walletAddress;
     companyName;
     taxId;
     nzbn;
@@ -75,6 +76,15 @@ let User = class User extends sequelize_typescript_1.Model {
     preferences;
     stripeCustomerId;
     x402WalletId;
+    // XP and Gamification System
+    xp;
+    level;
+    coins;
+    badges;
+    collectables;
+    lastDonationDate;
+    donationStreak;
+    longestDonationStreak;
     donations;
     static async hashPassword(user) {
         if (user.changed('password') && user.password) {
@@ -83,6 +93,8 @@ let User = class User extends sequelize_typescript_1.Model {
         }
     }
     async validatePassword(password) {
+        if (!this.password)
+            return false;
         return bcrypt.compare(password, this.password);
     }
     toJSON() {
@@ -104,7 +116,7 @@ __decorate([
     sequelize_typescript_1.Unique,
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
             isEmail: true,
         },
@@ -114,14 +126,21 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
+        allowNull: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
-        allowNull: false,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "walletAddress", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "companyName", void 0);
@@ -258,6 +277,62 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], User.prototype, "x402WalletId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        defaultValue: 0,
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "xp", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        defaultValue: 1,
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "level", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        defaultValue: 0,
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "coins", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.JSONB,
+        allowNull: true,
+    }),
+    __metadata("design:type", Array)
+], User.prototype, "badges", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.JSONB,
+        allowNull: true,
+    }),
+    __metadata("design:type", Array)
+], User.prototype, "collectables", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DATE,
+        allowNull: true,
+    }),
+    __metadata("design:type", Date)
+], User.prototype, "lastDonationDate", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        defaultValue: 0,
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "donationStreak", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        defaultValue: 0,
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "longestDonationStreak", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => Donation_model_1.Donation),
     __metadata("design:type", Array)

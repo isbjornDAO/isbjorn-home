@@ -74,7 +74,7 @@ const MapPage: React.FC = () => {
   const [daoAllocations, setDaoAllocations] = useState<DAOAllocation[]>([]);
   const [userVotingPower, setUserVotingPower] = useState(0);
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'activity' | 'transparency' | 'dao'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'transparency' | 'dao'>('map');
 
   // Mock data initialization
   useEffect(() => {
@@ -414,20 +414,19 @@ const MapPage: React.FC = () => {
           {/* Sidebar Content */}
           <div className="space-y-4">
             {/* Tab Navigation */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="flex border-b border-gray-200">
-                {(['map', 'activity', 'transparency', 'dao'] as const).map(tab => (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden p-2">
+              <div className="flex gap-2">
+                {(['map', 'transparency', 'dao'] as const).map(tab => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-1 px-3 py-3 text-sm font-semibold border-b-2 transition-colors ${
+                    className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all ${
                       activeTab === tab
-                        ? 'border-arctic-500 text-arctic-600 bg-arctic-50'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        ? 'bg-arctic-500 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
                     {tab === 'map' && '🗺️ Map'}
-                    {tab === 'activity' && '📡 Activity'}
                     {tab === 'transparency' && '🔍 Transparency'}
                     {tab === 'dao' && '⚖️ DAO'}
                   </button>
@@ -495,46 +494,6 @@ const MapPage: React.FC = () => {
                       </div>
                     </motion.div>
                   ))}
-                </motion.div>
-              )}
-
-              {/* Activity Tab */}
-              {activeTab === 'activity' && (
-                <motion.div
-                  key="activity"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="bg-white rounded-xl shadow-lg p-4"
-                >
-                  <h3 className="font-bold text-gray-900 mb-4 flex items-center">
-                    <span className="animate-pulse mr-2">🔴</span> Live Activity Feed
-                  </h3>
-                  <div className="space-y-3 max-h-[520px] overflow-y-auto">
-                    {activities.map(activity => (
-                      <motion.div
-                        key={activity.id}
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="border-l-4 border-arctic-500 pl-3 py-2"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <p className="font-semibold text-sm text-gray-900">{activity.nonprofitName}</p>
-                            <p className="text-xs text-gray-600 mt-1">{activity.action}</p>
-                            {activity.amount && (
-                              <p className="text-xs text-green-600 font-semibold mt-1">
-                                💰 {formatCurrency(activity.amount)}
-                              </p>
-                            )}
-                          </div>
-                          <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
-                            {formatTimeAgo(activity.timestamp)}
-                          </span>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
                 </motion.div>
               )}
 

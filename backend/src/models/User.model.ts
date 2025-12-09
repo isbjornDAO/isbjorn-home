@@ -187,6 +187,59 @@ export class User extends Model {
   })
   x402WalletId?: string;
 
+  // XP and Gamification System
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  xp!: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 1,
+  })
+  level!: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  coins!: number;
+
+  @Column({
+    type: DataType.JSONB,
+    allowNull: true,
+  })
+  badges?: string[];
+
+  @Column({
+    type: DataType.JSONB,
+    allowNull: true,
+  })
+  collectables?: {
+    id: string;
+    name: string;
+    claimedAt: Date;
+  }[];
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  lastDonationDate?: Date;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  donationStreak!: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  longestDonationStreak!: number;
+
   @HasMany(() => Donation)
   donations!: Donation[];
 

@@ -100,6 +100,53 @@ class AuthService {
             throw new AppError_1.AppError('Login failed', 500);
         }
     }
+    async walletLogin(walletAddress, signature, message) {
+        try {
+            // Verify the signature matches the wallet address
+            // TODO: Add proper signature verification using ethers.js
+            const normalizedAddress = walletAddress.toLowerCase();
+            // Find or create user with this wallet address
+            let user = await User_model_1.User.findOne({
+                where: { walletAddress: normalizedAddress },
+            });
+            if (!user) {
+                // Create new user with wallet
+                user = await User_model_1.User.create({
+                    walletAddress: normalizedAddress,
+                    companyName: `User ${normalizedAddress.substring(0, 6)}`,
+                    role: User_model_1.UserRole.USER,
+                    isActive: true,
+                    preferences: {
+                        receiveNewsletter: true,
+                        receiveImpactReports: true,
+                        publicProfile: false,
+                        defaultCurrency: 'nzd',
+                    },
+                });
+                logger_1.logger.info(`New wallet user created: ${normalizedAddress}`);
+            }
+            if (!user.isActive) {
+                throw new AppError_1.AppError('Account is deactivated', 401);
+            }
+            await user.update({
+                lastLoginAt: new Date(),
+                loginCount: user.loginCount + 1,
+            });
+            const { token, refreshToken } = this.generateTokens(user);
+            logger_1.logger.info(`Wallet user logged in: ${normalizedAddress}`);
+            return {
+                user,
+                token,
+                refreshToken,
+            };
+        }
+        catch (error) {
+            logger_1.logger.error('Wallet login error:', error);
+            if (error instanceof AppError_1.AppError)
+                throw error;
+            throw new AppError_1.AppError('Wallet login failed', 500);
+        }
+    }
     async refreshToken(refreshTokenStr) {
         try {
             const decoded = jsonwebtoken_1.default.verify(refreshTokenStr, JWT_REFRESH_SECRET);

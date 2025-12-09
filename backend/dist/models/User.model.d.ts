@@ -6,9 +6,10 @@ export declare enum UserRole {
 }
 export declare class User extends Model {
     id: string;
-    email: string;
-    password: string;
-    companyName: string;
+    email?: string;
+    password?: string;
+    walletAddress?: string;
+    companyName?: string;
     taxId?: string;
     nzbn?: string;
     role: UserRole;
@@ -39,6 +40,18 @@ export declare class User extends Model {
     };
     stripeCustomerId?: string;
     x402WalletId?: string;
+    xp: number;
+    level: number;
+    coins: number;
+    badges?: string[];
+    collectables?: {
+        id: string;
+        name: string;
+        claimedAt: Date;
+    }[];
+    lastDonationDate?: Date;
+    donationStreak: number;
+    longestDonationStreak: number;
     donations: Donation[];
     static hashPassword(user: User): Promise<void>;
     validatePassword(password: string): Promise<boolean>;

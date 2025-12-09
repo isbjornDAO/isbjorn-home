@@ -11,6 +11,7 @@ import { integrationsRoutes } from './integrations.routes';
 import { workingAuthRoutes } from './working-auth';
 import publicRoutes from './public';
 import simplePaymentRoutes from './simple-payment';
+import userRoutes from './user.routes';
 import { body, validationResult } from 'express-validator';
 import { stripeService } from '../services/stripeService';
 import { x402Service } from '../services/x402Service';
@@ -149,6 +150,7 @@ router.use('/admin', adminRoutes);
 router.use('/public', publicRoutes);
 router.use('/integrations', integrationsRoutes);
 router.use('/payment', simplePaymentRoutes);
+router.use('/user', userRoutes);
 
 // X402 Checkout session creation
 router.post('/x402-checkout/create-session', [

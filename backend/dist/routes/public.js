@@ -8,6 +8,7 @@ const Charity_model_1 = require("../models/Charity.model");
 const IRDCompliantDonation_model_1 = require("../models/IRDCompliantDonation.model");
 const NZCompany_model_1 = require("../models/NZCompany.model");
 const logger_1 = require("../utils/logger");
+const nzbn_search_1 = __importDefault(require("./nzbn-search"));
 const router = express_1.default.Router();
 const isProduction = process.env.NODE_ENV === 'production';
 router.get('/charities', async (req, res) => {
@@ -218,5 +219,7 @@ router.get('/stats', async (req, res) => {
         });
     }
 });
+// NZBN company search routes
+router.use('/nzbn', nzbn_search_1.default);
 exports.default = router;
 //# sourceMappingURL=public.js.map
