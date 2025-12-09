@@ -32,13 +32,25 @@ class ApiService {
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error: AxiosError) => {
+        // Only auto-logout on 401 for auth-related endpoints
         if (error.response?.status === 401) {
-          localStorage.removeItem('authToken');
-          window.location.href = '/login';
+          const url = error.config?.url || '';
+          const isAuthEndpoint = url.includes('/auth/me') || url.includes('/auth/profile');
+
+          if (isAuthEndpoint && typeof window !== 'undefined') {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            // Only redirect if not already on login page
+            if (!window.location.pathname.includes('/login')) {
+              window.location.href = '/login';
+              toast.error('Session expired. Please log in again.');
+            }
+          }
         }
 
         const message = this.extractErrorMessage(error);
-        if (error.response?.status !== 422) { // Don't show validation errors as toasts
+        // Don't show toast for validation errors or auth errors (we handle those separately)
+        if (error.response?.status !== 422 && error.response?.status !== 401) {
           toast.error(message);
         }
 

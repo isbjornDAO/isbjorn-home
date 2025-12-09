@@ -24,6 +24,7 @@ const BusinessDashboard = lazy(() => import('@/pages/BusinessDashboard'));
 const WalletPage = lazy(() => import('@/pages/WalletPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const DonationForm = lazy(() => import('@/components/DonationForm'));
+const MapPage = lazy(() => import('@/pages/MapPage'));
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
               <Route path="/compliance" element={<ComplianceDashboardPage />} />
               <Route path="/charity/:id" element={<CharityDetailsPage />} />
               <Route path="/system-status" element={<SystemStatusPage />} />
+              <Route path="/map" element={<MapPage />} />
 
               {/* Business Portal */}
               <Route path="/business-dashboard" element={<ProtectedRoute><BusinessDashboard /></ProtectedRoute>} />

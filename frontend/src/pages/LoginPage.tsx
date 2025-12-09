@@ -45,51 +45,54 @@ const LoginPage: React.FC = () => {
     }
   }, [isConnected]);
 
-  // Auto-authenticate when wallet connects
-  useEffect(() => {
-    const authenticateWallet = async () => {
-      if (isConnected && address && !walletAuthAttempted) {
-        setWalletAuthAttempted(true);
-        try {
-          // Create message to sign
-          const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
+  // Wallet authentication handler (MANUAL - not auto)
+  const authenticateWallet = async () => {
+    if (!isConnected || !address) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
 
-          // Request signature
-          const signature = await signMessageAsync({ message });
+    if (walletAuthAttempted) {
+      return; // Prevent double attempts
+    }
 
-          // Send to backend for verification and authentication
-          const response = await apiService.post<{
-            user: any;
-            token: string;
-            refreshToken: string;
-          }>('/auth/wallet-login', {
-            address,
-            message,
-            signature,
-          });
+    setWalletAuthAttempted(true);
+    try {
+      // Create message to sign
+      const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
 
-          // Store token and user data
-          localStorage.setItem('authToken', response.token);
-          if (response.refreshToken) {
-            localStorage.setItem('refreshToken', response.refreshToken);
-          }
+      // Request signature
+      const signature = await signMessageAsync({ message });
 
-          toast.success('Wallet connected and authenticated!');
-          navigate('/dashboard');
-        } catch (error: any) {
-          console.error('Wallet authentication error:', error);
-          setWalletAuthAttempted(false); // Allow retry
-          if (error.message?.includes('User rejected')) {
-            toast.error('Signature rejected. Please sign the message to authenticate.');
-          } else {
-            toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
-          }
-        }
+      // Send to backend for verification and authentication
+      const response = await apiService.post<{
+        user: any;
+        token: string;
+        refreshToken: string;
+      }>('/auth/wallet-login', {
+        address,
+        message,
+        signature,
+      });
+
+      // Store token and user data
+      localStorage.setItem('authToken', response.token);
+      if (response.refreshToken) {
+        localStorage.setItem('refreshToken', response.refreshToken);
       }
-    };
 
-    authenticateWallet();
-  }, [isConnected, address, walletAuthAttempted, signMessageAsync, navigate]);
+      toast.success('Wallet authenticated successfully!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Wallet authentication error:', error);
+      setWalletAuthAttempted(false); // Allow retry
+      if (error.message?.includes('User rejected')) {
+        toast.error('Signature rejected. Please sign the message to authenticate.');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
+      }
+    }
+  };
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
@@ -147,9 +150,16 @@ const LoginPage: React.FC = () => {
   };
 
   const handleWalletLogin = async () => {
-    if (openConnectModal) {
-      // Open connect modal - authentication will happen automatically via useEffect
+    if (isConnected && address) {
+      // If already connected, authenticate immediately
+      await authenticateWallet();
+    } else if (openConnectModal) {
+      // If not connected, open wallet connect modal
       openConnectModal();
+      toast('Please connect your wallet, then click the button again to sign in', {
+        icon: '👛',
+        duration: 4000,
+      });
     }
   };
 
@@ -253,7 +263,7 @@ const LoginPage: React.FC = () => {
                       <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
                     </svg>
                     <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">
-                      {walletAuthAttempted && isConnected ? 'Authenticating...' : isConnected ? `Connected: ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Continue with Wallet'}
+                      {walletAuthAttempted && isConnected ? 'Authenticating...' : isConnected ? `Sign in as ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Continue with Wallet'}
                     </span>
                   </button>
                 </div>

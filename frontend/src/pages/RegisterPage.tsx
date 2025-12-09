@@ -234,56 +234,66 @@ const RegisterPage: React.FC = () => {
     }
   }, [isConnected]);
 
-  // Auto-authenticate when wallet connects
-  useEffect(() => {
-    const authenticateWallet = async () => {
-      if (isConnected && address && !walletAuthAttempted) {
-        setWalletAuthAttempted(true);
-        try {
-          // Create message to sign
-          const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
+  // Wallet authentication handler (MANUAL - not auto)
+  const authenticateWallet = async () => {
+    if (!isConnected || !address) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
 
-          // Request signature
-          const signature = await signMessageAsync({ message });
+    if (walletAuthAttempted) {
+      return; // Prevent double attempts
+    }
 
-          // Send to backend for verification and authentication
-          const response = await apiService.post<{
-            user: any;
-            token: string;
-            refreshToken: string;
-          }>('/auth/wallet-login', {
-            address,
-            message,
-            signature,
-          });
+    setWalletAuthAttempted(true);
+    try {
+      // Create message to sign
+      const message = `Sign this message to register with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
 
-          // Store token and user data
-          localStorage.setItem('authToken', response.token);
-          if (response.refreshToken) {
-            localStorage.setItem('refreshToken', response.refreshToken);
-          }
+      // Request signature
+      const signature = await signMessageAsync({ message });
 
-          toast.success('Wallet connected and authenticated!');
-          navigate('/dashboard');
-        } catch (error: any) {
-          console.error('Wallet authentication error:', error);
-          setWalletAuthAttempted(false); // Allow retry
-          if (error.message?.includes('User rejected')) {
-            toast.error('Signature rejected. Please sign the message to authenticate.');
-          } else {
-            toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
-          }
-        }
+      // Send to backend for verification and authentication
+      const response = await apiService.post<{
+        user: any;
+        token: string;
+        refreshToken: string;
+      }>('/auth/wallet-login', {
+        address,
+        message,
+        signature,
+      });
+
+      // Store token and user data
+      localStorage.setItem('authToken', response.token);
+      if (response.refreshToken) {
+        localStorage.setItem('refreshToken', response.refreshToken);
       }
-    };
 
-    authenticateWallet();
-  }, [isConnected, address, walletAuthAttempted, signMessageAsync, navigate]);
+      toast.success('Wallet registered successfully!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Wallet authentication error:', error);
+      setWalletAuthAttempted(false); // Allow retry
+      if (error.message?.includes('User rejected')) {
+        toast.error('Signature rejected. Please sign the message to register.');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to register with wallet');
+      }
+    }
+  };
 
   const handleWalletSignup = () => {
-    if (openConnectModal) {
-      // Open connect modal - authentication will happen automatically via useEffect
+    if (isConnected && address) {
+      // If already connected, authenticate immediately
+      authenticateWallet();
+    } else if (openConnectModal) {
+      // If not connected, open wallet connect modal
       openConnectModal();
+      toast('Please connect your wallet, then click the button again to register', {
+        icon: '👛',
+        duration: 4000,
+      });
     }
   };
 
