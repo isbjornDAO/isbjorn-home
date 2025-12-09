@@ -104,6 +104,33 @@
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
+  .animate-slide-through {
+    animation: slideThrough 4s linear forwards;
+  }
+
+  @keyframes slideThrough {
+    0% {
+      left: -32px;
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    10% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1) rotateY(360deg);
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      left: calc(100% + 32px);
+      opacity: 0;
+      transform: scale(0.8);
+    }
+  }
+
   .text-balance {
     text-wrap: balance;
   }
