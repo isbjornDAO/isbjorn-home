@@ -78,8 +78,8 @@ const ProfilePage: React.FC = () => {
 
   const loadUserStats = async () => {
     try {
-      const response = await api.get(`/user/stats`);
-      setUserStats(response.data);
+      const response = await api.get<any>(`/user/stats`);
+      setUserStats(response);
     } catch (error) {
       console.error('Failed to load user stats:', error);
     }
@@ -88,11 +88,11 @@ const ProfilePage: React.FC = () => {
   const loadCollectables = async () => {
     try {
       const [userCollectablesRes, allCollectablesRes] = await Promise.all([
-        api.get('/collectables/user'),
-        api.get('/collectables'),
+        api.get<any[]>('/collectables/user'),
+        api.get<any[]>('/collectables'),
       ]);
-      setCollectables(userCollectablesRes.data);
-      setAllCollectables(allCollectablesRes.data);
+      setCollectables(userCollectablesRes);
+      setAllCollectables(allCollectablesRes);
     } catch (error) {
       console.error('Failed to load collectables:', error);
     }
@@ -100,8 +100,8 @@ const ProfilePage: React.FC = () => {
 
   const loadDonationStats = async () => {
     try {
-      const response = await api.get('/dashboard/stats');
-      setDonationStats(response.data);
+      const response = await api.get<any>('/dashboard/stats');
+      setDonationStats(response);
     } catch (error) {
       console.error('Failed to load donation stats:', error);
     }

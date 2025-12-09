@@ -19,14 +19,16 @@ interface CollectableGridProps {
   className?: string;
 }
 
-const rarityColors = {
+type RarityType = 'common' | 'rare' | 'epic' | 'legendary';
+
+const rarityColors: Record<RarityType, string> = {
   common: 'border-gray-300 bg-gray-50',
   rare: 'border-blue-400 bg-blue-50',
   epic: 'border-purple-400 bg-purple-50',
   legendary: 'border-yellow-400 bg-yellow-50',
 };
 
-const rarityGlow = {
+const rarityGlow: Record<RarityType, string> = {
   common: '',
   rare: 'shadow-blue-300/50',
   epic: 'shadow-purple-300/50',
@@ -53,7 +55,7 @@ export const CollectableGrid: React.FC<CollectableGridProps> = ({
     <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 ${className}`}>
       {displayItems.map((item: any, index) => {
         const isLocked = item.locked || false;
-        const rarity = item.rarity || 'common';
+        const rarity = (item.rarity || 'common') as RarityType;
 
         return (
           <div

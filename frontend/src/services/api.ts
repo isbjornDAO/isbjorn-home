@@ -113,3 +113,4 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
+export const api = apiService; // Alias for convenience

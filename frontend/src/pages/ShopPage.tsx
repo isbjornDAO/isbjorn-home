@@ -39,14 +39,14 @@ const ShopPage: React.FC = () => {
     try {
       setLoading(true);
       const [rewardsRes, userRewardsRes, statsRes] = await Promise.all([
-        api.get('/rewards'),
-        api.get('/rewards/user'),
-        api.get('/user/stats'),
+        api.get<any[]>('/rewards'),
+        api.get<any[]>('/rewards/user'),
+        api.get<any>('/user/stats'),
       ]);
 
-      setRewards(rewardsRes.data);
-      setUserRewards(userRewardsRes.data);
-      setUserCoins(statsRes.data.coins || 0);
+      setRewards(rewardsRes);
+      setUserRewards(userRewardsRes);
+      setUserCoins(statsRes.coins || 0);
     } catch (error) {
       console.error('Failed to load shop data:', error);
       toast.error('Failed to load rewards');
@@ -63,10 +63,10 @@ const ShopPage: React.FC = () => {
 
     setClaiming(rewardId);
     try {
-      const response = await api.post('/rewards/claim', { rewardId });
+      const response = await api.post<any>('/rewards/claim', { rewardId });
 
-      if (response.data.success) {
-        toast.success(`Reward claimed! You have ${response.data.remainingCoins} coins left.`);
+      if (response.success) {
+        toast.success(`Reward claimed! You have ${response.remainingCoins} coins left.`);
         await loadData(); // Reload data
       }
     } catch (error: any) {

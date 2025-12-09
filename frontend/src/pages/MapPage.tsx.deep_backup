@@ -177,7 +177,6 @@ const createArcPath = (from: { lat: number; lng: number }, to: { lat: number; ln
 };
 
 // Animated Flight Path Component with Arc
-// Performance: Component uses React hooks for optimization
 const AnimatedFlightPath: React.FC<{ path: FlightPath; onClick?: () => void }> = ({ path, onClick }) => {
   const [animationProgress, setAnimationProgress] = useState(Math.random()); // Start at random point
   const [isHovered, setIsHovered] = useState(false);
@@ -200,7 +199,6 @@ const AnimatedFlightPath: React.FC<{ path: FlightPath; onClick?: () => void }> =
   }, [path.active, path.from, path.to]);
 
   const pathColor = path.type === 'funding' ? '#22c55e' : path.type === 'data' ? '#3b82f6' : '#a855f7';
-  const lineWeight = path.amount > 250000 ? 4 : path.amount > 150000 ? 3 : 2;
   const typeIcons = { funding: '💰', data: '📊', collaboration: '🤝' };
   const arcPoints = createArcPath(path.from, path.to);
 
@@ -214,7 +212,7 @@ const AnimatedFlightPath: React.FC<{ path: FlightPath; onClick?: () => void }> =
         positions={arcPoints}
         pathOptions={{
           color: pathColor,
-          weight: isHovered ? lineWeight + 1 : lineWeight,
+          weight: isHovered ? 3 : 2,
           opacity: isHovered ? 0.7 : 0.4,
           dashArray: '8, 12'
         }}
@@ -230,7 +228,7 @@ const AnimatedFlightPath: React.FC<{ path: FlightPath; onClick?: () => void }> =
         <>
           <Circle
             center={animatedPoint}
-            radius={isHovered ? 100000 : 65000} // Larger hover effect
+            radius={isHovered ? 80000 : 60000}
             pathOptions={{
               color: pathColor,
               fillColor: pathColor,
@@ -267,7 +265,7 @@ const AnimatedFlightPath: React.FC<{ path: FlightPath; onClick?: () => void }> =
             <div className="text-green-600 font-semibold">
               ${(path.amount / 1000).toFixed(0)}K
             </div>
-            <div className="text-gray-600 capitalize">{path.type}</div>
+            <div className="text-gray-500 capitalize">{path.type}</div>
           </div>
         </Popup>
       )}
@@ -830,27 +828,27 @@ const MapPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen scroll-smooth bg-gradient-to-br from-ice-50 via-white to-arctic-100" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(229 231 235 / 0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }}>
+    <div className="min-h-screen bg-gradient-to-br from-ice-50 via-white to-arctic-50">
       {/* Horizontal Stats Bar */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-full px-4 sm:max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between gap-8">
             {/* Live Updates Indicator */}
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-teal-500 shadow-lg" style={{ animation: 'pulse 1.5s ease-in-out infinite' }}></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-teal-500 shadow-lg" style="animation: pulse 1.5s ease-in-out infinite;"></div>
               <span className="text-sm font-semibold text-gray-800">Live Updates</span>
             </div>
 
             {/* This Month's Funding */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-600 uppercase tracking-wide">Funding (MTD)</span>
-              <span className="text-2xl font-black text-emerald-600">${(networkStats.totalTransferred / 1000000).toFixed(1)}M</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wide">Funding (MTD)</span>
+              <span className="text-2xl font-bold text-emerald-600">${(networkStats.totalTransferred / 1000000).toFixed(1)}M</span>
             </div>
 
             {/* Projects with Trend */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-600 uppercase tracking-wide">Active Projects</span>
-              <span className="text-2xl font-black text-purple-600">{networkStats.projectsActive}</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wide">Active Projects</span>
+              <span className="text-2xl font-bold text-purple-600">{networkStats.projectsActive}</span>
               <span className="text-xs text-green-600 font-semibold flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -867,14 +865,14 @@ const MapPage: React.FC = () => {
 
             {/* Voting Power - Moved to far right */}
             <div className="bg-arctic-50 px-4 py-2 rounded-lg border border-arctic-200">
-              <div className="text-xs text-gray-700">Voting Power</div>
+              <div className="text-xs text-gray-600">Voting Power</div>
               <div className="text-xl font-bold text-arctic-600">{userVotingPower}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-full px-4 sm:max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Map */}
           <div className="lg:col-span-2">
@@ -887,7 +885,7 @@ const MapPage: React.FC = () => {
               </div>
 
               {/* Filter Controls */}
-              <div className="absolute top-4 left-4 bg-white/98 backdrop-blur-md rounded-xl shadow-2xl p-4 z-[1000] max-w-[220px] border-2 border-arctic-200">
+              <div className="absolute top-4 left-4 bg-white/98 backdrop-blur-md rounded-xl shadow-xl p-3 z-[1000] max-w-[220px] border-2 border-gray-200">
                 <h4 className="font-bold text-xs text-gray-900 mb-2">Filters</h4>
                 <div className="space-y-1 text-xs">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -963,7 +961,7 @@ const MapPage: React.FC = () => {
               {/* Live Status Indicator */}
               <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-md px-3 py-2 z-[1000] border border-teal-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-teal-500 shadow-lg" style={{ animation: 'pulse 1.5s ease-in-out infinite' }}></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-teal-500 shadow-lg" style="animation: pulse 1.5s ease-in-out infinite;"></div>
                   <span className="text-xs font-medium text-gray-700">
                     Live • {charityBases.length} locations active
                   </span>
@@ -990,7 +988,7 @@ const MapPage: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
-                        className="text-xs text-gray-700 border-l-3 border-blue-500 bg-gradient-to-r from-blue-50 to-transparent px-2 py-1 rounded-r pl-2 py-0.5"
+                        className="text-xs text-gray-600 border-l-2 border-blue-400/50 pl-2 py-0.5"
                       >
                         {conn}
                       </motion.div>
@@ -1002,11 +1000,11 @@ const MapPage: React.FC = () => {
               <MapContainer
                 center={[20, 0]}
                 zoom={2}
-                style={{ height: '100%', width: '100%', maxHeight: '600px' }}
+                style={{ height: '100%', width: '100%' }}
                 scrollWheelZoom={true}
               >
                 <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                  attribution='attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'copy; OpenStreetMap attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'copy; CartoDB'
                   url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
                 />
 
@@ -1042,13 +1040,13 @@ const MapPage: React.FC = () => {
                       }}
                     >
                       <Popup>
-                        <div className="p-3 min-w-[220px] bg-gradient-to-br from-white to-gray-50">
+                        <div className="p-2 min-w-[200px]">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-lg">{colors.emoji}</span>
                             <h3 className="font-bold text-sm text-gray-900">{zone.name}</h3>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-xs text-gray-700">
+                            <p className="text-xs text-gray-600">
                               <span className="font-semibold">Impact:</span> {typeDescriptions[zone.type]}
                             </p>
                             <p className="text-xs font-medium" style={{ color: colors.color }}>
@@ -1098,11 +1096,11 @@ const MapPage: React.FC = () => {
                               <p className={`text-xs font-medium capitalize ${typeInfo.color}`}>
                                 {typeInfo.label}
                               </p>
-                              <div className="flex items-center gap-2 text-xs text-gray-700">
+                              <div className="flex items-center gap-2 text-xs text-gray-600">
                                 <span className="font-semibold">{base.activeProjects}</span>
                                 <span>active climate projects</span>
                               </div>
-                              <div className="flex items-center gap-1 text-xs text-gray-600">
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
                                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                                 <span>Currently operational</span>
                               </div>
@@ -1126,7 +1124,7 @@ const MapPage: React.FC = () => {
                       <Popup>
                         <div className="p-2">
                           <h3 className="font-bold text-sm">{proposal.nonprofitName}</h3>
-                          <p className="text-xs text-gray-700 mt-1">{proposal.title}</p>
+                          <p className="text-xs text-gray-600 mt-1">{proposal.title}</p>
                           <p className="text-xs text-arctic-600 font-semibold mt-2">
                             {proposal.votes} votes
                           </p>
@@ -1160,14 +1158,14 @@ const MapPage: React.FC = () => {
                     />
                     <Marker position={[post.location.lat, post.location.lng]}>
                       <Popup>
-                        <div className="p-3 min-w-[220px] bg-gradient-to-br from-white to-gray-50">
+                        <div className="p-2 min-w-[200px]">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-lg">{post.nonprofitAvatar}</span>
                             <span className="text-xs font-bold text-orange-600">TRENDING</span>
                           </div>
                           <h3 className="font-bold text-sm text-gray-900">{post.nonprofitName}</h3>
-                          <p className="text-xs text-gray-700 mt-1 line-clamp-3">{post.content}</p>
-                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                          <p className="text-xs text-gray-600 mt-1 line-clamp-3">{post.content}</p>
+                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                             <span>❤️ {post.likes}</span>
                             <span>💬 {post.comments}</span>
                             {post.awarenessCount && <span>📢 {post.awarenessCount} aware</span>}
@@ -1193,7 +1191,7 @@ const MapPage: React.FC = () => {
                     className={`flex-1 px-2 py-2.5 text-xs font-semibold rounded-lg transition-all ${
                       activeTab === tab
                         ? 'bg-arctic-500 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
                     {tab === 'map' && '🗺️ Map'}
@@ -1229,15 +1227,15 @@ const MapPage: React.FC = () => {
                           <span className="text-xs font-semibold text-arctic-600 bg-arctic-50 px-2 py-1 rounded">
                             {proposal.category}
                           </span>
-                          <span className="text-xs text-gray-600">
+                          <span className="text-xs text-gray-500">
                             {Math.ceil((proposal.deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24))}d left
                           </span>
                         </div>
                         <h3 className="font-bold text-sm text-gray-900">{proposal.nonprofitName}</h3>
-                        <p className="text-xs text-gray-700 mt-1 line-clamp-2">{proposal.title}</p>
+                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">{proposal.title}</p>
 
                         <div className="mt-3">
-                          <div className="flex justify-between text-xs text-gray-700 mb-1">
+                          <div className="flex justify-between text-xs text-gray-600 mb-1">
                             <span>{formatCurrency(proposal.raised)}</span>
                             <span>{formatCurrency(proposal.goal)}</span>
                           </div>
@@ -1250,13 +1248,13 @@ const MapPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center justify-between mt-3">
-                          <div className="text-xs text-gray-700">
+                          <div className="text-xs text-gray-600">
                             🗳️ {proposal.votes.toLocaleString()} votes
                           </div>
                           <button
                             onClick={() => handleVote(proposal.id)}
                             disabled={userVotingPower <= 0}
-                            title="Cast your vote for this project" className="bg-arctic-500 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-arctic-600 transition-all duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            className="bg-arctic-500 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-arctic-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                           >
                             Vote
                           </button>
@@ -1290,24 +1288,24 @@ const MapPage: React.FC = () => {
                         </div>
                         <div className="space-y-1 text-xs">
                           <div className="flex justify-between">
-                            <span className="text-gray-600">From:</span>
+                            <span className="text-gray-500">From:</span>
                             <span className="font-mono text-gray-700">{tx.from}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">To:</span>
+                            <span className="text-gray-500">To:</span>
                             <span className="font-mono text-gray-700">{tx.to}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Amount:</span>
+                            <span className="text-gray-500">Amount:</span>
                             <span className="font-semibold text-green-600">{formatCurrency(tx.amount)}</span>
                           </div>
                           <div className="mt-2">
-                            <span className="text-gray-600">Purpose:</span>
+                            <span className="text-gray-500">Purpose:</span>
                             <p className="text-gray-700 mt-1">{tx.purpose}</p>
                           </div>
                           <div className="mt-2 pt-2 border-t border-gray-100">
                             <span className="text-gray-400">TX Hash:</span>
-                            <p className="font-mono text-xs text-gray-700 break-all mt-1">
+                            <p className="font-mono text-xs text-gray-600 break-all mt-1">
                               {tx.txHash}
                             </p>
                           </div>
@@ -1341,7 +1339,7 @@ const MapPage: React.FC = () => {
                           <div key={alloc.category}>
                             <div className="flex items-center justify-between text-xs mb-1">
                               <span className="font-semibold text-gray-700">{alloc.category}</span>
-                              <span className="text-gray-600">
+                              <span className="text-gray-500">
                                 {alloc.percentage}% • {alloc.transactions} txns
                               </span>
                             </div>
@@ -1355,7 +1353,7 @@ const MapPage: React.FC = () => {
                                 style={{ width: `${(alloc.spent / alloc.amount) * alloc.percentage}%` }}
                               />
                             </div>
-                            <div className="flex justify-between text-xs text-gray-700 mt-1">
+                            <div className="flex justify-between text-xs text-gray-600 mt-1">
                               <span>Spent: {formatCurrency(alloc.spent)}</span>
                               <span>Allocated: {formatCurrency(alloc.amount)}</span>
                             </div>
@@ -1373,8 +1371,8 @@ const MapPage: React.FC = () => {
         {/* Social Media Feed */}
         <div className="mt-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-black text-gray-900">Community Updates</h2>
-            <span className="text-sm text-gray-600">Latest from nonprofits you follow</span>
+            <h2 className="text-2xl font-bold text-gray-900">Community Updates</h2>
+            <span className="text-sm text-gray-500">Latest from nonprofits you follow</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1392,15 +1390,15 @@ const MapPage: React.FC = () => {
                       <div className="text-3xl">{post.nonprofitAvatar}</div>
                       <div>
                         <h3 className="font-bold text-sm text-gray-900">{post.nonprofitName}</h3>
-                        <p className="text-xs text-gray-600">{formatTimeAgo(post.timestamp)}</p>
+                        <p className="text-xs text-gray-500">{formatTimeAgo(post.timestamp)}</p>
                       </div>
                     </div>
                     <button
                       onClick={() => handleSubscribe(post.nonprofitId)}
-                      className={`text-xs px-3 py-1 rounded-full font-semibold transition-all duration-300 ${
+                      className={`text-xs px-3 py-1 rounded-full font-semibold transition-colors ${
                         subscribedNonprofits.includes(post.nonprofitId)
                           ? 'bg-arctic-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
                       {subscribedNonprofits.includes(post.nonprofitId) ? 'Following' : 'Follow'}
@@ -1441,21 +1439,21 @@ const MapPage: React.FC = () => {
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => handleLike(post.id)}
-                      className="flex items-center gap-1.5 text-sm transition-all duration-300 group"
+                      className="flex items-center gap-1.5 text-sm transition-colors group"
                     >
                       <span className={`text-lg ${post.isLiked ? 'animate-bounce' : ''}`}>
                         {post.isLiked ? '❤️' : '🤍'}
                       </span>
-                      <span className={`font-semibold ${post.isLiked ? 'text-red-600' : 'text-gray-700 group-hover:text-red-600'}`}>
+                      <span className={`font-semibold ${post.isLiked ? 'text-red-600' : 'text-gray-600 group-hover:text-red-600'}`}>
                         {post.likes}
                       </span>
                     </button>
-                    <button className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-blue-600 transition-all duration-300">
+                    <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600 transition-colors">
                       <span className="text-lg">💬</span>
                       <span className="font-semibold">{post.comments}</span>
                     </button>
                   </div>
-                  <button className="text-xs text-gray-600 hover:text-gray-700 font-medium">
+                  <button className="text-xs text-gray-500 hover:text-gray-700 font-medium">
                     View on Map →
                   </button>
                 </div>

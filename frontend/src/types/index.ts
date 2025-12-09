@@ -6,6 +6,15 @@ export interface User {
   taxId?: string;
   address?: Address;
   walletAddress?: string;
+  xp: number;
+  level: number;
+  coins: number;
+  badges?: string[];
+  donationStreak: number;
+  longestDonationStreak: number;
+  lastActive?: Date;
+  currentStreak: number;
+  longestStreak: number;
   createdAt: Date;
   updatedAt: Date;
 }
