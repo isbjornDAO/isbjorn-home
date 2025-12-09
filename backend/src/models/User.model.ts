@@ -50,7 +50,6 @@ export class User extends Model {
   })
   password?: string;
 
-  @Unique
   @Column({
     type: DataType.STRING,
     allowNull: true,

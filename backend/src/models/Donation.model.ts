@@ -55,16 +55,16 @@ export class Donation extends Model {
   @ForeignKey(() => User)
   @Column({
     type: DataType.UUID,
-    allowNull: false,
+    allowNull: true,
   })
-  userId!: string;
+  userId?: string;
 
   @ForeignKey(() => Charity)
   @Column({
     type: DataType.UUID,
-    allowNull: false,
+    allowNull: true,
   })
-  charityId!: string;
+  charityId?: string;
 
   @ForeignKey(() => NZCompany)
   @Column({
@@ -138,6 +138,30 @@ export class Donation extends Model {
     allowNull: true,
   })
   sessionId?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  transactionId?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  charityName?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  donorName?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  donorEmail?: string;
 
   @Column({
     type: DataType.STRING,

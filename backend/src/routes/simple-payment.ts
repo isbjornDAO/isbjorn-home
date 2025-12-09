@@ -50,7 +50,6 @@ router.post('/direct-payment', [
     const donation = await Donation.create({
       amount,
       currency: currency.toUpperCase(),
-      charityId,
       charityName,
       donorName,
       donorEmail,
@@ -62,7 +61,8 @@ router.post('/direct-payment', [
       // Store wallet addresses
       metadata: {
         donorWallet: walletAddress,
-        recipientWallet: ISBJORN_WALLET
+        recipientWallet: ISBJORN_WALLET,
+        charityId // Store in metadata instead of as foreign key
       }
     });
 
