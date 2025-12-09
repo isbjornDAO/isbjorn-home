@@ -94,7 +94,7 @@ const NodePage: React.FC = () => {
   useEffect(() => {
     const fetchNodeStats = async () => {
       try {
-        const data = await apiService.get<NodeStats>('/api/node/stats');
+        const data = await apiService.get<NodeStats>('/node/stats');
         setNodeStats(data);
       } catch (err) {
         console.error('Error fetching node stats:', err);

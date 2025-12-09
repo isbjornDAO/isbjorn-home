@@ -42,6 +42,7 @@ const RegisterPage: React.FC = () => {
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const [walletAuthAttempted, setWalletAuthAttempted] = useState(false);
+  const [walletSignupInitiated, setWalletSignupInitiated] = useState(false);
   const [accountType, setAccountType] = useState<AccountType>('individual');
   const [formData, setFormData] = useState({
     name: '', // Maps to companyName
@@ -238,8 +239,16 @@ const RegisterPage: React.FC = () => {
   useEffect(() => {
     if (!isConnected) {
       setWalletAuthAttempted(false);
+      setWalletSignupInitiated(false);
     }
   }, [isConnected]);
+
+  // Auto-trigger authentication when wallet connects after user initiated signup
+  useEffect(() => {
+    if (isConnected && address && walletSignupInitiated && !walletAuthAttempted) {
+      authenticateWallet();
+    }
+  }, [isConnected, address, walletSignupInitiated, walletAuthAttempted]);
 
   // Wallet authentication handler (MANUAL - not auto)
   const authenticateWallet = async () => {
@@ -296,11 +305,12 @@ const RegisterPage: React.FC = () => {
       // If already connected, authenticate immediately
       authenticateWallet();
     } else if (openConnectModal) {
-      // If not connected, open wallet connect modal
+      // If not connected, open wallet connect modal and mark signup as initiated
+      setWalletSignupInitiated(true);
       openConnectModal();
-      toast('Please connect your wallet, then click the button again to register', {
+      toast('Please connect your wallet to continue', {
         icon: '👛',
-        duration: 4000,
+        duration: 3000,
       });
     }
   };
@@ -340,8 +350,7 @@ const RegisterPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md relative -mt-40"
-        style={{ zIndex: 99999, position: 'relative' }}
+        className="w-full max-w-md relative -mt-40 z-10"
       >
           {/* Header */}
           <div className="text-center mb-6">
@@ -349,8 +358,7 @@ const RegisterPage: React.FC = () => {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="inline-flex items-center justify-center mb-6 relative"
-              style={{ zIndex: 100001, position: 'relative' }}
+              className="inline-flex items-center justify-center mb-6 relative z-20"
             >
               <img
                 src={bearrrGif}
