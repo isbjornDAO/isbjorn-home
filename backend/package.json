@@ -13,6 +13,9 @@
     "lint": "eslint src --ext .ts",
     "migrate": "tsx src/database/migrate.ts",
     "seed": "tsx src/database/seed.ts",
+    "seed:collectables": "tsx src/scripts/seedCollectables.ts",
+    "seed:rewards": "tsx src/scripts/seedRewards.ts",
+    "seed:all": "npm run seed:collectables && npm run seed:rewards",
     "setup": "tsx src/scripts/setup.ts",
     "reset-charity-stats": "tsx src/scripts/reset-charity-stats.ts"
   },

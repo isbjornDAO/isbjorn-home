@@ -12,7 +12,8 @@ import {
   LinkIcon,
   CurrencyDollarIcon,
   MapIcon,
-  ServerIcon
+  ServerIcon,
+  ShoppingBagIcon
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -75,6 +76,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   >
                     <UserCircleIcon className="w-5 h-5" />
                     <span className="hidden sm:inline">{user.companyName}</span>
+                  </Link>
+
+                  <Link
+                    to="/shop"
+                    className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
+                    title="Rewards Shop"
+                  >
+                    <ShoppingBagIcon className="w-5 h-5" />
                   </Link>
 
                   <Link

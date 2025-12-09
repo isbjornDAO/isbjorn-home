@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiService } from '@/services/api';
 import { WalletConnect } from '@/components/WalletConnect';
+import { XPCard } from '@/components/XPCard';
 
 interface DashboardStats {
   totalDonations: number;
@@ -13,13 +14,18 @@ interface DashboardStats {
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [userStats, setUserStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const data = await apiService.get<DashboardStats>('/dashboard/stats');
-        setStats(data);
+        const [statsData, userStatsData] = await Promise.all([
+          apiService.get<DashboardStats>('/dashboard/stats'),
+          apiService.get('/user/stats')
+        ]);
+        setStats(statsData);
+        setUserStats(userStatsData);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -57,6 +63,17 @@ const DashboardPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* XP Progress Card */}
+            {userStats && (
+              <XPCard
+                xp={userStats.xp || 0}
+                coins={userStats.coins || 0}
+                level={userStats.level || 1}
+                donationStreak={userStats.donationStreak || 0}
+                longestStreak={user.longestDonationStreak || 0}
+              />
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="card p-6">
                 <div className="text-2xl font-bold text-ice-900">{stats?.totalDonations || 0}</div>

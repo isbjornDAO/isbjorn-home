@@ -23,6 +23,7 @@ const SystemStatusPage = lazy(() => import('@/pages/SystemStatusPage'));
 const BusinessDashboard = lazy(() => import('@/pages/BusinessDashboard'));
 const WalletPage = lazy(() => import('@/pages/WalletPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
+const ShopPage = lazy(() => import('@/pages/ShopPage'));
 const DonationForm = lazy(() => import('@/components/DonationForm'));
 const MapPage = lazy(() => import('@/pages/MapPage'));
 const NodePage = lazy(() => import('@/pages/NodePage'));
@@ -92,6 +93,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/shop"
+                element={
+                  <ProtectedRoute>
+                    <ShopPage />
                   </ProtectedRoute>
                 }
               />

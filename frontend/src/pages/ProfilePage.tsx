@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { authService } from '@/services/auth';
+import { api } from '@/services/api';
 import toast from 'react-hot-toast';
+import { XPCard } from '@/components/XPCard';
+import { CollectableGrid } from '@/components/CollectableGrid';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [userStats, setUserStats] = useState<any>(null);
+  const [collectables, setCollectables] = useState<any[]>([]);
+  const [allCollectables, setAllCollectables] = useState<any[]>([]);
+  const [donationStats, setDonationStats] = useState<any>(null);
 
   // Profile form state
   const [profileData, setProfileData] = useState({
@@ -58,6 +65,45 @@ const ProfilePage: React.FC = () => {
       toast.error(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      loadUserStats();
+      loadCollectables();
+      loadDonationStats();
+    }
+  }, [user?.id]);
+
+  const loadUserStats = async () => {
+    try {
+      const response = await api.get(`/user/stats`);
+      setUserStats(response.data);
+    } catch (error) {
+      console.error('Failed to load user stats:', error);
+    }
+  };
+
+  const loadCollectables = async () => {
+    try {
+      const [userCollectablesRes, allCollectablesRes] = await Promise.all([
+        api.get('/collectables/user'),
+        api.get('/collectables'),
+      ]);
+      setCollectables(userCollectablesRes.data);
+      setAllCollectables(allCollectablesRes.data);
+    } catch (error) {
+      console.error('Failed to load collectables:', error);
+    }
+  };
+
+  const loadDonationStats = async () => {
+    try {
+      const response = await api.get('/dashboard/stats');
+      setDonationStats(response.data);
+    } catch (error) {
+      console.error('Failed to load donation stats:', error);
     }
   };
 
@@ -115,6 +161,64 @@ const ProfilePage: React.FC = () => {
         </div>
 
         <div className="space-y-6">
+          {/* XP and Progress */}
+          {userStats && (
+            <XPCard
+              xp={userStats.xp || 0}
+              coins={userStats.coins || 0}
+              level={userStats.level || 1}
+              donationStreak={user.donationStreak || 0}
+              longestStreak={user.longestDonationStreak || 0}
+            />
+          )}
+
+          {/* Donation Activity Stats */}
+          {donationStats && (
+            <div className="card p-6">
+              <h2 className="text-xl font-bold text-ice-900 mb-4">Donation Activity</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-blue-700">
+                    {donationStats.totalDonations || 0}
+                  </div>
+                  <div className="text-sm text-blue-600">Total Donations</div>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-green-700">
+                    ${donationStats.totalAmount?.toLocaleString() || 0}
+                  </div>
+                  <div className="text-sm text-green-600">Total Donated</div>
+                </div>
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-purple-700">
+                    {donationStats.charitiesSupported || 0}
+                  </div>
+                  <div className="text-sm text-purple-600">Charities Supported</div>
+                </div>
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-orange-700">
+                    {user.level || 1}
+                  </div>
+                  <div className="text-sm text-orange-600">Current Level</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Collectables */}
+          {collectables.length > 0 && (
+            <div className="card p-6">
+              <h2 className="text-xl font-bold text-ice-900 mb-4">
+                Your Collectables ({collectables.length})
+              </h2>
+              <CollectableGrid
+                collectables={collectables}
+                allCollectables={allCollectables}
+                maxDisplay={12}
+              />
+            </div>
+          )}
+
           {/* Profile Information */}
           <div className="card p-6">
             <h2 className="text-xl font-bold text-ice-900 mb-6">Profile Information</h2>

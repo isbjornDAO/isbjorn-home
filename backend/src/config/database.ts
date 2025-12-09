@@ -9,13 +9,30 @@ import { BlockchainTransaction } from '../models/BlockchainTransaction.model';
 import { NZCompany } from '../models/NZCompany.model';
 import { IRDCompliantDonation } from '../models/IRDCompliantDonation.model';
 import { Project } from '../models/Project.model';
+import { Collectable } from '../models/Collectable.model';
+import { UserCollectable } from '../models/UserCollectable.model';
+import { Reward } from '../models/Reward.model';
+import { UserReward } from '../models/UserReward.model';
 
 dotenv.config();
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const DATABASE_URL = process.env.DATABASE_URL;
 
-const models = [User, Charity, Donation, Receipt, BlockchainTransaction, NZCompany, IRDCompliantDonation, Project];
+const models = [
+  User,
+  Charity,
+  Donation,
+  Receipt,
+  BlockchainTransaction,
+  NZCompany,
+  IRDCompliantDonation,
+  Project,
+  Collectable,
+  UserCollectable,
+  Reward,
+  UserReward,
+];
 
 function createSequelizeInstance(): Sequelize {
   // If DATABASE_URL is provided (Railway), use it directly

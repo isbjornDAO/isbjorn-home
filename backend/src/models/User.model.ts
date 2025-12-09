@@ -241,6 +241,24 @@ export class User extends Model {
   })
   longestDonationStreak!: number;
 
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  lastActive?: Date;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  currentStreak!: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    defaultValue: 0,
+  })
+  longestStreak!: number;
+
   @HasMany(() => Donation)
   donations!: Donation[];
 

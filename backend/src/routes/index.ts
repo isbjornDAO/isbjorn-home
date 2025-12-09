@@ -13,6 +13,8 @@ import publicRoutes from './public';
 import simplePaymentRoutes from './simple-payment';
 import userRoutes from './user.routes';
 import { nodeRoutes } from './node.routes';
+import collectablesRoutes from './collectables.routes';
+import rewardsRoutes from './rewards.routes';
 import { body, validationResult } from 'express-validator';
 import { stripeService } from '../services/stripeService';
 import { x402Service } from '../services/x402Service';
@@ -153,6 +155,8 @@ router.use('/integrations', integrationsRoutes);
 router.use('/payment', simplePaymentRoutes);
 router.use('/user', userRoutes);
 router.use('/node', nodeRoutes);
+router.use('/collectables', collectablesRoutes);
+router.use('/rewards', rewardsRoutes);
 
 // X402 Checkout session creation
 router.post('/x402-checkout/create-session', [
