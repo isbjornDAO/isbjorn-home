@@ -74,7 +74,7 @@ const MapPage: React.FC = () => {
   const [daoAllocations, setDaoAllocations] = useState<DAOAllocation[]>([]);
   const [userVotingPower, setUserVotingPower] = useState(0);
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
-  const [activeTab, setActiveTab] = useState<'proposals' | 'activity' | 'transparency' | 'dao'>('proposals');
+  const [activeTab, setActiveTab] = useState<'map' | 'activity' | 'transparency' | 'dao'>('map');
 
   // Mock data initialization
   useEffect(() => {
@@ -345,7 +345,10 @@ const MapPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Global Impact Map</h1>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <span className="text-4xl">🗺️</span>
+                Map
+              </h1>
               <p className="text-gray-600 mt-1">Track missions, vote on proposals, and see transparent fund allocation</p>
             </div>
             <div className="bg-arctic-50 px-6 py-3 rounded-xl border-2 border-arctic-200">
@@ -355,30 +358,6 @@ const MapPage: React.FC = () => {
                 {user ? `${Math.floor(Math.random() * 90) + 1} days active` : 'Login to vote'}
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-8">
-            {(['proposals', 'activity', 'transparency', 'dao'] as const).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-4 font-semibold border-b-2 transition-colors ${
-                  activeTab === tab
-                    ? 'border-arctic-500 text-arctic-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {tab === 'proposals' && '🗳️ Active Proposals'}
-                {tab === 'activity' && '📡 Live Activity'}
-                {tab === 'transparency' && '🔍 Transparent Transactions'}
-                {tab === 'dao' && '⚖️ DAO Spending'}
-              </button>
-            ))}
           </div>
         </div>
       </div>
@@ -434,11 +413,33 @@ const MapPage: React.FC = () => {
 
           {/* Sidebar Content */}
           <div className="space-y-4">
+            {/* Tab Navigation */}
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="flex border-b border-gray-200">
+                {(['map', 'activity', 'transparency', 'dao'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex-1 px-3 py-3 text-sm font-semibold border-b-2 transition-colors ${
+                      activeTab === tab
+                        ? 'border-arctic-500 text-arctic-600 bg-arctic-50'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {tab === 'map' && '🗺️ Map'}
+                    {tab === 'activity' && '📡 Activity'}
+                    {tab === 'transparency' && '🔍 Transparency'}
+                    {tab === 'dao' && '⚖️ DAO'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <AnimatePresence mode="wait">
-              {/* Proposals Tab */}
-              {activeTab === 'proposals' && (
+              {/* Map Tab - Shows Proposals */}
+              {activeTab === 'map' && (
                 <motion.div
-                  key="proposals"
+                  key="map"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
