@@ -1,11 +1,12 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import { verifyMessage } from 'ethers';
 import { User } from '../models/User.model';
 import { logger } from '../utils/logger';
 
 const router = express.Router();
 
-// Working registration - bypasses bcrypt for now
+// Registration with proper bcrypt password hashing
 router.post('/register', async (req, res) => {
   try {
     const { email, password, companyName } = req.body;
@@ -26,16 +27,14 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create user using Sequelize ORM (bypasses password hashing hooks)
+    // Create user using Sequelize ORM with password hashing
     const user = await User.create({
       email: email.toLowerCase(),
-      password: password, // Plain text for demo - hash in production
+      password: password, // Will be hashed by BeforeCreate hook
       companyName,
       role: 'user',
       isActive: true,
       emailVerified: true
-    }, {
-      hooks: false // This bypasses the password hashing hook
     });
 
     // Generate tokens
@@ -52,7 +51,6 @@ router.post('/register', async (req, res) => {
     );
 
     res.status(201).json({
-      success: true,
       user: {
         id: user.dataValues.id,
         email: user.dataValues.email,
@@ -72,7 +70,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Working login
+// Login with bcrypt password verification
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -92,8 +90,9 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Simple password check for demo
-    if (user.dataValues.password !== password) {
+    // Validate password using bcrypt
+    const isValidPassword = await user.validatePassword(password);
+    if (!isValidPassword) {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
@@ -113,7 +112,6 @@ router.post('/login', async (req, res) => {
     );
 
     res.json({
-      success: true,
       user: {
         id: user.dataValues.id,
         email: user.dataValues.email,
@@ -129,6 +127,101 @@ router.post('/login', async (req, res) => {
     res.status(500).json({
       success: false,
       message: `Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
+  }
+});
+
+// Wallet login - creates or authenticates user with wallet address
+router.post('/wallet-login', async (req, res) => {
+  try {
+    const { address, signature, message } = req.body;
+
+    if (!address || !signature || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Address, signature, and message are required'
+      });
+    }
+
+    // Verify the signature cryptographically
+    try {
+      const recoveredAddress = verifyMessage(message, signature);
+      const normalizedAddress = address.toLowerCase();
+      const normalizedRecovered = recoveredAddress.toLowerCase();
+
+      if (normalizedAddress !== normalizedRecovered) {
+        logger.warn(`Signature verification failed: claimed ${normalizedAddress}, recovered ${normalizedRecovered}`);
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid signature'
+        });
+      }
+    } catch (verifyError: any) {
+      logger.error('Signature verification error:', verifyError);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid signature format'
+      });
+    }
+
+    const normalizedAddress = address.toLowerCase();
+
+    // Find or create user with this wallet address
+    let user = await User.findOne({
+      where: { walletAddress: normalizedAddress }
+    });
+
+    if (!user) {
+      // Create new user with wallet
+      user = await User.create({
+        walletAddress: normalizedAddress,
+        companyName: `User ${normalizedAddress.substring(0, 6)}`,
+        role: 'user',
+        isActive: true,
+        emailVerified: false
+      });
+      logger.info(`New wallet user created: ${normalizedAddress}`);
+    }
+
+    if (!user.dataValues.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account is deactivated'
+      });
+    }
+
+    // Generate tokens
+    const token = jwt.sign(
+      { id: user.dataValues.id, email: user.dataValues.email, role: user.dataValues.role },
+      process.env.JWT_SECRET || 'dev-secret-key-change-in-production',
+      { expiresIn: '7d' }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.dataValues.id },
+      process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
+      { expiresIn: '30d' }
+    );
+
+    logger.info(`Wallet user logged in: ${normalizedAddress}`);
+
+    res.json({
+      user: {
+        id: user.dataValues.id,
+        email: user.dataValues.email,
+        companyName: user.dataValues.companyName,
+        role: user.dataValues.role,
+        walletAddress: user.dataValues.walletAddress
+      },
+      token,
+      refreshToken
+    });
+
+  } catch (error) {
+    logger.error('Wallet login error:', error);
+    res.status(500).json({
+      success: false,
+      message: `Wallet login failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     });
   }
 });
@@ -153,6 +246,7 @@ router.get('/me', async (req, res) => {
       email: user.dataValues.email,
       companyName: user.dataValues.companyName,
       role: user.dataValues.role,
+      walletAddress: user.dataValues.walletAddress,
     });
   } catch (error) {
     logger.error('Get current user error:', error);

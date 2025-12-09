@@ -20,7 +20,7 @@ interface NewsUpdate {
 }
 
 const LoginPage: React.FC = () => {
-  const { login, isLoading, isAuthenticated } = useAuth();
+  const { login, isLoading, isAuthenticated, checkAuthStatus } = useAuth();
   const navigate = useNavigate();
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
@@ -81,8 +81,9 @@ const LoginPage: React.FC = () => {
         localStorage.setItem('refreshToken', response.refreshToken);
       }
 
+      // Refresh auth state to update context and trigger navigation
+      await checkAuthStatus();
       toast.success('Wallet authenticated successfully!');
-      navigate('/dashboard');
     } catch (error: any) {
       console.error('Wallet authentication error:', error);
       setWalletAuthAttempted(false); // Allow retry

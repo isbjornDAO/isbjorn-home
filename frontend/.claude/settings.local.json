@@ -4,7 +4,11 @@
       "Bash(curl:*)",
       "Bash(railway status:*)",
       "Bash(railway variables:*)",
-      "WebFetch(domain:docs.payai.network)"
+      "WebFetch(domain:docs.payai.network)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:backend:*)"
     ],
     "deny": [],
     "ask": []

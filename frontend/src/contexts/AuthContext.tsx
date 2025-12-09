@@ -10,6 +10,7 @@ interface AuthContextType extends AuthState {
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
   refreshToken: () => Promise<void>;
+  checkAuthStatus: () => Promise<void>;
 }
 
 interface RegisterData {
@@ -175,6 +176,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         updateUser,
         refreshToken,
+        checkAuthStatus,
       }}
     >
       {children}

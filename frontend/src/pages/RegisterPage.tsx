@@ -36,7 +36,7 @@ interface NewsUpdate {
 }
 
 const RegisterPage: React.FC = () => {
-  const { register, isLoading } = useAuth();
+  const { register, isLoading, isAuthenticated, checkAuthStatus } = useAuth();
   const navigate = useNavigate();
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
@@ -57,6 +57,13 @@ const RegisterPage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
@@ -270,8 +277,9 @@ const RegisterPage: React.FC = () => {
         localStorage.setItem('refreshToken', response.refreshToken);
       }
 
+      // Refresh auth state to update context and trigger navigation
+      await checkAuthStatus();
       toast.success('Wallet registered successfully!');
-      navigate('/dashboard');
     } catch (error: any) {
       console.error('Wallet authentication error:', error);
       setWalletAuthAttempted(false); // Allow retry
@@ -401,7 +409,8 @@ const RegisterPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleWalletSignup}
-                className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
+                disabled={walletAuthAttempted && isConnected}
+                className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
@@ -409,7 +418,7 @@ const RegisterPage: React.FC = () => {
                   <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
                 </svg>
                 <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">
-                  {isConnected ? 'Wallet Connected' : 'Continue with Wallet'}
+                  {walletAuthAttempted && isConnected ? 'Authenticating...' : isConnected ? `Sign up as ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Continue with Wallet'}
                 </span>
               </button>
             </div>

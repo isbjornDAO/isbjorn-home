@@ -5,6 +5,7 @@ export interface User {
   role: 'user' | 'admin';
   taxId?: string;
   address?: Address;
+  walletAddress?: string;
   createdAt: Date;
   updatedAt: Date;
 }

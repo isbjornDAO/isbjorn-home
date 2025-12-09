@@ -25,6 +25,7 @@ const WalletPage = lazy(() => import('@/pages/WalletPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const DonationForm = lazy(() => import('@/components/DonationForm'));
 const MapPage = lazy(() => import('@/pages/MapPage'));
+const NodePage = lazy(() => import('@/pages/NodePage'));
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
               <Route path="/charity/:id" element={<CharityDetailsPage />} />
               <Route path="/system-status" element={<SystemStatusPage />} />
               <Route path="/map" element={<MapPage />} />
+              <Route path="/node" element={<NodePage />} />
 
               {/* Business Portal */}
               <Route path="/business-dashboard" element={<ProtectedRoute><BusinessDashboard /></ProtectedRoute>} />
