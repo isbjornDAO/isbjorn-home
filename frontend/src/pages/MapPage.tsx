@@ -306,13 +306,13 @@ const createPropertyBasedIcon = (
   });
 };
 
-// DexScreener-style live data indicator
+// Clean live data indicator
 const LiveDataIndicator: React.FC<{ status: DataStreamStatus; updateCount: number }> = ({ status, updateCount }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center space-x-2 bg-gray-800/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-gray-700/50"
+      className="flex items-center space-x-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200"
     >
       <motion.div
         animate={{
@@ -325,20 +325,9 @@ const LiveDataIndicator: React.FC<{ status: DataStreamStatus; updateCount: numbe
           status === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'
         }`}
       />
-      <span className="text-xs font-medium text-gray-300">
-        {status === 'connected' ? 'LIVE' : status === 'connecting' ? 'CONNECTING' : 'OFFLINE'}
+      <span className="text-xs font-semibold text-blue-700">
+        {status === 'connected' ? 'Live Updates' : status === 'connecting' ? 'Connecting' : 'Offline'}
       </span>
-      {status === 'connected' && (
-        <motion.span
-          key={updateCount}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{ duration: 0.5 }}
-          className="text-xs text-teal-400 font-mono"
-        >
-          +{updateCount}
-        </motion.span>
-      )}
     </motion.div>
   );
 };
@@ -395,30 +384,36 @@ const KeyboardShortcuts: React.FC<{ show: boolean; onClose: () => void }> = ({ s
   );
 };
 
-// Zoom Controls with DexScreener style
+// Clean Zoom Controls
 const ZoomControls: React.FC = () => {
   const map = useMap();
 
   return (
-    <div className="absolute bottom-24 right-4 z-[1000] flex flex-col gap-2">
-      <button
+    <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-2">
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => map.zoomIn()}
-        className="bg-gray-800/90 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 shadow-lg transition-all backdrop-blur-sm hover:scale-110"
+        className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <span className="text-xl font-bold text-gray-100">+</span>
-      </button>
-      <button
+        <span className="text-xl font-bold text-blue-600">+</span>
+      </motion.button>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => map.zoomOut()}
-        className="bg-gray-800/90 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 shadow-lg transition-all backdrop-blur-sm hover:scale-110"
+        className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <span className="text-xl font-bold text-gray-100">−</span>
-      </button>
-      <button
+        <span className="text-xl font-bold text-blue-600">−</span>
+      </motion.button>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => map.setView([20, 20], 2)}
-        className="bg-gray-800/90 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 shadow-lg transition-all backdrop-blur-sm hover:scale-110"
+        className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <GlobeAltIcon className="w-5 h-5 text-gray-100" />
-      </button>
+        <GlobeAltIcon className="w-5 h-5 text-blue-600" />
+      </motion.button>
     </div>
   );
 };
@@ -766,125 +761,87 @@ const MapPage: React.FC = () => {
   }, [climateZones, filters, currentZoom]);
 
   return (
-    <div className="h-screen bg-gray-950 flex flex-col overflow-hidden">
-      {/* Enhanced Top Control Bar with Live Indicator */}
-      <div className="bg-gray-900/95 border-b border-gray-700/50 px-4 py-3 flex items-center justify-between z-10 backdrop-blur-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col overflow-hidden">
+      {/* Clean Header */}
+      <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
         <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-bold text-gray-100 flex items-center space-x-2">
-            <BoltIcon className="w-5 h-5 text-teal-500" />
-            <span>Climate Network Intelligence</span>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent flex items-center space-x-2">
+            <GlobeAltIcon className="w-7 h-7 text-blue-600" />
+            <span>Global Impact Network</span>
           </h1>
           <LiveDataIndicator status={dataStreamStatus} updateCount={updateCount} />
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search locations, projects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-gray-800 text-gray-100 text-sm rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent w-72 placeholder-gray-500"
-              />
-            </div>
-          </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          {/* Time Range Selector */}
-          <div className="flex bg-gray-800 rounded-lg p-0.5 border border-gray-700">
-            {(['24h', '7d', '30d', 'all'] as const).map(range => (
-              <button
-                key={range}
-                onClick={() => setTimeRange(range)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded transition-all ${
-                  timeRange === range
-                    ? 'bg-teal-600 text-white shadow-sm'
-                    : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                {range.toUpperCase()}
-              </button>
-            ))}
+        <div className="flex items-center space-x-3">
+          {/* Search */}
+          <div className="relative">
+            <MagnifyingGlassIcon className="w-4 h-4 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search charities..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-4 py-2 bg-white text-gray-700 text-sm rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-56 placeholder-gray-400 shadow-sm"
+            />
           </div>
 
-          <div className="h-6 w-px bg-gray-700"></div>
+          <div className="h-6 w-px bg-blue-200"></div>
 
+          {/* Impact Stats Summary */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            onClick={() => setShowAnalytics(!showAnalytics)}
+            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
+              showAnalytics
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50'
+            }`}
+          >
+            <ChartBarIcon className="w-5 h-5" />
+            <span className="text-sm font-semibold">Impact Stats</span>
+          </motion.button>
+
+          {/* Filter Button */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            onClick={() => setShowFilterPanel(!showFilterPanel)}
+            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
+              showFilterPanel
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50'
+            }`}
+          >
+            <FunnelIcon className="w-5 h-5" />
+            <span className="text-sm font-semibold">Filter</span>
+          </motion.button>
+
+          {/* Refresh */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className={`p-2 rounded-lg transition-all ${
-              isRefreshing ? 'bg-teal-600/20 text-teal-400' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-            }`}
-            title="Refresh Data (R)"
+            className="p-2 rounded-lg bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all shadow-sm"
+            title="Refresh Data"
           >
             <ArrowPathIcon className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
           </motion.button>
-
-          <button
-            onClick={() => setShowStylesPanel(!showStylesPanel)}
-            className={`p-2 rounded-lg transition-all ${
-              showStylesPanel ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-            }`}
-            title="Saved Styles (S)"
-          >
-            <SwatchIcon className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={() => setShowFilterPanel(!showFilterPanel)}
-            className={`p-2 rounded-lg transition-all ${
-              showFilterPanel ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-            }`}
-            title="Filters (F)"
-          >
-            <FunnelIcon className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={() => setShowAnalytics(!showAnalytics)}
-            className={`p-2 rounded-lg transition-all ${
-              showAnalytics ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-            }`}
-            title="Analytics (A)"
-          >
-            <ChartBarIcon className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={() => setShowLayerPanel(!showLayerPanel)}
-            className={`p-2 rounded-lg transition-all ${
-              showLayerPanel ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
-            }`}
-            title="Layers (L)"
-          >
-            <Squares2X2Icon className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={() => setShowKeyboardShortcuts(true)}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all"
-            title="Keyboard Shortcuts (?)"
-          >
-            <span className="text-sm font-mono">?</span>
-          </button>
         </div>
       </div>
 
-      <div className="flex-1 flex relative">
-        {/* Main Map */}
-        <div className="flex-1 relative">
+      <div className="flex-1 flex relative p-6">
+        {/* Main Map in White Box */}
+        <div className="flex-1 relative bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
           <MapContainer
             center={[20, 20]}
             zoom={2}
             style={{ height: '100%', width: '100%' }}
             zoomControl={false}
-            className="bg-gray-950"
+            className="bg-blue-50"
           >
             <TileLayer
               attribution='&copy; OpenStreetMap'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
             />
 
             <MapInteractionHandler onZoomChange={setCurrentZoom} />
@@ -1012,291 +969,64 @@ const MapPage: React.FC = () => {
               );
             })}
           </MapContainer>
-
-          {/* Mini Map Navigator */}
-          <MiniMapNavigator bounds={null} onNavigate={() => {}} />
         </div>
 
-        {/* Saved Styles Panel */}
-        <AnimatePresence>
-          {showStylesPanel && (
-            <motion.div
-              initial={{ x: -300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25 }}
-              className="absolute left-4 top-4 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-[1000] max-h-[calc(100vh-120px)] overflow-hidden flex flex-col"
-            >
-              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between bg-gradient-to-r from-teal-600/10 to-blue-600/10">
-                <div className="flex items-center space-x-2">
-                  <SwatchIcon className="w-5 h-5 text-teal-400" />
-                  <h3 className="font-bold text-gray-100">Saved Styles</h3>
-                </div>
-                <button
-                  onClick={() => setShowStylesPanel(false)}
-                  className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-200 transition-all"
-                >
-                  <XMarkIcon className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {savedStyles.map(style => (
-                  <motion.div
-                    key={style.id}
-                    whileHover={{ scale: 1.02 }}
-                    onClick={() => setActiveStyleId(style.id)}
-                    className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                      activeStyleId === style.id
-                        ? 'bg-teal-600/20 border-teal-500/50 shadow-lg'
-                        : 'bg-gray-800/50 border-gray-700/50 hover:border-gray-600'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-gray-100">{style.name}</h4>
-                      {activeStyleId === style.id && (
-                        <span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full">ACTIVE</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-400">{style.description}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Enhanced Layer Control Panel */}
-        <AnimatePresence>
-          {showLayerPanel && (
-            <motion.div
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 300, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25 }}
-              className="absolute right-4 top-4 w-96 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-[1000] max-h-[calc(100vh-120px)] overflow-hidden flex flex-col"
-            >
-              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between bg-gradient-to-r from-teal-600/10 to-blue-600/10">
-                <div className="flex items-center space-x-2">
-                  <Squares2X2Icon className="w-5 h-5 text-teal-400" />
-                  <h3 className="font-bold text-gray-100">Layer Controls</h3>
-                </div>
-                <button
-                  onClick={() => setShowLayerPanel(false)}
-                  className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-200 transition-all"
-                >
-                  <XMarkIcon className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {layers.map(layer => (
-                  <div key={layer.id} className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <button
-                          onClick={() => toggleLayer(layer.id)}
-                          className={`p-2 rounded-lg transition-all ${
-                            layer.visible
-                              ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50'
-                              : 'bg-gray-700/50 text-gray-500 border border-gray-600/50'
-                          }`}
-                        >
-                          {layer.visible ? <EyeIcon className="w-4 h-4" /> : <EyeSlashIcon className="w-4 h-4" />}
-                        </button>
-                        <div>
-                          <h4 className="font-semibold text-gray-100 text-sm">{layer.name}</h4>
-                          <p className="text-xs text-gray-500 capitalize">{layer.colorMode} coloring</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {layer.visible && (
-                      <div className="space-y-3 pt-2 border-t border-gray-700/50">
-                        {/* Opacity Control */}
-                        <div>
-                          <label className="text-xs text-gray-400 mb-1 block flex items-center justify-between">
-                            <span>Opacity</span>
-                            <span className="text-teal-400 font-mono">{Math.round(layer.opacity * 100)}%</span>
-                          </label>
-                          <input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.05"
-                            value={layer.opacity}
-                            onChange={(e) => updateLayerProperty(layer.id, 'opacity', parseFloat(e.target.value))}
-                            className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
-                          />
-                        </div>
-
-                        {/* Stroke Width */}
-                        <div>
-                          <label className="text-xs text-gray-400 mb-1 block flex items-center justify-between">
-                            <span>Stroke Width</span>
-                            <span className="text-teal-400 font-mono">{layer.strokeWidth}px</span>
-                          </label>
-                          <input
-                            type="range"
-                            min="1"
-                            max="8"
-                            step="1"
-                            value={layer.strokeWidth}
-                            onChange={(e) => updateLayerProperty(layer.id, 'strokeWidth', parseInt(e.target.value))}
-                            className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
-                          />
-                        </div>
-
-                        {/* Stroke Pattern */}
-                        <div>
-                          <label className="text-xs text-gray-400 mb-2 block">Stroke Pattern</label>
-                          <div className="flex space-x-2">
-                            {(['solid', 'dashed', 'dotted'] as const).map(pattern => (
-                              <button
-                                key={pattern}
-                                onClick={() => updateLayerProperty(layer.id, 'strokePattern', pattern)}
-                                className={`flex-1 py-1.5 text-xs font-medium rounded transition-all ${
-                                  layer.strokePattern === pattern
-                                    ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50'
-                                    : 'bg-gray-700/50 text-gray-400 border border-gray-600/50 hover:border-gray-500'
-                                }`}
-                              >
-                                {pattern}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Color Mode */}
-                        <div>
-                          <label className="text-xs text-gray-400 mb-2 block">Color Mode</label>
-                          <div className="grid grid-cols-2 gap-2">
-                            {(['fixed', 'property', 'function', 'measure'] as const).map(mode => (
-                              <button
-                                key={mode}
-                                onClick={() => updateLayerProperty(layer.id, 'colorMode', mode)}
-                                className={`py-1.5 text-xs font-medium rounded transition-all ${
-                                  layer.colorMode === mode
-                                    ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50'
-                                    : 'bg-gray-700/50 text-gray-400 border border-gray-600/50 hover:border-gray-500'
-                                }`}
-                              >
-                                {mode}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Toggle Options */}
-                        <div className="flex flex-wrap gap-2">
-                          {layer.id !== 'charities' && (
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={layer.showArrows}
-                                onChange={(e) => updateLayerProperty(layer.id, 'showArrows', e.target.checked)}
-                                className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
-                              />
-                              <span className="text-xs text-gray-400">Arrows</span>
-                            </label>
-                          )}
-                          <label className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={layer.showLabels}
-                              onChange={(e) => updateLayerProperty(layer.id, 'showLabels', e.target.checked)}
-                              className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
-                            />
-                            <span className="text-xs text-gray-400">Labels</span>
-                          </label>
-                          <label className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={layer.showTooltips}
-                              onChange={(e) => updateLayerProperty(layer.id, 'showTooltips', e.target.checked)}
-                              className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
-                            />
-                            <span className="text-xs text-gray-400">Tooltips</span>
-                          </label>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-                {/* Interpolation Mode */}
-                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
-                  <label className="text-xs text-gray-400 mb-2 block">Track Interpolation</label>
-                  <div className="flex space-x-2">
-                    {(['linear', 'last-known-point'] as const).map(mode => (
-                      <button
-                        key={mode}
-                        onClick={() => setInterpolationMode(mode)}
-                        className={`flex-1 py-2 text-xs font-medium rounded transition-all ${
-                          interpolationMode === mode
-                            ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50'
-                            : 'bg-gray-700/50 text-gray-400 border border-gray-600/50 hover:border-gray-500'
-                        }`}
-                      >
-                        {mode === 'linear' ? 'Linear' : 'Last Known'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Analytics Panel */}
+        {/* Impact Stats Panel - Charity Focused */}
         <AnimatePresence>
           {showAnalytics && (
             <motion.div
-              initial={{ y: 300, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 300, opacity: 0 }}
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute bottom-4 right-4 w-96 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-[1000] max-h-96 overflow-hidden flex flex-col"
+              className="absolute left-6 top-6 w-80 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] max-h-[calc(100vh-160px)] overflow-hidden flex flex-col"
             >
-              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between bg-gradient-to-r from-teal-600/10 to-blue-600/10">
+              <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-teal-50">
                 <div className="flex items-center space-x-2">
-                  <ChartBarIcon className="w-5 h-5 text-teal-400" />
-                  <h3 className="font-bold text-gray-100">Analytics</h3>
+                  <ChartBarIcon className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-bold text-gray-800">Impact Overview</h3>
                 </div>
                 <button
                   onClick={() => setShowAnalytics(false)}
-                  className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-200 transition-all"
+                  className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
                 >
                   <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-5 space-y-4">
                 {/* Total Stats */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
-                    <div className="text-xs text-gray-400 mb-1">Total Bases</div>
-                    <div className="text-2xl font-bold text-gray-100">{filteredBases.length}</div>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4">
+                    <div className="text-xs text-blue-600 font-semibold mb-1">Active Charities</div>
+                    <div className="text-2xl font-bold text-blue-700">{filteredBases.length}</div>
                   </div>
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
-                    <div className="text-xs text-gray-400 mb-1">Active Flows</div>
-                    <div className="text-2xl font-bold text-teal-400">{filteredPaths.filter(p => p.active).length}</div>
+                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 border border-teal-200 rounded-xl p-4">
+                    <div className="text-xs text-teal-600 font-semibold mb-1">Projects</div>
+                    <div className="text-2xl font-bold text-teal-700">
+                      {filteredBases.reduce((sum, b) => sum + b.activeProjects, 0)}
+                    </div>
                   </div>
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
-                    <div className="text-xs text-gray-400 mb-1">Climate Zones</div>
-                    <div className="text-2xl font-bold text-red-400">{filteredZones.length}</div>
-                  </div>
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
-                    <div className="text-xs text-gray-400 mb-1">Total Funding</div>
-                    <div className="text-2xl font-bold text-green-400">
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-4">
+                    <div className="text-xs text-green-600 font-semibold mb-1">Total Funding</div>
+                    <div className="text-2xl font-bold text-green-700">
                       ${(filteredBases.reduce((sum, b) => sum + b.fundingReceived, 0) / 1000000).toFixed(1)}M
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4">
+                    <div className="text-xs text-purple-600 font-semibold mb-1">Avg Impact</div>
+                    <div className="text-2xl font-bold text-purple-700">
+                      {Math.round(filteredBases.reduce((sum, b) => sum + b.impact, 0) / filteredBases.length)}%
                     </div>
                   </div>
                 </div>
 
-                {/* Category Distribution */}
-                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-gray-100 mb-3">Category Distribution</h4>
+                {/* Focus Areas */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                    <span className="w-1 h-4 bg-blue-600 rounded mr-2"></span>
+                    Focus Areas
+                  </h4>
                   <div className="space-y-2">
                     {Object.entries(
                       filteredBases.reduce((acc, base) => {
@@ -1306,12 +1036,12 @@ const MapPage: React.FC = () => {
                     ).map(([category, count]) => (
                       <div key={category}>
                         <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="text-gray-400">{category}</span>
-                          <span className="text-gray-300 font-mono">{count}</span>
+                          <span className="text-gray-700 font-medium">{category}</span>
+                          <span className="text-blue-600 font-semibold">{count} charities</span>
                         </div>
-                        <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-2 bg-blue-100 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-teal-500 to-blue-500 rounded-full"
+                            className="h-full bg-gradient-to-r from-blue-500 to-teal-500 rounded-full"
                             style={{ width: `${(count / filteredBases.length) * 100}%` }}
                           />
                         </div>
@@ -1320,9 +1050,12 @@ const MapPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Type Distribution */}
-                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-gray-100 mb-3">Type Distribution</h4>
+                {/* Organization Types */}
+                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
+                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                    <span className="w-1 h-4 bg-teal-600 rounded mr-2"></span>
+                    Network Reach
+                  </h4>
                   <div className="space-y-2">
                     {Object.entries(
                       filteredBases.reduce((acc, base) => {
@@ -1331,8 +1064,10 @@ const MapPage: React.FC = () => {
                       }, {} as Record<string, number>)
                     ).map(([type, count]) => (
                       <div key={type} className="flex items-center justify-between">
-                        <span className="text-xs text-gray-400 capitalize">{type}</span>
-                        <span className="text-xs text-gray-300 font-mono">{count} ({Math.round((count / filteredBases.length) * 100)}%)</span>
+                        <span className="text-xs text-gray-700 font-medium capitalize">{type}</span>
+                        <span className="text-xs text-teal-700 font-bold">
+                          {count} ({Math.round((count / filteredBases.length) * 100)}%)
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1342,20 +1077,20 @@ const MapPage: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Enhanced Filter Panel */}
+        {/* Charity Filter Panel */}
         <AnimatePresence>
           {showFilterPanel && (
             <motion.div
-              initial={{ y: -300, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -300, opacity: 0 }}
+              initial={{ x: 320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 320, opacity: 0 }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-[1000] max-h-[calc(100vh-140px)] overflow-hidden flex flex-col"
+              className="absolute right-6 top-6 w-96 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] max-h-[calc(100vh-160px)] overflow-hidden flex flex-col"
             >
-              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between bg-gradient-to-r from-teal-600/10 to-blue-600/10">
+              <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50">
                 <div className="flex items-center space-x-2">
-                  <FunnelIcon className="w-5 h-5 text-teal-400" />
-                  <h3 className="font-bold text-gray-100">Advanced Filters</h3>
+                  <FunnelIcon className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-bold text-gray-800">Filter Charities</h3>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -1367,140 +1102,113 @@ const MapPage: React.FC = () => {
                       dateRange: null,
                       impactThreshold: 0
                     })}
-                    className="text-xs px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition-all"
+                    className="text-xs px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-all font-semibold"
                   >
-                    Reset
+                    Clear All
                   </button>
                   <button
                     onClick={() => setShowFilterPanel(false)}
-                    className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-200 transition-all"
+                    className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
                   >
                     <XMarkIcon className="w-5 h-5" />
                   </button>
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Category Filter */}
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
-                    <label className="text-sm font-semibold text-gray-100 mb-3 block">Category</label>
-                    <div className="space-y-2">
-                      {['Climate', 'Conservation', 'Wildlife', 'Water', 'Forest'].map(category => (
-                        <label key={category} className="flex items-center space-x-2 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            checked={filters.category.includes(category)}
-                            onChange={(e) => {
-                              setFilters(prev => ({
-                                ...prev,
-                                category: e.target.checked
-                                  ? [...prev.category, category]
-                                  : prev.category.filter(c => c !== category)
-                              }));
-                            }}
-                            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
-                          />
-                          <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{category}</span>
-                        </label>
-                      ))}
-                    </div>
+              <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                {/* Focus Area Filter */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <label className="text-sm font-bold text-gray-800 mb-3 block flex items-center">
+                    <span className="w-1 h-4 bg-blue-600 rounded mr-2"></span>
+                    Focus Areas
+                  </label>
+                  <div className="space-y-2">
+                    {['Climate', 'Conservation', 'Wildlife', 'Water', 'Forest'].map(category => (
+                      <label key={category} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-blue-100 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={filters.category.includes(category)}
+                          onChange={(e) => {
+                            setFilters(prev => ({
+                              ...prev,
+                              category: e.target.checked
+                                ? [...prev.category, category]
+                                : prev.category.filter(c => c !== category)
+                            }));
+                          }}
+                          className="w-4 h-4 rounded border-blue-300 bg-white text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-gray-900 font-medium">{category}</span>
+                      </label>
+                    ))}
                   </div>
+                </div>
 
-                  {/* Type Filter */}
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
-                    <label className="text-sm font-semibold text-gray-100 mb-3 block">Type</label>
-                    <div className="space-y-2">
-                      {['headquarters', 'regional', 'field'].map(type => (
-                        <label key={type} className="flex items-center space-x-2 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            checked={filters.type.includes(type)}
-                            onChange={(e) => {
-                              setFilters(prev => ({
-                                ...prev,
-                                type: e.target.checked
-                                  ? [...prev.type, type]
-                                  : prev.type.filter(t => t !== type)
-                              }));
-                            }}
-                            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
-                          />
-                          <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors capitalize">{type}</span>
-                        </label>
-                      ))}
-                    </div>
+                {/* Organization Type Filter */}
+                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
+                  <label className="text-sm font-bold text-gray-800 mb-3 block flex items-center">
+                    <span className="w-1 h-4 bg-teal-600 rounded mr-2"></span>
+                    Organization Type
+                  </label>
+                  <div className="space-y-2">
+                    {['headquarters', 'regional', 'field'].map(type => (
+                      <label key={type} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-teal-100 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={filters.type.includes(type)}
+                          onChange={(e) => {
+                            setFilters(prev => ({
+                              ...prev,
+                              type: e.target.checked
+                                ? [...prev.type, type]
+                                : prev.type.filter(t => t !== type)
+                            }));
+                          }}
+                          className="w-4 h-4 rounded border-teal-300 bg-white text-teal-600 focus:ring-teal-500 focus:ring-offset-0"
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-gray-900 font-medium capitalize">{type}</span>
+                      </label>
+                    ))}
                   </div>
+                </div>
 
-                  {/* Severity Filter */}
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
-                    <label className="text-sm font-semibold text-gray-100 mb-3 block">Climate Severity</label>
-                    <div className="space-y-2">
-                      {['critical', 'high', 'medium', 'low'].map(severity => (
-                        <label key={severity} className="flex items-center space-x-2 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            checked={filters.severity.includes(severity)}
-                            onChange={(e) => {
-                              setFilters(prev => ({
-                                ...prev,
-                                severity: e.target.checked
-                                  ? [...prev.severity, severity]
-                                  : prev.severity.filter(s => s !== severity)
-                              }));
-                            }}
-                            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
-                          />
-                          <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors capitalize">{severity}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Impact Threshold */}
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
-                    <label className="text-sm font-semibold text-gray-100 mb-3 block flex items-center justify-between">
-                      <span>Impact Threshold</span>
-                      <span className="text-teal-400 font-mono text-xs">{filters.impactThreshold}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="5"
-                      value={filters.impactThreshold}
-                      onChange={(e) => setFilters(prev => ({ ...prev, impactThreshold: parseInt(e.target.value) }))}
-                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
-                    />
-                    <div className="flex justify-between text-xs text-gray-500 mt-2">
-                      <span>0%</span>
-                      <span>50%</span>
-                      <span>100%</span>
-                    </div>
+                {/* Impact Threshold */}
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+                  <label className="text-sm font-bold text-gray-800 mb-3 block flex items-center justify-between">
+                    <span className="flex items-center">
+                      <span className="w-1 h-4 bg-purple-600 rounded mr-2"></span>
+                      Minimum Impact Score
+                    </span>
+                    <span className="text-purple-600 font-bold text-base">{filters.impactThreshold}%</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={filters.impactThreshold}
+                    onChange={(e) => setFilters(prev => ({ ...prev, impactThreshold: parseInt(e.target.value) }))}
+                    className="w-full h-2.5 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                  />
+                  <div className="flex justify-between text-xs text-purple-600 font-medium mt-2">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
                   </div>
                 </div>
 
                 {/* Funding Range */}
-                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
-                  <label className="text-sm font-semibold text-gray-100 mb-3 block flex items-center justify-between">
-                    <span>Funding Range</span>
-                    <span className="text-teal-400 font-mono text-xs">
-                      ${(filters.fundingRange[0] / 1000000).toFixed(1)}M - ${(filters.fundingRange[1] / 1000000).toFixed(1)}M
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                  <label className="text-sm font-bold text-gray-800 mb-3 block flex items-center justify-between">
+                    <span className="flex items-center">
+                      <span className="w-1 h-4 bg-green-600 rounded mr-2"></span>
+                      Funding Range
+                    </span>
+                    <span className="text-green-600 font-bold text-xs">
+                      ${(filters.fundingRange[0] / 1000).toFixed(0)}K - ${(filters.fundingRange[1] / 1000000).toFixed(1)}M
                     </span>
                   </label>
                   <div className="space-y-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="10000000"
-                      step="100000"
-                      value={filters.fundingRange[0]}
-                      onChange={(e) => setFilters(prev => ({
-                        ...prev,
-                        fundingRange: [parseInt(e.target.value), prev.fundingRange[1]]
-                      }))}
-                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
-                    />
                     <input
                       type="range"
                       min="0"
@@ -1511,16 +1219,22 @@ const MapPage: React.FC = () => {
                         ...prev,
                         fundingRange: [prev.fundingRange[0], parseInt(e.target.value)]
                       }))}
-                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-2.5 bg-green-200 rounded-lg appearance-none cursor-pointer accent-green-600"
                     />
                   </div>
                 </div>
 
                 {/* Results Summary */}
-                <div className="bg-gradient-to-r from-teal-600/10 to-blue-600/10 border border-teal-500/30 rounded-lg p-4">
+                <div className="bg-gradient-to-r from-blue-600 to-teal-600 rounded-xl p-4 text-white">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-300">Showing Results:</span>
-                    <span className="text-lg font-bold text-teal-400">{filteredBases.length} / {charityBases.length}</span>
+                    <div>
+                      <div className="text-xs font-semibold opacity-90 mb-1">Showing Results</div>
+                      <div className="text-2xl font-bold">{filteredBases.length}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs font-semibold opacity-90 mb-1">of Total</div>
+                      <div className="text-2xl font-bold">{charityBases.length}</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1529,8 +1243,7 @@ const MapPage: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Keyboard Shortcuts Overlay */}
-      <KeyboardShortcuts show={showKeyboardShortcuts} onClose={() => setShowKeyboardShortcuts(false)} />
+      {/* Remove Keyboard Shortcuts */}
     </div>
   );
 };

@@ -91,7 +91,7 @@ const SocialFeed: React.FC<SocialFeedProps> = ({ nonprofitName, nonprofitId }) =
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 border border-ice-100">
-      <h2 className="text-2xl font-bold text-ice-900 mb-6">Recent Updates from {nonprofitName}</h2>
+      <h2 className="text-xl font-bold text-ice-900 mb-6">Latest Posts</h2>
 
       <div className="space-y-6">
         {posts.map((post, idx) => (

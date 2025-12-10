@@ -175,7 +175,7 @@ const CharityDetailsPage: React.FC = () => {
       )}
 
       <div className="min-h-screen bg-gradient-to-br from-ice-50 to-arctic-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link
             to="/donate"
             className="inline-flex items-center text-arctic-600 hover:text-arctic-800 mb-8 transition-colors duration-200 font-medium"
@@ -184,48 +184,79 @@ const CharityDetailsPage: React.FC = () => {
             Back to Charities
           </Link>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:items-start">
-            {/* Left Side - Charity Information */}
-            <div className="space-y-8">
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="relative">
-                  <div className="h-64 bg-gradient-to-r from-arctic-400 to-arctic-600 flex items-center justify-center">
-                    <div className="text-6xl">{charity.icon || '🐻‍❄️'}</div>
-                  </div>
-                  <div className="absolute -bottom-16 left-8">
-                    <img
-                      src={charity.logoUrl}
-                      alt={`${charity.name} logo`}
-                      className="w-32 h-32 rounded-2xl object-cover border-4 border-white shadow-lg"
-                    />
+          {/* Charity Header Card */}
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+            <div className="relative">
+              <div className="h-48 bg-gradient-to-r from-arctic-400 to-arctic-600 flex items-center justify-center">
+                <div className="text-6xl">{charity.icon || '🐻‍❄️'}</div>
+              </div>
+              <div className="absolute -bottom-12 left-8">
+                <img
+                  src={charity.logoUrl}
+                  alt={`${charity.name} logo`}
+                  className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg"
+                />
+              </div>
+            </div>
+            <div className="pt-16 pb-6 px-8">
+              <div className="flex items-center justify-between mb-3">
+                <h1 className="text-3xl font-bold text-arctic-900 font-display">
+                  {charity.name}
+                </h1>
+                {charity.verified && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    Verified
+                  </span>
+                )}
+              </div>
+              <p className="text-base text-arctic-600 mb-2 flex items-center">
+                <span className="mr-2">📍</span>
+                {charity.location}
+              </p>
+              <p className="text-arctic-600">{charity.description}</p>
+            </div>
+          </div>
+
+          {/* 3-Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column - Featured Video */}
+            <div className="lg:col-span-4">
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-ice-100 lg:sticky lg:top-8">
+                <h2 className="text-xl font-bold text-ice-900 mb-4">Featured Video</h2>
+
+                {/* Video Placeholder */}
+                <div className="relative aspect-video bg-gradient-to-br from-arctic-100 to-ice-100 rounded-xl overflow-hidden mb-4">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="w-20 h-20 bg-arctic-500 rounded-full flex items-center justify-center mb-4">
+                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                    <p className="text-ice-600 font-medium">Brand Video Coming Soon</p>
+                    <p className="text-ice-500 text-sm mt-1">Placeholder for {charity.name}</p>
                   </div>
                 </div>
-                <div className="pt-20 pb-8 px-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-4xl font-bold text-arctic-900 font-display">
-                      {charity.name}
-                    </h1>
-                    {charity.verified && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        Verified
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-lg text-arctic-600 mb-4 flex items-center">
-                    <span className="mr-2">📍</span>
-                    {charity.location}
+
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-ice-900">About This Video</h3>
+                  <p className="text-sm text-ice-600 leading-relaxed">
+                    Watch how {charity.name} is making a difference in communities around the world.
+                    This video showcases our latest projects and the impact of your donations.
                   </p>
-                  <p className="text-arctic-600">{charity.description}</p>
+                  <div className="pt-3 border-t border-ice-200">
+                    <div className="flex items-center justify-between text-sm text-ice-600">
+                      <span>Duration: 2:30</span>
+                      <span>Published: Jan 2024</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              {/* Social Feed */}
-              <SocialFeed nonprofitName={charity.name} nonprofitId={charity.id} />
             </div>
 
-            {/* Right Side - Simple Donation Form */}
-            <div className="lg:sticky lg:top-8 lg:self-start">
-              <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+            {/* Center Column - Donation Form */}
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-8">
+                <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6 border border-ice-100">
                 <div className="text-center mb-6">
                   <h2 className="text-3xl font-bold text-arctic-900 mb-2">Make a Donation</h2>
                   <p className="text-arctic-600">Support {charity.name}</p>
@@ -303,10 +334,16 @@ const CharityDetailsPage: React.FC = () => {
                   </span>
                 </button>
 
-                <p className="text-center text-sm text-arctic-500">
-                  Powered by X402 Payments
-                </p>
+                  <p className="text-center text-sm text-arctic-500">
+                    Powered by X402 Payments
+                  </p>
+                </div>
               </div>
+            </div>
+
+            {/* Right Column - Latest Posts */}
+            <div className="lg:col-span-4">
+              <SocialFeed nonprofitName={charity.name} nonprofitId={charity.id} />
             </div>
           </div>
         </div>
