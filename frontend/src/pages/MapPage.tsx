@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, useMap, CircleMarker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, useMap, CircleMarker, useMapEvents, Polygon } from 'react-leaflet';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -100,6 +100,8 @@ interface ClimateZone {
   deforestationRate: number; // hectares per year
   waterStress: number; // percentage
   lastUpdated: Date;
+  // Polygon boundaries for region shape (optional, falls back to circle if not provided)
+  polygonBounds?: [number, number][];
 }
 
 interface LayerStyleConfig {
@@ -874,27 +876,42 @@ const MapPage: React.FC = () => {
       {
         id: 'cz1', location: { lat: -3.4653, lng: -62.2159 }, name: 'Amazon Deforestation Crisis', severity: 'critical',
         type: 'deforestation', radius: 400000, affectedPopulation: 2500000, trend: 'worsening',
-        temperatureChange: +1.8, co2Level: 425, seaLevelRise: 0, biodiversityLoss: 32, deforestationRate: 7900, waterStress: 28, lastUpdated: new Date()
+        temperatureChange: +1.8, co2Level: 425, seaLevelRise: 0, biodiversityLoss: 32, deforestationRate: 7900, waterStress: 28, lastUpdated: new Date(),
+        polygonBounds: [
+          [-5, -73], [-1, -73], [2, -70], [2, -60], [0, -50], [-10, -50], [-15, -60], [-10, -70], [-5, -73]
+        ]
       },
       {
         id: 'cz2', location: { lat: 23.8859, lng: 45.0792 }, name: 'Sahara Expansion', severity: 'high',
         type: 'drought', radius: 600000, affectedPopulation: 1800000, trend: 'worsening',
-        temperatureChange: +2.3, co2Level: 418, seaLevelRise: 0, biodiversityLoss: 45, deforestationRate: 0, waterStress: 78, lastUpdated: new Date()
+        temperatureChange: +2.3, co2Level: 418, seaLevelRise: 0, biodiversityLoss: 45, deforestationRate: 0, waterStress: 78, lastUpdated: new Date(),
+        polygonBounds: [
+          [30, 20], [32, 35], [30, 50], [25, 55], [20, 50], [15, 45], [12, 30], [15, 15], [20, 10], [28, 15], [30, 20]
+        ]
       },
       {
         id: 'cz3', location: { lat: 28.6139, lng: 77.2090 }, name: 'Delhi Air Pollution', severity: 'critical',
         type: 'pollution', radius: 200000, affectedPopulation: 20000000, trend: 'worsening',
-        temperatureChange: +1.5, co2Level: 445, seaLevelRise: 0, biodiversityLoss: 18, deforestationRate: 450, waterStress: 52, lastUpdated: new Date()
+        temperatureChange: +1.5, co2Level: 445, seaLevelRise: 0, biodiversityLoss: 18, deforestationRate: 450, waterStress: 52, lastUpdated: new Date(),
+        polygonBounds: [
+          [29.5, 76], [29.5, 78.5], [28, 79], [27, 78.5], [27, 76], [28, 75.5], [29.5, 76]
+        ]
       },
       {
         id: 'cz4', location: { lat: 64.1466, lng: -21.9426 }, name: 'Arctic Ice Melt', severity: 'critical',
         type: 'temperature', radius: 500000, affectedPopulation: 150000, trend: 'worsening',
-        temperatureChange: +3.8, co2Level: 422, seaLevelRise: 3.4, biodiversityLoss: 28, deforestationRate: 0, waterStress: 15, lastUpdated: new Date()
+        temperatureChange: +3.8, co2Level: 422, seaLevelRise: 3.4, biodiversityLoss: 28, deforestationRate: 0, waterStress: 15, lastUpdated: new Date(),
+        polygonBounds: [
+          [80, -180], [80, -90], [75, -50], [70, -20], [70, 0], [75, 30], [80, 60], [80, 90], [80, 120], [75, 150], [70, 180], [65, 170], [60, 140], [55, 100], [55, 50], [60, 0], [65, -40], [70, -80], [75, -120], [80, -180]
+        ]
       },
       {
         id: 'cz5', location: { lat: 6.5244, lng: 3.3792 }, name: 'Lagos Coastal Flooding', severity: 'high',
         type: 'flooding', radius: 150000, affectedPopulation: 5000000, trend: 'worsening',
-        temperatureChange: +1.2, co2Level: 415, seaLevelRise: 2.8, biodiversityLoss: 22, deforestationRate: 1200, waterStress: 45, lastUpdated: new Date()
+        temperatureChange: +1.2, co2Level: 415, seaLevelRise: 2.8, biodiversityLoss: 22, deforestationRate: 1200, waterStress: 45, lastUpdated: new Date(),
+        polygonBounds: [
+          [7, 2.5], [7, 4.5], [6.2, 5], [5.8, 4.5], [5.8, 2.5], [6.2, 2], [7, 2.5]
+        ]
       },
     ];
 
@@ -1040,7 +1057,7 @@ const MapPage: React.FC = () => {
                 : 'bg-white border border-blue-200 hover:bg-blue-50 text-gray-700'
             }`}
           >
-            <RectangleStackIcon className="w-5 h-5" />
+            {viewMode === 'map' ? <RectangleStackIcon className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
             <span className="text-sm font-semibold">{viewMode === 'map' ? 'Transaction Board' : 'Map View'}</span>
           </motion.button>
 
@@ -1413,9 +1430,132 @@ const MapPage: React.FC = () => {
           )}
         </div>
 
+        {/* Weather Panel */}
+        <AnimatePresence>
+          {showWeather && weatherData && clickedLocation && (
+            <motion.div
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="absolute left-6 top-6 w-80 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] overflow-hidden flex flex-col"
+            >
+              <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-sky-50">
+                <div className="flex items-center space-x-2">
+                  <CloudIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
+                  <h3 className="font-bold text-gray-800">Weather</h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setWeatherData(null);
+                    setClickedLocation(null);
+                  }}
+                  className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-5 space-y-4">
+                {/* Location */}
+                <div className="text-center">
+                  <h4 className="text-2xl font-bold text-gray-800 mb-1">{clickedLocation.name}</h4>
+                  <p className="text-sm text-gray-500">
+                    {clickedLocation.lat.toFixed(2)}°, {clickedLocation.lng.toFixed(2)}°
+                  </p>
+                </div>
+
+                {/* Main Weather Display */}
+                <div className="bg-gradient-to-br from-blue-50 to-sky-100 border border-blue-200 rounded-xl p-6 text-center">
+                  <div className="text-6xl font-bold text-blue-600 mb-2">
+                    {weatherData.temperature}°C
+                  </div>
+                  <div className="text-lg text-gray-700 font-semibold mb-1">
+                    {weatherData.conditions}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Feels like {weatherData.feelsLike}°C
+                  </div>
+                </div>
+
+                {/* Weather Details Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="text-xs text-blue-600 font-semibold mb-1">Humidity</div>
+                    <div className="text-xl font-bold text-blue-700">{weatherData.humidity}%</div>
+                  </div>
+                  <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
+                    <div className="text-xs text-sky-600 font-semibold mb-1">Wind Speed</div>
+                    <div className="text-xl font-bold text-sky-700">{weatherData.windSpeed} km/h</div>
+                  </div>
+                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                    <div className="text-xs text-indigo-600 font-semibold mb-1">Pressure</div>
+                    <div className="text-xl font-bold text-indigo-700">{weatherData.pressure} hPa</div>
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <div className="text-xs text-purple-600 font-semibold mb-1">UV Index</div>
+                    <div className="text-xl font-bold text-purple-700">{weatherData.uvIndex}</div>
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-600">Visibility</span>
+                    <span className="font-bold text-gray-800">{weatherData.visibility} km</span>
+                  </div>
+                </div>
+
+                {/* Heat Map Legend */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-4">
+                  <h5 className="text-xs font-bold text-gray-700 mb-3 flex items-center">
+                    <span className="w-1 h-3 bg-gray-600 rounded mr-2"></span>
+                    Temperature Heat Map
+                  </h5>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#60a5fa' }}></div>
+                        <span className="text-gray-600">Cold</span>
+                      </div>
+                      <span className="text-gray-500">&lt; 10°C</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fbbf24' }}></div>
+                        <span className="text-gray-600">Moderate</span>
+                      </div>
+                      <span className="text-gray-500">10-20°C</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fb923c' }}></div>
+                        <span className="text-gray-600">Warm</span>
+                      </div>
+                      <span className="text-gray-500">20-30°C</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ef4444' }}></div>
+                        <span className="text-gray-600">Hot</span>
+                      </div>
+                      <span className="text-gray-500">&gt; 30°C</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Click instruction */}
+                <div className="text-center text-xs text-gray-500 italic">
+                  Click anywhere on the map to check weather
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Impact Stats Panel - Charity Focused */}
         <AnimatePresence>
-          {showAnalytics && (
+          {false && (
             <motion.div
               initial={{ x: -320, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -1429,7 +1569,7 @@ const MapPage: React.FC = () => {
                   <h3 className="font-bold text-gray-800">Impact Overview</h3>
                 </div>
                 <button
-                  onClick={() => setShowAnalytics(false)}
+                  onClick={() => setShowWeather(false)}
                   className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
                 >
                   <XMarkIcon className="w-5 h-5" />
