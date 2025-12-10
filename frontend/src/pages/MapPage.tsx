@@ -1,11 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline } from 'react-leaflet';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Icon, LatLngExpression, DivIcon } from 'leaflet';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, useMap, CircleMarker, useMapEvents } from 'react-leaflet';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  FunnelIcon,
+  MagnifyingGlassIcon,
+  Squares2X2Icon,
+  ChartBarIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  MapIcon,
+  XMarkIcon,
+  SwatchIcon,
+  ArrowPathIcon,
+  BoltIcon,
+  SignalIcon,
+  GlobeAltIcon
+} from '@heroicons/react/24/outline';
 
-// Fix for default marker icons in React-Leaflet
+// Fix for default marker icons
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -18,53 +33,11 @@ Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-interface Proposal {
-  id: string;
-  nonprofitId: string;
-  nonprofitName: string;
-  title: string;
-  description: string;
-  goal: number;
-  raised: number;
-  votes: number;
-  location: { lat: number; lng: number };
-  deadline: Date;
-  category: string;
-  image: string;
-}
-
-interface Activity {
-  id: string;
-  nonprofitName: string;
-  action: string;
-  timestamp: Date;
-  location: { lat: number; lng: number };
-  amount?: number;
-}
-
-interface Transaction {
-  id: string;
-  nonprofitName: string;
-  from: string;
-  to: string;
-  amount: number;
-  purpose: string;
-  timestamp: Date;
-  txHash: string;
-  verified: boolean;
-}
-
-interface DAOAllocation {
-  nonprofitName: string;
-  totalFunds: number;
-  allocations: {
-    category: string;
-    amount: number;
-    percentage: number;
-    spent: number;
-    transactions: number;
-  }[];
-}
+// DexScreener-inspired types
+type ColorMode = 'fixed' | 'property' | 'function' | 'measure';
+type StrokePattern = 'solid' | 'dashed' | 'dotted';
+type InterpolationMode = 'linear' | 'last-known-point';
+type DataStreamStatus = 'connected' | 'connecting' | 'disconnected';
 
 interface CharityBase {
   id: string;
@@ -72,7 +45,13 @@ interface CharityBase {
   location: { lat: number; lng: number };
   type: 'headquarters' | 'regional' | 'field';
   activeProjects: number;
+  category: string;
+  fundingReceived: number;
   lastActivity: Date;
+  impact: number;
+  properties: Record<string, any>;
+  pulseIntensity?: number;
+  recentActivity?: boolean;
 }
 
 interface FlightPath {
@@ -84,6 +63,9 @@ interface FlightPath {
   amount: number;
   type: 'funding' | 'data' | 'collaboration';
   active: boolean;
+  timestamp: Date;
+  speed: number;
+  intensity?: number;
 }
 
 interface ClimateZone {
@@ -93,1159 +75,1462 @@ interface ClimateZone {
   severity: 'low' | 'medium' | 'high' | 'critical';
   type: 'drought' | 'flooding' | 'temperature' | 'deforestation' | 'pollution';
   radius: number;
+  affectedPopulation: number;
+  trend: 'improving' | 'stable' | 'worsening';
+  changing?: boolean;
 }
 
-interface NetworkStats {
-  totalTransferred: number;
-  activeConnections: number;
-  projectsActive: number;
-  avgResponseTime: number;
-  uptime: number;
-}
-
-interface SocialPost {
+interface LayerStyleConfig {
   id: string;
-  nonprofitId: string;
-  nonprofitName: string;
-  nonprofitAvatar: string;
-  content: string;
-  images?: string[];
-  location: { lat: number; lng: number };
-  timestamp: Date;
-  likes: number;
-  comments: number;
-  isLiked: boolean;
-  isTrending: boolean;
-  category: 'update' | 'milestone' | 'emergency' | 'success' | 'announcement';
-  awarenessCount?: number;
+  name: string;
+  visible: boolean;
+  opacity: number;
+  activeOpacity: number;
+  inactiveOpacity: number;
+  color: string;
+  colorMode: ColorMode;
+  strokePattern: StrokePattern;
+  strokeWidth: number;
+  showArrows: boolean;
+  fillPolygons: boolean;
+  icon: any;
+  minZoom: number;
+  maxZoom: number;
+  showLegend: boolean;
+  showLabels: boolean;
+  showTooltips: boolean;
 }
 
-// Helper function to create arc path points
-const createArcPath = (from: { lat: number; lng: number }, to: { lat: number; lng: number }, numPoints: number = 50): LatLngExpression[] => {
+interface SavedStyle {
+  id: string;
+  name: string;
+  description: string;
+  layers: LayerStyleConfig[];
+}
+
+interface MapFilter {
+  category: string[];
+  type: string[];
+  severity: string[];
+  fundingRange: [number, number];
+  dateRange: [Date, Date] | null;
+  impactThreshold: number;
+}
+
+// Performance-optimized color interpolation with memoization
+const interpolateColor = (value: number, min: number, max: number, colorScale: string[]) => {
+  const normalized = Math.max(0, Math.min(1, (value - min) / (max - min)));
+  const index = Math.floor(normalized * (colorScale.length - 1));
+  return colorScale[index] || colorScale[colorScale.length - 1];
+};
+
+const getPropertyColor = (object: any, property: string, colorMap: Record<string, string>) => {
+  return colorMap[object[property]] || '#94a3b8';
+};
+
+const computeFunctionColor = (object: any, computeFn: (obj: any) => string) => {
+  return computeFn(object);
+};
+
+// Arc path with performance optimization
+const createArcPath = (
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number },
+  numPoints: number = 50,
+  arcHeight: number = 0.3
+): LatLngExpression[] => {
   const points: LatLngExpression[] = [];
   const latDiff = to.lat - from.lat;
   const lngDiff = to.lng - from.lng;
-
-  // Calculate arc height based on distance
   const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
-  const arcHeight = distance * 0.3;
+  const height = distance * arcHeight;
 
   for (let i = 0; i <= numPoints; i++) {
     const t = i / numPoints;
-    const lat = from.lat + latDiff * t + Math.sin(t * Math.PI) * arcHeight;
+    const lat = from.lat + latDiff * t + Math.sin(t * Math.PI) * height;
     const lng = from.lng + lngDiff * t;
     points.push([lat, lng]);
   }
-
   return points;
 };
 
-// Animated Flight Path Component
-const AnimatedFlightPath: React.FC<{ path: FlightPath }> = ({ path }) => {
+// Temporal opacity calculation
+const calculateTemporalOpacity = (
+  timestamp: Date,
+  currentTime: Date,
+  activeOpacity: number,
+  inactiveOpacity: number,
+  bufferPeriod: number = 3600000,
+  fadeDuration: number = 1800000
+): number => {
+  const timeDiff = currentTime.getTime() - timestamp.getTime();
+  if (timeDiff < bufferPeriod) return activeOpacity;
+  if (timeDiff > bufferPeriod + fadeDuration) return inactiveOpacity;
+  const fadeProgress = (timeDiff - bufferPeriod) / fadeDuration;
+  return activeOpacity + (inactiveOpacity - activeOpacity) * fadeProgress;
+};
+
+// DexScreener-style animated flight path with pulse
+const AnimatedFlightPath: React.FC<{
+  path: FlightPath;
+  style: LayerStyleConfig;
+  currentTime: Date;
+  interpolation: InterpolationMode;
+}> = ({ path, style, currentTime, interpolation }) => {
   const [animationProgress, setAnimationProgress] = useState(Math.random());
-  const [isHovered, setIsHovered] = useState(false);
+  const [pulseScale, setPulseScale] = useState(1);
 
   useEffect(() => {
     if (!path.active) return;
-
-    const distance = Math.sqrt(
-      Math.pow(path.to.lat - path.from.lat, 2) +
-      Math.pow(path.to.lng - path.from.lng, 2)
-    );
-    const speed = 0.0015 + (distance * 0.00002);
-
     const interval = setInterval(() => {
-      setAnimationProgress(prev => (prev >= 1 ? 0 : prev + speed));
-    }, 150);
-
+      setAnimationProgress(prev => (prev >= 1 ? 0 : prev + path.speed * 0.015));
+      setPulseScale(prev => (prev >= 1.5 ? 1 : prev + 0.02));
+    }, 50); // 20fps for smooth animation
     return () => clearInterval(interval);
-  }, [path.active, path.from, path.to]);
+  }, [path.active, path.speed]);
 
-  const pathColor = path.type === 'funding' ? '#22c55e' : path.type === 'data' ? '#3b82f6' : '#a855f7';
-  const arcPoints = createArcPath(path.from, path.to);
-  const pointIndex = Math.floor(animationProgress * (arcPoints.length - 1));
+  const arcPoints = useMemo(() => createArcPath(path.from, path.to), [path.from, path.to]);
+  const pointIndex = interpolation === 'linear'
+    ? Math.floor(animationProgress * (arcPoints.length - 1))
+    : arcPoints.length - 1;
   const animatedPoint = arcPoints[pointIndex] as [number, number];
+
+  const opacity = calculateTemporalOpacity(
+    path.timestamp,
+    currentTime,
+    style.activeOpacity,
+    style.inactiveOpacity
+  );
+
+  const dashArray = style.strokePattern === 'dashed' ? '12, 8'
+    : style.strokePattern === 'dotted' ? '2, 6'
+    : undefined;
 
   return (
     <>
       <Polyline
         positions={arcPoints}
         pathOptions={{
-          color: pathColor,
-          weight: isHovered ? 3 : 2,
-          opacity: isHovered ? 0.7 : 0.4,
-          dashArray: '8, 12'
-        }}
-        eventHandlers={{
-          mouseover: () => setIsHovered(true),
-          mouseout: () => setIsHovered(false)
+          color: style.color,
+          weight: style.strokeWidth,
+          opacity: opacity * 0.7,
+          dashArray
         }}
       />
       {path.active && animatedPoint && (
         <>
+          {/* Outer pulse ring */}
           <Circle
             center={animatedPoint}
-            radius={isHovered ? 70000 : 50000}
+            radius={50000 * pulseScale}
             pathOptions={{
-              color: pathColor,
-              fillColor: pathColor,
-              fillOpacity: 0.9,
+              color: style.color,
+              fillColor: style.color,
+              fillOpacity: (opacity * 0.3) / pulseScale,
+              weight: 0
+            }}
+          />
+          {/* Inner solid marker */}
+          <Circle
+            center={animatedPoint}
+            radius={25000}
+            pathOptions={{
+              color: '#ffffff',
+              fillColor: style.color,
+              fillOpacity: opacity * 0.9,
               weight: 2
             }}
           />
-          {pointIndex > 5 && (
-            <Circle
-              center={arcPoints[pointIndex - 5] as [number, number]}
-              radius={30000}
+          {style.showArrows && pointIndex > 0 && (
+            <CircleMarker
+              center={animatedPoint}
+              radius={6}
               pathOptions={{
-                color: pathColor,
-                fillColor: pathColor,
-                fillOpacity: 0.4,
-                weight: 1
+                color: '#ffffff',
+                fillColor: style.color,
+                fillOpacity: 1,
+                weight: 2
               }}
             />
           )}
         </>
       )}
-      {isHovered && (
-        <Popup
-          position={arcPoints[Math.floor(arcPoints.length / 2)] as [number, number]}
-          closeButton={false}
-          autoClose={false}
-          closeOnClick={false}
-        >
-          <div className="text-xs">
-            <div className="font-bold text-gray-900">{path.fromName} → {path.toName}</div>
-            <div className="text-green-600 font-semibold">${(path.amount / 1000).toFixed(0)}K</div>
-            <div className="text-gray-500 capitalize">{path.type}</div>
-          </div>
-        </Popup>
-      )}
     </>
   );
 };
 
-// Custom icon creator
-const createCharityIcon = (type: 'headquarters' | 'regional' | 'field') => {
-  const colors = {
-    headquarters: '#14b8a6',
-    regional: '#60a5fa',
-    field: '#34d399'
-  };
+// Enhanced marker with real-time pulse
+const createPropertyBasedIcon = (
+  object: CharityBase,
+  colorMode: ColorMode,
+  baseColor: string,
+  propertyMap?: Record<string, string>,
+  pulse: boolean = false
+) => {
+  const sizes = { headquarters: 36, regional: 28, field: 20 };
+  const size = sizes[object.type] || 24;
 
-  const sizes = {
-    headquarters: 32,
-    regional: 24,
-    field: 18
-  };
+  let color = baseColor;
+  if (colorMode === 'property' && propertyMap) {
+    color = getPropertyColor(object, 'category', propertyMap);
+  } else if (colorMode === 'function') {
+    color = computeFunctionColor(object, (obj) => {
+      const impactColors = ['#ef4444', '#f59e0b', '#eab308', '#84cc16', '#22c55e'];
+      return interpolateColor(obj.impact, 0, 100, impactColors);
+    });
+  } else if (colorMode === 'measure') {
+    const fundingColors = ['#dbeafe', '#93c5fd', '#60a5fa', '#3b82f6', '#1d4ed8'];
+    color = interpolateColor(object.fundingReceived, 0, 5000000, fundingColors);
+  }
+
+  const pulseRing = pulse ? `
+    <circle cx="12" cy="12" r="11.5" fill="none" stroke="${color}" stroke-width="1" opacity="0.6">
+      <animate attributeName="r" from="11" to="15" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" from="0.6" to="0" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  ` : '';
 
   return new Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${sizes[type]}" height="${sizes[type]}">
-        <circle cx="12" cy="12" r="10" fill="${colors[type]}" opacity="0.2"/>
-        <circle cx="12" cy="12" r="7" fill="${colors[type]}" opacity="0.5"/>
-        <circle cx="12" cy="12" r="4" fill="${colors[type]}" opacity="0.9"/>
-        <circle cx="12" cy="12" r="2" fill="white" opacity="0.9"/>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
+        ${pulseRing}
+        <circle cx="12" cy="12" r="11" fill="${color}" opacity="0.2"/>
+        <circle cx="12" cy="12" r="8" fill="${color}" opacity="0.5"/>
+        <circle cx="12" cy="12" r="5" fill="${color}" opacity="0.8"/>
+        <circle cx="12" cy="12" r="3" fill="${color}"/>
+        <circle cx="12" cy="12" r="1.5" fill="white"/>
       </svg>
     `)}`,
-    iconSize: [sizes[type], sizes[type]],
-    iconAnchor: [sizes[type] / 2, sizes[type] / 2]
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2]
   });
 };
 
-// Pulse animation component
-const PulseCircle: React.FC<{ location: { lat: number; lng: number }; type: string }> = ({ location, type }) => {
-  const [pulse, setPulse] = useState(0);
+// DexScreener-style live data indicator
+const LiveDataIndicator: React.FC<{ status: DataStreamStatus; updateCount: number }> = ({ status, updateCount }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex items-center space-x-2 bg-gray-800/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-gray-700/50"
+    >
+      <motion.div
+        animate={{
+          scale: status === 'connected' ? [1, 1.2, 1] : 1,
+          opacity: status === 'connected' ? [1, 0.7, 1] : 0.5
+        }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className={`w-2 h-2 rounded-full ${
+          status === 'connected' ? 'bg-green-500' :
+          status === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'
+        }`}
+      />
+      <span className="text-xs font-medium text-gray-300">
+        {status === 'connected' ? 'LIVE' : status === 'connecting' ? 'CONNECTING' : 'OFFLINE'}
+      </span>
+      {status === 'connected' && (
+        <motion.span
+          key={updateCount}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 0.5 }}
+          className="text-xs text-teal-400 font-mono"
+        >
+          +{updateCount}
+        </motion.span>
+      )}
+    </motion.div>
+  );
+};
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPulse(prev => (prev >= 300000 ? 50000 : prev + 2000));
-    }, 600);
+// Mini-map navigator (DexScreener-style)
+const MiniMapNavigator: React.FC<{ bounds: any; onNavigate: (lat: number, lng: number) => void }> = ({ bounds, onNavigate }) => {
+  return (
+    <div className="absolute bottom-4 left-4 z-[1000] bg-gray-900/90 backdrop-blur-md border border-gray-700/50 rounded-lg p-2 w-32 h-24">
+      <div className="text-xs text-gray-400 mb-1 font-semibold">OVERVIEW</div>
+      <div className="w-full h-full bg-gray-800 rounded relative overflow-hidden cursor-pointer">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-blue-500/20"></div>
+        <div className="absolute top-1/2 left-1/2 w-4 h-4 border-2 border-teal-500 rounded-sm -translate-x-1/2 -translate-y-1/2"></div>
+      </div>
+    </div>
+  );
+};
 
-    return () => clearInterval(interval);
-  }, []);
+// Keyboard shortcuts overlay
+const KeyboardShortcuts: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
+  if (!show) return null;
 
-  const colors = {
-    headquarters: '#14b8a6',
-    regional: '#60a5fa',
-    field: '#34d399'
-  };
+  const shortcuts = [
+    { key: 'L', action: 'Toggle Layers Panel' },
+    { key: 'F', action: 'Toggle Filters Panel' },
+    { key: 'A', action: 'Toggle Analytics Panel' },
+    { key: 'S', action: 'Toggle Styles Panel' },
+    { key: 'R', action: 'Refresh Data' },
+    { key: 'ESC', action: 'Close Panels' },
+    { key: '←/→/↑/↓', action: 'Pan Map' },
+    { key: '+/-', action: 'Zoom In/Out' },
+  ];
 
   return (
-    <Circle
-      center={[location.lat, location.lng]}
-      radius={pulse}
-      pathOptions={{
-        color: colors[type as keyof typeof colors],
-        fillOpacity: Math.max(0.05, 0.15 - (pulse / 250000) * 0.15),
-        weight: 1,
-        opacity: Math.max(0, 0.6 - (pulse / 250000) * 0.6)
-      }}
-    />
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]" onClick={onClose}>
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-md"
+        onClick={e => e.stopPropagation()}
+      >
+        <h3 className="text-lg font-bold text-gray-100 mb-4">Keyboard Shortcuts</h3>
+        <div className="space-y-2">
+          {shortcuts.map(({ key, action }) => (
+            <div key={key} className="flex items-center justify-between">
+              <span className="text-sm text-gray-400">{action}</span>
+              <kbd className="px-2 py-1 bg-gray-800 text-gray-200 rounded text-xs font-mono border border-gray-700">
+                {key}
+              </kbd>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
   );
+};
+
+// Zoom Controls with DexScreener style
+const ZoomControls: React.FC = () => {
+  const map = useMap();
+
+  return (
+    <div className="absolute bottom-24 right-4 z-[1000] flex flex-col gap-2">
+      <button
+        onClick={() => map.zoomIn()}
+        className="bg-gray-800/90 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 shadow-lg transition-all backdrop-blur-sm hover:scale-110"
+      >
+        <span className="text-xl font-bold text-gray-100">+</span>
+      </button>
+      <button
+        onClick={() => map.zoomOut()}
+        className="bg-gray-800/90 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 shadow-lg transition-all backdrop-blur-sm hover:scale-110"
+      >
+        <span className="text-xl font-bold text-gray-100">−</span>
+      </button>
+      <button
+        onClick={() => map.setView([20, 20], 2)}
+        className="bg-gray-800/90 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 shadow-lg transition-all backdrop-blur-sm hover:scale-110"
+      >
+        <GlobeAltIcon className="w-5 h-5 text-gray-100" />
+      </button>
+    </div>
+  );
+};
+
+// Map interaction handler
+const MapInteractionHandler: React.FC<{ onZoomChange: (zoom: number) => void }> = ({ onZoomChange }) => {
+  const map = useMapEvents({
+    zoomend: () => {
+      onZoomChange(map.getZoom());
+    },
+  });
+  return null;
 };
 
 const MapPage: React.FC = () => {
   const { user } = useAuth();
-  const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [daoAllocations, setDaoAllocations] = useState<DAOAllocation[]>([]);
   const [charityBases, setCharityBases] = useState<CharityBase[]>([]);
   const [flightPaths, setFlightPaths] = useState<FlightPath[]>([]);
   const [climateZones, setClimateZones] = useState<ClimateZone[]>([]);
-  const [networkStats, setNetworkStats] = useState<NetworkStats>({
-    totalTransferred: 0,
-    activeConnections: 0,
-    projectsActive: 0,
-    avgResponseTime: 0,
-    uptime: 99.9
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedBase, setSelectedBase] = useState<CharityBase | null>(null);
+  const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('24h');
+  const [showLayerPanel, setShowLayerPanel] = useState(true);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showStylesPanel, setShowStylesPanel] = useState(false);
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [interpolationMode, setInterpolationMode] = useState<InterpolationMode>('linear');
+  const [currentZoom, setCurrentZoom] = useState(2);
+  const [dataStreamStatus, setDataStreamStatus] = useState<DataStreamStatus>('connected');
+  const [updateCount, setUpdateCount] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Saved style presets
+  const [savedStyles] = useState<SavedStyle[]>([
+    {
+      id: 'default',
+      name: 'Default View',
+      description: 'Standard visualization with all layers',
+      layers: []
+    },
+    {
+      id: 'impact',
+      name: 'Impact Focus',
+      description: 'Highlights high-impact regions and projects',
+      layers: []
+    },
+    {
+      id: 'funding',
+      name: 'Funding Flows',
+      description: 'Emphasizes financial transactions and flows',
+      layers: []
+    },
+    {
+      id: 'climate',
+      name: 'Climate Crisis',
+      description: 'Shows critical climate zones and severity',
+      layers: []
+    }
+  ]);
+
+  const [activeStyleId, setActiveStyleId] = useState('default');
+
+  // Layer configurations
+  const [layers, setLayers] = useState<LayerStyleConfig[]>([
+    {
+      id: 'charities',
+      name: 'Charity Bases',
+      visible: true,
+      opacity: 1,
+      activeOpacity: 1,
+      inactiveOpacity: 0.4,
+      color: '#14b8a6',
+      colorMode: 'function',
+      strokePattern: 'solid',
+      strokeWidth: 2,
+      showArrows: false,
+      fillPolygons: true,
+      icon: Squares2X2Icon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: true,
+      showTooltips: true
+    },
+    {
+      id: 'funding',
+      name: 'Funding Flows',
+      visible: true,
+      opacity: 0.85,
+      activeOpacity: 0.95,
+      inactiveOpacity: 0.3,
+      color: '#22c55e',
+      colorMode: 'measure',
+      strokePattern: 'dashed',
+      strokeWidth: 3,
+      showArrows: true,
+      fillPolygons: false,
+      icon: ChartBarIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: false,
+      showTooltips: true
+    },
+    {
+      id: 'data',
+      name: 'Data Streams',
+      visible: true,
+      opacity: 0.8,
+      activeOpacity: 0.9,
+      inactiveOpacity: 0.25,
+      color: '#3b82f6',
+      colorMode: 'fixed',
+      strokePattern: 'dotted',
+      strokeWidth: 2,
+      showArrows: true,
+      fillPolygons: false,
+      icon: SignalIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: false,
+      showTooltips: true
+    },
+    {
+      id: 'collaboration',
+      name: 'Collaborations',
+      visible: true,
+      opacity: 0.75,
+      activeOpacity: 0.85,
+      inactiveOpacity: 0.2,
+      color: '#a855f7',
+      colorMode: 'fixed',
+      strokePattern: 'solid',
+      strokeWidth: 2,
+      showArrows: false,
+      fillPolygons: false,
+      icon: ChartBarIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: false,
+      showTooltips: true
+    },
+    {
+      id: 'climate',
+      name: 'Climate Zones',
+      visible: true,
+      opacity: 0.65,
+      activeOpacity: 0.75,
+      inactiveOpacity: 0.35,
+      color: '#ef4444',
+      colorMode: 'property',
+      strokePattern: 'solid',
+      strokeWidth: 2,
+      showArrows: false,
+      fillPolygons: true,
+      icon: MapIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: true,
+      showTooltips: true
+    },
+  ]);
+
+  // Filters
+  const [filters, setFilters] = useState<MapFilter>({
+    category: [],
+    type: [],
+    severity: [],
+    fundingRange: [0, 10000000],
+    dateRange: null,
+    impactThreshold: 0
   });
-  const [socialPosts, setSocialPosts] = useState<SocialPost[]>([]);
-  const [subscribedNonprofits, setSubscribedNonprofits] = useState<string[]>([]);
-  const [recentConnections, setRecentConnections] = useState<string[]>([]);
-  const [userVotingPower, setUserVotingPower] = useState(0);
-  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
-  const [activeTab, setActiveTab] = useState<'map' | 'transparency' | 'dao'>('map');
 
-  // Map filter states
-  const [showClimateZones, setShowClimateZones] = useState(true);
-  const [showProjects, setShowProjects] = useState(true);
-  const [showFundingPaths, setShowFundingPaths] = useState(true);
-  const [showDataPaths, setShowDataPaths] = useState(true);
-  const [showCollabPaths, setShowCollabPaths] = useState(true);
+  // Property-based color mapping
+  const categoryColorMap = {
+    'Climate': '#06b6d4',
+    'Conservation': '#10b981',
+    'Wildlife': '#f59e0b',
+    'Water': '#3b82f6',
+    'Forest': '#22c55e'
+  };
 
-  // Mock data initialization
+  // Real-time data simulation (DexScreener-style)
   useEffect(() => {
-    // Calculate user voting power (1 vote per day active, mock calculation)
-    const daysActive = user ? Math.floor(Math.random() * 90) + 1 : 0;
-    setUserVotingPower(daysActive);
+    loadMockData();
 
-    // Mock proposals
-    const mockProposals: Proposal[] = [
-      {
-        id: '1',
-        nonprofitId: 'wv',
-        nonprofitName: 'World Vision',
-        title: 'Clean Water Project - Tanzania',
-        description: 'Install 50 water wells in rural Tanzania to provide clean drinking water to 10,000 families',
-        goal: 250000,
-        raised: 180000,
-        votes: 1247,
-        location: { lat: -6.369028, lng: 34.888822 },
-        deadline: new Date('2025-03-15'),
-        category: 'Water & Sanitation',
-        image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400'
-      },
-      {
-        id: '2',
-        nonprofitId: 'rc',
-        nonprofitName: 'Red Cross NZ',
-        title: 'Disaster Relief - Pacific Islands',
-        description: 'Emergency response fund for cyclone victims in Fiji and Tonga',
-        goal: 500000,
-        raised: 320000,
-        votes: 892,
-        location: { lat: -18.1416, lng: 178.4419 },
-        deadline: new Date('2025-02-28'),
-        category: 'Disaster Relief',
-        image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400'
-      },
-      {
-        id: '3',
-        nonprofitId: 'sf',
-        nonprofitName: 'Starship Foundation',
-        title: 'Pediatric Cancer Research',
-        description: 'Fund groundbreaking research into childhood leukemia treatments',
-        goal: 1000000,
-        raised: 450000,
-        votes: 2103,
-        location: { lat: -36.8485, lng: 174.7633 },
-        deadline: new Date('2025-06-30'),
-        category: 'Healthcare',
-        image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=400'
-      },
-      {
-        id: '4',
-        nonprofitId: 'fb',
-        nonprofitName: 'Forest & Bird',
-        title: 'Kakapo Conservation Program',
-        description: 'Protect and expand habitats for NZ\'s endangered kakapo population',
-        goal: 300000,
-        raised: 195000,
-        votes: 1567,
-        location: { lat: -45.0312, lng: 168.6626 },
-        deadline: new Date('2025-05-20'),
-        category: 'Wildlife Conservation',
-        image: 'https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=400'
-      },
-      {
-        id: '5',
-        nonprofitId: 'uc',
-        nonprofitName: 'UNICEF',
-        title: 'Education Access - Southeast Asia',
-        description: 'Build 20 schools in rural Vietnam and Cambodia to educate 5,000 children',
-        goal: 750000,
-        raised: 420000,
-        votes: 1834,
-        location: { lat: 14.0583, lng: 108.2772 },
-        deadline: new Date('2025-08-15'),
-        category: 'Education',
-        image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400'
-      }
-    ];
+    // Simulate live data updates every 3-5 seconds
+    const dataUpdateInterval = setInterval(() => {
+      simulateDataUpdate();
+    }, 3000 + Math.random() * 2000);
 
-    // Mock recent activities
-    const mockActivities: Activity[] = [
-      {
-        id: 'a1',
-        nonprofitName: 'World Vision',
-        action: 'Completed well installation in Dodoma village',
-        timestamp: new Date(Date.now() - 1000 * 60 * 5),
-        location: { lat: -6.369028, lng: 34.888822 }
-      },
-      {
-        id: 'a2',
-        nonprofitName: 'Red Cross NZ',
-        action: 'Distributed 500 emergency kits in Fiji',
-        timestamp: new Date(Date.now() - 1000 * 60 * 15),
-        location: { lat: -18.1416, lng: 178.4419 },
-        amount: 45000
-      },
-      {
-        id: 'a3',
-        nonprofitName: 'Starship Foundation',
-        action: 'Published new research findings on treatment protocol',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30),
-        location: { lat: -36.8485, lng: 174.7633 }
-      },
-      {
-        id: 'a4',
-        nonprofitName: 'Forest & Bird',
-        action: 'Released 3 kakapo chicks into protected habitat',
-        timestamp: new Date(Date.now() - 1000 * 60 * 45),
-        location: { lat: -45.0312, lng: 168.6626 }
-      },
-      {
-        id: 'a5',
-        nonprofitName: 'UNICEF',
-        action: 'Opened new school in Mekong Delta region',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60),
-        location: { lat: 14.0583, lng: 108.2772 },
-        amount: 85000
-      }
-    ];
-
-    // Mock transparent transactions
-    const mockTransactions: Transaction[] = [
-      {
-        id: 't1',
-        nonprofitName: 'World Vision',
-        from: 'Donation Pool',
-        to: 'Tanzania Water Project',
-        amount: 25000,
-        purpose: 'Well drilling equipment',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-        txHash: '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385',
-        verified: true
-      },
-      {
-        id: 't2',
-        nonprofitName: 'Red Cross NZ',
-        from: 'Emergency Fund',
-        to: 'Fiji Relief Operations',
-        amount: 50000,
-        purpose: 'Medical supplies and temporary shelter',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
-        txHash: '0x8a1bc2e3d4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1',
-        verified: true
-      },
-      {
-        id: 't3',
-        nonprofitName: 'Starship Foundation',
-        from: 'Research Fund',
-        to: 'Clinical Trial Phase 2',
-        amount: 120000,
-        purpose: 'Drug development and patient trials',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12),
-        txHash: '0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4',
-        verified: true
-      },
-      {
-        id: 't4',
-        nonprofitName: 'Forest & Bird',
-        from: 'Conservation Fund',
-        to: 'Kakapo Habitat Expansion',
-        amount: 35000,
-        purpose: 'Land acquisition and habitat restoration',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-        txHash: '0x5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6',
-        verified: true
-      }
-    ];
-
-    // Mock DAO allocations
-    const mockDAOAllocations: DAOAllocation[] = [
-      {
-        nonprofitName: 'World Vision',
-        totalFunds: 180000,
-        allocations: [
-          { category: 'Infrastructure', amount: 90000, percentage: 50, spent: 65000, transactions: 12 },
-          { category: 'Community Training', amount: 36000, percentage: 20, spent: 28000, transactions: 8 },
-          { category: 'Maintenance', amount: 27000, percentage: 15, spent: 12000, transactions: 5 },
-          { category: 'Administration', amount: 18000, percentage: 10, spent: 15000, transactions: 15 },
-          { category: 'Emergency Reserve', amount: 9000, percentage: 5, spent: 0, transactions: 0 }
-        ]
-      },
-      {
-        nonprofitName: 'Red Cross NZ',
-        totalFunds: 320000,
-        allocations: [
-          { category: 'Emergency Supplies', amount: 128000, percentage: 40, spent: 95000, transactions: 25 },
-          { category: 'Medical Aid', amount: 96000, percentage: 30, spent: 78000, transactions: 18 },
-          { category: 'Logistics', amount: 64000, percentage: 20, spent: 52000, transactions: 12 },
-          { category: 'Staff & Training', amount: 32000, percentage: 10, spent: 28000, transactions: 8 }
-        ]
-      },
-      {
-        nonprofitName: 'Starship Foundation',
-        totalFunds: 450000,
-        allocations: [
-          { category: 'Research & Development', amount: 270000, percentage: 60, spent: 185000, transactions: 6 },
-          { category: 'Clinical Trials', amount: 90000, percentage: 20, spent: 45000, transactions: 4 },
-          { category: 'Equipment', amount: 54000, percentage: 12, spent: 38000, transactions: 7 },
-          { category: 'Patient Support', amount: 36000, percentage: 8, spent: 29000, transactions: 22 }
-        ]
-      }
-    ];
-
-    // Mock charity bases across the globe
-    const mockCharityBases: CharityBase[] = [
-      { id: 'hq1', name: 'Global Climate HQ', location: { lat: 40.7128, lng: -74.0060 }, type: 'headquarters', activeProjects: 45, lastActivity: new Date() },
-      { id: 'hq2', name: 'EU Operations Center', location: { lat: 51.5074, lng: -0.1278 }, type: 'headquarters', activeProjects: 38, lastActivity: new Date() },
-      { id: 'hq3', name: 'Asia-Pacific Hub', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters', activeProjects: 52, lastActivity: new Date() },
-      { id: 'r1', name: 'African Regional', location: { lat: -1.2921, lng: 36.8219 }, type: 'regional', activeProjects: 28, lastActivity: new Date() },
-      { id: 'r2', name: 'South America Hub', location: { lat: -23.5505, lng: -46.6333 }, type: 'regional', activeProjects: 31, lastActivity: new Date() },
-      { id: 'r3', name: 'Middle East Center', location: { lat: 25.2048, lng: 55.2708 }, type: 'regional', activeProjects: 22, lastActivity: new Date() },
-      { id: 'r4', name: 'Australia Base', location: { lat: -33.8688, lng: 151.2093 }, type: 'regional', activeProjects: 19, lastActivity: new Date() },
-      { id: 'r5', name: 'Southeast Asia', location: { lat: 1.3521, lng: 103.8198 }, type: 'regional', activeProjects: 25, lastActivity: new Date() },
-      { id: 'r6', name: 'India Operations', location: { lat: 19.0760, lng: 72.8777 }, type: 'regional', activeProjects: 34, lastActivity: new Date() },
-      { id: 'f1', name: 'Arctic Research', location: { lat: 64.1466, lng: -21.9426 }, type: 'field', activeProjects: 8, lastActivity: new Date() },
-      { id: 'f2', name: 'Amazon Field Station', location: { lat: -3.4653, lng: -62.2159 }, type: 'field', activeProjects: 12, lastActivity: new Date() },
-      { id: 'f3', name: 'Pacific Islands', location: { lat: -18.1416, lng: 178.4419 }, type: 'field', activeProjects: 6, lastActivity: new Date() },
-      { id: 'f4', name: 'Sahara Initiative', location: { lat: 23.8859, lng: 45.0792 }, type: 'field', activeProjects: 9, lastActivity: new Date() },
-      { id: 'f5', name: 'Himalayan Center', location: { lat: 27.7172, lng: 85.3240 }, type: 'field', activeProjects: 11, lastActivity: new Date() },
-    ];
-
-    // Mock flight paths between charities
-    const mockFlightPaths: FlightPath[] = [
-      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 51.5074, lng: -0.1278 }, fromName: 'NY HQ', toName: 'London', amount: 250000, type: 'funding', active: true },
-      { id: 'fp2', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'London', toName: 'Kenya', amount: 180000, type: 'funding', active: true },
-      { id: 'fp3', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: 1.3521, lng: 103.8198 }, fromName: 'Tokyo', toName: 'Singapore', amount: 120000, type: 'collaboration', active: true },
-      { id: 'fp4', from: { lat: -23.5505, lng: -46.6333 }, to: { lat: -3.4653, lng: -62.2159 }, fromName: 'São Paulo', toName: 'Amazon', amount: 95000, type: 'funding', active: true },
-      { id: 'fp5', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 35.6762, lng: 139.6503 }, fromName: 'NY HQ', toName: 'Tokyo', amount: 340000, type: 'data', active: true },
-      { id: 'fp6', from: { lat: 25.2048, lng: 55.2708 }, to: { lat: 23.8859, lng: 45.0792 }, fromName: 'Dubai', toName: 'Sahara', amount: 75000, type: 'funding', active: true },
-    ];
-
-    // Mock climate impact zones
-    const mockClimateZones: ClimateZone[] = [
-      { id: 'cz1', location: { lat: -3.4653, lng: -62.2159 }, name: 'Amazon Deforestation', severity: 'critical', type: 'deforestation', radius: 400000 },
-      { id: 'cz2', location: { lat: 23.8859, lng: 45.0792 }, name: 'Sahara Drought', severity: 'high', type: 'drought', radius: 600000 },
-      { id: 'cz3', location: { lat: 28.6139, lng: 77.2090 }, name: 'Delhi Air Quality', severity: 'critical', type: 'pollution', radius: 200000 },
-      { id: 'cz4', location: { lat: -18.1416, lng: 178.4419 }, name: 'Pacific Rising Seas', severity: 'high', type: 'flooding', radius: 350000 },
-      { id: 'cz5', location: { lat: 64.1466, lng: -21.9426 }, name: 'Arctic Warming', severity: 'critical', type: 'temperature', radius: 500000 },
-      { id: 'cz6', location: { lat: -33.9249, lng: 18.4241 }, name: 'Cape Town Drought', severity: 'medium', type: 'drought', radius: 250000 },
-      { id: 'cz7', location: { lat: 13.7563, lng: 100.5018 }, name: 'Bangkok Flooding', severity: 'medium', type: 'flooding', radius: 200000 },
-      { id: 'cz8', location: { lat: -15.7975, lng: -47.8919 }, name: 'Cerrado Loss', severity: 'high', type: 'deforestation', radius: 300000 },
-    ];
-
-    // Mock social posts from nonprofits
-    const mockSocialPosts: SocialPost[] = [
-      {
-        id: 'sp1',
-        nonprofitId: 'wv',
-        nonprofitName: 'World Vision',
-        nonprofitAvatar: '🌊',
-        content: 'Amazing progress in Tanzania! We\'ve successfully completed installation of 12 new water wells this month, providing clean drinking water to over 3,000 families.',
-        location: { lat: -6.369028, lng: 34.888822 },
-        timestamp: new Date(Date.now() - 1000 * 60 * 30),
-        likes: 342,
-        comments: 28,
-        isLiked: false,
-        isTrending: true,
-        category: 'milestone',
-        awarenessCount: 156
-      },
-      {
-        id: 'sp2',
-        nonprofitId: 'rc',
-        nonprofitName: 'Red Cross NZ',
-        nonprofitAvatar: '🏥',
-        content: 'URGENT: Cyclone Hale has caused severe flooding in Fiji. We\'re deploying emergency relief teams and medical supplies.',
-        location: { lat: -18.1416, lng: 178.4419 },
-        timestamp: new Date(Date.now() - 1000 * 60 * 45),
-        likes: 589,
-        comments: 67,
-        isLiked: false,
-        isTrending: true,
-        category: 'emergency',
-        awarenessCount: 428
-      },
-      {
-        id: 'sp3',
-        nonprofitId: 'sf',
-        nonprofitName: 'Starship Foundation',
-        nonprofitAvatar: '🏥',
-        content: 'Breakthrough in pediatric cancer research! Our Phase 2 clinical trials show 40% improvement in treatment outcomes.',
-        location: { lat: -36.8485, lng: 174.7633 },
-        timestamp: new Date(Date.now() - 1000 * 60 * 120),
-        likes: 1247,
-        comments: 156,
-        isLiked: false,
-        isTrending: true,
-        category: 'success',
-        awarenessCount: 892
-      },
-      {
-        id: 'sp4',
-        nonprofitId: 'amazon',
-        nonprofitName: 'Amazon Rainforest Foundation',
-        nonprofitAvatar: '🌳',
-        content: 'Deforestation rates in this region have increased by 23% this year. Local communities are reporting increased illegal logging.',
-        location: { lat: -3.4653, lng: -62.2159 },
-        timestamp: new Date(Date.now() - 1000 * 60 * 60),
-        likes: 892,
-        comments: 134,
-        isLiked: false,
-        isTrending: true,
-        category: 'emergency',
-        awarenessCount: 1247
-      },
-      {
-        id: 'sp5',
-        nonprofitId: 'arctic',
-        nonprofitName: 'Arctic Conservation',
-        nonprofitAvatar: '🧊',
-        content: 'Arctic ice melt has reached record levels this month. 67 people from nearby communities have raised awareness about wildlife impact.',
-        location: { lat: 64.1466, lng: -21.9426 },
-        timestamp: new Date(Date.now() - 1000 * 60 * 90),
-        likes: 534,
-        comments: 78,
-        isLiked: false,
-        isTrending: false,
-        category: 'update',
-        awarenessCount: 67
-      }
-    ];
-
-    setProposals(mockProposals);
-    setActivities(mockActivities);
-    setTransactions(mockTransactions);
-    setDaoAllocations(mockDAOAllocations);
-    setCharityBases(mockCharityBases);
-    setFlightPaths(mockFlightPaths);
-    setClimateZones(mockClimateZones);
-    setSocialPosts(mockSocialPosts);
-
-    // Initialize network stats
-    const calculateStats = () => {
-      const totalTransferred = mockFlightPaths.reduce((sum, path) => sum + path.amount, 0);
-      const activeConnections = mockFlightPaths.length;
-      const projectsActive = mockCharityBases.reduce((sum, base) => sum + base.activeProjects, 0);
-
-      setNetworkStats({
-        totalTransferred,
-        activeConnections,
-        projectsActive,
-        avgResponseTime: Math.random() * 50 + 20,
-        uptime: 99.9 + Math.random() * 0.09
-      });
-    };
-
-    calculateStats();
-
-    // Simulate dynamic flight path changes
-    const flightInterval = setInterval(() => {
-      const randomBases = [...mockCharityBases].sort(() => Math.random() - 0.5).slice(0, 2);
-      const newPath: FlightPath = {
-        id: `fp_${Date.now()}`,
-        from: randomBases[0].location,
-        to: randomBases[1].location,
-        fromName: randomBases[0].name,
-        toName: randomBases[1].name,
-        amount: Math.floor(Math.random() * 200000) + 50000,
-        type: ['funding', 'data', 'collaboration'][Math.floor(Math.random() * 3)] as any,
-        active: true
-      };
-
-      setFlightPaths(prev => {
-        const updated = [...prev.slice(-8), newPath];
-        setNetworkStats(stats => ({
-          ...stats,
-          totalTransferred: stats.totalTransferred + newPath.amount,
-          activeConnections: updated.length,
-          avgResponseTime: Math.random() * 50 + 20
-        }));
-
-        const connectionMsg = `${newPath.fromName} → ${newPath.toName} • $${(newPath.amount / 1000).toFixed(0)}K`;
-        setRecentConnections(prev => [connectionMsg, ...prev.slice(0, 4)]);
-
-        return updated;
-      });
-    }, 16000);
-
-    // Simulate real-time activity updates
-    const interval = setInterval(() => {
-      const randomActivity: Activity = {
-        id: `a${Date.now()}`,
-        nonprofitName: mockProposals[Math.floor(Math.random() * mockProposals.length)].nonprofitName,
-        action: [
-          'Updated project milestone',
-          'Received new donation',
-          'Completed distribution',
-          'Shared impact report',
-          'Posted community update'
-        ][Math.floor(Math.random() * 5)],
-        timestamp: new Date(),
-        location: mockProposals[Math.floor(Math.random() * mockProposals.length)].location,
-        amount: Math.random() > 0.5 ? Math.floor(Math.random() * 50000) + 1000 : undefined
-      };
-
-      setActivities(prev => [randomActivity, ...prev.slice(0, 9)]);
-    }, 30000);
+    // Update current time every minute
+    const timeInterval = setInterval(() => setCurrentTime(new Date()), 60000);
 
     return () => {
-      clearInterval(interval);
-      clearInterval(flightInterval);
+      clearInterval(dataUpdateInterval);
+      clearInterval(timeInterval);
     };
-  }, [user]);
+  }, []);
 
-  const handleVote = (proposalId: string) => {
-    if (userVotingPower <= 0) {
-      alert('You have no voting power left! Stay active to earn more votes.');
-      return;
-    }
+  // Keyboard shortcuts (DexScreener-style)
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'l' || e.key === 'L') setShowLayerPanel(prev => !prev);
+      if (e.key === 'f' || e.key === 'F') setShowFilterPanel(prev => !prev);
+      if (e.key === 'a' || e.key === 'A') setShowAnalytics(prev => !prev);
+      if (e.key === 's' || e.key === 'S') setShowStylesPanel(prev => !prev);
+      if (e.key === 'r' || e.key === 'R') handleRefresh();
+      if (e.key === 'Escape') {
+        setShowLayerPanel(false);
+        setShowFilterPanel(false);
+        setShowAnalytics(false);
+        setShowStylesPanel(false);
+        setShowKeyboardShortcuts(false);
+      };
+      if (e.key === '?') setShowKeyboardShortcuts(prev => !prev);
+    };
 
-    setProposals(prev =>
-      prev.map(p =>
-        p.id === proposalId ? { ...p, votes: p.votes + 1 } : p
-      )
-    );
-    setUserVotingPower(prev => prev - 1);
-  };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
-  const handleLike = (postId: string) => {
-    setSocialPosts(prev =>
-      prev.map(post =>
-        post.id === postId
-          ? {
-              ...post,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-              isLiked: !post.isLiked
-            }
-          : post
-      )
-    );
-  };
+  const simulateDataUpdate = () => {
+    setUpdateCount(prev => prev + 1);
 
-  const handleSubscribe = (nonprofitId: string) => {
-    setSubscribedNonprofits(prev =>
-      prev.includes(nonprofitId)
-        ? prev.filter(id => id !== nonprofitId)
-        : [...prev, nonprofitId]
-    );
-  };
+    // Randomly add pulse to some bases
+    setCharityBases(prev => prev.map(base => ({
+      ...base,
+      recentActivity: Math.random() > 0.7,
+      pulseIntensity: Math.random()
+    })));
 
-  const formatTimeAgo = (date: Date) => {
-    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    return `${Math.floor(seconds / 86400)}d ago`;
-  };
+    // Update flight path intensities
+    setFlightPaths(prev => prev.map(path => ({
+      ...path,
+      intensity: Math.random()
+    })));
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NZ', {
-      style: 'currency',
-      currency: 'NZD',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-
-  const getCategoryBadgeColor = (category: SocialPost['category']) => {
-    switch (category) {
-      case 'emergency': return 'bg-red-100 text-red-700 border-red-200';
-      case 'milestone': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'success': return 'bg-green-100 text-green-700 border-green-200';
-      case 'update': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'announcement': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    // Occasionally update climate zones
+    if (Math.random() > 0.8) {
+      setClimateZones(prev => prev.map(zone => ({
+        ...zone,
+        changing: Math.random() > 0.5
+      })));
     }
   };
 
-  const getClimateZoneSeverityColor = (severity: ClimateZone['severity']) => {
-    switch (severity) {
-      case 'critical': return '#ef4444';
-      case 'high': return '#f97316';
-      case 'medium': return '#f59e0b';
-      case 'low': return '#eab308';
-    }
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    setDataStreamStatus('connecting');
+
+    setTimeout(() => {
+      loadMockData();
+      setDataStreamStatus('connected');
+      setIsRefreshing(false);
+      setUpdateCount(0);
+    }, 1000);
+  }, []);
+
+  const loadMockData = () => {
+    const mockBases: CharityBase[] = [
+      { id: 'hq1', name: 'Global Climate HQ', location: { lat: 40.7128, lng: -74.0060 }, type: 'headquarters', activeProjects: 45, category: 'Climate', fundingReceived: 2500000, lastActivity: new Date(), impact: 95, properties: { region: 'Americas', established: 2010 } },
+      { id: 'hq2', name: 'EU Operations', location: { lat: 51.5074, lng: -0.1278 }, type: 'headquarters', activeProjects: 38, category: 'Conservation', fundingReceived: 1800000, lastActivity: new Date(), impact: 88, properties: { region: 'Europe', established: 2012 } },
+      { id: 'hq3', name: 'Asia-Pacific Hub', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters', activeProjects: 52, category: 'Wildlife', fundingReceived: 3200000, lastActivity: new Date(), impact: 92, properties: { region: 'Asia', established: 2008 } },
+      { id: 'r1', name: 'African Regional', location: { lat: -1.2921, lng: 36.8219 }, type: 'regional', activeProjects: 28, category: 'Water', fundingReceived: 950000, lastActivity: new Date(), impact: 78, properties: { region: 'Africa', established: 2015 } },
+      { id: 'r2', name: 'South America', location: { lat: -23.5505, lng: -46.6333 }, type: 'regional', activeProjects: 31, category: 'Forest', fundingReceived: 1200000, lastActivity: new Date(), impact: 85, properties: { region: 'South America', established: 2013 } },
+      { id: 'r3', name: 'Middle East', location: { lat: 25.2048, lng: 55.2708 }, type: 'regional', activeProjects: 22, category: 'Climate', fundingReceived: 780000, lastActivity: new Date(), impact: 72, properties: { region: 'Middle East', established: 2016 } },
+      { id: 'f1', name: 'Arctic Research', location: { lat: 64.1466, lng: -21.9426 }, type: 'field', activeProjects: 8, category: 'Climate', fundingReceived: 450000, lastActivity: new Date(), impact: 68, properties: { region: 'Arctic', established: 2018 } },
+      { id: 'f2', name: 'Amazon Station', location: { lat: -3.4653, lng: -62.2159 }, type: 'field', activeProjects: 12, category: 'Forest', fundingReceived: 620000, lastActivity: new Date(), impact: 82, properties: { region: 'Amazon', established: 2014 } },
+    ];
+
+    const mockPaths: FlightPath[] = [
+      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 51.5074, lng: -0.1278 }, fromName: 'NY', toName: 'London', amount: 250000, type: 'funding', active: true, timestamp: new Date(Date.now() - 3600000), speed: 1.2 },
+      { id: 'fp2', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'London', toName: 'Kenya', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
+      { id: 'fp3', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: 1.3521, lng: 103.8198 }, fromName: 'Tokyo', toName: 'Singapore', amount: 120000, type: 'collaboration', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
+      { id: 'fp4', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 35.6762, lng: 139.6503 }, fromName: 'NY', toName: 'Tokyo', amount: 340000, type: 'data', active: true, timestamp: new Date(Date.now() - 5400000), speed: 0.8 },
+      { id: 'fp5', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -23.5505, lng: -46.6333 }, fromName: 'London', toName: 'Brazil', amount: 210000, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
+    ];
+
+    const mockZones: ClimateZone[] = [
+      { id: 'cz1', location: { lat: -3.4653, lng: -62.2159 }, name: 'Amazon Deforestation', severity: 'critical', type: 'deforestation', radius: 400000, affectedPopulation: 2500000, trend: 'worsening' },
+      { id: 'cz2', location: { lat: 23.8859, lng: 45.0792 }, name: 'Sahara Drought', severity: 'high', type: 'drought', radius: 600000, affectedPopulation: 1800000, trend: 'stable' },
+      { id: 'cz3', location: { lat: 28.6139, lng: 77.2090 }, name: 'Delhi Air Quality', severity: 'critical', type: 'pollution', radius: 200000, affectedPopulation: 20000000, trend: 'worsening' },
+      { id: 'cz4', location: { lat: 64.1466, lng: -21.9426 }, name: 'Arctic Warming', severity: 'critical', type: 'temperature', radius: 500000, affectedPopulation: 150000, trend: 'worsening' },
+      { id: 'cz5', location: { lat: 6.5244, lng: 3.3792 }, name: 'Lagos Flooding', severity: 'high', type: 'flooding', radius: 150000, affectedPopulation: 5000000, trend: 'worsening' },
+    ];
+
+    setCharityBases(mockBases);
+    setFlightPaths(mockPaths);
+    setClimateZones(mockZones);
   };
+
+  const toggleLayer = (layerId: string) => {
+    setLayers(prev => prev.map(l => l.id === layerId ? { ...l, visible: !l.visible } : l));
+  };
+
+  const updateLayerProperty = (layerId: string, property: string, value: any) => {
+    setLayers(prev => prev.map(l => l.id === layerId ? { ...l, [property]: value } : l));
+  };
+
+  const getLayerByType = (type: string) => layers.find(l => l.id === type);
+
+  const getSeverityColor = (severity: string) => {
+    const severityMap: Record<string, string> = {
+      critical: '#dc2626',
+      high: '#ea580c',
+      medium: '#d97706',
+      low: '#ca8a04'
+    };
+    return severityMap[severity] || '#6b7280';
+  };
+
+  const filteredBases = useMemo(() => {
+    return charityBases.filter(base => {
+      if (searchQuery && !base.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (filters.category.length > 0 && !filters.category.includes(base.category)) return false;
+      if (filters.type.length > 0 && !filters.type.includes(base.type)) return false;
+      if (base.impact < filters.impactThreshold) return false;
+      if (base.fundingReceived < filters.fundingRange[0] || base.fundingReceived > filters.fundingRange[1]) return false;
+      return true;
+    });
+  }, [charityBases, searchQuery, filters]);
+
+  const filteredPaths = useMemo(() => {
+    return flightPaths.filter(path => {
+      const layer = getLayerByType(path.type);
+      if (!layer?.visible) return false;
+      if (currentZoom < layer.minZoom || currentZoom > layer.maxZoom) return false;
+      return true;
+    });
+  }, [flightPaths, layers, currentZoom]);
+
+  const filteredZones = useMemo(() => {
+    return climateZones.filter(zone => {
+      if (filters.severity.length > 0 && !filters.severity.includes(zone.severity)) return false;
+      const layer = getLayerByType('climate');
+      if (currentZoom < (layer?.minZoom || 0) || currentZoom > (layer?.maxZoom || 22)) return false;
+      return true;
+    });
+  }, [climateZones, filters, currentZoom]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ice-50 via-white to-arctic-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-[1920px] mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Climate Network Map</h1>
-              <p className="text-gray-600 mt-1">Real-time climate action network visualization</p>
-            </div>
-            <div className="bg-arctic-50 px-6 py-3 rounded-xl border-2 border-arctic-200">
-              <div className="text-sm text-gray-600">Your Voting Power</div>
-              <div className="text-3xl font-bold text-arctic-600">{userVotingPower}</div>
-              <div className="text-xs text-gray-500 mt-1">
-                {user ? `${Math.floor(Math.random() * 90) + 1} days active` : 'Login to vote'}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Horizontal Stats Bar */}
-      <div className="bg-gradient-to-r from-teal-50 via-cyan-50 to-emerald-50 border-b border-gray-200">
-        <div className="max-w-[1920px] mx-auto px-4 py-4">
-          <div className="grid grid-cols-5 gap-4">
-            {/* Live Updates */}
-            <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
-              <div className="flex items-center space-x-2">
-                <span className="animate-pulse text-red-500">●</span>
-                <span className="text-xs font-semibold text-gray-600">LIVE UPDATES</span>
-              </div>
-              <div className="text-2xl font-bold text-gray-900 mt-1">{networkStats.activeConnections}</div>
-              <div className="text-xs text-gray-500">active connections</div>
-            </div>
-
-            {/* Funding MTD */}
-            <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
-              <div className="text-xs font-semibold text-gray-600">FUNDING (MTD)</div>
-              <div className="text-2xl font-bold text-green-600 mt-1">
-                ${(networkStats.totalTransferred / 1000000).toFixed(2)}M
-              </div>
-              <div className="text-xs text-green-500 flex items-center">
-                ↑ 12.5% vs last month
-              </div>
-            </div>
-
-            {/* Active Projects */}
-            <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
-              <div className="text-xs font-semibold text-gray-600">ACTIVE PROJECTS</div>
-              <div className="text-2xl font-bold text-teal-600 mt-1">{networkStats.projectsActive}</div>
-              <div className="text-xs text-teal-500 flex items-center">
-                ↑ 8 new this week
-              </div>
-            </div>
-
-            {/* Top Mission */}
-            <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
-              <div className="text-xs font-semibold text-gray-600">TOP MISSION</div>
-              <div className="text-sm font-bold text-gray-900 mt-1 truncate">Pacific Ocean Cleanup</div>
-              <div className="text-xs text-purple-600">2.1K supporters</div>
-            </div>
-
-            {/* Network Health */}
-            <div className="bg-white rounded-lg px-4 py-3 shadow-sm">
-              <div className="text-xs font-semibold text-gray-600">NETWORK HEALTH</div>
-              <div className="text-2xl font-bold text-emerald-600 mt-1">{networkStats.uptime.toFixed(1)}%</div>
-              <div className="text-xs text-gray-500">uptime</div>
+    <div className="h-screen bg-gray-950 flex flex-col overflow-hidden">
+      {/* Enhanced Top Control Bar with Live Indicator */}
+      <div className="bg-gray-900/95 border-b border-gray-700/50 px-4 py-3 flex items-center justify-between z-10 backdrop-blur-md">
+        <div className="flex items-center space-x-4">
+          <h1 className="text-xl font-bold text-gray-100 flex items-center space-x-2">
+            <BoltIcon className="w-5 h-5 text-teal-500" />
+            <span>Climate Network Intelligence</span>
+          </h1>
+          <LiveDataIndicator status={dataStreamStatus} updateCount={updateCount} />
+          <div className="flex items-center space-x-2">
+            <div className="relative">
+              <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search locations, projects..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-2 bg-gray-800 text-gray-100 text-sm rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent w-72 placeholder-gray-500"
+              />
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Tab Navigation */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-[1920px] mx-auto px-4">
-          <div className="flex space-x-8">
-            {(['map', 'transparency', 'dao'] as const).map(tab => (
+        <div className="flex items-center space-x-2">
+          {/* Time Range Selector */}
+          <div className="flex bg-gray-800 rounded-lg p-0.5 border border-gray-700">
+            {(['24h', '7d', '30d', 'all'] as const).map(range => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-4 font-semibold border-b-2 transition-colors ${
-                  activeTab === tab
-                    ? 'border-teal-500 text-teal-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-3 py-1.5 text-xs font-semibold rounded transition-all ${
+                  timeRange === range
+                    ? 'bg-teal-600 text-white shadow-sm'
+                    : 'text-gray-400 hover:text-gray-200'
                 }`}
               >
-                {tab === 'map' && '🗺️ Climate Network'}
-                {tab === 'transparency' && '🔍 Transparent Transactions'}
-                {tab === 'dao' && '⚖️ DAO Spending'}
+                {range.toUpperCase()}
               </button>
             ))}
           </div>
+
+          <div className="h-6 w-px bg-gray-700"></div>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className={`p-2 rounded-lg transition-all ${
+              isRefreshing ? 'bg-teal-600/20 text-teal-400' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+            }`}
+            title="Refresh Data (R)"
+          >
+            <ArrowPathIcon className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </motion.button>
+
+          <button
+            onClick={() => setShowStylesPanel(!showStylesPanel)}
+            className={`p-2 rounded-lg transition-all ${
+              showStylesPanel ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+            }`}
+            title="Saved Styles (S)"
+          >
+            <SwatchIcon className="w-5 h-5" />
+          </button>
+
+          <button
+            onClick={() => setShowFilterPanel(!showFilterPanel)}
+            className={`p-2 rounded-lg transition-all ${
+              showFilterPanel ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+            }`}
+            title="Filters (F)"
+          >
+            <FunnelIcon className="w-5 h-5" />
+          </button>
+
+          <button
+            onClick={() => setShowAnalytics(!showAnalytics)}
+            className={`p-2 rounded-lg transition-all ${
+              showAnalytics ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+            }`}
+            title="Analytics (A)"
+          >
+            <ChartBarIcon className="w-5 h-5" />
+          </button>
+
+          <button
+            onClick={() => setShowLayerPanel(!showLayerPanel)}
+            className={`p-2 rounded-lg transition-all ${
+              showLayerPanel ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+            }`}
+            title="Layers (L)"
+          >
+            <Squares2X2Icon className="w-5 h-5" />
+          </button>
+
+          <button
+            onClick={() => setShowKeyboardShortcuts(true)}
+            className="p-2 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all"
+            title="Keyboard Shortcuts (?)"
+          >
+            <span className="text-sm font-mono">?</span>
+          </button>
         </div>
       </div>
 
-      <div className="max-w-[1920px] mx-auto px-4 py-8">
-        <AnimatePresence mode="wait">
-          {/* Map Tab */}
-          {activeTab === 'map' && (
+      <div className="flex-1 flex relative">
+        {/* Main Map */}
+        <div className="flex-1 relative">
+          <MapContainer
+            center={[20, 20]}
+            zoom={2}
+            style={{ height: '100%', width: '100%' }}
+            zoomControl={false}
+            className="bg-gray-950"
+          >
+            <TileLayer
+              attribution='&copy; OpenStreetMap'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            />
+
+            <MapInteractionHandler onZoomChange={setCurrentZoom} />
+            <ZoomControls />
+
+            {/* Climate Zones */}
+            {getLayerByType('climate')?.visible && filteredZones.map(zone => {
+              const layer = getLayerByType('climate')!;
+              return (
+                <Circle
+                  key={zone.id}
+                  center={[zone.location.lat, zone.location.lng]}
+                  radius={zone.radius}
+                  pathOptions={{
+                    color: getSeverityColor(zone.severity),
+                    fillColor: getSeverityColor(zone.severity),
+                    fillOpacity: layer.fillPolygons ? layer.opacity * (zone.changing ? 0.35 : 0.25) : 0,
+                    weight: layer.strokeWidth,
+                    opacity: layer.opacity * 0.8,
+                    dashArray: layer.strokePattern === 'dashed' ? '8, 4' : undefined
+                  }}
+                >
+                  {layer.showTooltips && (
+                    <Popup>
+                      <div className="text-sm max-w-xs">
+                        <div className="font-bold text-gray-900 mb-1">{zone.name}</div>
+                        <div className="space-y-0.5 text-xs text-gray-600">
+                          <div className="flex justify-between">
+                            <span>Type:</span>
+                            <span className="font-medium capitalize">{zone.type}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Severity:</span>
+                            <span className="font-medium capitalize">{zone.severity}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Trend:</span>
+                            <span className={`font-medium capitalize ${
+                              zone.trend === 'worsening' ? 'text-red-600' :
+                              zone.trend === 'improving' ? 'text-green-600' : 'text-gray-600'
+                            }`}>{zone.trend}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Population:</span>
+                            <span className="font-medium">{zone.affectedPopulation.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Popup>
+                  )}
+                </Circle>
+              );
+            })}
+
+            {/* Enhanced Flight Paths with pulse */}
+            {filteredPaths.map(path => {
+              const layer = getLayerByType(path.type);
+              if (!layer) return null;
+              return (
+                <AnimatedFlightPath
+                  key={path.id}
+                  path={path}
+                  style={layer}
+                  currentTime={currentTime}
+                  interpolation={interpolationMode}
+                />
+              );
+            })}
+
+            {/* Charity Bases with live pulse */}
+            {getLayerByType('charities')?.visible && filteredBases.map(base => {
+              const layer = getLayerByType('charities')!;
+              return (
+                <Marker
+                  key={base.id}
+                  position={[base.location.lat, base.location.lng]}
+                  icon={createPropertyBasedIcon(base, layer.colorMode, layer.color, categoryColorMap, base.recentActivity)}
+                  eventHandlers={{
+                    click: () => setSelectedBase(base)
+                  }}
+                >
+                  {layer.showTooltips && (
+                    <Popup>
+                      <div className="text-sm min-w-[220px]">
+                        <div className="font-bold text-gray-900 mb-2 flex items-center justify-between">
+                          {base.name}
+                          {base.recentActivity && (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">LIVE</span>
+                          )}
+                        </div>
+                        <div className="space-y-1 text-xs text-gray-600">
+                          <div className="flex justify-between">
+                            <span>Type:</span>
+                            <span className="font-medium capitalize">{base.type}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Category:</span>
+                            <span className="font-medium">{base.category}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Projects:</span>
+                            <span className="font-medium">{base.activeProjects}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Funding:</span>
+                            <span className="font-medium">${(base.fundingReceived / 1000).toFixed(0)}K</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Impact:</span>
+                            <div className="flex items-center">
+                              <div className="w-16 h-1.5 bg-gray-200 rounded-full mr-2">
+                                <div
+                                  className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full"
+                                  style={{ width: `${base.impact}%` }}
+                                />
+                              </div>
+                              <span className="font-medium">{base.impact}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Popup>
+                  )}
+                </Marker>
+              );
+            })}
+          </MapContainer>
+
+          {/* Mini Map Navigator */}
+          <MiniMapNavigator bounds={null} onNavigate={() => {}} />
+        </div>
+
+        {/* Saved Styles Panel */}
+        <AnimatePresence>
+          {showStylesPanel && (
             <motion.div
-              key="map-tab"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="absolute left-4 top-4 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-[1000] max-h-[calc(100vh-120px)] overflow-hidden flex flex-col"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Map Container with Recent Activity */}
-                <div className="lg:col-span-3 relative">
-                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden relative" style={{ height: '700px' }}>
-                    {/* Filter Controls - Top Left */}
-                    <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-3 space-y-2">
-                      <div className="font-bold text-xs text-gray-700 mb-2">Map Layers</div>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={showClimateZones}
-                          onChange={(e) => setShowClimateZones(e.target.checked)}
-                          className="rounded text-teal-500 focus:ring-teal-500"
-                        />
-                        <span className="text-xs text-gray-700">Climate Zones</span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={showProjects}
-                          onChange={(e) => setShowProjects(e.target.checked)}
-                          className="rounded text-teal-500 focus:ring-teal-500"
-                        />
-                        <span className="text-xs text-gray-700">Projects</span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={showFundingPaths}
-                          onChange={(e) => setShowFundingPaths(e.target.checked)}
-                          className="rounded text-green-500 focus:ring-green-500"
-                        />
-                        <span className="text-xs text-gray-700">Funding Paths</span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={showDataPaths}
-                          onChange={(e) => setShowDataPaths(e.target.checked)}
-                          className="rounded text-blue-500 focus:ring-blue-500"
-                        />
-                        <span className="text-xs text-gray-700">Data Paths</span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={showCollabPaths}
-                          onChange={(e) => setShowCollabPaths(e.target.checked)}
-                          className="rounded text-purple-500 focus:ring-purple-500"
-                        />
-                        <span className="text-xs text-gray-700">Collab Paths</span>
-                      </label>
-                    </div>
-
-                    {/* Map Legend - Top Right */}
-                    <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-3 space-y-2">
-                      <div className="font-bold text-xs text-gray-700 mb-2">Legend</div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 rounded-full bg-teal-500"></div>
-                        <span className="text-xs text-gray-700">HQ Base</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-                        <span className="text-xs text-gray-700">Regional</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
-                        <span className="text-xs text-gray-700">Field Station</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                        <span className="text-xs text-gray-700">Social Post</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-8 h-0.5 bg-red-500 opacity-40"></div>
-                        <span className="text-xs text-gray-700">Climate Zone</span>
-                      </div>
-                    </div>
-
-                    {/* Recent Activity Feed - Bottom Right */}
-                    <div className="absolute bottom-4 right-4 z-[1000] bg-white/95 backdrop-blur rounded-lg shadow-lg p-3 w-80">
-                      <div className="font-bold text-xs text-gray-700 mb-2 flex items-center">
-                        <span className="animate-pulse text-green-500 mr-2">●</span>
-                        Recent Connections
-                      </div>
-                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                        {recentConnections.slice(0, 5).map((conn, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="text-xs text-gray-600 py-1 border-l-2 border-green-400 pl-2"
-                          >
-                            {conn}
-                          </motion.div>
-                        ))}
-                        {recentConnections.length === 0 && (
-                          <div className="text-xs text-gray-400 italic">Waiting for connections...</div>
-                        )}
-                      </div>
-                    </div>
-
-                    <MapContainer
-                      center={[20, 20]}
-                      zoom={2}
-                      style={{ height: '100%', width: '100%' }}
-                      scrollWheelZoom={true}
-                    >
-                      <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      />
-
-                      {/* Climate Impact Zones */}
-                      {showClimateZones && climateZones.map(zone => (
-                        <React.Fragment key={zone.id}>
-                          <Circle
-                            center={[zone.location.lat, zone.location.lng]}
-                            radius={zone.radius}
-                            pathOptions={{
-                              color: getClimateZoneSeverityColor(zone.severity),
-                              fillColor: getClimateZoneSeverityColor(zone.severity),
-                              fillOpacity: 0.15,
-                              weight: 2,
-                              opacity: 0.5
-                            }}
-                          />
-                          <Marker position={[zone.location.lat, zone.location.lng]}>
-                            <Popup>
-                              <div className="p-2">
-                                <h3 className="font-bold text-sm text-gray-900">{zone.name}</h3>
-                                <div className="text-xs text-gray-600 mt-1 capitalize">
-                                  Type: {zone.type}
-                                </div>
-                                <div className={`text-xs font-semibold mt-1 capitalize ${
-                                  zone.severity === 'critical' ? 'text-red-600' :
-                                  zone.severity === 'high' ? 'text-orange-600' :
-                                  zone.severity === 'medium' ? 'text-yellow-600' : 'text-yellow-500'
-                                }`}>
-                                  Severity: {zone.severity}
-                                </div>
-                              </div>
-                            </Popup>
-                          </Marker>
-                        </React.Fragment>
-                      ))}
-
-                      {/* Animated Flight Paths */}
-                      {flightPaths.map(path => {
-                        const shouldShow =
-                          (path.type === 'funding' && showFundingPaths) ||
-                          (path.type === 'data' && showDataPaths) ||
-                          (path.type === 'collaboration' && showCollabPaths);
-
-                        return shouldShow ? <AnimatedFlightPath key={path.id} path={path} /> : null;
-                      })}
-
-                      {/* Charity Base Markers with Pulse */}
-                      {showProjects && charityBases.map(base => (
-                        <React.Fragment key={base.id}>
-                          <PulseCircle location={base.location} type={base.type} />
-                          <Marker
-                            position={[base.location.lat, base.location.lng]}
-                            icon={createCharityIcon(base.type)}
-                          >
-                            <Popup>
-                              <div className="p-2">
-                                <h3 className="font-bold text-sm text-gray-900">{base.name}</h3>
-                                <div className="text-xs text-gray-600 mt-1 capitalize">
-                                  {base.type} Station
-                                </div>
-                                <div className="text-xs text-teal-600 font-semibold mt-1">
-                                  {base.activeProjects} Active Projects
-                                </div>
-                                <div className="text-xs text-gray-400 mt-1">
-                                  Last activity: {formatTimeAgo(base.lastActivity)}
-                                </div>
-                              </div>
-                            </Popup>
-                          </Marker>
-                        </React.Fragment>
-                      ))}
-
-                      {/* Trending Social Posts Markers */}
-                      {socialPosts.filter(post => post.isTrending).map(post => (
-                        <Circle
-                          key={post.id}
-                          center={[post.location.lat, post.location.lng]}
-                          radius={80000}
-                          pathOptions={{
-                            color: '#f97316',
-                            fillColor: '#fb923c',
-                            fillOpacity: 0.3,
-                            weight: 2
-                          }}
-                        />
-                      ))}
-                    </MapContainer>
-                  </div>
+              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between bg-gradient-to-r from-teal-600/10 to-blue-600/10">
+                <div className="flex items-center space-x-2">
+                  <SwatchIcon className="w-5 h-5 text-teal-400" />
+                  <h3 className="font-bold text-gray-100">Saved Styles</h3>
                 </div>
-
-                {/* Sidebar - Network Info */}
-                <div className="space-y-4 max-h-[700px] overflow-y-auto">
-                  <div className="bg-white rounded-xl shadow-lg p-4">
-                    <h3 className="font-bold text-gray-900 mb-3">Global Impact Network</h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Real-time visualization of nonprofit operations and funding flows worldwide.
-                    </p>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Active Projects:</span>
-                        <span className="font-semibold text-teal-600">{networkStats.projectsActive}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Live Connections:</span>
-                        <span className="font-semibold text-teal-600">{networkStats.activeConnections}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Network Uptime:</span>
-                        <span className="font-semibold text-green-600">{networkStats.uptime}%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-arctic-50 to-ice-50 rounded-xl shadow-lg p-4 border border-arctic-200">
-                    <h4 className="font-semibold text-gray-900 mb-2 text-sm">Explore More</h4>
-                    <Link
-                      to="/vote"
-                      className="block w-full bg-arctic-500 hover:bg-arctic-600 text-white text-center py-2 rounded-lg text-sm font-semibold transition-colors mb-2"
-                    >
-                      Vote on Proposals
-                    </Link>
-                    <Link
-                      to="/donate"
-                      className="block w-full bg-teal-500 hover:bg-teal-600 text-white text-center py-2 rounded-lg text-sm font-semibold transition-colors"
-                    >
-                      Make a Donation
-                    </Link>
-                  </div>
-                </div>
+                <button
+                  onClick={() => setShowStylesPanel(false)}
+                  className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-200 transition-all"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
               </div>
 
-            </motion.div>
-          )}
-
-          {/* Transparency Tab */}
-          {activeTab === 'transparency' && (
-            <motion.div
-              key="transparency-tab"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="bg-white rounded-xl shadow-lg p-6"
-            >
-              <h3 className="font-bold text-gray-900 text-2xl mb-6">Verified Transactions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {transactions.map(tx => (
-                  <div key={tx.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-teal-600">{tx.nonprofitName}</span>
-                      {tx.verified && (
-                        <span className="text-xs text-green-600 flex items-center bg-green-50 px-2 py-1 rounded">
-                          ✓ Verified
-                        </span>
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {savedStyles.map(style => (
+                  <motion.div
+                    key={style.id}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => setActiveStyleId(style.id)}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                      activeStyleId === style.id
+                        ? 'bg-teal-600/20 border-teal-500/50 shadow-lg'
+                        : 'bg-gray-800/50 border-gray-700/50 hover:border-gray-600'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold text-gray-100">{style.name}</h4>
+                      {activeStyleId === style.id && (
+                        <span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full">ACTIVE</span>
                       )}
                     </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">From:</span>
-                        <span className="font-mono text-gray-700 text-xs">{tx.from}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">To:</span>
-                        <span className="font-mono text-gray-700 text-xs">{tx.to}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Amount:</span>
-                        <span className="font-semibold text-green-600">{formatCurrency(tx.amount)}</span>
-                      </div>
-                      <div className="mt-2">
-                        <span className="text-gray-500">Purpose:</span>
-                        <p className="text-gray-700 mt-1 text-sm">{tx.purpose}</p>
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <span className="text-gray-400 text-xs">TX Hash:</span>
-                        <p className="font-mono text-xs text-gray-600 break-all mt-1">
-                          {tx.txHash}
-                        </p>
-                      </div>
-                      <div className="text-gray-400 text-xs text-right">{formatTimeAgo(tx.timestamp)}</div>
-                    </div>
-                  </div>
+                    <p className="text-xs text-gray-400">{style.description}</p>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
           )}
+        </AnimatePresence>
 
-          {/* DAO Tab */}
-          {activeTab === 'dao' && (
+        {/* Enhanced Layer Control Panel */}
+        <AnimatePresence>
+          {showLayerPanel && (
             <motion.div
-              key="dao-tab"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 300, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="absolute right-4 top-4 w-96 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-[1000] max-h-[calc(100vh-120px)] overflow-hidden flex flex-col"
             >
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="font-bold text-gray-900 text-2xl mb-6">DAO Fund Allocation</h3>
+              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between bg-gradient-to-r from-teal-600/10 to-blue-600/10">
+                <div className="flex items-center space-x-2">
+                  <Squares2X2Icon className="w-5 h-5 text-teal-400" />
+                  <h3 className="font-bold text-gray-100">Layer Controls</h3>
+                </div>
+                <button
+                  onClick={() => setShowLayerPanel(false)}
+                  className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-200 transition-all"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
               </div>
-              {daoAllocations.map(dao => (
-                <div key={dao.nonprofitName} className="bg-white rounded-xl shadow-lg p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-bold text-gray-900 text-xl">{dao.nonprofitName}</h3>
-                    <span className="text-lg font-semibold text-teal-600">
-                      {formatCurrency(dao.totalFunds)}
-                    </span>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {layers.map(layer => (
+                  <div key={layer.id} className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => toggleLayer(layer.id)}
+                          className={`p-2 rounded-lg transition-all ${
+                            layer.visible
+                              ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50'
+                              : 'bg-gray-700/50 text-gray-500 border border-gray-600/50'
+                          }`}
+                        >
+                          {layer.visible ? <EyeIcon className="w-4 h-4" /> : <EyeSlashIcon className="w-4 h-4" />}
+                        </button>
+                        <div>
+                          <h4 className="font-semibold text-gray-100 text-sm">{layer.name}</h4>
+                          <p className="text-xs text-gray-500 capitalize">{layer.colorMode} coloring</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {layer.visible && (
+                      <div className="space-y-3 pt-2 border-t border-gray-700/50">
+                        {/* Opacity Control */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-1 block flex items-center justify-between">
+                            <span>Opacity</span>
+                            <span className="text-teal-400 font-mono">{Math.round(layer.opacity * 100)}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={layer.opacity}
+                            onChange={(e) => updateLayerProperty(layer.id, 'opacity', parseFloat(e.target.value))}
+                            className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                          />
+                        </div>
+
+                        {/* Stroke Width */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-1 block flex items-center justify-between">
+                            <span>Stroke Width</span>
+                            <span className="text-teal-400 font-mono">{layer.strokeWidth}px</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="1"
+                            max="8"
+                            step="1"
+                            value={layer.strokeWidth}
+                            onChange={(e) => updateLayerProperty(layer.id, 'strokeWidth', parseInt(e.target.value))}
+                            className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                          />
+                        </div>
+
+                        {/* Stroke Pattern */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">Stroke Pattern</label>
+                          <div className="flex space-x-2">
+                            {(['solid', 'dashed', 'dotted'] as const).map(pattern => (
+                              <button
+                                key={pattern}
+                                onClick={() => updateLayerProperty(layer.id, 'strokePattern', pattern)}
+                                className={`flex-1 py-1.5 text-xs font-medium rounded transition-all ${
+                                  layer.strokePattern === pattern
+                                    ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50'
+                                    : 'bg-gray-700/50 text-gray-400 border border-gray-600/50 hover:border-gray-500'
+                                }`}
+                              >
+                                {pattern}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Color Mode */}
+                        <div>
+                          <label className="text-xs text-gray-400 mb-2 block">Color Mode</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {(['fixed', 'property', 'function', 'measure'] as const).map(mode => (
+                              <button
+                                key={mode}
+                                onClick={() => updateLayerProperty(layer.id, 'colorMode', mode)}
+                                className={`py-1.5 text-xs font-medium rounded transition-all ${
+                                  layer.colorMode === mode
+                                    ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50'
+                                    : 'bg-gray-700/50 text-gray-400 border border-gray-600/50 hover:border-gray-500'
+                                }`}
+                              >
+                                {mode}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Toggle Options */}
+                        <div className="flex flex-wrap gap-2">
+                          {layer.id !== 'charities' && (
+                            <label className="flex items-center space-x-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={layer.showArrows}
+                                onChange={(e) => updateLayerProperty(layer.id, 'showArrows', e.target.checked)}
+                                className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
+                              />
+                              <span className="text-xs text-gray-400">Arrows</span>
+                            </label>
+                          )}
+                          <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={layer.showLabels}
+                              onChange={(e) => updateLayerProperty(layer.id, 'showLabels', e.target.checked)}
+                              className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
+                            />
+                            <span className="text-xs text-gray-400">Labels</span>
+                          </label>
+                          <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={layer.showTooltips}
+                              onChange={(e) => updateLayerProperty(layer.id, 'showTooltips', e.target.checked)}
+                              className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
+                            />
+                            <span className="text-xs text-gray-400">Tooltips</span>
+                          </label>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="space-y-4">
-                    {dao.allocations.map(alloc => (
-                      <div key={alloc.category}>
-                        <div className="flex items-center justify-between text-sm mb-2">
-                          <span className="font-semibold text-gray-700">{alloc.category}</span>
-                          <span className="text-gray-500">
-                            {alloc.percentage}% • {alloc.transactions} txns
-                          </span>
+                ))}
+
+                {/* Interpolation Mode */}
+                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                  <label className="text-xs text-gray-400 mb-2 block">Track Interpolation</label>
+                  <div className="flex space-x-2">
+                    {(['linear', 'last-known-point'] as const).map(mode => (
+                      <button
+                        key={mode}
+                        onClick={() => setInterpolationMode(mode)}
+                        className={`flex-1 py-2 text-xs font-medium rounded transition-all ${
+                          interpolationMode === mode
+                            ? 'bg-teal-600/20 text-teal-400 border border-teal-500/50'
+                            : 'bg-gray-700/50 text-gray-400 border border-gray-600/50 hover:border-gray-500'
+                        }`}
+                      >
+                        {mode === 'linear' ? 'Linear' : 'Last Known'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Analytics Panel */}
+        <AnimatePresence>
+          {showAnalytics && (
+            <motion.div
+              initial={{ y: 300, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 300, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="absolute bottom-4 right-4 w-96 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-[1000] max-h-96 overflow-hidden flex flex-col"
+            >
+              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between bg-gradient-to-r from-teal-600/10 to-blue-600/10">
+                <div className="flex items-center space-x-2">
+                  <ChartBarIcon className="w-5 h-5 text-teal-400" />
+                  <h3 className="font-bold text-gray-100">Analytics</h3>
+                </div>
+                <button
+                  onClick={() => setShowAnalytics(false)}
+                  className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-200 transition-all"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {/* Total Stats */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
+                    <div className="text-xs text-gray-400 mb-1">Total Bases</div>
+                    <div className="text-2xl font-bold text-gray-100">{filteredBases.length}</div>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
+                    <div className="text-xs text-gray-400 mb-1">Active Flows</div>
+                    <div className="text-2xl font-bold text-teal-400">{filteredPaths.filter(p => p.active).length}</div>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
+                    <div className="text-xs text-gray-400 mb-1">Climate Zones</div>
+                    <div className="text-2xl font-bold text-red-400">{filteredZones.length}</div>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
+                    <div className="text-xs text-gray-400 mb-1">Total Funding</div>
+                    <div className="text-2xl font-bold text-green-400">
+                      ${(filteredBases.reduce((sum, b) => sum + b.fundingReceived, 0) / 1000000).toFixed(1)}M
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category Distribution */}
+                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-gray-100 mb-3">Category Distribution</h4>
+                  <div className="space-y-2">
+                    {Object.entries(
+                      filteredBases.reduce((acc, base) => {
+                        acc[base.category] = (acc[base.category] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([category, count]) => (
+                      <div key={category}>
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-400">{category}</span>
+                          <span className="text-gray-300 font-mono">{count}</span>
                         </div>
-                        <div className="relative w-full bg-gray-200 rounded-full h-5 overflow-hidden">
+                        <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
                           <div
-                            className="absolute left-0 top-0 h-full bg-gradient-to-r from-teal-400 to-teal-500"
-                            style={{ width: `${alloc.percentage}%` }}
+                            className="h-full bg-gradient-to-r from-teal-500 to-blue-500 rounded-full"
+                            style={{ width: `${(count / filteredBases.length) * 100}%` }}
                           />
-                          <div
-                            className="absolute left-0 top-0 h-full bg-gradient-to-r from-green-500 to-green-600"
-                            style={{ width: `${(alloc.spent / alloc.amount) * alloc.percentage}%` }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-sm text-gray-600 mt-2">
-                          <span>Spent: {formatCurrency(alloc.spent)}</span>
-                          <span>Allocated: {formatCurrency(alloc.amount)}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-              ))}
+
+                {/* Type Distribution */}
+                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-gray-100 mb-3">Type Distribution</h4>
+                  <div className="space-y-2">
+                    {Object.entries(
+                      filteredBases.reduce((acc, base) => {
+                        acc[base.type] = (acc[base.type] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([type, count]) => (
+                      <div key={type} className="flex items-center justify-between">
+                        <span className="text-xs text-gray-400 capitalize">{type}</span>
+                        <span className="text-xs text-gray-300 font-mono">{count} ({Math.round((count / filteredBases.length) * 100)}%)</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Enhanced Filter Panel */}
+        <AnimatePresence>
+          {showFilterPanel && (
+            <motion.div
+              initial={{ y: -300, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -300, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-[1000] max-h-[calc(100vh-140px)] overflow-hidden flex flex-col"
+            >
+              <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between bg-gradient-to-r from-teal-600/10 to-blue-600/10">
+                <div className="flex items-center space-x-2">
+                  <FunnelIcon className="w-5 h-5 text-teal-400" />
+                  <h3 className="font-bold text-gray-100">Advanced Filters</h3>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setFilters({
+                      category: [],
+                      type: [],
+                      severity: [],
+                      fundingRange: [0, 10000000],
+                      dateRange: null,
+                      impactThreshold: 0
+                    })}
+                    className="text-xs px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition-all"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={() => setShowFilterPanel(false)}
+                    className="p-1 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-gray-200 transition-all"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Category Filter */}
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                    <label className="text-sm font-semibold text-gray-100 mb-3 block">Category</label>
+                    <div className="space-y-2">
+                      {['Climate', 'Conservation', 'Wildlife', 'Water', 'Forest'].map(category => (
+                        <label key={category} className="flex items-center space-x-2 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={filters.category.includes(category)}
+                            onChange={(e) => {
+                              setFilters(prev => ({
+                                ...prev,
+                                category: e.target.checked
+                                  ? [...prev.category, category]
+                                  : prev.category.filter(c => c !== category)
+                              }));
+                            }}
+                            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
+                          />
+                          <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{category}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Type Filter */}
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                    <label className="text-sm font-semibold text-gray-100 mb-3 block">Type</label>
+                    <div className="space-y-2">
+                      {['headquarters', 'regional', 'field'].map(type => (
+                        <label key={type} className="flex items-center space-x-2 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={filters.type.includes(type)}
+                            onChange={(e) => {
+                              setFilters(prev => ({
+                                ...prev,
+                                type: e.target.checked
+                                  ? [...prev.type, type]
+                                  : prev.type.filter(t => t !== type)
+                              }));
+                            }}
+                            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
+                          />
+                          <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors capitalize">{type}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Severity Filter */}
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                    <label className="text-sm font-semibold text-gray-100 mb-3 block">Climate Severity</label>
+                    <div className="space-y-2">
+                      {['critical', 'high', 'medium', 'low'].map(severity => (
+                        <label key={severity} className="flex items-center space-x-2 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={filters.severity.includes(severity)}
+                            onChange={(e) => {
+                              setFilters(prev => ({
+                                ...prev,
+                                severity: e.target.checked
+                                  ? [...prev.severity, severity]
+                                  : prev.severity.filter(s => s !== severity)
+                              }));
+                            }}
+                            className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-teal-500 focus:ring-teal-500 focus:ring-offset-0"
+                          />
+                          <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors capitalize">{severity}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Impact Threshold */}
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                    <label className="text-sm font-semibold text-gray-100 mb-3 block flex items-center justify-between">
+                      <span>Impact Threshold</span>
+                      <span className="text-teal-400 font-mono text-xs">{filters.impactThreshold}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value={filters.impactThreshold}
+                      onChange={(e) => setFilters(prev => ({ ...prev, impactThreshold: parseInt(e.target.value) }))}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-2">
+                      <span>0%</span>
+                      <span>50%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Funding Range */}
+                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                  <label className="text-sm font-semibold text-gray-100 mb-3 block flex items-center justify-between">
+                    <span>Funding Range</span>
+                    <span className="text-teal-400 font-mono text-xs">
+                      ${(filters.fundingRange[0] / 1000000).toFixed(1)}M - ${(filters.fundingRange[1] / 1000000).toFixed(1)}M
+                    </span>
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000000"
+                      step="100000"
+                      value={filters.fundingRange[0]}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        fundingRange: [parseInt(e.target.value), prev.fundingRange[1]]
+                      }))}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                    />
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000000"
+                      step="100000"
+                      value={filters.fundingRange[1]}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        fundingRange: [prev.fundingRange[0], parseInt(e.target.value)]
+                      }))}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Results Summary */}
+                <div className="bg-gradient-to-r from-teal-600/10 to-blue-600/10 border border-teal-500/30 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-300">Showing Results:</span>
+                    <span className="text-lg font-bold text-teal-400">{filteredBases.length} / {charityBases.length}</span>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Keyboard Shortcuts Overlay */}
+      <KeyboardShortcuts show={showKeyboardShortcuts} onClose={() => setShowKeyboardShortcuts(false)} />
     </div>
   );
 };

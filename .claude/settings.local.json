@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:build.avax.network)"
+      "WebFetch(domain:build.avax.network)",
+      "WebFetch(domain:www.palantir.com)"
     ],
     "deny": [],
     "ask": []

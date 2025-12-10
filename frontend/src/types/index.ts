@@ -15,6 +15,7 @@ export interface User {
   lastActive?: Date;
   currentStreak: number;
   longestStreak: number;
+  spiritAnimal?: string;
   createdAt: Date;
   updatedAt: Date;
 }
