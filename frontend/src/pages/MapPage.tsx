@@ -1212,102 +1212,129 @@ const MapPage: React.FC = () => {
             {/* Climate Zones */}
             {getLayerByType('climate')?.visible && filteredZones.map(zone => {
               const layer = getLayerByType('climate')!;
-              return (
-                <Circle
-                  key={zone.id}
-                  center={[zone.location.lat, zone.location.lng]}
-                  radius={zone.radius}
-                  pathOptions={{
-                    color: getSeverityColor(zone.severity),
-                    fillColor: getSeverityColor(zone.severity),
-                    fillOpacity: layer.fillPolygons ? layer.opacity * (zone.changing ? 0.35 : 0.25) : 0,
-                    weight: layer.strokeWidth,
-                    opacity: layer.opacity * 0.8,
-                    dashArray: layer.strokePattern === 'dashed' ? '8, 4' : undefined
-                  }}
-                >
-                  {layer.showTooltips && (
-                    <Popup>
-                      <div className="text-sm max-w-sm">
-                        <div className="font-bold text-red-700 mb-2 flex items-center justify-between border-b border-red-200 pb-2">
-                          <span>{zone.name}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                            zone.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                            zone.severity === 'high' ? 'bg-orange-100 text-orange-700' :
-                            zone.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-blue-100 text-blue-700'
-                          }`}>{zone.severity.toUpperCase()}</span>
-                        </div>
+              const pathOptions = {
+                color: getSeverityColor(zone.severity),
+                fillColor: getSeverityColor(zone.severity),
+                fillOpacity: layer.fillPolygons ? layer.opacity * (zone.changing ? 0.35 : 0.25) : 0,
+                weight: layer.strokeWidth,
+                opacity: layer.opacity * 0.8,
+                dashArray: layer.strokePattern === 'dashed' ? '8, 4' : undefined
+              };
 
-                        {/* Crisis Info */}
-                        <div className="space-y-1.5 text-xs text-gray-700 mb-3">
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Crisis Type:</span>
-                            <span className="font-semibold capitalize">{zone.type}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Trend:</span>
-                            <span className={`font-semibold capitalize ${
-                              zone.trend === 'worsening' ? 'text-red-600' :
-                              zone.trend === 'improving' ? 'text-green-600' : 'text-yellow-600'
-                            }`}>
-                              {zone.trend} {zone.trend === 'worsening' ? '↗' : zone.trend === 'improving' ? '↘' : '→'}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Affected Population:</span>
-                            <span className="font-semibold text-red-600">{(zone.affectedPopulation / 1000000).toFixed(1)}M people</span>
-                          </div>
-                        </div>
+              const popupContent = (
+                <Popup maxWidth={400}>
+                  <div className="text-sm w-80 bg-white">
+                    {/* Header with gradient background */}
+                    <div className={`-m-3 mb-3 p-4 rounded-t-lg ${
+                      zone.severity === 'critical' ? 'bg-gradient-to-r from-red-600 to-red-700' :
+                      zone.severity === 'high' ? 'bg-gradient-to-r from-orange-600 to-orange-700' :
+                      zone.severity === 'medium' ? 'bg-gradient-to-r from-yellow-600 to-yellow-700' :
+                      'bg-gradient-to-r from-blue-600 to-blue-700'
+                    }`}>
+                      <div className="flex items-center justify-between text-white">
+                        <h3 className="text-lg font-bold">{zone.name}</h3>
+                        <span className={`text-xs px-3 py-1 rounded-full font-bold bg-white ${
+                          zone.severity === 'critical' ? 'text-red-700' :
+                          zone.severity === 'high' ? 'text-orange-700' :
+                          zone.severity === 'medium' ? 'text-yellow-700' :
+                          'text-blue-700'
+                        }`}>{zone.severity.toUpperCase()}</span>
+                      </div>
+                      <div className="text-white text-xs mt-2 opacity-90 font-medium capitalize">
+                        {zone.type} Crisis
+                      </div>
+                    </div>
 
-                        {/* Climate Metrics */}
-                        <div className="bg-red-50 rounded-lg p-2.5 border border-red-200">
-                          <div className="font-bold text-xs text-red-900 mb-2 flex items-center">
-                            <span className="w-1 h-3 bg-red-600 rounded mr-1.5"></span>
-                            Climate Crisis Metrics
-                          </div>
-                          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                            <div>
-                              <span className="text-gray-600">Temp Change:</span>
-                              <div className="font-bold text-red-700">+{zone.temperatureChange}°C</div>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">CO₂ Level:</span>
-                              <div className="font-bold text-orange-700">{zone.co2Level} ppm</div>
-                            </div>
-                            {zone.seaLevelRise > 0 && (
-                              <div>
-                                <span className="text-gray-600">Sea Level:</span>
-                                <div className="font-bold text-blue-700">+{zone.seaLevelRise}mm/yr</div>
-                              </div>
-                            )}
-                            <div>
-                              <span className="text-gray-600">Biodiversity Loss:</span>
-                              <div className="font-bold text-red-600">{zone.biodiversityLoss}%</div>
-                            </div>
-                            {zone.deforestationRate > 0 && (
-                              <div>
-                                <span className="text-gray-600">Deforestation:</span>
-                                <div className="font-bold text-orange-700">{(zone.deforestationRate / 1000).toFixed(1)}k ha/yr</div>
-                              </div>
-                            )}
-                            <div>
-                              <span className="text-gray-600">Water Stress:</span>
-                              <div className={`font-bold ${zone.waterStress > 60 ? 'text-red-600' : zone.waterStress > 30 ? 'text-yellow-600' : 'text-green-600'}`}>
-                                {zone.waterStress}%
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-2 text-xs text-gray-500 italic">
-                          Last updated: {new Date(zone.lastUpdated).toLocaleDateString()}
+                    {/* Key Stats */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">Trend</div>
+                        <div className={`text-base font-bold flex items-center gap-1 ${
+                          zone.trend === 'worsening' ? 'text-red-600' :
+                          zone.trend === 'improving' ? 'text-green-600' : 'text-yellow-600'
+                        }`}>
+                          {zone.trend === 'worsening' ? '↗' : zone.trend === 'improving' ? '↘' : '→'}
+                          <span className="capitalize">{zone.trend}</span>
                         </div>
                       </div>
-                    </Popup>
-                  )}
-                </Circle>
+                      <div className="bg-red-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">Affected People</div>
+                        <div className="text-base font-bold text-red-600">
+                          {(zone.affectedPopulation / 1000000).toFixed(1)}M
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Climate Metrics Grid */}
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 border-gray-200">
+                      <div className="font-bold text-sm text-gray-800 mb-3 flex items-center">
+                        <CloudIcon className="w-4 h-4 mr-2 text-blue-600" />
+                        Climate Metrics
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white rounded-md p-2 shadow-sm">
+                          <div className="text-xs text-gray-500 mb-0.5">Temperature</div>
+                          <div className="text-lg font-bold text-red-600">+{zone.temperatureChange}°C</div>
+                        </div>
+                        <div className="bg-white rounded-md p-2 shadow-sm">
+                          <div className="text-xs text-gray-500 mb-0.5">CO₂ Level</div>
+                          <div className="text-lg font-bold text-orange-600">{zone.co2Level} ppm</div>
+                        </div>
+                        {zone.seaLevelRise > 0 && (
+                          <div className="bg-white rounded-md p-2 shadow-sm">
+                            <div className="text-xs text-gray-500 mb-0.5">Sea Level Rise</div>
+                            <div className="text-lg font-bold text-blue-600">+{zone.seaLevelRise}mm/yr</div>
+                          </div>
+                        )}
+                        <div className="bg-white rounded-md p-2 shadow-sm">
+                          <div className="text-xs text-gray-500 mb-0.5">Biodiversity Loss</div>
+                          <div className="text-lg font-bold text-red-600">{zone.biodiversityLoss}%</div>
+                        </div>
+                        {zone.deforestationRate > 0 && (
+                          <div className="bg-white rounded-md p-2 shadow-sm">
+                            <div className="text-xs text-gray-500 mb-0.5">Deforestation</div>
+                            <div className="text-lg font-bold text-orange-600">{(zone.deforestationRate / 1000).toFixed(1)}k ha/yr</div>
+                          </div>
+                        )}
+                        <div className="bg-white rounded-md p-2 shadow-sm">
+                          <div className="text-xs text-gray-500 mb-0.5">Water Stress</div>
+                          <div className={`text-lg font-bold ${zone.waterStress > 60 ? 'text-red-600' : zone.waterStress > 30 ? 'text-yellow-600' : 'text-green-600'}`}>
+                            {zone.waterStress}%
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 text-xs text-gray-400 text-center">
+                      Last updated: {new Date(zone.lastUpdated).toLocaleDateString()}
+                    </div>
+                  </div>
+                </Popup>
               );
+
+              // Render Polygon if bounds exist, otherwise Circle
+              if (zone.polygonBounds && zone.polygonBounds.length > 0) {
+                return (
+                  <Polygon
+                    key={zone.id}
+                    positions={zone.polygonBounds}
+                    pathOptions={pathOptions}
+                  >
+                    {layer.showTooltips && popupContent}
+                  </Polygon>
+                );
+              } else {
+                return (
+                  <Circle
+                    key={zone.id}
+                    center={[zone.location.lat, zone.location.lng]}
+                    radius={zone.radius}
+                    pathOptions={pathOptions}
+                  >
+                    {layer.showTooltips && popupContent}
+                  </Circle>
+                );
+              }
             })}
 
             {/* Enhanced Flight Paths with pulse */}
@@ -1338,85 +1365,78 @@ const MapPage: React.FC = () => {
                   }}
                 >
                   {layer.showTooltips && (
-                    <Popup>
-                      <div className="text-sm min-w-[320px]">
-                        <div className="font-bold text-gray-900 mb-2 flex items-center justify-between border-b border-blue-200 pb-2">
-                          <span className="text-blue-700">{base.name}</span>
-                          {base.recentActivity && (
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">LIVE</span>
-                          )}
-                        </div>
-
-                        {/* Charity Info */}
-                        <div className="space-y-1.5 text-xs text-gray-700 mb-3">
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Type:</span>
-                            <span className="font-semibold capitalize">{base.type}</span>
+                    <Popup maxWidth={400}>
+                      <div className="text-sm w-80 bg-white">
+                        {/* Header with gradient */}
+                        <div className="-m-3 mb-3 p-4 rounded-t-lg bg-gradient-to-r from-blue-600 to-teal-600">
+                          <div className="flex items-center justify-between text-white">
+                            <h3 className="text-lg font-bold">{base.name}</h3>
+                            {base.recentActivity && (
+                              <span className="text-xs bg-green-400 text-green-900 px-3 py-1 rounded-full font-bold animate-pulse">LIVE</span>
+                            )}
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Focus:</span>
-                            <span className="font-semibold">{base.category}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Active Projects:</span>
-                            <span className="font-semibold text-blue-600">{base.activeProjects}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Funding:</span>
-                            <span className="font-semibold text-green-600">${(base.fundingReceived / 1000).toFixed(0)}K</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-500">Impact Score:</span>
-                            <div className="flex items-center">
-                              <div className="w-16 h-1.5 bg-gray-200 rounded-full mr-2">
-                                <div
-                                  className="h-full bg-gradient-to-r from-blue-400 to-teal-500 rounded-full"
-                                  style={{ width: `${base.impact}%` }}
-                                />
-                              </div>
-                              <span className="font-bold text-blue-700">{base.impact}%</span>
-                            </div>
+                          <div className="text-white text-xs mt-2 opacity-90 font-medium flex items-center gap-2">
+                            <span className="capitalize">{base.type}</span>
+                            <span>•</span>
+                            <span>{base.category}</span>
                           </div>
                         </div>
 
-                        {/* Climate Data */}
-                        <div className="bg-blue-50 rounded-lg p-2.5 border border-blue-200">
-                          <div className="font-bold text-xs text-blue-900 mb-2 flex items-center">
-                            <span className="w-1 h-3 bg-blue-600 rounded mr-1.5"></span>
+                        {/* Key Stats Cards */}
+                        <div className="grid grid-cols-3 gap-2 mb-4">
+                          <div className="bg-blue-50 rounded-lg p-2 text-center">
+                            <div className="text-xs text-gray-500 mb-1">Projects</div>
+                            <div className="text-lg font-bold text-blue-600">{base.activeProjects}</div>
+                          </div>
+                          <div className="bg-green-50 rounded-lg p-2 text-center">
+                            <div className="text-xs text-gray-500 mb-1">Funding</div>
+                            <div className="text-lg font-bold text-green-600">${(base.fundingReceived / 1000).toFixed(0)}K</div>
+                          </div>
+                          <div className="bg-teal-50 rounded-lg p-2 text-center">
+                            <div className="text-xs text-gray-500 mb-1">Impact</div>
+                            <div className="text-lg font-bold text-teal-600">{base.impact}%</div>
+                          </div>
+                        </div>
+
+                        {/* Climate Data Section */}
+                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 border-gray-200">
+                          <div className="font-bold text-sm text-gray-800 mb-3 flex items-center">
+                            <GlobeAltIcon className="w-4 h-4 mr-2 text-blue-600" />
                             Regional Climate Data
                           </div>
-                          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                            <div>
-                              <span className="text-gray-600">Temperature:</span>
-                              <div className="font-bold text-blue-700">{base.regionalClimateData.avgTemperature}°C
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white rounded-md p-2 shadow-sm">
+                              <div className="text-xs text-gray-500 mb-0.5">Temperature</div>
+                              <div className="text-base font-bold text-blue-700">
+                                {base.regionalClimateData.avgTemperature}°C
                                 <span className={`ml-1 text-xs ${base.regionalClimateData.temperatureTrend > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                  ({base.regionalClimateData.temperatureTrend > 0 ? '+' : ''}{base.regionalClimateData.temperatureTrend}°C)
+                                  ({base.regionalClimateData.temperatureTrend > 0 ? '+' : ''}{base.regionalClimateData.temperatureTrend})
                                 </span>
                               </div>
                             </div>
-                            <div>
-                              <span className="text-gray-600">Air Quality:</span>
-                              <div className={`font-bold ${base.regionalClimateData.airQualityIndex > 100 ? 'text-red-600' : base.regionalClimateData.airQualityIndex > 50 ? 'text-yellow-600' : 'text-green-600'}`}>
+                            <div className="bg-white rounded-md p-2 shadow-sm">
+                              <div className="text-xs text-gray-500 mb-0.5">Air Quality</div>
+                              <div className={`text-base font-bold ${base.regionalClimateData.airQualityIndex > 100 ? 'text-red-600' : base.regionalClimateData.airQualityIndex > 50 ? 'text-yellow-600' : 'text-green-600'}`}>
                                 AQI {base.regionalClimateData.airQualityIndex}
                               </div>
                             </div>
-                            <div>
-                              <span className="text-gray-600">Forest Cover:</span>
-                              <div className="font-bold text-green-700">{base.regionalClimateData.forestCoverage}%</div>
+                            <div className="bg-white rounded-md p-2 shadow-sm">
+                              <div className="text-xs text-gray-500 mb-0.5">Forest Cover</div>
+                              <div className="text-base font-bold text-green-600">{base.regionalClimateData.forestCoverage}%</div>
                             </div>
-                            <div>
-                              <span className="text-gray-600">Water Access:</span>
-                              <div className={`font-bold ${base.regionalClimateData.waterAvailability < 50 ? 'text-red-600' : 'text-blue-600'}`}>
+                            <div className="bg-white rounded-md p-2 shadow-sm">
+                              <div className="text-xs text-gray-500 mb-0.5">Water Access</div>
+                              <div className={`text-base font-bold ${base.regionalClimateData.waterAvailability < 50 ? 'text-red-600' : 'text-blue-600'}`}>
                                 {base.regionalClimateData.waterAvailability}%
                               </div>
                             </div>
-                            <div>
-                              <span className="text-gray-600">Carbon:</span>
-                              <div className="font-bold text-gray-700">{(base.regionalClimateData.carbonFootprint / 1000).toFixed(1)}kt/yr</div>
+                            <div className="bg-white rounded-md p-2 shadow-sm">
+                              <div className="text-xs text-gray-500 mb-0.5">Carbon</div>
+                              <div className="text-base font-bold text-gray-700">{(base.regionalClimateData.carbonFootprint / 1000).toFixed(1)}kt/yr</div>
                             </div>
-                            <div>
-                              <span className="text-gray-600">Renewables:</span>
-                              <div className="font-bold text-teal-600">{base.regionalClimateData.renewableEnergy}%</div>
+                            <div className="bg-white rounded-md p-2 shadow-sm">
+                              <div className="text-xs text-gray-500 mb-0.5">Renewables</div>
+                              <div className="text-base font-bold text-teal-600">{base.regionalClimateData.renewableEnergy}%</div>
                             </div>
                           </div>
                         </div>
