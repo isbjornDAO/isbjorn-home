@@ -442,7 +442,7 @@ const RegisterPage: React.FC = () => {
                 onClick={() => handleSocialLogin('X')}
                 className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-5 h-5 text-arctic-600 group-hover:text-arctic-700" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
                 <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">Continue with X</span>
@@ -454,7 +454,7 @@ const RegisterPage: React.FC = () => {
                 disabled={walletAuthAttempted && isConnected}
                 className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-5 h-5 text-arctic-600 group-hover:text-arctic-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
                   <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
                   <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>

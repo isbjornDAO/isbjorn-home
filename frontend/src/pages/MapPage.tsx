@@ -104,6 +104,19 @@ interface ClimateZone {
   polygonBounds?: [number, number][];
 }
 
+interface MissionRegion {
+  id: string;
+  name: string;
+  description: string;
+  status: 'active' | 'planned' | 'completed';
+  fundingGoal: number;
+  fundingReceived: number;
+  startDate: Date;
+  polygonBounds: [number, number][];
+  projectCount: number;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+}
+
 interface LayerStyleConfig {
   id: string;
   name: string;
@@ -456,12 +469,144 @@ const ZoomControls: React.FC = () => {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => map.setView([20, 20], 2)}
+        onClick={() => map.setView([10, 170], 2)}
         className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
         <GlobeAltIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
       </motion.button>
     </div>
+  );
+};
+
+// Interactive Mission Region Component with hover/click effects
+const InteractiveMissionRegion: React.FC<{
+  region: MissionRegion;
+  onSelect: (region: MissionRegion) => void;
+}> = ({ region, onSelect }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return '#10b981'; // green
+      case 'planned': return '#3b82f6'; // blue
+      case 'completed': return '#6b7280'; // gray
+      default: return '#3b82f6';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return '#ef4444'; // red
+      case 'high': return '#f97316'; // orange
+      case 'medium': return '#eab308'; // yellow
+      case 'low': return '#3b82f6'; // blue
+      default: return '#3b82f6';
+    }
+  };
+
+  const defaultStyle = {
+    color: getStatusColor(region.status),
+    fillColor: getStatusColor(region.status),
+    fillOpacity: 0.2,
+    weight: 2,
+    opacity: 0.6,
+  };
+
+  const hoverStyle = {
+    color: getPriorityColor(region.priority),
+    fillColor: getPriorityColor(region.priority),
+    fillOpacity: 0.4,
+    weight: 4,
+    opacity: 1,
+  };
+
+  const fundingPercentage = (region.fundingReceived / region.fundingGoal) * 100;
+
+  return (
+    <Polygon
+      positions={region.polygonBounds}
+      pathOptions={isHovered ? hoverStyle : defaultStyle}
+      eventHandlers={{
+        mouseover: () => setIsHovered(true),
+        mouseout: () => setIsHovered(false),
+        click: () => onSelect(region),
+      }}
+    >
+      <Popup maxWidth={350}>
+        <div className="text-sm w-72 bg-white">
+          {/* Header */}
+          <div className={`-m-3 mb-3 p-4 rounded-t-lg ${
+            region.status === 'active' ? 'bg-gradient-to-r from-green-600 to-teal-600' :
+            region.status === 'planned' ? 'bg-gradient-to-r from-blue-600 to-indigo-600' :
+            'bg-gradient-to-r from-gray-600 to-gray-700'
+          }`}>
+            <div className="flex items-center justify-between text-white">
+              <h3 className="text-base font-bold">{region.name}</h3>
+              <span className={`text-xs px-2 py-1 rounded-full font-bold ${
+                region.status === 'active' ? 'bg-green-400 text-green-900' :
+                region.status === 'planned' ? 'bg-blue-400 text-blue-900' :
+                'bg-gray-400 text-gray-900'
+              }`}>
+                {region.status.toUpperCase()}
+              </span>
+            </div>
+            <div className="text-white text-xs mt-1 opacity-90">
+              {region.description}
+            </div>
+          </div>
+
+          {/* Key Stats */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="bg-blue-50 rounded-lg p-2 text-center">
+              <div className="text-xs text-gray-500 mb-1">Projects</div>
+              <div className="text-lg font-bold text-blue-600">{region.projectCount}</div>
+            </div>
+            <div className="bg-purple-50 rounded-lg p-2 text-center">
+              <div className="text-xs text-gray-500 mb-1">Priority</div>
+              <div className={`text-sm font-bold ${
+                region.priority === 'critical' ? 'text-red-600' :
+                region.priority === 'high' ? 'text-orange-600' :
+                region.priority === 'medium' ? 'text-yellow-600' : 'text-blue-600'
+              }`}>
+                {region.priority.toUpperCase()}
+              </div>
+            </div>
+            <div className="bg-teal-50 rounded-lg p-2 text-center">
+              <div className="text-xs text-gray-500 mb-1">Started</div>
+              <div className="text-xs font-bold text-teal-600">
+                {region.startDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+              </div>
+            </div>
+          </div>
+
+          {/* Funding Progress */}
+          <div className="bg-gray-50 rounded-lg p-3 mb-3">
+            <div className="flex justify-between text-xs text-gray-600 mb-2">
+              <span>Funding Progress</span>
+              <span className="font-bold">{fundingPercentage.toFixed(0)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+              <div
+                className="bg-gradient-to-r from-green-500 to-teal-500 h-2 rounded-full transition-all"
+                style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-green-600 font-bold">${(region.fundingReceived / 1000).toFixed(0)}K</span>
+              <span className="text-gray-500">of ${(region.fundingGoal / 1000).toFixed(0)}K</span>
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <button
+            onClick={() => onSelect(region)}
+            className="w-full bg-gradient-to-r from-blue-600 to-teal-600 text-white py-2 px-4 rounded-lg font-semibold text-sm hover:shadow-lg transition-shadow"
+          >
+            Support This Mission
+          </button>
+        </div>
+      </Popup>
+    </Polygon>
   );
 };
 
@@ -482,8 +627,10 @@ const MapPage: React.FC = () => {
   const [charityBases, setCharityBases] = useState<CharityBase[]>([]);
   const [flightPaths, setFlightPaths] = useState<FlightPath[]>([]);
   const [climateZones, setClimateZones] = useState<ClimateZone[]>([]);
+  const [missionRegions, setMissionRegions] = useState<MissionRegion[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedBase, setSelectedBase] = useState<CharityBase | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<MissionRegion | null>(null);
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('24h');
   const [showLayerPanel, setShowLayerPanel] = useState(true);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
@@ -874,9 +1021,92 @@ const MapPage: React.FC = () => {
       },
     ];
 
+    const mockMissionRegions: MissionRegion[] = [
+      {
+        id: 'mr1',
+        name: 'North Island New Zealand - Coastal Restoration',
+        description: 'Protecting coastal ecosystems and marine biodiversity around North Island',
+        status: 'active',
+        fundingGoal: 500000,
+        fundingReceived: 340000,
+        startDate: new Date('2024-01-15'),
+        projectCount: 8,
+        priority: 'high',
+        polygonBounds: [
+          [-34.4, 172.8], [-35.0, 174.3], [-37.5, 175.5], [-39.0, 174.8],
+          [-41.0, 174.5], [-41.3, 175.0], [-40.9, 176.2], [-39.5, 177.8],
+          [-38.0, 178.2], [-37.0, 178.0], [-36.0, 175.5], [-34.4, 172.8]
+        ]
+      },
+      {
+        id: 'mr2',
+        name: 'Great Barrier Reef Protection',
+        description: 'Coral restoration and water quality improvement initiative',
+        status: 'active',
+        fundingGoal: 850000,
+        fundingReceived: 680000,
+        startDate: new Date('2023-09-01'),
+        projectCount: 12,
+        priority: 'critical',
+        polygonBounds: [
+          [-10, 142], [-12, 143], [-14, 144.5], [-16, 146], [-18, 147],
+          [-20, 148.5], [-22, 149.5], [-24, 153], [-24, 154],
+          [-22, 153], [-20, 152], [-18, 150.5], [-16, 149],
+          [-14, 147.5], [-12, 146], [-10, 144], [-10, 142]
+        ]
+      },
+      {
+        id: 'mr3',
+        name: 'Amazon River Basin',
+        description: 'Indigenous community support and forest conservation',
+        status: 'active',
+        fundingGoal: 1200000,
+        fundingReceived: 950000,
+        startDate: new Date('2023-06-20'),
+        projectCount: 15,
+        priority: 'critical',
+        polygonBounds: [
+          [-5, -73], [-1, -73], [2, -70], [2, -60], [0, -50],
+          [-5, -48], [-10, -50], [-15, -60], [-10, -70], [-5, -73]
+        ]
+      },
+      {
+        id: 'mr4',
+        name: 'Mediterranean Sea Initiative',
+        description: 'Marine plastic cleanup and sustainable fishing practices',
+        status: 'active',
+        fundingGoal: 650000,
+        fundingReceived: 420000,
+        startDate: new Date('2024-03-10'),
+        projectCount: 10,
+        priority: 'high',
+        polygonBounds: [
+          [30, -6], [36, -5.5], [38, 0], [40, 5], [42, 10],
+          [43, 15], [42, 20], [40, 25], [38, 30], [36, 35],
+          [32, 36], [30, 33], [30, 25], [31, 15], [30, 0], [30, -6]
+        ]
+      },
+      {
+        id: 'mr5',
+        name: 'Serengeti Conservation Zone',
+        description: 'Wildlife protection and anti-poaching operations',
+        status: 'planned',
+        fundingGoal: 750000,
+        fundingReceived: 180000,
+        startDate: new Date('2024-06-01'),
+        projectCount: 6,
+        priority: 'medium',
+        polygonBounds: [
+          [-1, 34], [-1.5, 35], [-2, 35.5], [-3, 35.5], [-3.5, 35],
+          [-3.5, 34.5], [-3, 34], [-2, 33.5], [-1, 34]
+        ]
+      },
+    ];
+
     setCharityBases(mockBases);
     setFlightPaths(mockPaths);
     setClimateZones(mockZones);
+    setMissionRegions(mockMissionRegions);
   };
 
   const toggleLayer = (layerId: string) => {
@@ -1080,7 +1310,7 @@ const MapPage: React.FC = () => {
             </div>
           ) : (
           <MapContainer
-            center={[20, 20]}
+            center={[10, 170]}
             zoom={2}
             minZoom={2}
             maxZoom={18}
@@ -1194,6 +1424,18 @@ const MapPage: React.FC = () => {
                 );
               }
             })}
+
+            {/* Mission Regions - Interactive with hover */}
+            {missionRegions.map(region => (
+              <InteractiveMissionRegion
+                key={region.id}
+                region={region}
+                onSelect={(r) => {
+                  setSelectedRegion(r);
+                  console.log('Selected mission region:', r.name);
+                }}
+              />
+            ))}
 
             {/* Enhanced Flight Paths with pulse */}
             {filteredPaths.map(path => {
