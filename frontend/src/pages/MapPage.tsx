@@ -1297,7 +1297,7 @@ const MapPage: React.FC = () => {
                   <h3 className="font-bold text-gray-800">Impact Overview</h3>
                 </div>
                 <button
-                  onClick={() => setShowWeather(false)}
+                  onClick={() => {}}
                   className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
                 >
                   <XMarkIcon className="w-5 h-5" />
