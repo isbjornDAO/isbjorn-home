@@ -302,10 +302,9 @@ const DonationForm: React.FC = () => {
                 key={country}
                 onClick={() => handleCountrySelect(country)}
                 className={`px-3 sm:px-4 py-1.5 sm:py-2 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm text-xs sm:text-sm ${selectedCountry === country
-                  ? 'border-arctic-500 text-white shadow-md'
+                  ? 'border-arctic-500 bg-arctic-500 text-white shadow-md'
                   : 'bg-white border-ice-200 text-arctic-700 hover:border-arctic-500 hover:bg-arctic-50'
                   }`}
-                style={selectedCountry === country ? { backgroundColor: '#3b82f6' } : {}}
               >
                 {country}
               </button>
@@ -322,10 +321,9 @@ const DonationForm: React.FC = () => {
                 key={category}
                 onClick={() => handleCategorySelect(category)}
                 className={`px-3 sm:px-6 py-2 sm:py-3 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm text-sm sm:text-base ${selectedCategory === category
-                  ? 'text-white shadow-md'
+                  ? 'bg-arctic-500 border-arctic-500 text-white shadow-md'
                   : 'bg-white border-ice-200 text-arctic-700 hover:border-arctic-500 hover:bg-arctic-50'
                   }`}
-                style={selectedCategory === category ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } : {}}
               >
                 {category}
               </button>
@@ -373,7 +371,7 @@ const DonationForm: React.FC = () => {
                           e.currentTarget.style.display = 'none';
                           const parent = e.currentTarget.parentElement;
                           if (parent) {
-                            parent.innerHTML = `<span class="text-2xl sm:text-3xl font-bold" style="color: #3b82f6">${charity.name.charAt(0)}</span>`;
+                            parent.innerHTML = `<span class="text-2xl sm:text-3xl font-bold text-arctic-600">${charity.name.charAt(0)}</span>`;
                           }
                         }}
                       />

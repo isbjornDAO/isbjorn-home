@@ -18,8 +18,10 @@ import {
   ArrowPathIcon,
   BoltIcon,
   SignalIcon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  RectangleStackIcon
 } from '@heroicons/react/24/outline';
+import TransactionBoard from '@/components/TransactionBoard';
 
 // Fix for default marker icons
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -466,6 +468,7 @@ const MapPage: React.FC = () => {
   const [dataStreamStatus, setDataStreamStatus] = useState<DataStreamStatus>('connected');
   const [updateCount, setUpdateCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [viewMode, setViewMode] = useState<'map' | 'transactions'>('map');
 
   // News feed state
   const [newsFeed, setNewsFeed] = useState([
@@ -922,6 +925,20 @@ const MapPage: React.FC = () => {
 
           <div className="h-6 w-px bg-blue-200"></div>
 
+          {/* View Mode Toggle */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            onClick={() => setViewMode(viewMode === 'map' ? 'transactions' : 'map')}
+            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
+              viewMode === 'transactions'
+                ? 'bg-gray-900 text-white shadow-lg'
+                : 'bg-white border border-blue-200 hover:bg-blue-50 text-gray-700'
+            }`}
+          >
+            <RectangleStackIcon className="w-5 h-5" />
+            <span className="text-sm font-semibold">{viewMode === 'map' ? 'Transaction Board' : 'Map View'}</span>
+          </motion.button>
+
           {/* Impact Stats Summary */}
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -1029,8 +1046,13 @@ const MapPage: React.FC = () => {
       </div>
 
       <div className="flex-1 flex relative px-6 pb-6 gap-6 overflow-hidden">
-        {/* Main Map in White Box */}
+        {/* Conditional View: Map or Transaction Board */}
         <div className="flex-1 relative bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
+          {viewMode === 'transactions' ? (
+            <div className="h-full overflow-auto">
+              <TransactionBoard />
+            </div>
+          ) : (
           <MapContainer
             center={[20, 20]}
             zoom={2}
@@ -1268,6 +1290,7 @@ const MapPage: React.FC = () => {
               );
             })}
           </MapContainer>
+          )}
         </div>
 
         {/* Impact Stats Panel - Charity Focused */}

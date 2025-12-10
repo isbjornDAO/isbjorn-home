@@ -1,20 +1,13 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  ArrowRightIcon,
-  ShieldCheckIcon,
-  CurrencyDollarIcon,
-  ChartBarIcon,
-  HeartIcon,
-  CheckBadgeIcon,
-  MapIcon,
   LockClosedIcon,
+  HeartIcon,
   UserGroupIcon,
+  ChartBarIcon,
   GlobeAltIcon,
-  NewspaperIcon
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import { useAuth } from '@/contexts/AuthContext';
 
 // Snowflake component for arctic animation
 const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
@@ -45,65 +38,8 @@ const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
 };
 
 const HomePage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'donate' | 'vote' | 'explore' | 'news'>('donate');
-
-  // News feed - updates from followed NGOs
-  const [newsFeed] = useState([
-    {
-      id: 1,
-      ngo: 'Greenpeace',
-      title: 'Arctic Research Breakthrough',
-      content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations to track the impact and develop intervention strategies.',
-      timestamp: new Date(Date.now() - 3600000),
-      category: 'Climate',
-      logo: 'https://logo.clearbit.com/greenpeace.org',
-      followed: true
-    },
-    {
-      id: 2,
-      ngo: 'Rainforest Alliance',
-      title: '1 Million Trees Planted',
-      content: 'Reached our milestone! Thanks to all supporters who made this reforestation initiative possible. Next goal: 5 million trees by 2025.',
-      timestamp: new Date(Date.now() - 7200000),
-      category: 'Forest',
-      logo: 'https://logo.clearbit.com/rainforest-alliance.org',
-      followed: true
-    },
-    {
-      id: 3,
-      ngo: 'Ocean Conservancy',
-      title: 'Pacific Cleanup Progress Update',
-      content: 'Removed 50 tons of plastic this month. Progress is steady with our new AI-powered drone technology identifying waste hotspots.',
-      timestamp: new Date(Date.now() - 14400000),
-      category: 'Conservation',
-      logo: 'https://logo.clearbit.com/oceanconservancy.org',
-      followed: false
-    },
-    {
-      id: 4,
-      ngo: 'World Wide Fund for Nature',
-      title: 'Endangered Species Recovery',
-      content: 'Population of Arctic foxes increased by 15% this quarter thanks to our protection efforts and habitat restoration programs.',
-      timestamp: new Date(Date.now() - 21600000),
-      category: 'Wildlife',
-      logo: 'https://logo.clearbit.com/worldwildlife.org',
-      followed: true
-    },
-    {
-      id: 5,
-      ngo: 'The Nature Conservancy',
-      title: 'New Conservation Areas Protected',
-      content: 'Successfully protected 50,000 acres of critical habitat across three continents, safeguarding biodiversity hotspots.',
-      timestamp: new Date(Date.now() - 28800000),
-      category: 'Conservation',
-      logo: 'https://logo.clearbit.com/nature.org',
-      followed: false
-    },
-  ]);
-
   return (
-    <div className="h-screen bg-white relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Arctic Snowfall Animation */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {Array.from({ length: 30 }).map((_, i) => (
@@ -117,393 +53,118 @@ const HomePage: React.FC = () => {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-ice-200/40 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Main Content - Fits in viewport */}
-      <div className="relative z-10 flex-1 flex flex-col max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-
-        {/* Hero Title - Compact */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-6"
-        >
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-arctic-600 via-arctic-500 to-ice-600 bg-clip-text text-transparent">
-            Transparent Giving
-          </h1>
-        </motion.div>
-
-        {/* 3 Benefit Cards - Data Only (No Labels) */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="grid grid-cols-3 gap-4 mb-6"
-        >
-          {/* Card 1: Just the number and icon */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-arctic-100">
-            <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full flex items-center justify-center mb-2">
-                <ShieldCheckIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-arctic-600 to-arctic-500 bg-clip-text text-transparent">
-                12
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2 */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-arctic-100">
-            <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full flex items-center justify-center mb-2">
-                <CurrencyDollarIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-arctic-600 to-arctic-500 bg-clip-text text-transparent">
-                $247K
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-arctic-100">
-            <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-gradient-to-br from-arctic-400 to-arctic-600 rounded-full flex items-center justify-center mb-2">
-                <ChartBarIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-4xl font-bold bg-gradient-to-r from-arctic-600 to-arctic-500 bg-clip-text text-transparent">
-                100%
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* What is Isbjörn - Compact Grid */}
+      {/* Main Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* What is Isbjörn Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-6"
+          transition={{ duration: 0.8 }}
+          className="mb-20"
         >
-          <h2 className="text-2xl font-bold text-center text-arctic-900 mb-3">What is Isbjörn?</h2>
-          <p className="text-center text-ice-600 text-sm mb-4 max-w-2xl mx-auto">
-            Blockchain-powered transparency for charitable giving in New Zealand
+          <h2 className="text-4xl md:text-5xl font-bold text-center text-arctic-900 mb-4">
+            What is Isbjörn?
+          </h2>
+          <p className="text-center text-ice-600 text-lg max-w-3xl mx-auto mb-12">
+            A blockchain-powered platform that brings complete transparency to charitable giving.
           </p>
 
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-            {[
-              { icon: LockClosedIcon, label: 'Blockchain Verified' },
-              { icon: HeartIcon, label: 'IRD Compliant' },
-              { icon: UserGroupIcon, label: 'Community Governance' },
-              { icon: ChartBarIcon, label: 'Validator Network' },
-              { icon: GlobeAltIcon, label: 'Global Impact Map' },
-              { icon: ShieldCheckIcon, label: 'Zero Hidden Fees' }
-            ].map((feature, idx) => (
-              <div key={idx} className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-3 shadow border border-ice-200 text-center">
-                <feature.icon className="w-6 h-6 text-arctic-500 mx-auto mb-1" />
-                <p className="text-xs font-semibold text-arctic-900">{feature.label}</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Feature 1: Blockchain Verified */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
+            >
+              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
+                <LockClosedIcon className="w-6 h-6 text-white" />
               </div>
-            ))}
-          </div>
-        </motion.div>
+              <h3 className="text-xl font-bold text-arctic-900 mb-2">Blockchain Verified</h3>
+              <p className="text-ice-700">
+                Every donation is recorded on the Avalanche blockchain, creating an immutable record of giving.
+              </p>
+            </motion.div>
 
-        {/* Interactive Tabs - Compact */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="flex-1 flex flex-col"
-        >
-          {/* Tab Buttons */}
-          <div className="flex justify-center gap-3 mb-4">
-            <button
-              onClick={() => setActiveTab('donate')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all text-sm ${
-                activeTab === 'donate'
-                  ? 'bg-gradient-to-r from-arctic-500 to-arctic-600 text-white shadow-lg'
-                  : 'bg-white text-arctic-700 border border-arctic-200 hover:border-arctic-400'
-              }`}
+            {/* Feature 2: IRD Compliant */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
             >
-              <HeartIcon className="w-4 h-4" />
-              Donate
-            </button>
-            <button
-              onClick={() => setActiveTab('news')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all text-sm ${
-                activeTab === 'news'
-                  ? 'bg-gradient-to-r from-arctic-500 to-arctic-600 text-white shadow-lg'
-                  : 'bg-white text-arctic-700 border border-arctic-200 hover:border-arctic-400'
-              }`}
+              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
+                <HeartIcon className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-arctic-900 mb-2">IRD Compliant</h3>
+              <p className="text-ice-700">
+                Automatic tax receipts for all donations, fully compliant with tax regulations.
+              </p>
+            </motion.div>
+
+            {/* Feature 3: Community Governance */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
             >
-              <NewspaperIcon className="w-4 h-4" />
-              News
-            </button>
-            <button
-              onClick={() => setActiveTab('vote')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all text-sm ${
-                activeTab === 'vote'
-                  ? 'bg-gradient-to-r from-arctic-500 to-arctic-600 text-white shadow-lg'
-                  : 'bg-white text-arctic-700 border border-arctic-200 hover:border-arctic-400'
-              }`}
+              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
+                <UserGroupIcon className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-arctic-900 mb-2">Community Governance</h3>
+              <p className="text-ice-700">
+                Donors earn XP and voting power to influence how foundation funds are distributed.
+              </p>
+            </motion.div>
+
+            {/* Feature 4: Validator Network */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
             >
-              <CheckBadgeIcon className="w-4 h-4" />
-              Vote
-            </button>
-            <button
-              onClick={() => setActiveTab('explore')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all text-sm ${
-                activeTab === 'explore'
-                  ? 'bg-gradient-to-r from-arctic-500 to-arctic-600 text-white shadow-lg'
-                  : 'bg-white text-arctic-700 border border-arctic-200 hover:border-arctic-400'
-              }`}
+              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
+                <ChartBarIcon className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-arctic-900 mb-2">Validator Network</h3>
+              <p className="text-ice-700">
+                Donations are staked to validators, generating revenue that communities vote to distribute.
+              </p>
+            </motion.div>
+
+            {/* Feature 5: Global Impact Map */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
             >
-              <MapIcon className="w-4 h-4" />
-              Explore
-            </button>
-          </div>
+              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
+                <GlobeAltIcon className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-arctic-900 mb-2">Global Impact Map</h3>
+              <p className="text-ice-700">
+                Track your donations in real-time across the globe with our interactive impact visualization.
+              </p>
+            </motion.div>
 
-          {/* Tab Content - Compact with fixed height */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-arctic-100 flex-1 overflow-auto">
-            {activeTab === 'donate' && (
-              <motion.div
-                key="donate"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="text-xl font-bold text-arctic-900 mb-2">Make a Difference</h3>
-                <p className="text-sm text-ice-700 mb-4">
-                  Choose from verified NZ charities. Every dollar tracked on-chain with IRD-compliant receipts.
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="flex items-start gap-2">
-                    <div className="w-6 h-6 bg-arctic-100 rounded flex items-center justify-center flex-shrink-0">
-                      <span className="text-arctic-600 font-bold text-xs">1</span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Select Charity</h4>
-                      <p className="text-ice-600 text-xs">Browse verified organizations</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <div className="w-6 h-6 bg-arctic-100 rounded flex items-center justify-center flex-shrink-0">
-                      <span className="text-arctic-600 font-bold text-xs">2</span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Donate Securely</h4>
-                      <p className="text-ice-600 text-xs">Via X402 payments</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <div className="w-6 h-6 bg-arctic-100 rounded flex items-center justify-center flex-shrink-0">
-                      <span className="text-arctic-600 font-bold text-xs">3</span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Track Impact</h4>
-                      <p className="text-ice-600 text-xs">See on-chain confirmation</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <div className="w-6 h-6 bg-arctic-100 rounded flex items-center justify-center flex-shrink-0">
-                      <span className="text-arctic-600 font-bold text-xs">4</span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Earn XP</h4>
-                      <p className="text-ice-600 text-xs">Get voting power</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Link
-                  to={isAuthenticated ? '/donate' : '/signup'}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-arctic-500 to-arctic-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all text-sm"
-                >
-                  <span>Start Donating</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </Link>
-              </motion.div>
-            )}
-
-            {activeTab === 'news' && (
-              <motion.div
-                key="news"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="text-xl font-bold text-arctic-900 mb-2">Latest Updates</h3>
-                <p className="text-sm text-ice-700 mb-4">
-                  Stay informed with news from NGOs you follow. Click any update to learn more and donate.
-                </p>
-
-                <div className="space-y-3">
-                  {newsFeed.map((news) => (
-                    <Link
-                      key={news.id}
-                      to="/donate"
-                      className="block bg-white/60 backdrop-blur-sm border border-arctic-100 rounded-lg p-4 hover:shadow-md hover:border-arctic-300 transition-all"
-                    >
-                      <div className="flex items-start gap-3">
-                        {/* NGO Logo */}
-                        <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-arctic-100 p-2">
-                          <img
-                            src={news.logo}
-                            alt={`${news.ngo} logo`}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(news.ngo)}&background=3b82f6&color=fff&size=128`;
-                            }}
-                          />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          {/* Header */}
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-arctic-600">{news.ngo}</span>
-                              {news.followed && (
-                                <span className="text-xs px-2 py-0.5 bg-arctic-100 text-arctic-700 rounded-full font-semibold">
-                                  Following
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-xs text-ice-600">
-                              {Math.floor((Date.now() - news.timestamp.getTime()) / 3600000)}h ago
-                            </span>
-                          </div>
-
-                          {/* Title */}
-                          <h4 className="font-bold text-sm text-arctic-900 mb-1">
-                            {news.title}
-                          </h4>
-
-                          {/* Content */}
-                          <p className="text-xs text-ice-700 line-clamp-2 mb-2">
-                            {news.content}
-                          </p>
-
-                          {/* Category badge */}
-                          <div className="inline-block text-xs px-2 py-0.5 bg-gradient-to-r from-arctic-100 to-ice-100 text-arctic-700 rounded-full font-semibold">
-                            {news.category}
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-
-                <div className="mt-4 text-center">
-                  <p className="text-xs text-ice-600 italic">
-                    Manage your followed NGOs in your profile settings
-                  </p>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === 'vote' && (
-              <motion.div
-                key="vote"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="text-xl font-bold text-arctic-900 mb-2">Shape the Future</h3>
-                <p className="text-sm text-ice-700 mb-4">
-                  Earn voting power to influence how validator revenue is distributed to nonprofits.
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="flex items-start gap-2">
-                    <CheckBadgeIcon className="w-5 h-5 text-arctic-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Treasury</h4>
-                      <p className="text-ice-600 text-xs">Real-time fund tracking</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckBadgeIcon className="w-5 h-5 text-arctic-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Proposals</h4>
-                      <p className="text-ice-600 text-xs">Vote on funding</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckBadgeIcon className="w-5 h-5 text-arctic-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Earn XP</h4>
-                      <p className="text-ice-600 text-xs">10 XP per vote</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckBadgeIcon className="w-5 h-5 text-arctic-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">History</h4>
-                      <p className="text-ice-600 text-xs">Review decisions</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Link
-                  to="/vote"
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-arctic-500 to-arctic-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all text-sm"
-                >
-                  <span>Join Governance</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </Link>
-              </motion.div>
-            )}
-
-            {activeTab === 'explore' && (
-              <motion.div
-                key="explore"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="text-xl font-bold text-arctic-900 mb-2">Track Global Impact</h3>
-                <p className="text-sm text-ice-700 mb-4">
-                  Visualize donations flowing globally with real-time blockchain data on Iggy L1 and P-Chain.
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="flex items-start gap-2">
-                    <MapIcon className="w-5 h-5 text-arctic-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Live Transactions</h4>
-                      <p className="text-ice-600 text-xs">Watch donations flow</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <MapIcon className="w-5 h-5 text-arctic-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Validators</h4>
-                      <p className="text-ice-600 text-xs">View network nodes</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <MapIcon className="w-5 h-5 text-arctic-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Climate Zones</h4>
-                      <p className="text-ice-600 text-xs">Conservation impact</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <MapIcon className="w-5 h-5 text-arctic-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-arctic-900 text-sm">Events</h4>
-                      <p className="text-ice-600 text-xs">Upvote activities</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Link
-                  to="/map"
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-arctic-500 to-arctic-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all text-sm"
-                >
-                  <span>View Impact Map</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </Link>
-              </motion.div>
-            )}
+            {/* Feature 6: Zero Hidden Fees */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
+            >
+              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
+                <ShieldCheckIcon className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-arctic-900 mb-2">Zero Hidden Fees</h3>
+              <p className="text-ice-700">
+                100% of your donation goes to verified charities. All operational costs are covered by validator revenue.
+              </p>
+            </motion.div>
           </div>
         </motion.div>
       </div>
