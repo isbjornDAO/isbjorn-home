@@ -467,43 +467,43 @@ const MapPage: React.FC = () => {
   const [updateCount, setUpdateCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // News feed state - will be moved to home page
+  // News feed state
   const [newsFeed, setNewsFeed] = useState([
     {
       id: 1,
-      ngo: 'Global Climate HQ',
+      ngo: 'Greenpeace',
       title: 'Arctic Research Breakthrough',
       content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations.',
       timestamp: new Date(Date.now() - 3600000),
       category: 'Climate',
-      image: '🌊'
+      logo: 'https://logo.clearbit.com/greenpeace.org'
     },
     {
       id: 2,
-      ngo: 'Amazon Protection',
+      ngo: 'Rainforest Alliance',
       title: '1 Million Trees Planted',
       content: 'Reached our milestone! Thanks to all supporters who made this reforestation initiative possible.',
       timestamp: new Date(Date.now() - 7200000),
       category: 'Forest',
-      image: '🌳'
+      logo: 'https://logo.clearbit.com/rainforest-alliance.org'
     },
     {
       id: 3,
-      ngo: 'Ocean Cleanup',
+      ngo: 'Ocean Conservancy',
       title: 'Pacific Cleanup Update',
       content: 'Removed 50 tons of plastic this month. Progress is steady with our new drone technology.',
       timestamp: new Date(Date.now() - 14400000),
       category: 'Conservation',
-      image: '🌊'
+      logo: 'https://logo.clearbit.com/oceanconservancy.org'
     },
     {
       id: 4,
-      ngo: 'Wildlife Protection',
+      ngo: 'World Wide Fund for Nature',
       title: 'Endangered Species Recovery',
       content: 'Population of Arctic foxes increased by 15% this quarter thanks to protection efforts.',
       timestamp: new Date(Date.now() - 21600000),
       category: 'Wildlife',
-      image: '🦊'
+      logo: 'https://logo.clearbit.com/worldwildlife.org'
     },
   ]);
 
@@ -1662,9 +1662,16 @@ const MapPage: React.FC = () => {
                   onClick={() => navigate('/donate')}
                 >
                   <div className="flex items-start gap-3">
-                    {/* NGO Icon */}
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: '#eff6ff' }}>
-                      {news.image}
+                    {/* NGO Logo */}
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-white border border-blue-100 p-1.5">
+                      <img
+                        src={news.logo}
+                        alt={`${news.ngo} logo`}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(news.ngo)}&background=3b82f6&color=fff&size=128`;
+                        }}
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">

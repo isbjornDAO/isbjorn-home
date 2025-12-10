@@ -52,52 +52,52 @@ const HomePage: React.FC = () => {
   const [newsFeed] = useState([
     {
       id: 1,
-      ngo: 'Global Climate HQ',
+      ngo: 'Greenpeace',
       title: 'Arctic Research Breakthrough',
       content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations to track the impact and develop intervention strategies.',
       timestamp: new Date(Date.now() - 3600000),
       category: 'Climate',
-      image: '🌊',
+      logo: 'https://logo.clearbit.com/greenpeace.org',
       followed: true
     },
     {
       id: 2,
-      ngo: 'Amazon Protection',
+      ngo: 'Rainforest Alliance',
       title: '1 Million Trees Planted',
       content: 'Reached our milestone! Thanks to all supporters who made this reforestation initiative possible. Next goal: 5 million trees by 2025.',
       timestamp: new Date(Date.now() - 7200000),
       category: 'Forest',
-      image: '🌳',
+      logo: 'https://logo.clearbit.com/rainforest-alliance.org',
       followed: true
     },
     {
       id: 3,
-      ngo: 'Ocean Cleanup',
+      ngo: 'Ocean Conservancy',
       title: 'Pacific Cleanup Progress Update',
       content: 'Removed 50 tons of plastic this month. Progress is steady with our new AI-powered drone technology identifying waste hotspots.',
       timestamp: new Date(Date.now() - 14400000),
       category: 'Conservation',
-      image: '🌊',
+      logo: 'https://logo.clearbit.com/oceanconservancy.org',
       followed: false
     },
     {
       id: 4,
-      ngo: 'Wildlife Protection',
+      ngo: 'World Wide Fund for Nature',
       title: 'Endangered Species Recovery',
       content: 'Population of Arctic foxes increased by 15% this quarter thanks to our protection efforts and habitat restoration programs.',
       timestamp: new Date(Date.now() - 21600000),
       category: 'Wildlife',
-      image: '🦊',
+      logo: 'https://logo.clearbit.com/worldwildlife.org',
       followed: true
     },
     {
       id: 5,
-      ngo: 'Clean Water Initiative',
-      title: 'New Water Systems Deployed',
-      content: 'Successfully installed 12 water purification systems in rural communities, providing clean drinking water to 5,000 families.',
+      ngo: 'The Nature Conservancy',
+      title: 'New Conservation Areas Protected',
+      content: 'Successfully protected 50,000 acres of critical habitat across three continents, safeguarding biodiversity hotspots.',
       timestamp: new Date(Date.now() - 28800000),
-      category: 'Water',
-      image: '💧',
+      category: 'Conservation',
+      logo: 'https://logo.clearbit.com/nature.org',
       followed: false
     },
   ]);
@@ -343,9 +343,16 @@ const HomePage: React.FC = () => {
                       className="block bg-white/60 backdrop-blur-sm border border-arctic-100 rounded-lg p-4 hover:shadow-md hover:border-arctic-300 transition-all"
                     >
                       <div className="flex items-start gap-3">
-                        {/* NGO Icon */}
-                        <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-arctic-50">
-                          {news.image}
+                        {/* NGO Logo */}
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-white border-2 border-arctic-100 p-2">
+                          <img
+                            src={news.logo}
+                            alt={`${news.ngo} logo`}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(news.ngo)}&background=3b82f6&color=fff&size=128`;
+                            }}
+                          />
                         </div>
 
                         <div className="flex-1 min-w-0">
