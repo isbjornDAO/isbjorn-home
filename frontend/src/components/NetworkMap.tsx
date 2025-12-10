@@ -16,7 +16,6 @@ interface NetworkMapProps {
 
 const NetworkMap: React.FC<NetworkMapProps> = ({ network }) => {
   const [nodes, setNodes] = useState<NetworkNode[]>([]);
-  const [activeConnections, setActiveConnections] = useState<number[]>([]);
 
   useEffect(() => {
     // Mock data - replace with actual API calls
@@ -32,21 +31,6 @@ const NetworkMap: React.FC<NetworkMapProps> = ({ network }) => {
         ];
 
     setNodes(mockNodes);
-
-    // Animate connections
-    const interval = setInterval(() => {
-      setActiveConnections(prev => {
-        const next = [...prev];
-        const randomIndex = Math.floor(Math.random() * mockNodes.length);
-        if (!next.includes(randomIndex)) {
-          next.push(randomIndex);
-          if (next.length > 3) next.shift();
-        }
-        return next;
-      });
-    }, 1500);
-
-    return () => clearInterval(interval);
   }, [network]);
 
   return (
@@ -68,109 +52,56 @@ const NetworkMap: React.FC<NetworkMapProps> = ({ network }) => {
       </div>
 
       {/* Network Visualization */}
-      <div className="relative bg-gradient-to-br from-arctic-50 to-ice-50 rounded-xl p-8 mb-6 min-h-[300px]">
-        <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
-          {/* Connection lines */}
-          {nodes.map((node, i) => {
-            const centerX = 50;
-            const centerY = 50;
-            const angle = (i / nodes.length) * 2 * Math.PI - Math.PI / 2;
-            const radius = 35;
-            const x = centerX + radius * Math.cos(angle);
-            const y = centerY + radius * Math.sin(angle);
-
-            return (
-              <line
-                key={`line-${node.id}`}
-                x1={`${centerX}%`}
-                y1={`${centerY}%`}
-                x2={`${x}%`}
-                y2={`${y}%`}
-                stroke={activeConnections.includes(i) ? '#3b82f6' : '#cbd5e1'}
-                strokeWidth="2"
-                className="transition-all duration-500"
-                opacity={activeConnections.includes(i) ? '0.8' : '0.2'}
-              />
-            );
-          })}
-        </svg>
-
-        {/* Central Hub */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="w-20 h-20 bg-gradient-to-br from-arctic-500 to-arctic-600 rounded-full shadow-xl flex items-center justify-center border-4 border-white">
-            <GlobeAltIcon className="w-10 h-10 text-white" />
-          </div>
-          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-            <span className="text-xs font-bold text-arctic-700 bg-white px-2 py-1 rounded-full shadow">
-              Network Core
-            </span>
-          </div>
-        </div>
-
-        {/* Validator Nodes */}
-        {nodes.map((node, i) => {
-          const centerX = 50;
-          const centerY = 50;
-          const angle = (i / nodes.length) * 2 * Math.PI - Math.PI / 2;
-          const radius = 35;
-          const x = centerX + radius * Math.cos(angle);
-          const y = centerY + radius * Math.sin(angle);
-
-          return (
+      <div className="bg-gradient-to-br from-arctic-50 to-ice-50 rounded-xl p-8 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {nodes.map((node) => (
             <div
               key={node.id}
-              className="absolute z-20 transform -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${x}%`, top: `${y}%` }}
+              className="bg-white rounded-xl shadow-md p-6 border-2 border-arctic-200 hover:border-arctic-400"
             >
-              <div className={`
-                w-16 h-16 rounded-full shadow-lg flex items-center justify-center border-4 border-white
-                ${activeConnections.includes(i) ? 'bg-gradient-to-br from-blue-400 to-blue-600 scale-110' : 'bg-gradient-to-br from-arctic-400 to-arctic-500'}
-                transition-all duration-500
-              `}>
-                <ServerIcon className="w-8 h-8 text-white" />
+              {/* Pin Header with Icon */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-arctic-500 to-arctic-600 rounded-lg shadow-md flex items-center justify-center flex-shrink-0">
+                    <ServerIcon className="w-7 h-7 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-ice-900 text-sm truncate">{node.name}</h3>
+                    <p className="text-xs text-ice-600 flex items-center space-x-1 mt-1">
+                      <GlobeAltIcon className="w-3 h-3" />
+                      <span>{node.location}</span>
+                    </p>
+                  </div>
+                </div>
                 {node.status === 'active' && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+                  <div className="flex items-center space-x-1 bg-green-100 px-2 py-1 rounded-full">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <span className="text-xs font-semibold text-green-700">Active</span>
+                  </div>
                 )}
               </div>
-              <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                <div className="text-xs font-semibold text-ice-900 bg-white px-2 py-1 rounded shadow text-center">
-                  {node.location}
+
+              {/* Node Details */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-2 border-t border-ice-100">
+                  <span className="text-xs text-ice-600 font-medium">Stake</span>
+                  <span className="text-sm font-bold text-ice-900">{node.stake} AVAX</span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-t border-ice-100">
+                  <span className="text-xs text-ice-600 font-medium">Uptime</span>
+                  <span className="text-sm font-bold text-green-600">{node.uptime}%</span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-t border-ice-100">
+                  <span className="text-xs text-ice-600 font-medium">Status</span>
+                  <div className="flex items-center space-x-1">
+                    <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                    <span className="text-sm font-semibold text-ice-900">Validating</span>
+                  </div>
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Node Details */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {nodes.map((node) => (
-          <div key={node.id} className="bg-ice-50 rounded-xl p-4 border border-ice-200">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <ServerIcon className="w-5 h-5 text-arctic-600" />
-                <span className="font-semibold text-ice-900 text-sm">{node.name}</span>
-              </div>
-              {node.status === 'active' && (
-                <CheckCircleIcon className="w-5 h-5 text-green-500" />
-              )}
-            </div>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-ice-600">Location:</span>
-                <span className="font-semibold text-ice-900">{node.location}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-ice-600">Stake:</span>
-                <span className="font-semibold text-ice-900">{node.stake} AVAX</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-ice-600">Uptime:</span>
-                <span className="font-semibold text-green-600">{node.uptime}%</span>
-              </div>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Network Stats */}

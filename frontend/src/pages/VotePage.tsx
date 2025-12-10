@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '@/services/api';
-import { motion } from 'framer-motion';
 import {
   ServerIcon,
   BanknotesIcon,
@@ -274,10 +273,8 @@ const VotePage: React.FC = () => {
         {selectedTab === 'active' && (
           <div className="space-y-6">
             {proposals.filter(p => p.status === 'active').map((proposal) => (
-              <motion.div
+              <div
                 key={proposal.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-2xl shadow-lg p-6 border border-ice-100"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -353,7 +350,7 @@ const VotePage: React.FC = () => {
                     </p>
                   </div>
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
