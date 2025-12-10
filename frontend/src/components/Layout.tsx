@@ -9,11 +9,8 @@ import {
   UserCircleIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
-  LinkIcon,
-  CurrencyDollarIcon,
   MapIcon,
-  ServerIcon,
-  ShoppingBagIcon
+  CheckBadgeIcon
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -28,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Home', href: '/', icon: HomeIcon },
     { name: 'Donate', href: '/donate', icon: HeartIcon },
     { name: 'Map', href: '/map', icon: MapIcon },
-    { name: 'Node', href: '/node', icon: ServerIcon },
+    { name: 'Vote', href: '/vote', icon: CheckBadgeIcon },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -79,35 +76,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Link>
 
                   <Link
-                    to="/shop"
-                    className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
-                    title="Rewards Shop"
-                  >
-                    <ShoppingBagIcon className="w-5 h-5" />
-                  </Link>
-
-                  <Link
-                    to="/wallet"
-                    className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
-                    title="My Wallet"
-                  >
-                    <CurrencyDollarIcon className="w-5 h-5" />
-                  </Link>
-
-                  <Link
-                    to="/integrations"
-                    className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
-                    title="Accounting Integrations"
-                  >
-                    <LinkIcon className="w-5 h-5" />
-                  </Link>
-
-                  <Link
                     to="/profile"
-                    className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
-                    title="Profile Settings"
+                    className="px-3 sm:px-4 py-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors flex items-center space-x-2"
+                    title="Profile"
                   >
                     <Cog6ToothIcon className="w-5 h-5" />
+                    <span className="hidden md:inline text-sm font-medium">Profile</span>
                   </Link>
 
                   {user.role === 'admin' && (

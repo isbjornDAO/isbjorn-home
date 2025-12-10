@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/LoadingSpinner';
+import SocialFeed from '../components/SocialFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_URL } from '@/utils/apiUrl';
 
@@ -217,6 +218,9 @@ const CharityDetailsPage: React.FC = () => {
                   <p className="text-arctic-600">{charity.description}</p>
                 </div>
               </div>
+
+              {/* Social Feed */}
+              <SocialFeed nonprofitName={charity.name} nonprofitId={charity.id} />
             </div>
 
             {/* Right Side - Simple Donation Form */}

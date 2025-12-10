@@ -4,6 +4,7 @@ import {
   ServerIcon,
   BoltIcon
 } from '@heroicons/react/24/outline';
+import NetworkMap from '@/components/NetworkMap';
 
 interface NodeStats {
   nodeId: number;
@@ -156,15 +157,18 @@ const NodePage: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-ice-900 mb-3">Iggy L1 Validator</h1>
-          <p className="text-ice-600 text-lg">Processing donations through blockchain validators</p>
+          <h1 className="text-4xl font-bold text-ice-900 mb-3">Network Infrastructure</h1>
+          <p className="text-ice-600 text-lg max-w-3xl mx-auto">
+            Our validators secure the Iggy L1 blockchain and Avalanche P-Chain, processing donations
+            and generating sustainable revenue for nonprofit support—all while maintaining full transparency.
+          </p>
         </div>
 
         {/* Main Visual Animation */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-ice-100">
           <div className="flex items-center justify-center space-x-2 mb-8">
-            <div className="w-3 h-3 bg-arctic-500 rounded-full animate-pulse"></div>
-            <h2 className="text-2xl font-bold text-ice-900">Live Processing</h2>
+            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
+            <h2 className="text-2xl font-bold text-ice-900">Live Transaction Processing</h2>
           </div>
 
           {/* Large Transaction Animation */}
@@ -213,55 +217,103 @@ const NodePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-center text-sm text-ice-600">
-            Each square represents a donation being processed and verified on-chain
+          <div className="text-center">
+            <p className="text-sm text-ice-600 mb-2">Each square represents a donation being processed and verified on-chain</p>
+            <div className="inline-flex items-center space-x-4 text-xs text-ice-500">
+              <span className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-arctic-500 rounded"></div>
+                <span>Transaction</span>
+              </span>
+              <span className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Validator Active</span>
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Unlock Progress - Big and Visual */}
+        {/* Educational Section - How It Works */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-ice-100">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-ice-900 mb-3">How Donations Become Impact</h2>
+            <p className="text-ice-600">A sustainable model that turns contributions into lasting change</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-arctic-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl font-bold text-arctic-600">1</span>
+              </div>
+              <h3 className="text-xl font-bold text-ice-900 mb-2">Donate</h3>
+              <p className="text-ice-600">
+                Community members donate to nonprofits. Each donation is recorded on the Iggy L1 blockchain.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-arctic-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl font-bold text-arctic-600">2</span>
+              </div>
+              <h3 className="text-xl font-bold text-ice-900 mb-2">Stake to Validators</h3>
+              <p className="text-ice-600">
+                Donations are staked to our network validators, generating validation rewards while remaining fully accessible.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-arctic-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl font-bold text-arctic-600">3</span>
+              </div>
+              <h3 className="text-xl font-bold text-ice-900 mb-2">Revenue to Nonprofits</h3>
+              <p className="text-ice-600">
+                Validation rewards become community revenue. The community votes on which nonprofits receive support.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-arctic-50 rounded-xl p-6 border-2 border-arctic-200">
+            <div className="flex items-start space-x-3">
+              <BoltIcon className="w-6 h-6 text-arctic-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-bold text-ice-900 mb-2">Sustainable Giving Model</h4>
+                <p className="text-ice-700 text-sm">
+                  By staking donations to validators, we create a sustainable funding stream. Validators earn rewards
+                  for securing the network, and those rewards fund ongoing nonprofit support—without touching the original donations.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Validator Network Stats */}
         <div className="bg-gradient-to-br from-arctic-500 to-arctic-600 rounded-2xl shadow-lg p-8 mb-8 text-white">
           <div className="text-center mb-6">
-            <div className="text-6xl font-bold mb-2">{nodeStats?.nodeId || 1}/5</div>
-            <div className="text-xl text-arctic-100">Active Validators</div>
-          </div>
-
-          {/* Big Progress Bar */}
-          <div className="mb-6">
-            <div className="flex justify-between mb-3">
-              <span className="text-lg font-semibold">Next Validator Unlock</span>
-              <span className="text-lg font-bold">{nodeStats ? Math.min(100, Math.round((nodeStats.totalRewards / 500) * 100)) : 0}%</span>
-            </div>
-            <div className="w-full bg-arctic-700 rounded-full h-6 overflow-hidden shadow-inner">
-              <div
-                className="bg-gradient-to-r from-white to-arctic-100 h-6 rounded-full transition-all duration-1000 ease-out shadow-lg"
-                style={{ width: `${nodeStats ? Math.min(100, (nodeStats.totalRewards / 500) * 100) : 0}%` }}
-              ></div>
+            <div className="text-lg font-semibold text-arctic-100 mb-2">Active Validators</div>
+            <div className="text-6xl font-bold mb-2">{nodeStats?.isActive ? 'ONLINE' : 'OFFLINE'}</div>
+            <div className="flex items-center justify-center space-x-2">
+              <div className={`w-3 h-3 rounded-full ${nodeStats?.isActive ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
+              <span className="text-xl text-arctic-100">
+                {nodeStats?.uptime ? `${Math.round((nodeStats.uptime / (365 * 24 * 3600)) * 100)}% uptime` : 'Connecting...'}
+              </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-4">
             <div className="bg-arctic-700/50 rounded-xl p-4 text-center">
-              <div className="text-arctic-200 text-sm mb-1">Current</div>
+              <div className="text-arctic-200 text-sm mb-1">Total Staked</div>
+              <div className="text-3xl font-bold">{nodeStats?.stakeAmount.toFixed(0) || '0'}</div>
+              <div className="text-arctic-200 text-xs">AVAX</div>
+            </div>
+            <div className="bg-arctic-700/50 rounded-xl p-4 text-center">
+              <div className="text-arctic-200 text-sm mb-1">Rewards Earned</div>
               <div className="text-3xl font-bold">{nodeStats?.totalRewards.toFixed(0) || '0'}</div>
               <div className="text-arctic-200 text-xs">AVAX</div>
-            </div>
-            <div className="bg-arctic-700/50 rounded-xl p-4 text-center">
-              <div className="text-arctic-200 text-sm mb-1">Needed</div>
-              <div className="text-3xl font-bold">500</div>
-              <div className="text-arctic-200 text-xs">AVAX</div>
-            </div>
-          </div>
-
-          <div className="text-center p-4 bg-arctic-700/30 rounded-xl border border-arctic-400/30">
-            <div className="flex items-center justify-center space-x-2">
-              <BoltIcon className="w-6 h-6 text-arctic-200" />
-              <span className="text-lg">+40% revenue with next validator</span>
             </div>
           </div>
         </div>
 
         {/* Simple Key Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6 text-center">
             <div className="text-ice-600 text-sm mb-2">Monthly Revenue</div>
             <div className="text-4xl font-bold text-arctic-600 mb-2">
@@ -290,6 +342,12 @@ const NodePage: React.FC = () => {
             </div>
             <div className="text-xs text-ice-500">Always validating</div>
           </div>
+        </div>
+
+        {/* Network Maps */}
+        <div className="space-y-8">
+          <NetworkMap network="iggy-l1" />
+          <NetworkMap network="p-chain" />
         </div>
       </div>
     </div>

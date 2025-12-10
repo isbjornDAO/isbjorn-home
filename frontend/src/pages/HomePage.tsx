@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import IggyMascot from '@/components/IggyMascot';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import TrendingNews from '@/components/TrendingNews';
 import {
   HeartIcon,
   ChartBarIcon,
@@ -370,6 +371,13 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Trending News and Videos */}
+      <section className="py-16 sm:py-20 bg-ice-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <TrendingNews />
         </div>
       </section>
     </div>

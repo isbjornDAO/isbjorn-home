@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -27,45 +27,64 @@ const LoginPage: React.FC = () => {
   const { signMessageAsync } = useSignMessage();
   const [walletAuthAttempted, setWalletAuthAttempted] = useState(false);
   const [walletLoginInitiated, setWalletLoginInitiated] = useState(false);
+  const isAuthenticatingRef = useRef(false); // Prevent concurrent auth attempts
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated - show loading spinner while checking
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
+  // If we're still checking auth status or already authenticated, show loading
+  if (isLoading || isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-arctic-600 mb-4"></div>
+          <p className="text-gray-600">{isAuthenticated ? 'Redirecting...' : 'Checking authentication...'}</p>
+        </div>
+      </div>
+    );
+  }
 
   // Reset wallet auth state when disconnected
   useEffect(() => {
     if (!isConnected) {
       setWalletAuthAttempted(false);
       setWalletLoginInitiated(false);
+      isAuthenticatingRef.current = false;
     }
   }, [isConnected]);
 
-  // Auto-trigger authentication when wallet connects after user initiated login
-  useEffect(() => {
-    if (isConnected && address && walletLoginInitiated && !walletAuthAttempted) {
-      authenticateWallet();
+  // Wallet authentication handler with useCallback to prevent recreation
+  const authenticateWallet = useCallback(async () => {
+    // Guard #1: Check if already authenticating (prevents concurrent requests)
+    if (isAuthenticatingRef.current) {
+      console.log('[Wallet Auth] Already authenticating, skipping...');
+      return;
     }
-  }, [isConnected, address, walletLoginInitiated, walletAuthAttempted]);
 
-  // Wallet authentication handler (MANUAL - not auto)
-  const authenticateWallet = async () => {
+    // Guard #2: Check connection status
     if (!isConnected || !address) {
       toast.error('Please connect your wallet first');
       return;
     }
 
+    // Guard #3: Check if already attempted (prevents double attempts)
     if (walletAuthAttempted) {
-      return; // Prevent double attempts
+      console.log('[Wallet Auth] Already attempted, skipping...');
+      return;
     }
 
+    console.log('[Wallet Auth] Starting authentication for address:', address);
+    isAuthenticatingRef.current = true;
     setWalletAuthAttempted(true);
+
     try {
       // Create message to sign
       const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
@@ -95,14 +114,29 @@ const LoginPage: React.FC = () => {
       toast.success('Wallet authenticated successfully!');
     } catch (error: any) {
       console.error('Wallet authentication error:', error);
-      setWalletAuthAttempted(false); // Allow retry
+      setWalletAuthAttempted(false); // Allow retry on error
+      isAuthenticatingRef.current = false;
+
       if (error.message?.includes('User rejected')) {
         toast.error('Signature rejected. Please sign the message to authenticate.');
       } else {
         toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
       }
+    } finally {
+      // Only clear the ref on success (it stays true to prevent re-auth)
+      if (isAuthenticatingRef.current) {
+        console.log('[Wallet Auth] Authentication completed');
+      }
     }
-  };
+  }, [isConnected, address, walletAuthAttempted, signMessageAsync, checkAuthStatus]);
+
+  // Auto-trigger authentication when wallet connects after user initiated login
+  useEffect(() => {
+    if (isConnected && address && walletLoginInitiated && !walletAuthAttempted && !isAuthenticatingRef.current) {
+      console.log('[Wallet Auth Effect] Auto-triggering wallet authentication');
+      authenticateWallet();
+    }
+  }, [isConnected, address, walletLoginInitiated, walletAuthAttempted, authenticateWallet]);
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [

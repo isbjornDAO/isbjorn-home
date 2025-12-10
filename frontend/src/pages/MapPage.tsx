@@ -1098,146 +1098,47 @@ const MapPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Sidebar - Proposals */}
+                {/* Sidebar - Network Info */}
                 <div className="space-y-4 max-h-[700px] overflow-y-auto">
                   <div className="bg-white rounded-xl shadow-lg p-4">
-                    <h3 className="font-bold text-gray-900 mb-3">Active Proposals</h3>
-                  </div>
-                  {proposals.slice(0, 3).map(proposal => (
-                    <motion.div
-                      key={proposal.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-                    >
-                      <img
-                        src={proposal.image}
-                        alt={proposal.title}
-                        className="w-full h-32 object-cover"
-                      />
-                      <div className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-semibold text-teal-600 bg-teal-50 px-2 py-1 rounded">
-                            {proposal.category}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {Math.ceil((proposal.deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24))}d left
-                          </span>
-                        </div>
-                        <h3 className="font-bold text-sm text-gray-900">{proposal.nonprofitName}</h3>
-                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">{proposal.title}</p>
-
-                        <div className="mt-3">
-                          <div className="flex justify-between text-xs text-gray-600 mb-1">
-                            <span>{formatCurrency(proposal.raised)}</span>
-                            <span>{formatCurrency(proposal.goal)}</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-gradient-to-r from-teal-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
-                              style={{ width: `${(proposal.raised / proposal.goal) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between mt-3">
-                          <div className="text-xs text-gray-600">
-                            {proposal.votes.toLocaleString()} votes
-                          </div>
-                          <button
-                            onClick={() => handleVote(proposal.id)}
-                            disabled={userVotingPower <= 0}
-                            className="bg-teal-500 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-teal-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                          >
-                            Vote
-                          </button>
-                        </div>
+                    <h3 className="font-bold text-gray-900 mb-3">Global Impact Network</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Real-time visualization of nonprofit operations and funding flows worldwide.
+                    </p>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Active Projects:</span>
+                        <span className="font-semibold text-teal-600">{networkStats.projectsActive}</span>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Live Connections:</span>
+                        <span className="font-semibold text-teal-600">{networkStats.activeConnections}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Network Uptime:</span>
+                        <span className="font-semibold text-green-600">{networkStats.uptime}%</span>
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Social Media Feed - Below Map */}
-              <div className="mt-8">
-                <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Community Updates</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {socialPosts.map((post, idx) => (
-                      <motion.div
-                        key={post.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-4 hover:shadow-lg transition-shadow"
-                      >
-                        {/* Header */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full flex items-center justify-center text-xl">
-                              {post.nonprofitAvatar}
-                            </div>
-                            <div>
-                              <div className="font-semibold text-sm text-gray-900">{post.nonprofitName}</div>
-                              <div className="text-xs text-gray-500">{formatTimeAgo(post.timestamp)}</div>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleSubscribe(post.nonprofitId)}
-                            className={`text-xs px-3 py-1 rounded-full font-semibold transition-colors ${
-                              subscribedNonprofits.includes(post.nonprofitId)
-                                ? 'bg-teal-100 text-teal-700 border border-teal-300'
-                                : 'bg-gray-100 text-gray-600 border border-gray-300 hover:bg-teal-50'
-                            }`}
-                          >
-                            {subscribedNonprofits.includes(post.nonprofitId) ? 'Following' : 'Follow'}
-                          </button>
-                        </div>
-
-                        {/* Category Badge */}
-                        <div className="mb-3">
-                          <span className={`text-xs px-2 py-1 rounded-full border font-semibold uppercase ${getCategoryBadgeColor(post.category)}`}>
-                            {post.category}
-                          </span>
-                        </div>
-
-                        {/* Content */}
-                        <p className="text-sm text-gray-700 mb-3 leading-relaxed">{post.content}</p>
-
-                        {/* Awareness Counter */}
-                        {post.awarenessCount && (
-                          <div className="mb-3 text-xs text-purple-600 bg-purple-50 px-3 py-2 rounded-lg border border-purple-200">
-                            {post.awarenessCount} people raised awareness
-                          </div>
-                        )}
-
-                        {/* Actions */}
-                        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                          <button
-                            onClick={() => handleLike(post.id)}
-                            className={`flex items-center space-x-2 text-sm transition-colors ${
-                              post.isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-                            }`}
-                          >
-                            <span>{post.isLiked ? '❤️' : '🤍'}</span>
-                            <span className="font-semibold">{post.likes}</span>
-                          </button>
-                          <button className="flex items-center space-x-2 text-sm text-gray-500 hover:text-blue-500 transition-colors">
-                            <span>💬</span>
-                            <span className="font-semibold">{post.comments}</span>
-                          </button>
-                          {post.isTrending && (
-                            <div className="flex items-center space-x-1 text-xs text-orange-600 font-semibold">
-                              <span>🔥</span>
-                              <span>Trending</span>
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    ))}
+                  <div className="bg-gradient-to-br from-arctic-50 to-ice-50 rounded-xl shadow-lg p-4 border border-arctic-200">
+                    <h4 className="font-semibold text-gray-900 mb-2 text-sm">Explore More</h4>
+                    <Link
+                      to="/vote"
+                      className="block w-full bg-arctic-500 hover:bg-arctic-600 text-white text-center py-2 rounded-lg text-sm font-semibold transition-colors mb-2"
+                    >
+                      Vote on Proposals
+                    </Link>
+                    <Link
+                      to="/donate"
+                      className="block w-full bg-teal-500 hover:bg-teal-600 text-white text-center py-2 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      Make a Donation
+                    </Link>
                   </div>
                 </div>
               </div>
+
             </motion.div>
           )}
 
