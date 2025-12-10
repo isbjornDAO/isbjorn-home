@@ -19,7 +19,8 @@ import {
   BoltIcon,
   SignalIcon,
   GlobeAltIcon,
-  RectangleStackIcon
+  RectangleStackIcon,
+  CloudIcon
 } from '@heroicons/react/24/outline';
 import TransactionBoard from '@/components/TransactionBoard';
 
@@ -448,6 +449,67 @@ const MapInteractionHandler: React.FC<{ onZoomChange: (zoom: number) => void }> 
   return null;
 };
 
+// Weather map click handler
+const WeatherClickHandler: React.FC<{
+  enabled: boolean;
+  onLocationClick: (lat: number, lng: number) => void;
+}> = ({ enabled, onLocationClick }) => {
+  useMapEvents({
+    click: (e) => {
+      if (enabled) {
+        onLocationClick(e.latlng.lat, e.latlng.lng);
+      }
+    },
+  });
+  return null;
+};
+
+// Heat map layer for weather
+const WeatherHeatMap: React.FC<{ visible: boolean }> = ({ visible }) => {
+  if (!visible) return null;
+
+  // Create a temperature gradient heat map overlay
+  const heatMapPoints = [
+    { lat: 64.1466, lng: -21.9426, temp: -2.5, intensity: 0.3 },  // Arctic - cold
+    { lat: 23.8859, lng: 45.0792, temp: 38, intensity: 0.9 },     // Sahara - hot
+    { lat: 28.6139, lng: 77.2090, temp: 35, intensity: 0.85 },    // Delhi - hot
+    { lat: -3.4653, lng: -62.2159, temp: 28, intensity: 0.7 },    // Amazon - warm
+    { lat: 51.5074, lng: -0.1278, temp: 12, intensity: 0.4 },     // London - mild
+    { lat: 40.7128, lng: -74.0060, temp: 15, intensity: 0.45 },   // NYC - mild
+    { lat: 35.6762, lng: 139.6503, temp: 18, intensity: 0.5 },    // Tokyo - mild
+    { lat: -23.5505, lng: -46.6333, temp: 22, intensity: 0.6 },   // Brazil - warm
+    { lat: -1.2921, lng: 36.8219, temp: 26, intensity: 0.65 },    // Kenya - warm
+    { lat: 25.2048, lng: 55.2708, temp: 40, intensity: 1.0 },     // Dubai - very hot
+  ];
+
+  const getHeatColor = (intensity: number) => {
+    // Blue (cold) to Red (hot) gradient
+    if (intensity < 0.4) return '#60a5fa'; // blue - cold
+    if (intensity < 0.6) return '#fbbf24'; // yellow - moderate
+    if (intensity < 0.8) return '#fb923c'; // orange - warm
+    return '#ef4444'; // red - hot
+  };
+
+  return (
+    <>
+      {heatMapPoints.map((point, idx) => (
+        <Circle
+          key={`heat-${idx}`}
+          center={[point.lat, point.lng]}
+          radius={800000}
+          pathOptions={{
+            fillColor: getHeatColor(point.intensity),
+            fillOpacity: 0.2,
+            color: getHeatColor(point.intensity),
+            weight: 0,
+            opacity: 0.3
+          }}
+        />
+      ))}
+    </>
+  );
+};
+
 const MapPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -459,9 +521,11 @@ const MapPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('24h');
   const [showLayerPanel, setShowLayerPanel] = useState(true);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showWeather, setShowWeather] = useState(false);
   const [showStylesPanel, setShowStylesPanel] = useState(false);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  const [clickedLocation, setClickedLocation] = useState<{ lat: number; lng: number; name: string } | null>(null);
+  const [weatherData, setWeatherData] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [interpolationMode, setInterpolationMode] = useState<InterpolationMode>('linear');
   const [currentZoom, setCurrentZoom] = useState(2);
@@ -692,13 +756,13 @@ const MapPage: React.FC = () => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'l' || e.key === 'L') setShowLayerPanel(prev => !prev);
       if (e.key === 'f' || e.key === 'F') setShowFilterPanel(prev => !prev);
-      if (e.key === 'a' || e.key === 'A') setShowAnalytics(prev => !prev);
+      if (e.key === 'a' || e.key === 'A') setShowWeather(prev => !prev);
       if (e.key === 's' || e.key === 'S') setShowStylesPanel(prev => !prev);
       if (e.key === 'r' || e.key === 'R') handleRefresh();
       if (e.key === 'Escape') {
         setShowLayerPanel(false);
         setShowFilterPanel(false);
-        setShowAnalytics(false);
+        setShowWeather(false);
         setShowStylesPanel(false);
         setShowKeyboardShortcuts(false);
       };
@@ -859,6 +923,47 @@ const MapPage: React.FC = () => {
     return severityMap[severity] || '#6b7280';
   };
 
+  // Mock weather data based on clicked location
+  const fetchWeatherForLocation = (lat: number, lng: number) => {
+    // Mock weather data - in production this would call a real API
+    const temp = 15 + (lat / 10) + Math.random() * 5;
+    const conditions = ['Clear', 'Partly Cloudy', 'Cloudy', 'Rainy', 'Sunny'][Math.floor(Math.random() * 5)];
+    const humidity = 40 + Math.floor(Math.random() * 40);
+    const windSpeed = 5 + Math.floor(Math.random() * 20);
+
+    // Find closest city name
+    const cities = [
+      { name: 'Arctic Region', lat: 64.1466, lng: -21.9426 },
+      { name: 'Sahara Desert', lat: 23.8859, lng: 45.0792 },
+      { name: 'New Delhi', lat: 28.6139, lng: 77.2090 },
+      { name: 'Amazon Rainforest', lat: -3.4653, lng: -62.2159 },
+      { name: 'London', lat: 51.5074, lng: -0.1278 },
+      { name: 'New York', lat: 40.7128, lng: -74.0060 },
+      { name: 'Tokyo', lat: 35.6762, lng: 139.6503 },
+      { name: 'São Paulo', lat: -23.5505, lng: -46.6333 },
+      { name: 'Nairobi', lat: -1.2921, lng: 36.8219 },
+      { name: 'Dubai', lat: 25.2048, lng: 55.2708 },
+    ];
+
+    const closestCity = cities.reduce((prev, curr) => {
+      const prevDist = Math.sqrt(Math.pow(prev.lat - lat, 2) + Math.pow(prev.lng - lng, 2));
+      const currDist = Math.sqrt(Math.pow(curr.lat - lat, 2) + Math.pow(curr.lng - lng, 2));
+      return currDist < prevDist ? curr : prev;
+    });
+
+    setClickedLocation({ lat, lng, name: closestCity.name });
+    setWeatherData({
+      temperature: Math.round(temp),
+      conditions,
+      humidity,
+      windSpeed,
+      pressure: 1013 + Math.floor(Math.random() * 20) - 10,
+      uvIndex: Math.floor(Math.random() * 11),
+      visibility: 10 + Math.floor(Math.random() * 5),
+      feelsLike: Math.round(temp + (Math.random() * 4 - 2))
+    });
+  };
+
   const filteredBases = useMemo(() => {
     return charityBases.filter(base => {
       // Search filter
@@ -939,19 +1044,19 @@ const MapPage: React.FC = () => {
             <span className="text-sm font-semibold">{viewMode === 'map' ? 'Transaction Board' : 'Map View'}</span>
           </motion.button>
 
-          {/* Impact Stats Summary */}
+          {/* Weather Toggle */}
           <motion.button
             whileHover={{ scale: 1.02 }}
-            onClick={() => setShowAnalytics(!showAnalytics)}
+            onClick={() => setShowWeather(!showWeather)}
             className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
-              showAnalytics
+              showWeather
                 ? 'text-white shadow-lg'
                 : 'bg-white border border-blue-200 hover:bg-blue-50'
             }`}
-            style={showAnalytics ? { backgroundColor: '#3b82f6' } : { color: '#3b82f6' }}
+            style={showWeather ? { backgroundColor: '#3b82f6' } : { color: '#3b82f6' }}
           >
-            <ChartBarIcon className="w-5 h-5" />
-            <span className="text-sm font-semibold">Impact Stats</span>
+            <CloudIcon className="w-5 h-5" />
+            <span className="text-sm font-semibold">Weather</span>
           </motion.button>
 
           {/* Filter Button */}
@@ -1071,6 +1176,21 @@ const MapPage: React.FC = () => {
 
             <MapInteractionHandler onZoomChange={setCurrentZoom} />
             <ZoomControls />
+
+            {/* Weather components */}
+            <WeatherClickHandler enabled={showWeather} onLocationClick={fetchWeatherForLocation} />
+            <WeatherHeatMap visible={showWeather} />
+
+            {/* Weather location marker */}
+            {showWeather && clickedLocation && (
+              <Marker position={[clickedLocation.lat, clickedLocation.lng]}>
+                <Popup>
+                  <div className="text-sm font-semibold">
+                    📍 {clickedLocation.name}
+                  </div>
+                </Popup>
+              </Marker>
+            )}
 
             {/* Climate Zones */}
             {getLayerByType('climate')?.visible && filteredZones.map(zone => {

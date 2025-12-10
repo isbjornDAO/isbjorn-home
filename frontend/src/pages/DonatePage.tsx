@@ -30,7 +30,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 3500000,
       donationCount: 45200,
-      followerCount: 18500
+      followerCount: 18500,
+      fromDonations: 2100000,
+      fromVotes: 1400000
     },
     {
       id: 'wwf',
@@ -44,7 +46,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4200000,
       donationCount: 52800,
-      followerCount: 24300
+      followerCount: 24300,
+      fromDonations: 2900000,
+      fromVotes: 1300000
     },
     {
       id: 'nrdc',
@@ -58,7 +62,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2800000,
       donationCount: 38500,
-      followerCount: 15200
+      followerCount: 15200,
+      fromDonations: 1800000,
+      fromVotes: 1000000
     },
     {
       id: '350org',
@@ -72,7 +78,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1950000,
       donationCount: 28900,
-      followerCount: 12800
+      followerCount: 12800,
+      fromDonations: 1300000,
+      fromVotes: 650000
     },
     {
       id: 'rainforest-alliance',
@@ -86,7 +94,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2100000,
       donationCount: 31200,
-      followerCount: 14100
+      followerCount: 14100,
+      fromDonations: 1500000,
+      fromVotes: 600000
     },
     {
       id: 'conservation-international',
@@ -100,7 +110,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 3100000,
       donationCount: 41800,
-      followerCount: 17600
+      followerCount: 17600,
+      fromDonations: 2200000,
+      fromVotes: 900000
     },
     {
       id: 'edf',
@@ -114,7 +126,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2650000,
       donationCount: 35700,
-      followerCount: 16400
+      followerCount: 16400,
+      fromDonations: 1900000,
+      fromVotes: 750000
     },
     {
       id: 'nature-conservancy',
@@ -128,7 +142,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4800000,
       donationCount: 58200,
-      followerCount: 28900
+      followerCount: 28900,
+      fromDonations: 3400000,
+      fromVotes: 1400000
     },
     {
       id: 'ocean-conservancy',
@@ -142,7 +158,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1850000,
       donationCount: 24600,
-      followerCount: 11200
+      followerCount: 11200,
+      fromDonations: 1200000,
+      fromVotes: 650000
     },
     {
       id: 'sierra-club',
@@ -156,7 +174,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2200000,
       donationCount: 32400,
-      followerCount: 14800
+      followerCount: 14800,
+      fromDonations: 1600000,
+      fromVotes: 600000
     },
     {
       id: 'friends-of-earth',
@@ -170,7 +190,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1680000,
       donationCount: 22100,
-      followerCount: 9800
+      followerCount: 9800,
+      fromDonations: 1100000,
+      fromVotes: 580000
     },
     {
       id: 'generation-zero',
@@ -184,7 +206,9 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 450000,
       donationCount: 8900,
-      followerCount: 5600
+      followerCount: 5600,
+      fromDonations: 320000,
+      fromVotes: 130000
     },
   ];
 
@@ -252,24 +276,15 @@ const DonationForm: React.FC = () => {
     });
   };
 
-  // Filter charities based on selected category and country
+  // Filter charities based on selected category only
   const filteredCharities = charities.filter(charity => {
     const categoryMatch = selectedCategory === 'All' || charity.category === selectedCategory;
-    const countryMatch = selectedCountry === 'All' || charity.country === selectedCountry;
-    return categoryMatch && countryMatch;
+    return categoryMatch;
   });
-
-  // Get unique countries from charities
-  const countries = ['All', ...Array.from(new Set(charities.map(c => c.country || 'New Zealand')))];
 
   // Handle category selection
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
-  };
-
-  // Handle country selection
-  const handleCountrySelect = (country: string) => {
-    setSelectedCountry(country);
   };
 
   return (
@@ -293,25 +308,6 @@ const DonationForm: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Filter Countries */}
-        <div className="mb-6">
-          <h3 className="text-center text-sm font-semibold text-arctic-700 mb-3">Filter by Country</h3>
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-            {countries.map((country) => (
-              <button
-                key={country}
-                onClick={() => handleCountrySelect(country)}
-                className={`px-3 sm:px-4 py-1.5 sm:py-2 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm text-xs sm:text-sm ${selectedCountry === country
-                  ? 'border-arctic-500 bg-arctic-500 text-white shadow-md'
-                  : 'bg-white border-ice-200 text-arctic-700 hover:border-arctic-500 hover:bg-arctic-50'
-                  }`}
-              >
-                {country}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Filter Categories */}
         <div className="mb-8 sm:mb-12">
           <h3 className="text-center text-sm font-semibold text-arctic-700 mb-3">Filter by Category</h3>
@@ -360,45 +356,49 @@ const DonationForm: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
-                    {/* Logo Overlay */}
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-16 h-16 sm:w-20 sm:h-20 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg p-2 sm:p-3">
-                      <img
-                        src={charity.icon}
-                        alt={`${charity.name} logo`}
-                        className="w-full h-full object-contain"
-                        onError={(e) => {
-                          // Fallback to first letter if logo fails to load
-                          e.currentTarget.style.display = 'none';
-                          const parent = e.currentTarget.parentElement;
-                          if (parent) {
-                            parent.innerHTML = `<span class="text-2xl sm:text-3xl font-bold text-arctic-600">${charity.name.charAt(0)}</span>`;
-                          }
-                        }}
-                      />
-                    </div>
                     {/* Verification Badge */}
                     {charity.verified && (
-                      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-green-500 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold flex items-center">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="hidden sm:inline">Verified</span>
-                        <span className="sm:hidden">✓</span>
+                      <div className="absolute top-3 left-3 sm:top-4 sm:left-4" style={{ backgroundColor: '#3b82f6' }}>
+                        <div className="text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold flex items-center">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="hidden sm:inline">Verified</span>
+                          <span className="sm:hidden">✓</span>
+                        </div>
                       </div>
                     )}
                   </div>
 
                   {/* Content */}
                   <div className="p-4 sm:p-6 flex flex-col flex-1">
-                    {/* Header with Follow Button */}
+                    {/* Header with Logo and Follow Button */}
                     <div className="flex items-start justify-between mb-3 sm:mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg sm:text-xl font-bold text-arctic-900 mb-2 group-hover:text-arctic-600 transition-colors leading-tight">
-                          {charity.name}
-                        </h3>
-                        <div className="flex items-center text-xs sm:text-sm text-arctic-500 mb-2 sm:mb-3">
-                          <span className="inline-block w-2 h-2 bg-arctic-400 rounded-full mr-2"></span>
-                          <span className="truncate">{charity.category} • {charity.country || charity.location || 'New Zealand'}</span>
+                      <div className="flex items-start gap-3 flex-1">
+                        {/* Logo next to name */}
+                        <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-full flex items-center justify-center shadow-md border-2 border-blue-100 p-2">
+                          <img
+                            src={charity.icon}
+                            alt={`${charity.name} logo`}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<span class="text-lg sm:text-xl font-bold" style="color: #3b82f6">${charity.name.charAt(0)}</span>`;
+                              }
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex-1">
+                          <h3 className="text-lg sm:text-xl font-bold mb-1" style={{ color: '#3b82f6' }}>
+                            {charity.name}
+                          </h3>
+                          <div className="flex items-center text-xs sm:text-sm text-gray-600 mb-2">
+                            <span className="inline-block w-2 h-2 rounded-full mr-2" style={{ backgroundColor: '#3b82f6' }}></span>
+                            <span className="truncate">{charity.category} • {charity.country || charity.location || 'New Zealand'}</span>
+                          </div>
                         </div>
                       </div>
 
@@ -407,9 +407,10 @@ const DonationForm: React.FC = () => {
                         onClick={(e) => handleFollowToggle(charity.id, e)}
                         className={`follow-button flex-shrink-0 ml-2 p-2 rounded-full transition-all ${
                           isFollowing
-                            ? 'bg-arctic-100 text-arctic-600 hover:bg-arctic-200'
+                            ? 'text-white shadow-md'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
+                        style={isFollowing ? { backgroundColor: '#3b82f6' } : {}}
                         title={isFollowing ? 'Following' : 'Follow for updates'}
                       >
                         {isFollowing ? (
@@ -428,31 +429,48 @@ const DonationForm: React.FC = () => {
                     {/* Spacer to push stats and buttons to bottom */}
                     <div className="flex-1"></div>
 
-                    {/* Stats Grid - 3 columns now */}
-                    <div className="grid grid-cols-3 gap-2 mb-3 sm:mb-4">
-                      <div className="text-center p-2 bg-ice-50 rounded-lg">
-                        <div className="text-base sm:text-lg font-bold text-arctic-900">
+                    {/* Stats Grid - 4 columns with funding breakdown */}
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#eff6ff' }}>
+                        <div className="text-base sm:text-lg font-bold" style={{ color: '#3b82f6' }}>
                           ${(charity.totalReceived / 1000).toFixed(0)}k
                         </div>
-                        <div className="text-xs text-arctic-500">Raised</div>
+                        <div className="text-xs text-gray-600">Total Raised</div>
                       </div>
-                      <div className="text-center p-2 bg-ice-50 rounded-lg">
-                        <div className="text-base sm:text-lg font-bold text-arctic-900">
-                          {(charity.donationCount / 1000).toFixed(1)}k
+                      <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#eff6ff' }}>
+                        <div className="text-base sm:text-lg font-bold flex items-center justify-center gap-1">
+                          <UserGroupIcon className="w-4 h-4" style={{ color: '#3b82f6' }} />
+                          <span style={{ color: '#3b82f6' }}>{(charity.followerCount / 1000).toFixed(1)}k</span>
                         </div>
-                        <div className="text-xs text-arctic-500">Donations</div>
+                        <div className="text-xs text-gray-600">Followers</div>
                       </div>
-                      <div className="text-center p-2 bg-arctic-50 rounded-lg">
-                        <div className="text-base sm:text-lg font-bold text-arctic-900 flex items-center justify-center gap-1">
-                          <UserGroupIcon className="w-4 h-4" />
-                          {(charity.followerCount / 1000).toFixed(1)}k
+                    </div>
+
+                    {/* Funding Breakdown */}
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div className="text-center p-2 rounded-lg bg-green-50">
+                        <div className="text-base sm:text-lg font-bold text-green-700">
+                          ${(charity.fromDonations / 1000).toFixed(0)}k
                         </div>
-                        <div className="text-xs text-arctic-500">Followers</div>
+                        <div className="text-xs text-gray-600">From Donations</div>
+                      </div>
+                      <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#eff6ff' }}>
+                        <div className="text-base sm:text-lg font-bold" style={{ color: '#3b82f6' }}>
+                          ${(charity.fromVotes / 1000).toFixed(0)}k
+                        </div>
+                        <div className="text-xs text-gray-600">From Votes</div>
+                      </div>
+                    </div>
+
+                    {/* Donation Count */}
+                    <div className="text-center p-2 rounded-lg border-2 mb-3" style={{ borderColor: '#3b82f6' }}>
+                      <div className="text-base sm:text-lg font-bold" style={{ color: '#3b82f6' }}>
+                        {(charity.donationCount / 1000).toFixed(1)}k donations
                       </div>
                     </div>
 
                     {/* Click hint */}
-                    <div className="mt-2 text-center text-sm text-arctic-600">Click to learn more & donate</div>
+                    <div className="mt-2 text-center text-sm font-semibold" style={{ color: '#3b82f6' }}>Click to learn more & donate</div>
                   </div>
                 </div>
               );

@@ -33,14 +33,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-ice-50 to-white">
       <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-lg border-b border-white/20 shadow-sm">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
+        <nav className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-8">
               <Link to="/" className="flex items-center">
                 <Logo size="medium" />
               </Link>
 
-              <div className="hidden md:flex items-center space-x-1 ml-10">
+              <div className="hidden md:flex items-center space-x-1">
                 {navigation.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -103,7 +103,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Link>
                   <Link
                     to="/signup"
-                    className="btn-primary text-sm px-3 sm:px-6 py-2 sm:py-3"
+                    className="bg-gradient-to-r from-arctic-500 to-polar-500 text-white text-sm px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:from-arctic-600 hover:to-polar-600 transition-all duration-200 shadow-sm"
                   >
                     <span className="hidden sm:inline">Sign up</span>
                     <span className="sm:hidden">Sign up</span>

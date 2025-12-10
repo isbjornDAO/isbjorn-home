@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   LockClosedIcon,
   HeartIcon,
@@ -55,35 +56,45 @@ const HomePage: React.FC = () => {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+        {/* Hero Title */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-arctic-600 via-arctic-500 to-ice-600 bg-clip-text text-transparent mb-6 leading-tight">
+            It's time to save the world
+          </h1>
+          <p className="text-xl md:text-2xl text-ice-700 max-w-4xl mx-auto font-light leading-relaxed">
+            Safe transparent donations from the 1%, our world's climate mission decided by you.
+          </p>
+        </motion.div>
+
         {/* What is Isbjörn Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-arctic-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-arctic-900 mb-8">
             What is Isbjörn?
           </h2>
-          <p className="text-center text-ice-600 text-lg max-w-3xl mx-auto mb-12">
-            A blockchain-powered platform that brings complete transparency to charitable giving.
-          </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Feature 1: Blockchain Verified */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
+              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
             >
-              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
-                <LockClosedIcon className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <LockClosedIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-arctic-900 mb-2">Blockchain Verified</h3>
-              <p className="text-ice-700">
-                Every donation is recorded on the Avalanche blockchain, creating an immutable record of giving.
-              </p>
+              <h3 className="text-base font-bold text-arctic-900">Blockchain Verified</h3>
             </motion.div>
 
             {/* Feature 2: IRD Compliant */}
@@ -91,15 +102,12 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
+              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
             >
-              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
-                <HeartIcon className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <HeartIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-arctic-900 mb-2">IRD Compliant</h3>
-              <p className="text-ice-700">
-                Automatic tax receipts for all donations, fully compliant with tax regulations.
-              </p>
+              <h3 className="text-base font-bold text-arctic-900">IRD Compliant</h3>
             </motion.div>
 
             {/* Feature 3: Community Governance */}
@@ -107,15 +115,12 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
+              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
             >
-              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
-                <UserGroupIcon className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <UserGroupIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-arctic-900 mb-2">Community Governance</h3>
-              <p className="text-ice-700">
-                Donors earn XP and voting power to influence how foundation funds are distributed.
-              </p>
+              <h3 className="text-base font-bold text-arctic-900">Community Governance</h3>
             </motion.div>
 
             {/* Feature 4: Validator Network */}
@@ -123,31 +128,25 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
+              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
             >
-              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
-                <ChartBarIcon className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <ChartBarIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-arctic-900 mb-2">Validator Network</h3>
-              <p className="text-ice-700">
-                Donations are staked to validators, generating revenue that communities vote to distribute.
-              </p>
+              <h3 className="text-base font-bold text-arctic-900">Validator Network</h3>
             </motion.div>
 
-            {/* Feature 5: Global Impact Map */}
+            {/* Feature 5: Global Climate Service */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
+              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
             >
-              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
-                <GlobeAltIcon className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <GlobeAltIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-arctic-900 mb-2">Global Impact Map</h3>
-              <p className="text-ice-700">
-                Track your donations in real-time across the globe with our interactive impact visualization.
-              </p>
+              <h3 className="text-base font-bold text-arctic-900">Global Climate Service</h3>
             </motion.div>
 
             {/* Feature 6: Zero Hidden Fees */}
@@ -155,18 +154,16 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-xl p-6 shadow-lg border border-ice-200 hover:shadow-xl transition-shadow"
+              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
             >
-              <div className="w-12 h-12 bg-arctic-500 rounded-lg flex items-center justify-center mb-4">
-                <ShieldCheckIcon className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <ShieldCheckIcon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-arctic-900 mb-2">Zero Hidden Fees</h3>
-              <p className="text-ice-700">
-                100% of your donation goes to verified charities. All operational costs are covered by validator revenue.
-              </p>
+              <h3 className="text-base font-bold text-arctic-900">Zero Hidden Fees</h3>
             </motion.div>
           </div>
         </motion.div>
+
       </div>
     </div>
   );
