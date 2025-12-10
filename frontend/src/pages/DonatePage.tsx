@@ -10,6 +10,7 @@ const DonationForm: React.FC = () => {
   const [charities, setCharities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCountry, setSelectedCountry] = useState<string>('All');
 
   // Load charities from API
   useEffect(() => {
@@ -41,14 +42,24 @@ const DonationForm: React.FC = () => {
     navigate(`/charity/${charityId}`);
   };
 
-  // Filter charities based on selected category
-  const filteredCharities = selectedCategory === 'All'
-    ? charities
-    : charities.filter(charity => charity.category === selectedCategory);
+  // Filter charities based on selected category and country
+  const filteredCharities = charities.filter(charity => {
+    const categoryMatch = selectedCategory === 'All' || charity.category === selectedCategory;
+    const countryMatch = selectedCountry === 'All' || charity.country === selectedCountry;
+    return categoryMatch && countryMatch;
+  });
+
+  // Get unique countries from charities
+  const countries = ['All', ...Array.from(new Set(charities.map(c => c.country || 'New Zealand')))];
 
   // Handle category selection
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
+  };
+
+  // Handle country selection
+  const handleCountrySelect = (country: string) => {
+    setSelectedCountry(country);
   };
 
   return (
@@ -66,26 +77,50 @@ const DonationForm: React.FC = () => {
             Choose a Charity
           </h1>
           <p className="text-lg sm:text-xl text-ice-100 max-w-3xl mx-auto px-4">
-            Support any verified NZ charity
+            Support verified charities worldwide
           </p>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Filter Countries */}
+        <div className="mb-6">
+          <h3 className="text-center text-sm font-semibold text-arctic-700 mb-3">Filter by Country</h3>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+            {countries.map((country) => (
+              <button
+                key={country}
+                onClick={() => handleCountrySelect(country)}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm text-xs sm:text-sm ${selectedCountry === country
+                  ? 'border-arctic-500 text-white shadow-md'
+                  : 'bg-white border-ice-200 text-arctic-700 hover:border-arctic-500 hover:bg-arctic-50'
+                  }`}
+                style={selectedCountry === country ? { backgroundColor: '#3b82f6' } : {}}
+              >
+                {country}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Filter Categories */}
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
-          {['All', 'Environment', 'Health', 'Social Services', 'Education', 'Emergency Relief'].map((category) => (
-            <button
-              key={category}
-              onClick={() => handleCategorySelect(category)}
-              className={`px-3 sm:px-6 py-2 sm:py-3 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm text-sm sm:text-base ${selectedCategory === category
-                ? 'bg-arctic-500 border-arctic-500 text-white shadow-md'
-                : 'bg-white border-ice-200 text-arctic-700 hover:border-arctic-500 hover:bg-arctic-50'
-                }`}
-            >
-              {category}
-            </button>
-          ))}
+        <div className="mb-8 sm:mb-12">
+          <h3 className="text-center text-sm font-semibold text-arctic-700 mb-3">Filter by Category</h3>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
+            {['All', 'Environment', 'Climate', 'Conservation', 'Wildlife', 'Water', 'Forest', 'Health', 'Social Services', 'Education', 'Emergency Relief'].map((category) => (
+              <button
+                key={category}
+                onClick={() => handleCategorySelect(category)}
+                className={`px-3 sm:px-6 py-2 sm:py-3 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm text-sm sm:text-base ${selectedCategory === category
+                  ? 'text-white shadow-md'
+                  : 'bg-white border-ice-200 text-arctic-700 hover:border-arctic-500 hover:bg-arctic-50'
+                  }`}
+                style={selectedCategory === category ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } : {}}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Loading State */}
@@ -140,7 +175,7 @@ const DonationForm: React.FC = () => {
                       </h3>
                       <div className="flex items-center text-xs sm:text-sm text-arctic-500 mb-2 sm:mb-3">
                         <span className="inline-block w-2 h-2 bg-arctic-400 rounded-full mr-2"></span>
-                        <span className="truncate">{charity.category} • {charity.location}</span>
+                        <span className="truncate">{charity.category} • {charity.country || charity.location || 'New Zealand'}</span>
                       </div>
                     </div>
                   </div>

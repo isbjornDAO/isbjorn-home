@@ -52,6 +52,16 @@ interface CharityBase {
   properties: Record<string, any>;
   pulseIntensity?: number;
   recentActivity?: boolean;
+  // Climate data for this region
+  regionalClimateData: {
+    avgTemperature: number; // Current average in Celsius
+    temperatureTrend: number; // Change over last decade
+    airQualityIndex: number; // 0-500 scale
+    forestCoverage: number; // percentage
+    waterAvailability: number; // percentage
+    carbonFootprint: number; // tons CO2/year
+    renewableEnergy: number; // percentage of total energy
+  };
 }
 
 interface FlightPath {
@@ -78,6 +88,14 @@ interface ClimateZone {
   affectedPopulation: number;
   trend: 'improving' | 'stable' | 'worsening';
   changing?: boolean;
+  // Real climate metrics
+  temperatureChange: number; // in Celsius
+  co2Level: number; // ppm
+  seaLevelRise: number; // in mm
+  biodiversityLoss: number; // percentage
+  deforestationRate: number; // hectares per year
+  waterStress: number; // percentage
+  lastUpdated: Date;
 }
 
 interface LayerStyleConfig {
@@ -183,9 +201,9 @@ const AnimatedFlightPath: React.FC<{
   useEffect(() => {
     if (!path.active) return;
     const interval = setInterval(() => {
-      setAnimationProgress(prev => (prev >= 1 ? 0 : prev + path.speed * 0.015));
-      setPulseScale(prev => (prev >= 1.5 ? 1 : prev + 0.02));
-    }, 50); // 20fps for smooth animation
+      setAnimationProgress(prev => (prev >= 1 ? 0 : prev + path.speed * 0.008));
+      setPulseScale(prev => (prev >= 1.3 ? 1 : prev + 0.01));
+    }, 60); // Slower, more relaxing animation
     return () => clearInterval(interval);
   }, [path.active, path.speed]);
 
@@ -306,28 +324,27 @@ const createPropertyBasedIcon = (
   });
 };
 
-// Clean live data indicator
-const LiveDataIndicator: React.FC<{ status: DataStreamStatus; updateCount: number }> = ({ status, updateCount }) => {
+// Clean live data indicator - just the pulse
+const LiveDataIndicator: React.FC<{ status: DataStreamStatus; updateCount: number }> = ({ status }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-center space-x-2 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200"
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex items-center justify-center"
+      title={status === 'connected' ? 'Live' : status === 'connecting' ? 'Connecting' : 'Offline'}
     >
       <motion.div
         animate={{
-          scale: status === 'connected' ? [1, 1.2, 1] : 1,
-          opacity: status === 'connected' ? [1, 0.7, 1] : 0.5
+          scale: status === 'connected' ? [1, 1.3, 1] : 1,
+          opacity: status === 'connected' ? [1, 0.6, 1] : 0.5
         }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className={`w-2 h-2 rounded-full ${
-          status === 'connected' ? 'bg-green-500' :
-          status === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className={`w-2.5 h-2.5 rounded-full shadow-lg ${
+          status === 'connected' ? 'bg-green-500 shadow-green-500/50' :
+          status === 'connecting' ? 'bg-yellow-500 shadow-yellow-500/50' :
+          'bg-red-500 shadow-red-500/50'
         }`}
       />
-      <span className="text-xs font-semibold text-blue-700">
-        {status === 'connected' ? 'Live Updates' : status === 'connecting' ? 'Connecting' : 'Offline'}
-      </span>
     </motion.div>
   );
 };
@@ -396,7 +413,7 @@ const ZoomControls: React.FC = () => {
         onClick={() => map.zoomIn()}
         className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <span className="text-xl font-bold text-blue-600">+</span>
+        <span className="text-xl font-bold" style={{ color: '#3b82f6' }}>+</span>
       </motion.button>
       <motion.button
         whileHover={{ scale: 1.05 }}
@@ -404,7 +421,7 @@ const ZoomControls: React.FC = () => {
         onClick={() => map.zoomOut()}
         className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <span className="text-xl font-bold text-blue-600">−</span>
+        <span className="text-xl font-bold" style={{ color: '#3b82f6' }}>−</span>
       </motion.button>
       <motion.button
         whileHover={{ scale: 1.05 }}
@@ -412,7 +429,7 @@ const ZoomControls: React.FC = () => {
         onClick={() => map.setView([20, 20], 2)}
         className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <GlobeAltIcon className="w-5 h-5 text-blue-600" />
+        <GlobeAltIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
       </motion.button>
     </div>
   );
@@ -447,6 +464,21 @@ const MapPage: React.FC = () => {
   const [dataStreamStatus, setDataStreamStatus] = useState<DataStreamStatus>('connected');
   const [updateCount, setUpdateCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Proposals and missions state
+  const [proposals, setProposals] = useState([
+    { id: 1, title: 'Expand Arctic Research Stations', description: 'Build 3 new research stations in the Arctic region', votes: 342, category: 'Climate', funding: 450000, userVoted: false },
+    { id: 2, title: 'Amazon Reforestation Initiative', description: 'Plant 1 million trees in deforested areas', votes: 521, category: 'Forest', funding: 620000, userVoted: false },
+    { id: 3, title: 'Clean Water Access in Africa', description: 'Install 50 water purification systems', votes: 287, category: 'Water', funding: 380000, userVoted: false },
+    { id: 4, title: 'Wildlife Protection Drones', description: 'Deploy AI-powered drones to protect endangered species', votes: 198, category: 'Wildlife', funding: 280000, userVoted: false },
+    { id: 5, title: 'Solar Energy for Rural Areas', description: 'Install solar panels in 100 rural communities', votes: 412, category: 'Climate', funding: 550000, userVoted: false },
+  ]);
+
+  const [liveMissions, setLiveMissions] = useState([
+    { id: 1, name: 'Arctic Ice Monitoring', location: 'Iceland', votes: 521, funding: 820000, progress: 68, status: 'active' as const },
+    { id: 2, name: 'Amazon Protection', location: 'Brazil', votes: 498, funding: 950000, progress: 82, status: 'active' as const },
+    { id: 3, name: 'Ocean Cleanup', location: 'Pacific', votes: 456, funding: 720000, progress: 45, status: 'active' as const },
+  ]);
 
   // Saved style presets
   const [savedStyles] = useState<SavedStyle[]>([
@@ -680,14 +712,54 @@ const MapPage: React.FC = () => {
 
   const loadMockData = () => {
     const mockBases: CharityBase[] = [
-      { id: 'hq1', name: 'Global Climate HQ', location: { lat: 40.7128, lng: -74.0060 }, type: 'headquarters', activeProjects: 45, category: 'Climate', fundingReceived: 2500000, lastActivity: new Date(), impact: 95, properties: { region: 'Americas', established: 2010 } },
-      { id: 'hq2', name: 'EU Operations', location: { lat: 51.5074, lng: -0.1278 }, type: 'headquarters', activeProjects: 38, category: 'Conservation', fundingReceived: 1800000, lastActivity: new Date(), impact: 88, properties: { region: 'Europe', established: 2012 } },
-      { id: 'hq3', name: 'Asia-Pacific Hub', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters', activeProjects: 52, category: 'Wildlife', fundingReceived: 3200000, lastActivity: new Date(), impact: 92, properties: { region: 'Asia', established: 2008 } },
-      { id: 'r1', name: 'African Regional', location: { lat: -1.2921, lng: 36.8219 }, type: 'regional', activeProjects: 28, category: 'Water', fundingReceived: 950000, lastActivity: new Date(), impact: 78, properties: { region: 'Africa', established: 2015 } },
-      { id: 'r2', name: 'South America', location: { lat: -23.5505, lng: -46.6333 }, type: 'regional', activeProjects: 31, category: 'Forest', fundingReceived: 1200000, lastActivity: new Date(), impact: 85, properties: { region: 'South America', established: 2013 } },
-      { id: 'r3', name: 'Middle East', location: { lat: 25.2048, lng: 55.2708 }, type: 'regional', activeProjects: 22, category: 'Climate', fundingReceived: 780000, lastActivity: new Date(), impact: 72, properties: { region: 'Middle East', established: 2016 } },
-      { id: 'f1', name: 'Arctic Research', location: { lat: 64.1466, lng: -21.9426 }, type: 'field', activeProjects: 8, category: 'Climate', fundingReceived: 450000, lastActivity: new Date(), impact: 68, properties: { region: 'Arctic', established: 2018 } },
-      { id: 'f2', name: 'Amazon Station', location: { lat: -3.4653, lng: -62.2159 }, type: 'field', activeProjects: 12, category: 'Forest', fundingReceived: 620000, lastActivity: new Date(), impact: 82, properties: { region: 'Amazon', established: 2014 } },
+      {
+        id: 'hq1', name: 'Global Climate HQ', location: { lat: 40.7128, lng: -74.0060 }, type: 'headquarters',
+        activeProjects: 45, category: 'Climate', fundingReceived: 2500000, lastActivity: new Date(), impact: 95,
+        properties: { region: 'Americas', established: 2010 },
+        regionalClimateData: { avgTemperature: 12.5, temperatureTrend: +1.2, airQualityIndex: 85, forestCoverage: 24, waterAvailability: 78, carbonFootprint: 45000, renewableEnergy: 32 }
+      },
+      {
+        id: 'hq2', name: 'EU Operations', location: { lat: 51.5074, lng: -0.1278 }, type: 'headquarters',
+        activeProjects: 38, category: 'Conservation', fundingReceived: 1800000, lastActivity: new Date(), impact: 88,
+        properties: { region: 'Europe', established: 2012 },
+        regionalClimateData: { avgTemperature: 10.8, temperatureTrend: +0.9, airQualityIndex: 72, forestCoverage: 38, waterAvailability: 85, carbonFootprint: 38000, renewableEnergy: 48 }
+      },
+      {
+        id: 'hq3', name: 'Asia-Pacific Hub', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters',
+        activeProjects: 52, category: 'Wildlife', fundingReceived: 3200000, lastActivity: new Date(), impact: 92,
+        properties: { region: 'Asia', established: 2008 },
+        regionalClimateData: { avgTemperature: 16.3, temperatureTrend: +1.5, airQualityIndex: 145, forestCoverage: 31, waterAvailability: 68, carbonFootprint: 52000, renewableEnergy: 28 }
+      },
+      {
+        id: 'r1', name: 'African Regional', location: { lat: -1.2921, lng: 36.8219 }, type: 'regional',
+        activeProjects: 28, category: 'Water', fundingReceived: 950000, lastActivity: new Date(), impact: 78,
+        properties: { region: 'Africa', established: 2015 },
+        regionalClimateData: { avgTemperature: 24.5, temperatureTrend: +1.8, airQualityIndex: 95, forestCoverage: 42, waterAvailability: 45, carbonFootprint: 12000, renewableEnergy: 18 }
+      },
+      {
+        id: 'r2', name: 'South America', location: { lat: -23.5505, lng: -46.6333 }, type: 'regional',
+        activeProjects: 31, category: 'Forest', fundingReceived: 1200000, lastActivity: new Date(), impact: 85,
+        properties: { region: 'South America', established: 2013 },
+        regionalClimateData: { avgTemperature: 19.5, temperatureTrend: +1.3, airQualityIndex: 105, forestCoverage: 58, waterAvailability: 72, carbonFootprint: 28000, renewableEnergy: 42 }
+      },
+      {
+        id: 'r3', name: 'Middle East', location: { lat: 25.2048, lng: 55.2708 }, type: 'regional',
+        activeProjects: 22, category: 'Climate', fundingReceived: 780000, lastActivity: new Date(), impact: 72,
+        properties: { region: 'Middle East', established: 2016 },
+        regionalClimateData: { avgTemperature: 28.2, temperatureTrend: +2.1, airQualityIndex: 165, forestCoverage: 8, waterAvailability: 22, carbonFootprint: 68000, renewableEnergy: 15 }
+      },
+      {
+        id: 'f1', name: 'Arctic Research', location: { lat: 64.1466, lng: -21.9426 }, type: 'field',
+        activeProjects: 8, category: 'Climate', fundingReceived: 450000, lastActivity: new Date(), impact: 68,
+        properties: { region: 'Arctic', established: 2018 },
+        regionalClimateData: { avgTemperature: -2.5, temperatureTrend: +3.2, airQualityIndex: 25, forestCoverage: 12, waterAvailability: 95, carbonFootprint: 5000, renewableEnergy: 65 }
+      },
+      {
+        id: 'f2', name: 'Amazon Station', location: { lat: -3.4653, lng: -62.2159 }, type: 'field',
+        activeProjects: 12, category: 'Forest', fundingReceived: 620000, lastActivity: new Date(), impact: 82,
+        properties: { region: 'Amazon', established: 2014 },
+        regionalClimateData: { avgTemperature: 26.8, temperatureTrend: +1.6, airQualityIndex: 45, forestCoverage: 78, waterAvailability: 88, carbonFootprint: 8000, renewableEnergy: 72 }
+      },
     ];
 
     const mockPaths: FlightPath[] = [
@@ -699,11 +771,31 @@ const MapPage: React.FC = () => {
     ];
 
     const mockZones: ClimateZone[] = [
-      { id: 'cz1', location: { lat: -3.4653, lng: -62.2159 }, name: 'Amazon Deforestation', severity: 'critical', type: 'deforestation', radius: 400000, affectedPopulation: 2500000, trend: 'worsening' },
-      { id: 'cz2', location: { lat: 23.8859, lng: 45.0792 }, name: 'Sahara Drought', severity: 'high', type: 'drought', radius: 600000, affectedPopulation: 1800000, trend: 'stable' },
-      { id: 'cz3', location: { lat: 28.6139, lng: 77.2090 }, name: 'Delhi Air Quality', severity: 'critical', type: 'pollution', radius: 200000, affectedPopulation: 20000000, trend: 'worsening' },
-      { id: 'cz4', location: { lat: 64.1466, lng: -21.9426 }, name: 'Arctic Warming', severity: 'critical', type: 'temperature', radius: 500000, affectedPopulation: 150000, trend: 'worsening' },
-      { id: 'cz5', location: { lat: 6.5244, lng: 3.3792 }, name: 'Lagos Flooding', severity: 'high', type: 'flooding', radius: 150000, affectedPopulation: 5000000, trend: 'worsening' },
+      {
+        id: 'cz1', location: { lat: -3.4653, lng: -62.2159 }, name: 'Amazon Deforestation Crisis', severity: 'critical',
+        type: 'deforestation', radius: 400000, affectedPopulation: 2500000, trend: 'worsening',
+        temperatureChange: +1.8, co2Level: 425, seaLevelRise: 0, biodiversityLoss: 32, deforestationRate: 7900, waterStress: 28, lastUpdated: new Date()
+      },
+      {
+        id: 'cz2', location: { lat: 23.8859, lng: 45.0792 }, name: 'Sahara Expansion', severity: 'high',
+        type: 'drought', radius: 600000, affectedPopulation: 1800000, trend: 'worsening',
+        temperatureChange: +2.3, co2Level: 418, seaLevelRise: 0, biodiversityLoss: 45, deforestationRate: 0, waterStress: 78, lastUpdated: new Date()
+      },
+      {
+        id: 'cz3', location: { lat: 28.6139, lng: 77.2090 }, name: 'Delhi Air Pollution', severity: 'critical',
+        type: 'pollution', radius: 200000, affectedPopulation: 20000000, trend: 'worsening',
+        temperatureChange: +1.5, co2Level: 445, seaLevelRise: 0, biodiversityLoss: 18, deforestationRate: 450, waterStress: 52, lastUpdated: new Date()
+      },
+      {
+        id: 'cz4', location: { lat: 64.1466, lng: -21.9426 }, name: 'Arctic Ice Melt', severity: 'critical',
+        type: 'temperature', radius: 500000, affectedPopulation: 150000, trend: 'worsening',
+        temperatureChange: +3.8, co2Level: 422, seaLevelRise: 3.4, biodiversityLoss: 28, deforestationRate: 0, waterStress: 15, lastUpdated: new Date()
+      },
+      {
+        id: 'cz5', location: { lat: 6.5244, lng: 3.3792 }, name: 'Lagos Coastal Flooding', severity: 'high',
+        type: 'flooding', radius: 150000, affectedPopulation: 5000000, trend: 'worsening',
+        temperatureChange: +1.2, co2Level: 415, seaLevelRise: 2.8, biodiversityLoss: 22, deforestationRate: 1200, waterStress: 45, lastUpdated: new Date()
+      },
     ];
 
     setCharityBases(mockBases);
@@ -733,7 +825,14 @@ const MapPage: React.FC = () => {
 
   const filteredBases = useMemo(() => {
     return charityBases.filter(base => {
-      if (searchQuery && !base.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      // Search filter
+      if (searchQuery && searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const matchesName = base.name.toLowerCase().includes(query);
+        const matchesCategory = base.category.toLowerCase().includes(query);
+        const matchesRegion = base.properties.region?.toLowerCase().includes(query);
+        if (!matchesName && !matchesCategory && !matchesRegion) return false;
+      }
       if (filters.category.length > 0 && !filters.category.includes(base.category)) return false;
       if (filters.type.length > 0 && !filters.type.includes(base.type)) return false;
       if (base.impact < filters.impactThreshold) return false;
@@ -761,13 +860,13 @@ const MapPage: React.FC = () => {
   }, [climateZones, filters, currentZoom]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col overflow-hidden">
       {/* Clean Header */}
       <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent flex items-center space-x-2">
-            <GlobeAltIcon className="w-7 h-7 text-blue-600" />
-            <span>Global Impact Network</span>
+          <h1 className="text-2xl font-bold flex items-center space-x-2">
+            <GlobeAltIcon className="w-7 h-7" style={{ color: '#3b82f6' }} />
+            <span style={{ color: '#3b82f6' }}>Global Impact Network</span>
           </h1>
           <LiveDataIndicator status={dataStreamStatus} updateCount={updateCount} />
         </div>
@@ -775,13 +874,16 @@ const MapPage: React.FC = () => {
         <div className="flex items-center space-x-3">
           {/* Search */}
           <div className="relative">
-            <MagnifyingGlassIcon className="w-4 h-4 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#3b82f6' }} />
             <input
               type="text"
               placeholder="Search charities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-white text-gray-700 text-sm rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-56 placeholder-gray-400 shadow-sm"
+              className="pl-9 pr-4 py-2 bg-white text-gray-700 text-sm rounded-lg border border-blue-200 focus:outline-none w-56 placeholder-gray-400 shadow-sm"
+              style={{ '--tw-ring-color': '#3b82f6' } as React.CSSProperties}
+              onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px #3b82f6'}
+              onBlur={(e) => e.target.style.boxShadow = ''}
             />
           </div>
 
@@ -793,9 +895,10 @@ const MapPage: React.FC = () => {
             onClick={() => setShowAnalytics(!showAnalytics)}
             className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
               showAnalytics
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50'
+                ? 'text-white shadow-lg'
+                : 'bg-white border border-blue-200 hover:bg-blue-50'
             }`}
+            style={showAnalytics ? { backgroundColor: '#3b82f6' } : { color: '#3b82f6' }}
           >
             <ChartBarIcon className="w-5 h-5" />
             <span className="text-sm font-semibold">Impact Stats</span>
@@ -807,9 +910,10 @@ const MapPage: React.FC = () => {
             onClick={() => setShowFilterPanel(!showFilterPanel)}
             className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
               showFilterPanel
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50'
+                ? 'text-white shadow-lg'
+                : 'bg-white border border-blue-200 hover:bg-blue-50'
             }`}
+            style={showFilterPanel ? { backgroundColor: '#3b82f6' } : { color: '#3b82f6' }}
           >
             <FunnelIcon className="w-5 h-5" />
             <span className="text-sm font-semibold">Filter</span>
@@ -821,7 +925,8 @@ const MapPage: React.FC = () => {
             whileTap={{ scale: 0.95 }}
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="p-2 rounded-lg bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all shadow-sm"
+            className="p-2 rounded-lg bg-white border border-blue-200 hover:bg-blue-50 transition-all shadow-sm"
+            style={{ color: '#3b82f6' }}
             title="Refresh Data"
           >
             <ArrowPathIcon className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -829,15 +934,81 @@ const MapPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex relative p-6">
+      {/* Top 10 Most-Funded Charities Ranking */}
+      <div className="px-6 pt-4 pb-2">
+        <div className="bg-white rounded-xl border border-blue-200 shadow-md p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
+              <ChartBarIcon className="w-5 h-5" />
+              <span>Top 10 Most-Funded Charities</span>
+            </h2>
+            <div className="text-xs text-gray-500 font-medium">Total: ${(charityBases.reduce((sum, b) => sum + b.fundingReceived, 0) / 1000000).toFixed(1)}M</div>
+          </div>
+          <div className="grid grid-cols-10 gap-2">
+            {charityBases
+              .sort((a, b) => b.fundingReceived - a.fundingReceived)
+              .slice(0, 10)
+              .map((charity, index) => (
+                <motion.div
+                  key={charity.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.08, duration: 0.6, ease: "easeOut" }}
+                  className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-2.5 hover:shadow-lg transition-all cursor-pointer group relative"
+                  style={{ borderColor: '#3b82f6' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#3b82f6';
+                    e.currentTarget.style.backgroundColor = '#eff6ff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#bfdbfe';
+                    e.currentTarget.style.backgroundColor = '';
+                  }}
+                >
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full mx-auto mb-1.5" style={{ backgroundColor: '#3b82f6' }}>
+                    <span className="text-white text-xs font-bold">{index + 1}</span>
+                  </div>
+                  <div className="text-xs font-bold text-gray-800 text-center truncate mb-1" title={charity.name}>
+                    {charity.name.split(' ').slice(0, 2).join(' ')}
+                  </div>
+                  <div className="text-xs font-semibold text-center mb-1" style={{ color: '#3b82f6' }}>
+                    ${(charity.fundingReceived / 1000).toFixed(0)}K
+                  </div>
+                  <div className="text-xs text-gray-600 text-center truncate" title={charity.category}>
+                    {charity.category}
+                  </div>
+                  <div className="text-xs text-gray-500 text-center mt-1">
+                    {charity.activeProjects} projects
+                  </div>
+
+                  {/* Tooltip on hover */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                    <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-xl">
+                      <div className="font-bold mb-1">{charity.name}</div>
+                      <div className="text-green-400">${(charity.fundingReceived / 1000).toFixed(0)}K funded</div>
+                      <div className="text-gray-300">{charity.properties.region}</div>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 flex relative px-6 pb-6 gap-6 overflow-hidden">
         {/* Main Map in White Box */}
         <div className="flex-1 relative bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
           <MapContainer
             center={[20, 20]}
             zoom={2}
+            minZoom={2}
+            maxZoom={18}
             style={{ height: '100%', width: '100%' }}
             zoomControl={false}
             className="bg-blue-50"
+            maxBounds={[[-85, -180], [85, 180]]}
+            maxBoundsViscosity={1.0}
           >
             <TileLayer
               attribution='&copy; OpenStreetMap'
@@ -866,28 +1037,80 @@ const MapPage: React.FC = () => {
                 >
                   {layer.showTooltips && (
                     <Popup>
-                      <div className="text-sm max-w-xs">
-                        <div className="font-bold text-gray-900 mb-1">{zone.name}</div>
-                        <div className="space-y-0.5 text-xs text-gray-600">
+                      <div className="text-sm max-w-sm">
+                        <div className="font-bold text-red-700 mb-2 flex items-center justify-between border-b border-red-200 pb-2">
+                          <span>{zone.name}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                            zone.severity === 'critical' ? 'bg-red-100 text-red-700' :
+                            zone.severity === 'high' ? 'bg-orange-100 text-orange-700' :
+                            zone.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-blue-100 text-blue-700'
+                          }`}>{zone.severity.toUpperCase()}</span>
+                        </div>
+
+                        {/* Crisis Info */}
+                        <div className="space-y-1.5 text-xs text-gray-700 mb-3">
                           <div className="flex justify-between">
-                            <span>Type:</span>
-                            <span className="font-medium capitalize">{zone.type}</span>
+                            <span className="text-gray-500">Crisis Type:</span>
+                            <span className="font-semibold capitalize">{zone.type}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Severity:</span>
-                            <span className="font-medium capitalize">{zone.severity}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Trend:</span>
-                            <span className={`font-medium capitalize ${
+                            <span className="text-gray-500">Trend:</span>
+                            <span className={`font-semibold capitalize ${
                               zone.trend === 'worsening' ? 'text-red-600' :
-                              zone.trend === 'improving' ? 'text-green-600' : 'text-gray-600'
-                            }`}>{zone.trend}</span>
+                              zone.trend === 'improving' ? 'text-green-600' : 'text-yellow-600'
+                            }`}>
+                              {zone.trend} {zone.trend === 'worsening' ? '↗' : zone.trend === 'improving' ? '↘' : '→'}
+                            </span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Population:</span>
-                            <span className="font-medium">{zone.affectedPopulation.toLocaleString()}</span>
+                            <span className="text-gray-500">Affected Population:</span>
+                            <span className="font-semibold text-red-600">{(zone.affectedPopulation / 1000000).toFixed(1)}M people</span>
                           </div>
+                        </div>
+
+                        {/* Climate Metrics */}
+                        <div className="bg-red-50 rounded-lg p-2.5 border border-red-200">
+                          <div className="font-bold text-xs text-red-900 mb-2 flex items-center">
+                            <span className="w-1 h-3 bg-red-600 rounded mr-1.5"></span>
+                            Climate Crisis Metrics
+                          </div>
+                          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                            <div>
+                              <span className="text-gray-600">Temp Change:</span>
+                              <div className="font-bold text-red-700">+{zone.temperatureChange}°C</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">CO₂ Level:</span>
+                              <div className="font-bold text-orange-700">{zone.co2Level} ppm</div>
+                            </div>
+                            {zone.seaLevelRise > 0 && (
+                              <div>
+                                <span className="text-gray-600">Sea Level:</span>
+                                <div className="font-bold text-blue-700">+{zone.seaLevelRise}mm/yr</div>
+                              </div>
+                            )}
+                            <div>
+                              <span className="text-gray-600">Biodiversity Loss:</span>
+                              <div className="font-bold text-red-600">{zone.biodiversityLoss}%</div>
+                            </div>
+                            {zone.deforestationRate > 0 && (
+                              <div>
+                                <span className="text-gray-600">Deforestation:</span>
+                                <div className="font-bold text-orange-700">{(zone.deforestationRate / 1000).toFixed(1)}k ha/yr</div>
+                              </div>
+                            )}
+                            <div>
+                              <span className="text-gray-600">Water Stress:</span>
+                              <div className={`font-bold ${zone.waterStress > 60 ? 'text-red-600' : zone.waterStress > 30 ? 'text-yellow-600' : 'text-green-600'}`}>
+                                {zone.waterStress}%
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-2 text-xs text-gray-500 italic">
+                          Last updated: {new Date(zone.lastUpdated).toLocaleDateString()}
                         </div>
                       </div>
                     </Popup>
@@ -925,40 +1148,84 @@ const MapPage: React.FC = () => {
                 >
                   {layer.showTooltips && (
                     <Popup>
-                      <div className="text-sm min-w-[220px]">
-                        <div className="font-bold text-gray-900 mb-2 flex items-center justify-between">
-                          {base.name}
+                      <div className="text-sm min-w-[320px]">
+                        <div className="font-bold text-gray-900 mb-2 flex items-center justify-between border-b border-blue-200 pb-2">
+                          <span className="text-blue-700">{base.name}</span>
                           {base.recentActivity && (
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">LIVE</span>
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">LIVE</span>
                           )}
                         </div>
-                        <div className="space-y-1 text-xs text-gray-600">
+
+                        {/* Charity Info */}
+                        <div className="space-y-1.5 text-xs text-gray-700 mb-3">
                           <div className="flex justify-between">
-                            <span>Type:</span>
-                            <span className="font-medium capitalize">{base.type}</span>
+                            <span className="text-gray-500">Type:</span>
+                            <span className="font-semibold capitalize">{base.type}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Category:</span>
-                            <span className="font-medium">{base.category}</span>
+                            <span className="text-gray-500">Focus:</span>
+                            <span className="font-semibold">{base.category}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Projects:</span>
-                            <span className="font-medium">{base.activeProjects}</span>
+                            <span className="text-gray-500">Active Projects:</span>
+                            <span className="font-semibold text-blue-600">{base.activeProjects}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Funding:</span>
-                            <span className="font-medium">${(base.fundingReceived / 1000).toFixed(0)}K</span>
+                            <span className="text-gray-500">Funding:</span>
+                            <span className="font-semibold text-green-600">${(base.fundingReceived / 1000).toFixed(0)}K</span>
                           </div>
-                          <div className="flex justify-between">
-                            <span>Impact:</span>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-500">Impact Score:</span>
                             <div className="flex items-center">
                               <div className="w-16 h-1.5 bg-gray-200 rounded-full mr-2">
                                 <div
-                                  className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full"
+                                  className="h-full bg-gradient-to-r from-blue-400 to-teal-500 rounded-full"
                                   style={{ width: `${base.impact}%` }}
                                 />
                               </div>
-                              <span className="font-medium">{base.impact}%</span>
+                              <span className="font-bold text-blue-700">{base.impact}%</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Climate Data */}
+                        <div className="bg-blue-50 rounded-lg p-2.5 border border-blue-200">
+                          <div className="font-bold text-xs text-blue-900 mb-2 flex items-center">
+                            <span className="w-1 h-3 bg-blue-600 rounded mr-1.5"></span>
+                            Regional Climate Data
+                          </div>
+                          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                            <div>
+                              <span className="text-gray-600">Temperature:</span>
+                              <div className="font-bold text-blue-700">{base.regionalClimateData.avgTemperature}°C
+                                <span className={`ml-1 text-xs ${base.regionalClimateData.temperatureTrend > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                  ({base.regionalClimateData.temperatureTrend > 0 ? '+' : ''}{base.regionalClimateData.temperatureTrend}°C)
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Air Quality:</span>
+                              <div className={`font-bold ${base.regionalClimateData.airQualityIndex > 100 ? 'text-red-600' : base.regionalClimateData.airQualityIndex > 50 ? 'text-yellow-600' : 'text-green-600'}`}>
+                                AQI {base.regionalClimateData.airQualityIndex}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Forest Cover:</span>
+                              <div className="font-bold text-green-700">{base.regionalClimateData.forestCoverage}%</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Water Access:</span>
+                              <div className={`font-bold ${base.regionalClimateData.waterAvailability < 50 ? 'text-red-600' : 'text-blue-600'}`}>
+                                {base.regionalClimateData.waterAvailability}%
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Carbon:</span>
+                              <div className="font-bold text-gray-700">{(base.regionalClimateData.carbonFootprint / 1000).toFixed(1)}kt/yr</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Renewables:</span>
+                              <div className="font-bold text-teal-600">{base.regionalClimateData.renewableEnergy}%</div>
                             </div>
                           </div>
                         </div>
@@ -983,7 +1250,7 @@ const MapPage: React.FC = () => {
             >
               <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-teal-50">
                 <div className="flex items-center space-x-2">
-                  <ChartBarIcon className="w-5 h-5 text-blue-600" />
+                  <ChartBarIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
                   <h3 className="font-bold text-gray-800">Impact Overview</h3>
                 </div>
                 <button
@@ -995,6 +1262,32 @@ const MapPage: React.FC = () => {
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                {/* Global Climate Overview */}
+                <div className="bg-gradient-to-br from-red-50 to-orange-50 border border-red-200 rounded-xl p-4">
+                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                    <span className="w-1 h-4 bg-red-600 rounded mr-2"></span>
+                    Global Climate Status
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-700">Avg Global Temp Rise:</span>
+                      <span className="font-bold text-red-700">+{(climateZones.reduce((sum, z) => sum + z.temperatureChange, 0) / climateZones.length).toFixed(1)}°C</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-700">Active Climate Crises:</span>
+                      <span className="font-bold text-orange-700">{climateZones.filter(z => z.severity === 'critical' || z.severity === 'high').length}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-700">People Affected:</span>
+                      <span className="font-bold text-red-700">{(climateZones.reduce((sum, z) => sum + z.affectedPopulation, 0) / 1000000).toFixed(1)}M</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-700">Charities Responding:</span>
+                      <span className="font-bold text-green-700">{filteredBases.length}</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Total Stats */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4">
@@ -1089,7 +1382,7 @@ const MapPage: React.FC = () => {
             >
               <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50">
                 <div className="flex items-center space-x-2">
-                  <FunnelIcon className="w-5 h-5 text-blue-600" />
+                  <FunnelIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
                   <h3 className="font-bold text-gray-800">Filter Charities</h3>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -1102,7 +1395,10 @@ const MapPage: React.FC = () => {
                       dateRange: null,
                       impactThreshold: 0
                     })}
-                    className="text-xs px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-all font-semibold"
+                    className="text-xs px-3 py-1.5 rounded-lg transition-all font-semibold"
+                    style={{ backgroundColor: '#e0f2fe', color: '#3b82f6' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#bae6fd'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e0f2fe'}
                   >
                     Clear All
                   </button>
@@ -1241,6 +1537,145 @@ const MapPage: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Right Side Panel - Missions and Proposals */}
+        <div className="w-96 flex flex-col gap-4">
+          {/* Top Live Missions */}
+          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 max-h-[45%] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
+                <BoltIcon className="w-5 h-5" />
+                <span>Top Live Missions</span>
+              </h3>
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-2 h-2 rounded-full bg-green-500"
+              />
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {liveMissions
+                .sort((a, b) => b.votes + b.funding - (a.votes + a.funding))
+                .map((mission, index) => (
+                  <motion.div
+                    key={mission.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.15, duration: 0.8, ease: "easeOut" }}
+                    className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-3 hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="font-bold text-sm text-gray-800 mb-1">{mission.name}</div>
+                        <div className="text-xs text-gray-600 flex items-center space-x-1">
+                          <MapIcon className="w-3 h-3" />
+                          <span>{mission.location}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full" style={{ backgroundColor: '#3b82f6' }}>
+                        <span className="text-white text-xs font-bold">{index + 1}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+                      <div>
+                        <span className="text-gray-500">Votes:</span>
+                        <span className="font-bold ml-1" style={{ color: '#3b82f6' }}>{mission.votes}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Funding:</span>
+                        <span className="font-bold text-green-600 ml-1">${(mission.funding / 1000).toFixed(0)}K</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-600">Progress</span>
+                        <span className="font-bold" style={{ color: '#3b82f6' }}>{mission.progress}%</span>
+                      </div>
+                      <div className="h-1.5 bg-blue-100 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${mission.progress}%` }}
+                          transition={{ duration: 1, delay: index * 0.2 }}
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: '#3b82f6' }}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+            </div>
+          </div>
+
+          {/* Proposals Voting System */}
+          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 flex-1 overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
+                <ChartBarIcon className="w-5 h-5" />
+                <span>Community Proposals</span>
+              </h3>
+              <div className="text-xs font-semibold px-2 py-1 rounded-full" style={{ backgroundColor: '#eff6ff', color: '#3b82f6' }}>
+                Vote & Earn XP
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {proposals
+                .sort((a, b) => b.votes - a.votes)
+                .map((proposal, index) => (
+                  <motion.div
+                    key={proposal.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.15, duration: 0.8, ease: "easeOut" }}
+                    className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-3"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="font-bold text-sm text-gray-800 mb-1">{proposal.title}</div>
+                        <div className="text-xs text-gray-600 mb-2">{proposal.description}</div>
+                        <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: '#3b82f6' }}>
+                          {proposal.category}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center space-x-3 text-xs">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-gray-500">Votes:</span>
+                          <span className="font-bold" style={{ color: '#3b82f6' }}>{proposal.votes}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <span className="text-gray-500">Goal:</span>
+                          <span className="font-bold text-green-600">${(proposal.funding / 1000).toFixed(0)}K</span>
+                        </div>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setProposals(prev => prev.map(p =>
+                            p.id === proposal.id
+                              ? { ...p, votes: p.votes + (p.userVoted ? -1 : 1), userVoted: !p.userVoted }
+                              : p
+                          ));
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          proposal.userVoted
+                            ? 'text-white shadow-md'
+                            : 'bg-white border text-gray-700 hover:bg-blue-50'
+                        }`}
+                        style={proposal.userVoted ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } : { borderColor: '#3b82f6' }}
+                      >
+                        {proposal.userVoted ? '✓ Voted (+10 XP)' : 'Vote'}
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Remove Keyboard Shortcuts */}
