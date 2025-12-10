@@ -11,7 +11,8 @@ import {
   MapIcon,
   LockClosedIcon,
   UserGroupIcon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  NewspaperIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -45,7 +46,61 @@ const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
 
 const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<'donate' | 'vote' | 'explore'>('donate');
+  const [activeTab, setActiveTab] = useState<'donate' | 'vote' | 'explore' | 'news'>('donate');
+
+  // News feed - updates from followed NGOs
+  const [newsFeed] = useState([
+    {
+      id: 1,
+      ngo: 'Global Climate HQ',
+      title: 'Arctic Research Breakthrough',
+      content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations to track the impact and develop intervention strategies.',
+      timestamp: new Date(Date.now() - 3600000),
+      category: 'Climate',
+      image: '🌊',
+      followed: true
+    },
+    {
+      id: 2,
+      ngo: 'Amazon Protection',
+      title: '1 Million Trees Planted',
+      content: 'Reached our milestone! Thanks to all supporters who made this reforestation initiative possible. Next goal: 5 million trees by 2025.',
+      timestamp: new Date(Date.now() - 7200000),
+      category: 'Forest',
+      image: '🌳',
+      followed: true
+    },
+    {
+      id: 3,
+      ngo: 'Ocean Cleanup',
+      title: 'Pacific Cleanup Progress Update',
+      content: 'Removed 50 tons of plastic this month. Progress is steady with our new AI-powered drone technology identifying waste hotspots.',
+      timestamp: new Date(Date.now() - 14400000),
+      category: 'Conservation',
+      image: '🌊',
+      followed: false
+    },
+    {
+      id: 4,
+      ngo: 'Wildlife Protection',
+      title: 'Endangered Species Recovery',
+      content: 'Population of Arctic foxes increased by 15% this quarter thanks to our protection efforts and habitat restoration programs.',
+      timestamp: new Date(Date.now() - 21600000),
+      category: 'Wildlife',
+      image: '🦊',
+      followed: true
+    },
+    {
+      id: 5,
+      ngo: 'Clean Water Initiative',
+      title: 'New Water Systems Deployed',
+      content: 'Successfully installed 12 water purification systems in rural communities, providing clean drinking water to 5,000 families.',
+      timestamp: new Date(Date.now() - 28800000),
+      category: 'Water',
+      image: '💧',
+      followed: false
+    },
+  ]);
 
   return (
     <div className="h-screen bg-white relative overflow-hidden flex flex-col">
@@ -171,6 +226,17 @@ const HomePage: React.FC = () => {
               Donate
             </button>
             <button
+              onClick={() => setActiveTab('news')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all text-sm ${
+                activeTab === 'news'
+                  ? 'bg-gradient-to-r from-arctic-500 to-arctic-600 text-white shadow-lg'
+                  : 'bg-white text-arctic-700 border border-arctic-200 hover:border-arctic-400'
+              }`}
+            >
+              <NewspaperIcon className="w-4 h-4" />
+              News
+            </button>
+            <button
               onClick={() => setActiveTab('vote')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all text-sm ${
                 activeTab === 'vote'
@@ -254,6 +320,75 @@ const HomePage: React.FC = () => {
                   <span>Start Donating</span>
                   <ArrowRightIcon className="w-4 h-4" />
                 </Link>
+              </motion.div>
+            )}
+
+            {activeTab === 'news' && (
+              <motion.div
+                key="news"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-xl font-bold text-arctic-900 mb-2">Latest Updates</h3>
+                <p className="text-sm text-ice-700 mb-4">
+                  Stay informed with news from NGOs you follow. Click any update to learn more and donate.
+                </p>
+
+                <div className="space-y-3">
+                  {newsFeed.map((news) => (
+                    <Link
+                      key={news.id}
+                      to="/donate"
+                      className="block bg-white/60 backdrop-blur-sm border border-arctic-100 rounded-lg p-4 hover:shadow-md hover:border-arctic-300 transition-all"
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* NGO Icon */}
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-arctic-50">
+                          {news.image}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          {/* Header */}
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-arctic-600">{news.ngo}</span>
+                              {news.followed && (
+                                <span className="text-xs px-2 py-0.5 bg-arctic-100 text-arctic-700 rounded-full font-semibold">
+                                  Following
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs text-ice-600">
+                              {Math.floor((Date.now() - news.timestamp.getTime()) / 3600000)}h ago
+                            </span>
+                          </div>
+
+                          {/* Title */}
+                          <h4 className="font-bold text-sm text-arctic-900 mb-1">
+                            {news.title}
+                          </h4>
+
+                          {/* Content */}
+                          <p className="text-xs text-ice-700 line-clamp-2 mb-2">
+                            {news.content}
+                          </p>
+
+                          {/* Category badge */}
+                          <div className="inline-block text-xs px-2 py-0.5 bg-gradient-to-r from-arctic-100 to-ice-100 text-arctic-700 rounded-full font-semibold">
+                            {news.category}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="mt-4 text-center">
+                  <p className="text-xs text-ice-600 italic">
+                    Manage your followed NGOs in your profile settings
+                  </p>
+                </div>
               </motion.div>
             )}
 

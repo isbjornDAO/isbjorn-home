@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
   FunnelIcon,
   MagnifyingGlassIcon,
@@ -447,6 +448,7 @@ const MapInteractionHandler: React.FC<{ onZoomChange: (zoom: number) => void }> 
 
 const MapPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [charityBases, setCharityBases] = useState<CharityBase[]>([]);
   const [flightPaths, setFlightPaths] = useState<FlightPath[]>([]);
   const [climateZones, setClimateZones] = useState<ClimateZone[]>([]);
@@ -465,13 +467,44 @@ const MapPage: React.FC = () => {
   const [updateCount, setUpdateCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Proposals and missions state
-  const [proposals, setProposals] = useState([
-    { id: 1, title: 'Expand Arctic Research Stations', description: 'Build 3 new research stations in the Arctic region', votes: 342, category: 'Climate', funding: 450000, userVoted: false },
-    { id: 2, title: 'Amazon Reforestation Initiative', description: 'Plant 1 million trees in deforested areas', votes: 521, category: 'Forest', funding: 620000, userVoted: false },
-    { id: 3, title: 'Clean Water Access in Africa', description: 'Install 50 water purification systems', votes: 287, category: 'Water', funding: 380000, userVoted: false },
-    { id: 4, title: 'Wildlife Protection Drones', description: 'Deploy AI-powered drones to protect endangered species', votes: 198, category: 'Wildlife', funding: 280000, userVoted: false },
-    { id: 5, title: 'Solar Energy for Rural Areas', description: 'Install solar panels in 100 rural communities', votes: 412, category: 'Climate', funding: 550000, userVoted: false },
+  // News feed state - will be moved to home page
+  const [newsFeed, setNewsFeed] = useState([
+    {
+      id: 1,
+      ngo: 'Global Climate HQ',
+      title: 'Arctic Research Breakthrough',
+      content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations.',
+      timestamp: new Date(Date.now() - 3600000),
+      category: 'Climate',
+      image: '🌊'
+    },
+    {
+      id: 2,
+      ngo: 'Amazon Protection',
+      title: '1 Million Trees Planted',
+      content: 'Reached our milestone! Thanks to all supporters who made this reforestation initiative possible.',
+      timestamp: new Date(Date.now() - 7200000),
+      category: 'Forest',
+      image: '🌳'
+    },
+    {
+      id: 3,
+      ngo: 'Ocean Cleanup',
+      title: 'Pacific Cleanup Update',
+      content: 'Removed 50 tons of plastic this month. Progress is steady with our new drone technology.',
+      timestamp: new Date(Date.now() - 14400000),
+      category: 'Conservation',
+      image: '🌊'
+    },
+    {
+      id: 4,
+      ngo: 'Wildlife Protection',
+      title: 'Endangered Species Recovery',
+      content: 'Population of Arctic foxes increased by 15% this quarter thanks to protection efforts.',
+      timestamp: new Date(Date.now() - 21600000),
+      category: 'Wildlife',
+      image: '🦊'
+    },
   ]);
 
   const [liveMissions, setLiveMissions] = useState([
@@ -934,64 +967,63 @@ const MapPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Top 10 Most-Funded Charities Ranking */}
-      <div className="px-6 pt-4 pb-2">
-        <div className="bg-white rounded-xl border border-blue-200 shadow-md p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
-              <ChartBarIcon className="w-5 h-5" />
-              <span>Top 10 Most-Funded Charities</span>
-            </h2>
-            <div className="text-xs text-gray-500 font-medium">Total: ${(charityBases.reduce((sum, b) => sum + b.fundingReceived, 0) / 1000000).toFixed(1)}M</div>
-          </div>
-          <div className="grid grid-cols-10 gap-2">
-            {charityBases
-              .sort((a, b) => b.fundingReceived - a.fundingReceived)
-              .slice(0, 10)
-              .map((charity, index) => (
-                <motion.div
-                  key={charity.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.08, duration: 0.6, ease: "easeOut" }}
-                  className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-2.5 hover:shadow-lg transition-all cursor-pointer group relative"
-                  style={{ borderColor: '#3b82f6' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#3b82f6';
-                    e.currentTarget.style.backgroundColor = '#eff6ff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#bfdbfe';
-                    e.currentTarget.style.backgroundColor = '';
-                  }}
-                >
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full mx-auto mb-1.5" style={{ backgroundColor: '#3b82f6' }}>
-                    <span className="text-white text-xs font-bold">{index + 1}</span>
-                  </div>
-                  <div className="text-xs font-bold text-gray-800 text-center truncate mb-1" title={charity.name}>
-                    {charity.name.split(' ').slice(0, 2).join(' ')}
-                  </div>
-                  <div className="text-xs font-semibold text-center mb-1" style={{ color: '#3b82f6' }}>
-                    ${(charity.fundingReceived / 1000).toFixed(0)}K
-                  </div>
-                  <div className="text-xs text-gray-600 text-center truncate" title={charity.category}>
-                    {charity.category}
-                  </div>
-                  <div className="text-xs text-gray-500 text-center mt-1">
-                    {charity.activeProjects} projects
-                  </div>
+      {/* Trending - DexScreener Style */}
+      <div className="px-6 pt-3 pb-2">
+        <div className="bg-white rounded-lg border border-blue-100 shadow-sm px-4 py-2">
+          <div className="flex items-center gap-4 overflow-x-auto">
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className="text-sm font-bold text-gray-700">Trending</span>
+              <BoltIcon className="w-4 h-4" style={{ color: '#3b82f6' }} />
+            </div>
+            <div className="flex items-center gap-3">
+              {charityBases
+                .sort((a, b) => b.fundingReceived - a.fundingReceived)
+                .slice(0, 10)
+                .map((charity, index) => (
+                  <motion.button
+                    key={charity.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.4 }}
+                    onClick={() => navigate(`/donate`)}
+                    className="group relative flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-blue-400 bg-white hover:bg-blue-50 transition-all cursor-pointer"
+                  >
+                    <span className="text-xs font-bold text-gray-500">#{index + 1}</span>
+                    <span className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                      {charity.name.split(' ')[0]}
+                    </span>
 
-                  {/* Tooltip on hover */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                    <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-xl">
-                      <div className="font-bold mb-1">{charity.name}</div>
-                      <div className="text-green-400">${(charity.fundingReceived / 1000).toFixed(0)}K funded</div>
-                      <div className="text-gray-300">{charity.properties.region}</div>
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                    {/* Hover tooltip */}
+                    <div className="absolute top-full left-0 mt-2 hidden group-hover:block z-50 w-64">
+                      <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-2xl">
+                        <div className="font-bold mb-2 text-sm">{charity.name}</div>
+                        <div className="space-y-1 text-gray-300">
+                          <div className="flex justify-between">
+                            <span>Category:</span>
+                            <span className="text-white font-semibold">{charity.category}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Funding:</span>
+                            <span className="text-green-400 font-semibold">${(charity.fundingReceived / 1000).toFixed(0)}K</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Projects:</span>
+                            <span className="text-blue-400 font-semibold">{charity.activeProjects}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Region:</span>
+                            <span className="text-white font-semibold">{charity.properties.region}</span>
+                          </div>
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-gray-400 italic">
+                          Click to donate
+                        </div>
+                        <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.button>
+                ))}
+            </div>
           </div>
         </div>
       </div>
@@ -1608,71 +1640,71 @@ const MapPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Proposals Voting System */}
+          {/* News Feed - Perplexity Style */}
           <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 flex-1 overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
-                <ChartBarIcon className="w-5 h-5" />
-                <span>Community Proposals</span>
+                <SignalIcon className="w-5 h-5" />
+                <span>Latest Updates</span>
               </h3>
               <div className="text-xs font-semibold px-2 py-1 rounded-full" style={{ backgroundColor: '#eff6ff', color: '#3b82f6' }}>
-                Vote & Earn XP
+                From NGOs you follow
               </div>
             </div>
             <div className="flex-1 overflow-y-auto space-y-3">
-              {proposals
-                .sort((a, b) => b.votes - a.votes)
-                .map((proposal, index) => (
-                  <motion.div
-                    key={proposal.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.15, duration: 0.8, ease: "easeOut" }}
-                    className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-3"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="font-bold text-sm text-gray-800 mb-1">{proposal.title}</div>
-                        <div className="text-xs text-gray-600 mb-2">{proposal.description}</div>
-                        <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: '#3b82f6' }}>
-                          {proposal.category}
-                        </div>
-                      </div>
+              {newsFeed.map((news, index) => (
+                <motion.div
+                  key={news.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.15, duration: 0.8, ease: "easeOut" }}
+                  className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-3 hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => navigate('/donate')}
+                >
+                  <div className="flex items-start gap-3">
+                    {/* NGO Icon */}
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-2xl" style={{ backgroundColor: '#eff6ff' }}>
+                      {news.image}
                     </div>
 
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center space-x-3 text-xs">
-                        <div className="flex items-center space-x-1">
-                          <span className="text-gray-500">Votes:</span>
-                          <span className="font-bold" style={{ color: '#3b82f6' }}>{proposal.votes}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-gray-500">Goal:</span>
-                          <span className="font-bold text-green-600">${(proposal.funding / 1000).toFixed(0)}K</span>
-                        </div>
+                    <div className="flex-1 min-w-0">
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold" style={{ color: '#3b82f6' }}>{news.ngo}</span>
+                        <span className="text-xs text-gray-500">
+                          {Math.floor((Date.now() - news.timestamp.getTime()) / 3600000)}h ago
+                        </span>
                       </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          setProposals(prev => prev.map(p =>
-                            p.id === proposal.id
-                              ? { ...p, votes: p.votes + (p.userVoted ? -1 : 1), userVoted: !p.userVoted }
-                              : p
-                          ));
-                        }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                          proposal.userVoted
-                            ? 'text-white shadow-md'
-                            : 'bg-white border text-gray-700 hover:bg-blue-50'
-                        }`}
-                        style={proposal.userVoted ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } : { borderColor: '#3b82f6' }}
-                      >
-                        {proposal.userVoted ? '✓ Voted (+10 XP)' : 'Vote'}
-                      </motion.button>
+
+                      {/* Title */}
+                      <h4 className="font-bold text-sm text-gray-800 mb-1 line-clamp-1">
+                        {news.title}
+                      </h4>
+
+                      {/* Content */}
+                      <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                        {news.content}
+                      </p>
+
+                      {/* Category badge */}
+                      <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: '#3b82f6' }}>
+                        {news.category}
+                      </div>
                     </div>
-                  </motion.div>
-                ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* View All Link */}
+            <div className="mt-3 pt-3 border-t border-blue-100 text-center">
+              <button
+                onClick={() => navigate('/')}
+                className="text-sm font-semibold hover:underline"
+                style={{ color: '#3b82f6' }}
+              >
+                View all updates on Home →
+              </button>
             </div>
           </div>
         </div>
