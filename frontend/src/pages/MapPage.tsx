@@ -283,7 +283,31 @@ const AnimatedFlightPath: React.FC<{
   );
 };
 
-// Enhanced marker with real-time pulse
+// Get category icon SVG path
+const getCategoryIcon = (category: string): string => {
+  switch (category) {
+    case 'Climate':
+      // Thermometer/climate icon
+      return '<path d="M12 2c-1.1 0-2 .9-2 2v8.5c-1.2.7-2 2-2 3.5 0 2.2 1.8 4 4 4s4-1.8 4-4c0-1.5-.8-2.8-2-3.5V4c0-1.1-.9-2-2-2zm0 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="white"/>';
+    case 'Conservation':
+      // Shield/protection icon
+      return '<path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4zm0 14l-4-4 1.4-1.4 2.6 2.6 4.6-4.6L18 10l-6 6z" fill="white"/>';
+    case 'Wildlife':
+      // Paw print icon
+      return '<path d="M8.5 6c-1.4 0-2.5 1.1-2.5 2.5S7.1 11 8.5 11 11 9.9 11 8.5 9.9 6 8.5 6zm7 0c-1.4 0-2.5 1.1-2.5 2.5S14.1 11 15.5 11 18 9.9 18 8.5 16.9 6 15.5 6zM6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 3c-2.2 0-4 1.8-4 4s1.8 3 4 3 4-1.8 4-4-1.8-3-4-3z" fill="white"/>';
+    case 'Water':
+      // Water droplet icon
+      return '<path d="M12 2c-3.9 3.9-7 7.5-7 11 0 3.9 3.1 7 7 7s7-3.1 7-7c0-3.5-3.1-7.1-7-11zm0 16c-2.2 0-4-1.8-4-4 0-1.5 1.5-3.5 4-6.4 2.5 2.9 4 4.9 4 6.4 0 2.2-1.8 4-4 4z" fill="white"/>';
+    case 'Forest':
+      // Tree icon
+      return '<path d="M16.5 11L19 8h-3V3h-4v5H9l2.5 3L9 14h3v7h4v-7h3z" fill="white"/>';
+    default:
+      // Default circle
+      return '<circle cx="12" cy="12" r="4" fill="white"/>';
+  }
+};
+
+// Enhanced marker with real-time pulse and category icons
 const createPropertyBasedIcon = (
   object: CharityBase,
   colorMode: ColorMode,
@@ -314,15 +338,15 @@ const createPropertyBasedIcon = (
     </circle>
   ` : '';
 
+  const categoryIcon = getCategoryIcon(object.category);
+
   return new Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(`
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
         ${pulseRing}
-        <circle cx="12" cy="12" r="11" fill="${color}" opacity="0.2"/>
-        <circle cx="12" cy="12" r="8" fill="${color}" opacity="0.5"/>
-        <circle cx="12" cy="12" r="5" fill="${color}" opacity="0.8"/>
-        <circle cx="12" cy="12" r="3" fill="${color}"/>
-        <circle cx="12" cy="12" r="1.5" fill="white"/>
+        <circle cx="12" cy="12" r="11" fill="${color}" opacity="0.3"/>
+        <circle cx="12" cy="12" r="9" fill="${color}" opacity="0.8"/>
+        ${categoryIcon}
       </svg>
     `)}`,
     iconSize: [size, size],
@@ -451,66 +475,6 @@ const MapInteractionHandler: React.FC<{ onZoomChange: (zoom: number) => void }> 
   return null;
 };
 
-// Weather map click handler
-const WeatherClickHandler: React.FC<{
-  enabled: boolean;
-  onLocationClick: (lat: number, lng: number) => void;
-}> = ({ enabled, onLocationClick }) => {
-  useMapEvents({
-    click: (e) => {
-      if (enabled) {
-        onLocationClick(e.latlng.lat, e.latlng.lng);
-      }
-    },
-  });
-  return null;
-};
-
-// Heat map layer for weather
-const WeatherHeatMap: React.FC<{ visible: boolean }> = ({ visible }) => {
-  if (!visible) return null;
-
-  // Create a temperature gradient heat map overlay
-  const heatMapPoints = [
-    { lat: 64.1466, lng: -21.9426, temp: -2.5, intensity: 0.3 },  // Arctic - cold
-    { lat: 23.8859, lng: 45.0792, temp: 38, intensity: 0.9 },     // Sahara - hot
-    { lat: 28.6139, lng: 77.2090, temp: 35, intensity: 0.85 },    // Delhi - hot
-    { lat: -3.4653, lng: -62.2159, temp: 28, intensity: 0.7 },    // Amazon - warm
-    { lat: 51.5074, lng: -0.1278, temp: 12, intensity: 0.4 },     // London - mild
-    { lat: 40.7128, lng: -74.0060, temp: 15, intensity: 0.45 },   // NYC - mild
-    { lat: 35.6762, lng: 139.6503, temp: 18, intensity: 0.5 },    // Tokyo - mild
-    { lat: -23.5505, lng: -46.6333, temp: 22, intensity: 0.6 },   // Brazil - warm
-    { lat: -1.2921, lng: 36.8219, temp: 26, intensity: 0.65 },    // Kenya - warm
-    { lat: 25.2048, lng: 55.2708, temp: 40, intensity: 1.0 },     // Dubai - very hot
-  ];
-
-  const getHeatColor = (intensity: number) => {
-    // Blue (cold) to Red (hot) gradient
-    if (intensity < 0.4) return '#60a5fa'; // blue - cold
-    if (intensity < 0.6) return '#fbbf24'; // yellow - moderate
-    if (intensity < 0.8) return '#fb923c'; // orange - warm
-    return '#ef4444'; // red - hot
-  };
-
-  return (
-    <>
-      {heatMapPoints.map((point, idx) => (
-        <Circle
-          key={`heat-${idx}`}
-          center={[point.lat, point.lng]}
-          radius={800000}
-          pathOptions={{
-            fillColor: getHeatColor(point.intensity),
-            fillOpacity: 0.2,
-            color: getHeatColor(point.intensity),
-            weight: 0,
-            opacity: 0.3
-          }}
-        />
-      ))}
-    </>
-  );
-};
 
 const MapPage: React.FC = () => {
   const { user } = useAuth();
@@ -523,11 +487,8 @@ const MapPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('24h');
   const [showLayerPanel, setShowLayerPanel] = useState(true);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [showWeather, setShowWeather] = useState(false);
   const [showStylesPanel, setShowStylesPanel] = useState(false);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-  const [clickedLocation, setClickedLocation] = useState<{ lat: number; lng: number; name: string } | null>(null);
-  const [weatherData, setWeatherData] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [interpolationMode, setInterpolationMode] = useState<InterpolationMode>('linear');
   const [currentZoom, setCurrentZoom] = useState(2);
@@ -698,15 +659,15 @@ const MapPage: React.FC = () => {
       id: 'climate',
       name: 'Climate Zones',
       visible: true,
-      opacity: 0.65,
-      activeOpacity: 0.75,
-      inactiveOpacity: 0.35,
+      opacity: 1,
+      activeOpacity: 1,
+      inactiveOpacity: 0.6,
       color: '#ef4444',
       colorMode: 'property',
       strokePattern: 'solid',
-      strokeWidth: 2,
+      strokeWidth: 3,
       showArrows: false,
-      fillPolygons: true,
+      fillPolygons: false,
       icon: MapIcon,
       minZoom: 0,
       maxZoom: 22,
@@ -758,13 +719,11 @@ const MapPage: React.FC = () => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'l' || e.key === 'L') setShowLayerPanel(prev => !prev);
       if (e.key === 'f' || e.key === 'F') setShowFilterPanel(prev => !prev);
-      if (e.key === 'a' || e.key === 'A') setShowWeather(prev => !prev);
       if (e.key === 's' || e.key === 'S') setShowStylesPanel(prev => !prev);
       if (e.key === 'r' || e.key === 'R') handleRefresh();
       if (e.key === 'Escape') {
         setShowLayerPanel(false);
         setShowFilterPanel(false);
-        setShowWeather(false);
         setShowStylesPanel(false);
         setShowKeyboardShortcuts(false);
       };
@@ -940,46 +899,6 @@ const MapPage: React.FC = () => {
     return severityMap[severity] || '#6b7280';
   };
 
-  // Mock weather data based on clicked location
-  const fetchWeatherForLocation = (lat: number, lng: number) => {
-    // Mock weather data - in production this would call a real API
-    const temp = 15 + (lat / 10) + Math.random() * 5;
-    const conditions = ['Clear', 'Partly Cloudy', 'Cloudy', 'Rainy', 'Sunny'][Math.floor(Math.random() * 5)];
-    const humidity = 40 + Math.floor(Math.random() * 40);
-    const windSpeed = 5 + Math.floor(Math.random() * 20);
-
-    // Find closest city name
-    const cities = [
-      { name: 'Arctic Region', lat: 64.1466, lng: -21.9426 },
-      { name: 'Sahara Desert', lat: 23.8859, lng: 45.0792 },
-      { name: 'New Delhi', lat: 28.6139, lng: 77.2090 },
-      { name: 'Amazon Rainforest', lat: -3.4653, lng: -62.2159 },
-      { name: 'London', lat: 51.5074, lng: -0.1278 },
-      { name: 'New York', lat: 40.7128, lng: -74.0060 },
-      { name: 'Tokyo', lat: 35.6762, lng: 139.6503 },
-      { name: 'São Paulo', lat: -23.5505, lng: -46.6333 },
-      { name: 'Nairobi', lat: -1.2921, lng: 36.8219 },
-      { name: 'Dubai', lat: 25.2048, lng: 55.2708 },
-    ];
-
-    const closestCity = cities.reduce((prev, curr) => {
-      const prevDist = Math.sqrt(Math.pow(prev.lat - lat, 2) + Math.pow(prev.lng - lng, 2));
-      const currDist = Math.sqrt(Math.pow(curr.lat - lat, 2) + Math.pow(curr.lng - lng, 2));
-      return currDist < prevDist ? curr : prev;
-    });
-
-    setClickedLocation({ lat, lng, name: closestCity.name });
-    setWeatherData({
-      temperature: Math.round(temp),
-      conditions,
-      humidity,
-      windSpeed,
-      pressure: 1013 + Math.floor(Math.random() * 20) - 10,
-      uvIndex: Math.floor(Math.random() * 11),
-      visibility: 10 + Math.floor(Math.random() * 5),
-      feelsLike: Math.round(temp + (Math.random() * 4 - 2))
-    });
-  };
 
   const filteredBases = useMemo(() => {
     return charityBases.filter(base => {
@@ -1061,21 +980,6 @@ const MapPage: React.FC = () => {
             <span className="text-sm font-semibold">{viewMode === 'map' ? 'Transaction Board' : 'Map View'}</span>
           </motion.button>
 
-          {/* Weather Toggle */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            onClick={() => setShowWeather(!showWeather)}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
-              showWeather
-                ? 'text-white shadow-lg'
-                : 'bg-white border border-blue-200 hover:bg-blue-50'
-            }`}
-            style={showWeather ? { backgroundColor: '#3b82f6' } : { color: '#3b82f6' }}
-          >
-            <CloudIcon className="w-5 h-5" />
-            <span className="text-sm font-semibold">Weather</span>
-          </motion.button>
-
           {/* Filter Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -1109,15 +1013,15 @@ const MapPage: React.FC = () => {
       {/* Trending - DexScreener Style */}
       <div className="px-6 pt-3 pb-2">
         <div className="bg-white rounded-lg border border-blue-100 shadow-sm px-4 py-2">
-          <div className="flex items-center gap-4 overflow-x-auto">
+          <div className="flex items-center gap-4 overflow-x-hidden">
             <div className="flex items-center gap-2 whitespace-nowrap">
-              <span className="text-sm font-bold text-gray-700">Trending</span>
+              <span className="text-sm font-bold text-gray-700">Trending Non-Profits</span>
               <BoltIcon className="w-4 h-4" style={{ color: '#3b82f6' }} />
             </div>
             <div className="flex items-center gap-3">
               {charityBases
                 .sort((a, b) => b.fundingReceived - a.fundingReceived)
-                .slice(0, 10)
+                .slice(0, 6)
                 .map((charity, index) => (
                   <motion.button
                     key={charity.id}
@@ -1169,7 +1073,7 @@ const MapPage: React.FC = () => {
 
       <div className="flex-1 flex relative px-6 pb-6 gap-6 overflow-hidden">
         {/* Conditional View: Map or Transaction Board */}
-        <div className="flex-1 relative bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
+        <div className="flex-1 relative rounded-2xl shadow-xl border border-blue-200 overflow-hidden" style={{ backgroundColor: '#3b82f6' }}>
           {viewMode === 'transactions' ? (
             <div className="h-full overflow-auto">
               <TransactionBoard />
@@ -1193,21 +1097,6 @@ const MapPage: React.FC = () => {
 
             <MapInteractionHandler onZoomChange={setCurrentZoom} />
             <ZoomControls />
-
-            {/* Weather components */}
-            <WeatherClickHandler enabled={showWeather} onLocationClick={fetchWeatherForLocation} />
-            <WeatherHeatMap visible={showWeather} />
-
-            {/* Weather location marker */}
-            {showWeather && clickedLocation && (
-              <Marker position={[clickedLocation.lat, clickedLocation.lng]}>
-                <Popup>
-                  <div className="text-sm font-semibold">
-                    📍 {clickedLocation.name}
-                  </div>
-                </Popup>
-              </Marker>
-            )}
 
             {/* Climate Zones */}
             {getLayerByType('climate')?.visible && filteredZones.map(zone => {
@@ -1247,66 +1136,35 @@ const MapPage: React.FC = () => {
 
                     {/* Key Stats */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">Trend</div>
-                        <div className={`text-base font-bold flex items-center gap-1 ${
-                          zone.trend === 'worsening' ? 'text-red-600' :
-                          zone.trend === 'improving' ? 'text-green-600' : 'text-yellow-600'
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">Priority Level</div>
+                        <div className={`text-base font-bold ${
+                          zone.severity === 'critical' ? 'text-red-600' :
+                          zone.severity === 'high' ? 'text-orange-600' :
+                          zone.severity === 'medium' ? 'text-yellow-600' : 'text-blue-600'
                         }`}>
-                          {zone.trend === 'worsening' ? '↗' : zone.trend === 'improving' ? '↘' : '→'}
-                          <span className="capitalize">{zone.trend}</span>
+                          {zone.severity.toUpperCase()}
                         </div>
                       </div>
-                      <div className="bg-red-50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">Affected People</div>
-                        <div className="text-base font-bold text-red-600">
+                      <div className="bg-purple-50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 mb-1">People Served</div>
+                        <div className="text-base font-bold text-purple-600">
                           {(zone.affectedPopulation / 1000000).toFixed(1)}M
                         </div>
                       </div>
                     </div>
 
-                    {/* Climate Metrics Grid */}
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 border-gray-200">
-                      <div className="font-bold text-sm text-gray-800 mb-3 flex items-center">
-                        <CloudIcon className="w-4 h-4 mr-2 text-blue-600" />
-                        Climate Metrics
+                    {/* Region Overview */}
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 border-gray-200 mb-3">
+                      <div className="font-bold text-sm text-gray-800 mb-2">
+                        Regional Information
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-white rounded-md p-2 shadow-sm">
-                          <div className="text-xs text-gray-500 mb-0.5">Temperature</div>
-                          <div className="text-lg font-bold text-red-600">+{zone.temperatureChange}°C</div>
-                        </div>
-                        <div className="bg-white rounded-md p-2 shadow-sm">
-                          <div className="text-xs text-gray-500 mb-0.5">CO₂ Level</div>
-                          <div className="text-lg font-bold text-orange-600">{zone.co2Level} ppm</div>
-                        </div>
-                        {zone.seaLevelRise > 0 && (
-                          <div className="bg-white rounded-md p-2 shadow-sm">
-                            <div className="text-xs text-gray-500 mb-0.5">Sea Level Rise</div>
-                            <div className="text-lg font-bold text-blue-600">+{zone.seaLevelRise}mm/yr</div>
-                          </div>
-                        )}
-                        <div className="bg-white rounded-md p-2 shadow-sm">
-                          <div className="text-xs text-gray-500 mb-0.5">Biodiversity Loss</div>
-                          <div className="text-lg font-bold text-red-600">{zone.biodiversityLoss}%</div>
-                        </div>
-                        {zone.deforestationRate > 0 && (
-                          <div className="bg-white rounded-md p-2 shadow-sm">
-                            <div className="text-xs text-gray-500 mb-0.5">Deforestation</div>
-                            <div className="text-lg font-bold text-orange-600">{(zone.deforestationRate / 1000).toFixed(1)}k ha/yr</div>
-                          </div>
-                        )}
-                        <div className="bg-white rounded-md p-2 shadow-sm">
-                          <div className="text-xs text-gray-500 mb-0.5">Water Stress</div>
-                          <div className={`text-lg font-bold ${zone.waterStress > 60 ? 'text-red-600' : zone.waterStress > 30 ? 'text-yellow-600' : 'text-green-600'}`}>
-                            {zone.waterStress}%
-                          </div>
-                        </div>
+                      <p className="text-xs text-gray-600 leading-relaxed mb-3">
+                        This region requires support for {zone.type} relief efforts. Projects focus on sustainable solutions and community resilience.
+                      </p>
+                      <div className="text-xs text-gray-500">
+                        Last updated: {new Date(zone.lastUpdated).toLocaleDateString()}
                       </div>
-                    </div>
-
-                    <div className="mt-3 text-xs text-gray-400 text-center">
-                      Last updated: {new Date(zone.lastUpdated).toLocaleDateString()}
                     </div>
                   </div>
                 </Popup>
@@ -1365,17 +1223,17 @@ const MapPage: React.FC = () => {
                   }}
                 >
                   {layer.showTooltips && (
-                    <Popup maxWidth={400}>
-                      <div className="text-sm w-80 bg-white">
+                    <Popup maxWidth={350}>
+                      <div className="text-sm w-72 bg-white">
                         {/* Header with gradient */}
                         <div className="-m-3 mb-3 p-4 rounded-t-lg bg-gradient-to-r from-blue-600 to-teal-600">
                           <div className="flex items-center justify-between text-white">
-                            <h3 className="text-lg font-bold">{base.name}</h3>
+                            <h3 className="text-base font-bold">{base.name}</h3>
                             {base.recentActivity && (
-                              <span className="text-xs bg-green-400 text-green-900 px-3 py-1 rounded-full font-bold animate-pulse">LIVE</span>
+                              <span className="text-xs bg-green-400 text-green-900 px-2 py-1 rounded-full font-bold animate-pulse">LIVE</span>
                             )}
                           </div>
-                          <div className="text-white text-xs mt-2 opacity-90 font-medium flex items-center gap-2">
+                          <div className="text-white text-xs mt-1 opacity-90 font-medium flex items-center gap-2">
                             <span className="capitalize">{base.type}</span>
                             <span>•</span>
                             <span>{base.category}</span>
@@ -1383,7 +1241,7 @@ const MapPage: React.FC = () => {
                         </div>
 
                         {/* Key Stats Cards */}
-                        <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="grid grid-cols-3 gap-2 mb-3">
                           <div className="bg-blue-50 rounded-lg p-2 text-center">
                             <div className="text-xs text-gray-500 mb-1">Projects</div>
                             <div className="text-lg font-bold text-blue-600">{base.activeProjects}</div>
@@ -1398,48 +1256,21 @@ const MapPage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Climate Data Section */}
-                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 border-gray-200">
-                          <div className="font-bold text-sm text-gray-800 mb-3 flex items-center">
-                            <GlobeAltIcon className="w-4 h-4 mr-2 text-blue-600" />
-                            Regional Climate Data
-                          </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-white rounded-md p-2 shadow-sm">
-                              <div className="text-xs text-gray-500 mb-0.5">Temperature</div>
-                              <div className="text-base font-bold text-blue-700">
-                                {base.regionalClimateData.avgTemperature}°C
-                                <span className={`ml-1 text-xs ${base.regionalClimateData.temperatureTrend > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                  ({base.regionalClimateData.temperatureTrend > 0 ? '+' : ''}{base.regionalClimateData.temperatureTrend})
-                                </span>
-                              </div>
-                            </div>
-                            <div className="bg-white rounded-md p-2 shadow-sm">
-                              <div className="text-xs text-gray-500 mb-0.5">Air Quality</div>
-                              <div className={`text-base font-bold ${base.regionalClimateData.airQualityIndex > 100 ? 'text-red-600' : base.regionalClimateData.airQualityIndex > 50 ? 'text-yellow-600' : 'text-green-600'}`}>
-                                AQI {base.regionalClimateData.airQualityIndex}
-                              </div>
-                            </div>
-                            <div className="bg-white rounded-md p-2 shadow-sm">
-                              <div className="text-xs text-gray-500 mb-0.5">Forest Cover</div>
-                              <div className="text-base font-bold text-green-600">{base.regionalClimateData.forestCoverage}%</div>
-                            </div>
-                            <div className="bg-white rounded-md p-2 shadow-sm">
-                              <div className="text-xs text-gray-500 mb-0.5">Water Access</div>
-                              <div className={`text-base font-bold ${base.regionalClimateData.waterAvailability < 50 ? 'text-red-600' : 'text-blue-600'}`}>
-                                {base.regionalClimateData.waterAvailability}%
-                              </div>
-                            </div>
-                            <div className="bg-white rounded-md p-2 shadow-sm">
-                              <div className="text-xs text-gray-500 mb-0.5">Carbon</div>
-                              <div className="text-base font-bold text-gray-700">{(base.regionalClimateData.carbonFootprint / 1000).toFixed(1)}kt/yr</div>
-                            </div>
-                            <div className="bg-white rounded-md p-2 shadow-sm">
-                              <div className="text-xs text-gray-500 mb-0.5">Renewables</div>
-                              <div className="text-base font-bold text-teal-600">{base.regionalClimateData.renewableEnergy}%</div>
-                            </div>
+                        {/* Activity Status */}
+                        <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                          <div className="text-xs text-gray-600 mb-1">Last Activity</div>
+                          <div className="text-sm font-semibold text-gray-800">
+                            {base.lastActivity.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </div>
                         </div>
+
+                        {/* Action Button */}
+                        <button
+                          onClick={() => setSelectedBase(base)}
+                          className="w-full bg-gradient-to-r from-blue-600 to-teal-600 text-white py-2 px-4 rounded-lg font-semibold text-sm hover:shadow-lg transition-shadow"
+                        >
+                          View Details & Vote
+                        </button>
                       </div>
                     </Popup>
                   )}
@@ -1449,129 +1280,6 @@ const MapPage: React.FC = () => {
           </MapContainer>
           )}
         </div>
-
-        {/* Weather Panel */}
-        <AnimatePresence>
-          {showWeather && weatherData && clickedLocation && (
-            <motion.div
-              initial={{ x: -320, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -320, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25 }}
-              className="absolute left-6 top-6 w-80 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] overflow-hidden flex flex-col"
-            >
-              <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-sky-50">
-                <div className="flex items-center space-x-2">
-                  <CloudIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
-                  <h3 className="font-bold text-gray-800">Weather</h3>
-                </div>
-                <button
-                  onClick={() => {
-                    setWeatherData(null);
-                    setClickedLocation(null);
-                  }}
-                  className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
-                >
-                  <XMarkIcon className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="p-5 space-y-4">
-                {/* Location */}
-                <div className="text-center">
-                  <h4 className="text-2xl font-bold text-gray-800 mb-1">{clickedLocation.name}</h4>
-                  <p className="text-sm text-gray-500">
-                    {clickedLocation.lat.toFixed(2)}°, {clickedLocation.lng.toFixed(2)}°
-                  </p>
-                </div>
-
-                {/* Main Weather Display */}
-                <div className="bg-gradient-to-br from-blue-50 to-sky-100 border border-blue-200 rounded-xl p-6 text-center">
-                  <div className="text-6xl font-bold text-blue-600 mb-2">
-                    {weatherData.temperature}°C
-                  </div>
-                  <div className="text-lg text-gray-700 font-semibold mb-1">
-                    {weatherData.conditions}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Feels like {weatherData.feelsLike}°C
-                  </div>
-                </div>
-
-                {/* Weather Details Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div className="text-xs text-blue-600 font-semibold mb-1">Humidity</div>
-                    <div className="text-xl font-bold text-blue-700">{weatherData.humidity}%</div>
-                  </div>
-                  <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
-                    <div className="text-xs text-sky-600 font-semibold mb-1">Wind Speed</div>
-                    <div className="text-xl font-bold text-sky-700">{weatherData.windSpeed} km/h</div>
-                  </div>
-                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-                    <div className="text-xs text-indigo-600 font-semibold mb-1">Pressure</div>
-                    <div className="text-xl font-bold text-indigo-700">{weatherData.pressure} hPa</div>
-                  </div>
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                    <div className="text-xs text-purple-600 font-semibold mb-1">UV Index</div>
-                    <div className="text-xl font-bold text-purple-700">{weatherData.uvIndex}</div>
-                  </div>
-                </div>
-
-                {/* Additional Info */}
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Visibility</span>
-                    <span className="font-bold text-gray-800">{weatherData.visibility} km</span>
-                  </div>
-                </div>
-
-                {/* Heat Map Legend */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-4">
-                  <h5 className="text-xs font-bold text-gray-700 mb-3 flex items-center">
-                    <span className="w-1 h-3 bg-gray-600 rounded mr-2"></span>
-                    Temperature Heat Map
-                  </h5>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#60a5fa' }}></div>
-                        <span className="text-gray-600">Cold</span>
-                      </div>
-                      <span className="text-gray-500">&lt; 10°C</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fbbf24' }}></div>
-                        <span className="text-gray-600">Moderate</span>
-                      </div>
-                      <span className="text-gray-500">10-20°C</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fb923c' }}></div>
-                        <span className="text-gray-600">Warm</span>
-                      </div>
-                      <span className="text-gray-500">20-30°C</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ef4444' }}></div>
-                        <span className="text-gray-600">Hot</span>
-                      </div>
-                      <span className="text-gray-500">&gt; 30°C</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Click instruction */}
-                <div className="text-center text-xs text-gray-500 italic">
-                  Click anywhere on the map to check weather
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Impact Stats Panel - Charity Focused */}
         <AnimatePresence>
@@ -1873,86 +1581,15 @@ const MapPage: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Right Side Panel - Missions and Proposals */}
+        {/* Right Side Panel - Latest Updates */}
         <div className="w-96 flex flex-col gap-4">
-          {/* Top Live Missions */}
-          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 max-h-[45%] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
-                <BoltIcon className="w-5 h-5" />
-                <span>Top Live Missions</span>
-              </h3>
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-2 h-2 rounded-full bg-green-500"
-              />
-            </div>
-            <div className="flex-1 overflow-y-auto space-y-3">
-              {liveMissions
-                .sort((a, b) => b.votes + b.funding - (a.votes + a.funding))
-                .map((mission, index) => (
-                  <motion.div
-                    key={mission.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.15, duration: 0.8, ease: "easeOut" }}
-                    className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-3 hover:shadow-md transition-all"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="font-bold text-sm text-gray-800 mb-1">{mission.name}</div>
-                        <div className="text-xs text-gray-600 flex items-center space-x-1">
-                          <MapIcon className="w-3 h-3" />
-                          <span>{mission.location}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-center w-6 h-6 rounded-full" style={{ backgroundColor: '#3b82f6' }}>
-                        <span className="text-white text-xs font-bold">{index + 1}</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-xs mb-2">
-                      <div>
-                        <span className="text-gray-500">Votes:</span>
-                        <span className="font-bold ml-1" style={{ color: '#3b82f6' }}>{mission.votes}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Funding:</span>
-                        <span className="font-bold text-green-600 ml-1">${(mission.funding / 1000).toFixed(0)}K</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-600">Progress</span>
-                        <span className="font-bold" style={{ color: '#3b82f6' }}>{mission.progress}%</span>
-                      </div>
-                      <div className="h-1.5 bg-blue-100 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${mission.progress}%` }}
-                          transition={{ duration: 1, delay: index * 0.2 }}
-                          className="h-full rounded-full"
-                          style={{ backgroundColor: '#3b82f6' }}
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-            </div>
-          </div>
-
-          {/* News Feed - Perplexity Style */}
+          {/* Latest Updates */}
           <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 flex-1 overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
                 <SignalIcon className="w-5 h-5" />
                 <span>Latest Updates</span>
               </h3>
-              <div className="text-xs font-semibold px-2 py-1 rounded-full" style={{ backgroundColor: '#eff6ff', color: '#3b82f6' }}>
-                From NGOs you follow
-              </div>
             </div>
             <div className="flex-1 overflow-y-auto space-y-3">
               {newsFeed.map((news, index) => (

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:build.avax.network)",
-      "WebFetch(domain:www.palantir.com)"
+      "WebFetch(domain:www.palantir.com)",
+      "Bash(npm run lint)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

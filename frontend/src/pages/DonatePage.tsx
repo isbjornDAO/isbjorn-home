@@ -12,8 +12,6 @@ const DonationForm: React.FC = () => {
 
   const [charities, setCharities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [selectedCountry, setSelectedCountry] = useState<string>('All');
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
 
   // Famous NGOs with logos, followers, and stats
@@ -30,9 +28,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 3500000,
       donationCount: 45200,
-      followerCount: 18500,
-      fromDonations: 2100000,
-      fromVotes: 1400000
+      followerCount: 18500
     },
     {
       id: 'wwf',
@@ -46,9 +42,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4200000,
       donationCount: 52800,
-      followerCount: 24300,
-      fromDonations: 2900000,
-      fromVotes: 1300000
+      followerCount: 24300
     },
     {
       id: 'nrdc',
@@ -62,9 +56,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2800000,
       donationCount: 38500,
-      followerCount: 15200,
-      fromDonations: 1800000,
-      fromVotes: 1000000
+      followerCount: 15200
     },
     {
       id: '350org',
@@ -78,9 +70,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1950000,
       donationCount: 28900,
-      followerCount: 12800,
-      fromDonations: 1300000,
-      fromVotes: 650000
+      followerCount: 12800
     },
     {
       id: 'rainforest-alliance',
@@ -94,9 +84,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2100000,
       donationCount: 31200,
-      followerCount: 14100,
-      fromDonations: 1500000,
-      fromVotes: 600000
+      followerCount: 14100
     },
     {
       id: 'conservation-international',
@@ -110,9 +98,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 3100000,
       donationCount: 41800,
-      followerCount: 17600,
-      fromDonations: 2200000,
-      fromVotes: 900000
+      followerCount: 17600
     },
     {
       id: 'edf',
@@ -126,9 +112,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2650000,
       donationCount: 35700,
-      followerCount: 16400,
-      fromDonations: 1900000,
-      fromVotes: 750000
+      followerCount: 16400
     },
     {
       id: 'nature-conservancy',
@@ -142,9 +126,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4800000,
       donationCount: 58200,
-      followerCount: 28900,
-      fromDonations: 3400000,
-      fromVotes: 1400000
+      followerCount: 28900
     },
     {
       id: 'ocean-conservancy',
@@ -158,9 +140,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1850000,
       donationCount: 24600,
-      followerCount: 11200,
-      fromDonations: 1200000,
-      fromVotes: 650000
+      followerCount: 11200
     },
     {
       id: 'sierra-club',
@@ -174,9 +154,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2200000,
       donationCount: 32400,
-      followerCount: 14800,
-      fromDonations: 1600000,
-      fromVotes: 600000
+      followerCount: 14800
     },
     {
       id: 'friends-of-earth',
@@ -190,9 +168,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1680000,
       donationCount: 22100,
-      followerCount: 9800,
-      fromDonations: 1100000,
-      fromVotes: 580000
+      followerCount: 9800
     },
     {
       id: 'generation-zero',
@@ -206,9 +182,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 450000,
       donationCount: 8900,
-      followerCount: 5600,
-      fromDonations: 320000,
-      fromVotes: 130000
+      followerCount: 5600
     },
   ];
 
@@ -276,16 +250,6 @@ const DonationForm: React.FC = () => {
     });
   };
 
-  // Filter charities based on selected category only
-  const filteredCharities = charities.filter(charity => {
-    const categoryMatch = selectedCategory === 'All' || charity.category === selectedCategory;
-    return categoryMatch;
-  });
-
-  // Handle category selection
-  const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
-  };
 
   return (
     <div className="min-h-screen bg-ice-50">
@@ -308,25 +272,6 @@ const DonationForm: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Filter Categories */}
-        <div className="mb-8 sm:mb-12">
-          <h3 className="text-center text-sm font-semibold text-arctic-700 mb-3">Filter by Category</h3>
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
-            {['All', 'Environment', 'Climate', 'Conservation', 'Wildlife', 'Water', 'Forest', 'Health', 'Social Services', 'Education', 'Emergency Relief'].map((category) => (
-              <button
-                key={category}
-                onClick={() => handleCategorySelect(category)}
-                className={`px-3 sm:px-6 py-2 sm:py-3 border-2 rounded-full font-semibold transition-all duration-200 shadow-sm text-sm sm:text-base ${selectedCategory === category
-                  ? 'bg-arctic-500 border-arctic-500 text-white shadow-md'
-                  : 'bg-white border-ice-200 text-arctic-700 hover:border-arctic-500 hover:bg-arctic-50'
-                  }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-20">
@@ -339,7 +284,7 @@ const DonationForm: React.FC = () => {
         {/* Icon-Focused Charity Grid */}
         {!loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-            {filteredCharities.map((charity) => {
+            {charities.map((charity) => {
               const isFollowing = followingIds.has(charity.id);
 
               return (
@@ -429,48 +374,31 @@ const DonationForm: React.FC = () => {
                     {/* Spacer to push stats and buttons to bottom */}
                     <div className="flex-1"></div>
 
-                    {/* Stats Grid - 4 columns with funding breakdown */}
-                    <div className="grid grid-cols-2 gap-2 mb-3">
-                      <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#eff6ff' }}>
-                        <div className="text-base sm:text-lg font-bold" style={{ color: '#3b82f6' }}>
+                    {/* Stats Grid - 3 columns */}
+                    <div className="grid grid-cols-3 gap-2 mb-3">
+                      <div className="text-center p-2 bg-ice-50 rounded-lg">
+                        <div className="text-base sm:text-lg font-bold text-arctic-900">
                           ${(charity.totalReceived / 1000).toFixed(0)}k
                         </div>
-                        <div className="text-xs text-gray-600">Total Raised</div>
+                        <div className="text-xs text-arctic-500">Raised</div>
                       </div>
-                      <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#eff6ff' }}>
-                        <div className="text-base sm:text-lg font-bold flex items-center justify-center gap-1">
-                          <UserGroupIcon className="w-4 h-4" style={{ color: '#3b82f6' }} />
-                          <span style={{ color: '#3b82f6' }}>{(charity.followerCount / 1000).toFixed(1)}k</span>
+                      <div className="text-center p-2 bg-ice-50 rounded-lg">
+                        <div className="text-base sm:text-lg font-bold text-arctic-900">
+                          {(charity.donationCount / 1000).toFixed(1)}k
                         </div>
-                        <div className="text-xs text-gray-600">Followers</div>
+                        <div className="text-xs text-arctic-500">Donations</div>
                       </div>
-                    </div>
-
-                    {/* Funding Breakdown */}
-                    <div className="grid grid-cols-2 gap-2 mb-3">
-                      <div className="text-center p-2 rounded-lg bg-green-50">
-                        <div className="text-base sm:text-lg font-bold text-green-700">
-                          ${(charity.fromDonations / 1000).toFixed(0)}k
+                      <div className="text-center p-2 bg-arctic-50 rounded-lg">
+                        <div className="text-base sm:text-lg font-bold text-arctic-900 flex items-center justify-center gap-1">
+                          <UserGroupIcon className="w-4 h-4" />
+                          {(charity.followerCount / 1000).toFixed(1)}k
                         </div>
-                        <div className="text-xs text-gray-600">From Donations</div>
-                      </div>
-                      <div className="text-center p-2 rounded-lg" style={{ backgroundColor: '#eff6ff' }}>
-                        <div className="text-base sm:text-lg font-bold" style={{ color: '#3b82f6' }}>
-                          ${(charity.fromVotes / 1000).toFixed(0)}k
-                        </div>
-                        <div className="text-xs text-gray-600">From Votes</div>
-                      </div>
-                    </div>
-
-                    {/* Donation Count */}
-                    <div className="text-center p-2 rounded-lg border-2 mb-3" style={{ borderColor: '#3b82f6' }}>
-                      <div className="text-base sm:text-lg font-bold" style={{ color: '#3b82f6' }}>
-                        {(charity.donationCount / 1000).toFixed(1)}k donations
+                        <div className="text-xs text-arctic-500">Followers</div>
                       </div>
                     </div>
 
                     {/* Click hint */}
-                    <div className="mt-2 text-center text-sm font-semibold" style={{ color: '#3b82f6' }}>Click to learn more & donate</div>
+                    <div className="mt-2 text-center text-sm text-arctic-600">Click to learn more & donate</div>
                   </div>
                 </div>
               );
