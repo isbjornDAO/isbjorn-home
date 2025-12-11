@@ -5,7 +5,8 @@
       "WebFetch(domain:www.palantir.com)",
       "Bash(npm run lint)",
       "Bash(findstr:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

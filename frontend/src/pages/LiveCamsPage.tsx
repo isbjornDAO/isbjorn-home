@@ -107,7 +107,7 @@ const LiveCamsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="h-full bg-gray-900 flex flex-col" style={{ minHeight: 'calc(100vh - 64px)' }}>
       {/* Header */}
       <div className="bg-gray-800 border-b border-gray-700 flex-shrink-0">
         <div className="px-4 py-3">
@@ -121,9 +121,9 @@ const LiveCamsPage: React.FC = () => {
       </div>
 
       {/* Main Content - Twitch Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Other Streams */}
-        <div className="w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto flex-shrink-0">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden" style={{ minHeight: 'calc(100vh - 128px)' }}>
+        {/* Left Sidebar - Other Streams (hidden on mobile) */}
+        <div className="hidden lg:block lg:w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto flex-shrink-0">
           <div className="p-4">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
               Other Streams ({otherCams.length})
@@ -250,8 +250,8 @@ const LiveCamsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Sidebar - Chat */}
-        <div className="w-80 bg-gray-800 border-l border-gray-700 flex flex-col flex-shrink-0">
+        {/* Right Sidebar - Chat (hidden on mobile) */}
+        <div className="hidden lg:flex lg:w-80 bg-gray-800 border-l border-gray-700 flex-col flex-shrink-0">
           {/* Chat Header */}
           <div className="p-4 border-b border-gray-700 flex-shrink-0">
             <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
