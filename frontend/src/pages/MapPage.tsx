@@ -207,7 +207,7 @@ const calculateTemporalOpacity = (
   return activeOpacity + (inactiveOpacity - activeOpacity) * fadeProgress;
 };
 
-// DexScreener-style animated flight path with pulse
+// Simple animated flight path - just blue lines with moving dot
 const AnimatedFlightPath: React.FC<{
   path: FlightPath;
   style: LayerStyleConfig;
@@ -215,112 +215,74 @@ const AnimatedFlightPath: React.FC<{
   interpolation: InterpolationMode;
 }> = ({ path, style, currentTime, interpolation }) => {
   const [animationProgress, setAnimationProgress] = useState(Math.random());
-  const [pulseScale, setPulseScale] = useState(1);
 
   useEffect(() => {
     if (!path.active) return;
     const interval = setInterval(() => {
-      setAnimationProgress(prev => (prev >= 1 ? 0 : prev + path.speed * 0.008));
-      setPulseScale(prev => (prev >= 1.3 ? 1 : prev + 0.01));
-    }, 60); // Slower, more relaxing animation
+      setAnimationProgress(prev => (prev >= 1 ? 0 : prev + 0.01));
+    }, 50);
     return () => clearInterval(interval);
-  }, [path.active, path.speed]);
+  }, [path.active]);
 
   const arcPoints = useMemo(() => createArcPath(path.from, path.to), [path.from, path.to]);
-  const pointIndex = interpolation === 'linear'
-    ? Math.floor(animationProgress * (arcPoints.length - 1))
-    : arcPoints.length - 1;
+  const pointIndex = Math.floor(animationProgress * (arcPoints.length - 1));
   const animatedPoint = arcPoints[pointIndex] as [number, number];
 
-  const opacity = calculateTemporalOpacity(
-    path.timestamp,
-    currentTime,
-    style.activeOpacity,
-    style.inactiveOpacity
-  );
-
-  const dashArray = style.strokePattern === 'dashed' ? '12, 8'
-    : style.strokePattern === 'dotted' ? '2, 6'
-    : undefined;
+  // Always use blue color
+  const blueColor = '#3b82f6';
 
   return (
     <>
       <Polyline
         positions={arcPoints}
         pathOptions={{
-          color: style.color,
-          weight: style.strokeWidth,
-          opacity: opacity * 0.7,
-          dashArray
+          color: blueColor,
+          weight: 2,
+          opacity: 0.6,
         }}
       />
       {path.active && animatedPoint && (
-        <>
-          {/* Outer pulse ring */}
-          <Circle
-            center={animatedPoint}
-            radius={50000 * pulseScale}
-            pathOptions={{
-              color: style.color,
-              fillColor: style.color,
-              fillOpacity: (opacity * 0.3) / pulseScale,
-              weight: 0
-            }}
-          />
-          {/* Inner solid marker */}
-          <Circle
-            center={animatedPoint}
-            radius={25000}
-            pathOptions={{
-              color: '#ffffff',
-              fillColor: style.color,
-              fillOpacity: opacity * 0.9,
-              weight: 2
-            }}
-          />
-          {style.showArrows && pointIndex > 0 && (
-            <CircleMarker
-              center={animatedPoint}
-              radius={6}
-              pathOptions={{
-                color: '#ffffff',
-                fillColor: style.color,
-                fillOpacity: 1,
-                weight: 2
-              }}
-            />
-          )}
-        </>
+        <Circle
+          center={animatedPoint}
+          radius={25000}
+          pathOptions={{
+            color: '#ffffff',
+            fillColor: blueColor,
+            fillOpacity: 0.8,
+            weight: 2
+          }}
+        />
       )}
     </>
   );
 };
 
-// Get category icon SVG path
+// Get category icon SVG path (using blue color)
 const getCategoryIcon = (category: string): string => {
+  const iconColor = '#3b82f6'; // Blue
   switch (category) {
     case 'Climate':
       // Thermometer/climate icon
-      return '<path d="M12 2c-1.1 0-2 .9-2 2v8.5c-1.2.7-2 2-2 3.5 0 2.2 1.8 4 4 4s4-1.8 4-4c0-1.5-.8-2.8-2-3.5V4c0-1.1-.9-2-2-2zm0 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="white"/>';
+      return `<path d="M12 2c-1.1 0-2 .9-2 2v8.5c-1.2.7-2 2-2 3.5 0 2.2 1.8 4 4 4s4-1.8 4-4c0-1.5-.8-2.8-2-3.5V4c0-1.1-.9-2-2-2zm0 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="${iconColor}"/>`;
     case 'Conservation':
       // Shield/protection icon
-      return '<path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4zm0 14l-4-4 1.4-1.4 2.6 2.6 4.6-4.6L18 10l-6 6z" fill="white"/>';
+      return `<path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4zm0 14l-4-4 1.4-1.4 2.6 2.6 4.6-4.6L18 10l-6 6z" fill="${iconColor}"/>`;
     case 'Wildlife':
       // Paw print icon
-      return '<path d="M8.5 6c-1.4 0-2.5 1.1-2.5 2.5S7.1 11 8.5 11 11 9.9 11 8.5 9.9 6 8.5 6zm7 0c-1.4 0-2.5 1.1-2.5 2.5S14.1 11 15.5 11 18 9.9 18 8.5 16.9 6 15.5 6zM6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 3c-2.2 0-4 1.8-4 4s1.8 3 4 3 4-1.8 4-4-1.8-3-4-3z" fill="white"/>';
+      return `<path d="M8.5 6c-1.4 0-2.5 1.1-2.5 2.5S7.1 11 8.5 11 11 9.9 11 8.5 9.9 6 8.5 6zm7 0c-1.4 0-2.5 1.1-2.5 2.5S14.1 11 15.5 11 18 9.9 18 8.5 16.9 6 15.5 6zM6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 3c-2.2 0-4 1.8-4 4s1.8 3 4 3 4-1.8 4-4-1.8-3-4-3z" fill="${iconColor}"/>`;
     case 'Water':
       // Water droplet icon
-      return '<path d="M12 2c-3.9 3.9-7 7.5-7 11 0 3.9 3.1 7 7 7s7-3.1 7-7c0-3.5-3.1-7.1-7-11zm0 16c-2.2 0-4-1.8-4-4 0-1.5 1.5-3.5 4-6.4 2.5 2.9 4 4.9 4 6.4 0 2.2-1.8 4-4 4z" fill="white"/>';
+      return `<path d="M12 2c-3.9 3.9-7 7.5-7 11 0 3.9 3.1 7 7 7s7-3.1 7-7c0-3.5-3.1-7.1-7-11zm0 16c-2.2 0-4-1.8-4-4 0-1.5 1.5-3.5 4-6.4 2.5 2.9 4 4.9 4 6.4 0 2.2-1.8 4-4 4z" fill="${iconColor}"/>`;
     case 'Forest':
       // Tree icon
-      return '<path d="M16.5 11L19 8h-3V3h-4v5H9l2.5 3L9 14h3v7h4v-7h3z" fill="white"/>';
+      return `<path d="M16.5 11L19 8h-3V3h-4v5H9l2.5 3L9 14h3v7h4v-7h3z" fill="${iconColor}"/>`;
     default:
       // Default circle
-      return '<circle cx="12" cy="12" r="4" fill="white"/>';
+      return `<circle cx="12" cy="12" r="4" fill="${iconColor}"/>`;
   }
 };
 
-// Enhanced marker with real-time pulse and category icons
+// Simple blue marker with category icons (no animations)
 const createPropertyBasedIcon = (
   object: CharityBase,
   colorMode: ColorMode,
@@ -328,38 +290,28 @@ const createPropertyBasedIcon = (
   propertyMap?: Record<string, string>,
   pulse: boolean = false
 ) => {
-  const sizes = { headquarters: 36, regional: 28, field: 20 };
-  const size = sizes[object.type] || 24;
+  const sizes = { headquarters: 40, regional: 32, field: 28 };
+  const size = sizes[object.type] || 32;
 
-  let color = baseColor;
-  if (colorMode === 'property' && propertyMap) {
-    color = getPropertyColor(object, 'category', propertyMap);
-  } else if (colorMode === 'function') {
-    color = computeFunctionColor(object, (obj) => {
-      const impactColors = ['#ef4444', '#f59e0b', '#eab308', '#84cc16', '#22c55e'];
-      return interpolateColor(obj.impact, 0, 100, impactColors);
-    });
-  } else if (colorMode === 'measure') {
-    const fundingColors = ['#dbeafe', '#93c5fd', '#60a5fa', '#3b82f6', '#1d4ed8'];
-    color = interpolateColor(object.fundingReceived, 0, 5000000, fundingColors);
-  }
-
-  const pulseRing = pulse ? `
-    <circle cx="12" cy="12" r="11.5" fill="none" stroke="${color}" stroke-width="1" opacity="0.6">
-      <animate attributeName="r" from="11" to="15" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" from="0.6" to="0" dur="2s" repeatCount="indefinite"/>
-    </circle>
-  ` : '';
+  // Always use blue color
+  const color = '#3b82f6'; // Blue
 
   const categoryIcon = getCategoryIcon(object.category);
+
+  // Home icon for headquarters (top non-profits)
+  const isHeadquarters = object.type === 'headquarters';
+  const iconSVG = isHeadquarters
+    ? `<path d="M12 3L3 9v11h6v-6h6v6h6V9l-9-6zm0 2.3L18 9v9h-2v-6H8v6H6V9l6-3.7z" fill="${color}"/>`
+    : categoryIcon;
 
   return new Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(`
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
-        ${pulseRing}
-        <circle cx="12" cy="12" r="11" fill="${color}" opacity="0.3"/>
-        <circle cx="12" cy="12" r="9" fill="${color}" opacity="0.8"/>
-        ${categoryIcon}
+        <circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="2"/>
+        <circle cx="12" cy="12" r="7" fill="white" opacity="0.95"/>
+        <g transform="scale(0.7) translate(5, 5)">
+          ${iconSVG}
+        </g>
       </svg>
     `)}`,
     iconSize: [size, size],
@@ -676,10 +628,10 @@ const MapPage: React.FC = () => {
     {
       id: 4,
       ngo: 'World Wide Fund for Nature',
-      title: 'Endangered Species Recovery',
-      content: 'Population of Arctic foxes increased by 15% this quarter thanks to protection efforts.',
+      title: 'Climate Resilience Program',
+      content: 'Protecting Arctic ecosystems threatened by climate change - temperature monitoring shows concerning trends.',
       timestamp: new Date(Date.now() - 21600000),
-      category: 'Wildlife',
+      category: 'Climate',
       logo: 'https://logo.clearbit.com/worldwildlife.org'
     },
   ]);
@@ -834,13 +786,13 @@ const MapPage: React.FC = () => {
     impactThreshold: 0
   });
 
-  // Property-based color mapping
+  // Property-based color mapping (Climate-focused categories)
   const categoryColorMap = {
     'Climate': '#06b6d4',
     'Conservation': '#10b981',
-    'Wildlife': '#f59e0b',
     'Water': '#3b82f6',
-    'Forest': '#22c55e'
+    'Forest': '#22c55e',
+    'Ocean': '#0ea5e9'
   };
 
   // Real-time data simulation (DexScreener-style)
@@ -934,7 +886,7 @@ const MapPage: React.FC = () => {
       },
       {
         id: 'hq3', name: 'Asia-Pacific Hub', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters',
-        activeProjects: 52, category: 'Wildlife', fundingReceived: 3200000, lastActivity: new Date(), impact: 92,
+        activeProjects: 52, category: 'Climate', fundingReceived: 3200000, lastActivity: new Date(), impact: 92,
         properties: { region: 'Asia', established: 2008 },
         regionalClimateData: { avgTemperature: 16.3, temperatureTrend: +1.5, airQualityIndex: 145, forestCoverage: 31, waterAvailability: 68, carbonFootprint: 52000, renewableEnergy: 28 }
       },
@@ -1452,14 +1404,14 @@ const MapPage: React.FC = () => {
               );
             })}
 
-            {/* Charity Bases with live pulse */}
+            {/* Charity Bases - simple blue pins */}
             {getLayerByType('charities')?.visible && filteredBases.map(base => {
               const layer = getLayerByType('charities')!;
               return (
                 <Marker
                   key={base.id}
                   position={[base.location.lat, base.location.lng]}
-                  icon={createPropertyBasedIcon(base, layer.colorMode, layer.color, categoryColorMap, base.recentActivity)}
+                  icon={createPropertyBasedIcon(base, layer.colorMode, layer.color, categoryColorMap, false)}
                   eventHandlers={{
                     click: () => setSelectedBase(base)
                   }}
@@ -1704,7 +1656,7 @@ const MapPage: React.FC = () => {
                     Focus Areas
                   </label>
                   <div className="space-y-2">
-                    {['Climate', 'Conservation', 'Wildlife', 'Water', 'Forest'].map(category => (
+                    {['Climate', 'Conservation', 'Water', 'Forest', 'Ocean'].map(category => (
                       <label key={category} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-blue-100 transition-colors">
                         <input
                           type="checkbox"

@@ -1,5 +1,4 @@
 import x402, { thirdwebFacilitator, x402Chain, payToAddress } from '../utils/x402';
-import { settlePayment } from 'thirdweb/x402';
 import { Donation, DonationStatus } from '../models/Donation.model';
 import { User } from '../models/User.model';
 import { logger } from '../utils/logger';
@@ -242,29 +241,34 @@ export class X402Service {
         }
     }
 
+    /**
+     * Settlement happens on the frontend using settlePayment()
+     * This method is for future backend-initiated settlements if needed
+     *
+     * For now, settlements are handled via:
+     * 1. Frontend calls settlePayment() from thirdweb/x402
+     * 2. User approves transaction in wallet
+     * 3. Frontend sends tx hash to backend via completePayment()
+     */
     async settlePaymentOnChain(params: {
-        amount: string; // Amount in token units (e.g., "1.5" for 1.5 USDC)
-        tokenAddress: string; // ERC-20 token address
+        amount: string;
+        tokenAddress: string;
         donationId: string;
     }) {
         try {
-            logger.info('Settling X402 payment on-chain via thirdweb facilitator:', params);
+            logger.info('Settlement initiated for donation:', params.donationId);
 
-            // Use thirdweb's settlePayment function
-            // This function handles the EIP-7702 gasless transaction
-            const settlement = await settlePayment({
-                facilitator: thirdwebFacilitator,
-                chain: x402Chain,
-                price: params.amount,
-                currency: params.tokenAddress as `0x${string}`,
-            });
-
-            logger.info('Payment settled successfully:', settlement);
+            // Settlement happens on frontend with user wallet interaction
+            // Backend receives and verifies the transaction hash after completion
 
             return {
-                success: true,
-                transactionHash: settlement.transactionHash || settlement,
-                settlement
+                success: false,
+                message: 'Settlement must be initiated from frontend with user wallet',
+                instructions: {
+                    note: 'Use settlePayment() on frontend with user wallet connected',
+                    facilitatorWallet: payToAddress,
+                    network: 'avalanche-fuji'
+                }
             };
         } catch (error: any) {
             logger.error('X402 settlePaymentOnChain error:', error);

@@ -11,6 +11,8 @@ import {
   HeartIcon,
   ChartBarIcon,
   SparklesIcon,
+  CreditCardIcon,
+  LinkIcon,
 } from '@heroicons/react/24/outline';
 
 // Spirit Animals with meaningful traits and charity logos
@@ -78,9 +80,11 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
-  const [activeSection, setActiveSection] = useState<'overview' | 'profile' | 'security' | 'account'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'profile' | 'security' | 'account' | 'wallet' | 'integrations'>('overview');
   const [showSpiritAnimalModal, setShowSpiritAnimalModal] = useState(false);
   const [selectedSpiritAnimal, setSelectedSpiritAnimal] = useState(user?.spiritAnimal || null);
+  const [profilePicture, setProfilePicture] = useState<string>(user?.profilePicture || '');
+  const [uploadingPicture, setUploadingPicture] = useState(false);
 
   // Profile form state
   const [profileData, setProfileData] = useState({
@@ -118,6 +122,7 @@ const ProfilePage: React.FC = () => {
         },
       });
       setSelectedSpiritAnimal(user.spiritAnimal || null);
+      setProfilePicture(user.profilePicture || '');
     }
   }, [user]);
 
@@ -145,6 +150,56 @@ const ProfilePage: React.FC = () => {
       toast.success('Spirit animal updated!');
     } catch (error: any) {
       toast.error('Failed to update spirit animal');
+    }
+  };
+
+  const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setUploadingPicture(true);
+
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result as string;
+
+        try {
+          const updatedUser = await authService.updateProfile({ profilePicture: base64String });
+          updateUser(updatedUser);
+          setProfilePicture(base64String);
+          toast.success('Profile picture updated!');
+        } catch (error: any) {
+          console.error('Profile picture update error:', error);
+          toast.error('Failed to update profile picture');
+        } finally {
+          setUploadingPicture(false);
+        }
+      };
+
+      reader.onerror = () => {
+        toast.error('Failed to read image file');
+        setUploadingPicture(false);
+      };
+
+      reader.readAsDataURL(file);
+    } catch (error: any) {
+      console.error('Profile picture error:', error);
+      toast.error('Failed to upload profile picture');
+      setUploadingPicture(false);
     }
   };
 
@@ -286,6 +341,30 @@ const ProfilePage: React.FC = () => {
                   <UserCircleIcon className="w-5 h-5" />
                   <span>Account Info</span>
                 </button>
+
+                <button
+                  onClick={() => setActiveSection('wallet')}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                    activeSection === 'wallet'
+                      ? 'bg-arctic-50 text-arctic-700 font-semibold'
+                      : 'text-ice-600 hover:bg-ice-50'
+                  }`}
+                >
+                  <CreditCardIcon className="w-5 h-5" />
+                  <span>Wallet</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveSection('integrations')}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                    activeSection === 'integrations'
+                      ? 'bg-arctic-50 text-arctic-700 font-semibold'
+                      : 'text-ice-600 hover:bg-ice-50'
+                  }`}
+                >
+                  <LinkIcon className="w-5 h-5" />
+                  <span>Integrations</span>
+                </button>
               </nav>
             </div>
           </div>
@@ -298,10 +377,16 @@ const ProfilePage: React.FC = () => {
                 {/* Profile Card with Avatar and Level */}
                 <div className="bg-gradient-to-br from-arctic-500 to-ice-600 rounded-2xl shadow-xl p-8 text-white">
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                    {/* Avatar/Spirit Animal */}
+                    {/* Profile Picture */}
                     <div className="relative group">
                       <div className="w-32 h-32 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/30 shadow-lg overflow-hidden">
-                        {currentAnimal ? (
+                        {profilePicture ? (
+                          <img
+                            src={profilePicture}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : currentAnimal ? (
                           <img
                             src={currentAnimal.logo}
                             alt={currentAnimal.name}
@@ -315,9 +400,30 @@ const ProfilePage: React.FC = () => {
                           <div className="text-6xl">👤</div>
                         )}
                       </div>
+                      {/* Upload button */}
+                      <label
+                        htmlFor="profile-picture-upload"
+                        className="absolute -bottom-2 -right-2 bg-white text-arctic-600 rounded-full p-2 shadow-lg hover:scale-110 transition-transform cursor-pointer"
+                        title="Upload Profile Picture"
+                      >
+                        {uploadingPicture ? (
+                          <div className="w-5 h-5 border-2 border-arctic-600 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <UserCircleIcon className="w-5 h-5" />
+                        )}
+                      </label>
+                      <input
+                        id="profile-picture-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfilePictureChange}
+                        className="hidden"
+                        disabled={uploadingPicture}
+                      />
+                      {/* Spirit Animal button */}
                       <button
                         onClick={() => setShowSpiritAnimalModal(true)}
-                        className="absolute -bottom-2 -right-2 bg-white text-arctic-600 rounded-full p-2 shadow-lg hover:scale-110 transition-transform"
+                        className="absolute -bottom-2 -left-2 bg-white text-arctic-600 rounded-full p-2 shadow-lg hover:scale-110 transition-transform"
                         title="Choose Spirit Animal"
                       >
                         <SparklesIcon className="w-5 h-5" />
@@ -326,7 +432,16 @@ const ProfilePage: React.FC = () => {
 
                     {/* User Info & Level */}
                     <div className="flex-1 text-center md:text-left">
-                      <h2 className="text-3xl font-bold mb-2">{user.companyName}</h2>
+                      <div className="flex items-center gap-3 justify-center md:justify-start mb-2">
+                        {profilePicture && (
+                          <img
+                            src={profilePicture}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full border-2 border-white/30 object-cover"
+                          />
+                        )}
+                        <h2 className="text-3xl font-bold">{user.companyName}</h2>
+                      </div>
                       <p className="text-white/80 mb-4">{user.email}</p>
 
                       {currentAnimal && (
@@ -421,7 +536,7 @@ const ProfilePage: React.FC = () => {
                           type="email"
                           value={profileData.email}
                           onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                          className="input w-full"
+                          className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           required
                         />
                       </div>
@@ -434,7 +549,7 @@ const ProfilePage: React.FC = () => {
                           type="text"
                           value={profileData.companyName}
                           onChange={(e) => setProfileData({ ...profileData, companyName: e.target.value })}
-                          className="input w-full"
+                          className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           required
                         />
                       </div>
@@ -447,7 +562,7 @@ const ProfilePage: React.FC = () => {
                           type="text"
                           value={profileData.taxId}
                           onChange={(e) => setProfileData({ ...profileData, taxId: e.target.value })}
-                          className="input w-full"
+                          className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           placeholder="e.g., 9429000000000"
                         />
                       </div>
@@ -467,7 +582,7 @@ const ProfilePage: React.FC = () => {
                               ...profileData,
                               address: { ...profileData.address, street: e.target.value }
                             })}
-                            className="input w-full"
+                            className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           />
                         </div>
 
@@ -482,7 +597,7 @@ const ProfilePage: React.FC = () => {
                               ...profileData,
                               address: { ...profileData.address, city: e.target.value }
                             })}
-                            className="input w-full"
+                            className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           />
                         </div>
 
@@ -497,7 +612,7 @@ const ProfilePage: React.FC = () => {
                               ...profileData,
                               address: { ...profileData.address, state: e.target.value }
                             })}
-                            className="input w-full"
+                            className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           />
                         </div>
 
@@ -512,7 +627,7 @@ const ProfilePage: React.FC = () => {
                               ...profileData,
                               address: { ...profileData.address, postalCode: e.target.value }
                             })}
-                            className="input w-full"
+                            className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           />
                         </div>
 
@@ -527,7 +642,7 @@ const ProfilePage: React.FC = () => {
                               ...profileData,
                               address: { ...profileData.address, country: e.target.value }
                             })}
-                            className="input w-full"
+                            className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           />
                         </div>
                       </div>
@@ -564,7 +679,7 @@ const ProfilePage: React.FC = () => {
                       type="password"
                       value={passwordData.currentPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                      className="input w-full"
+                      className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                       required
                     />
                   </div>
@@ -577,7 +692,7 @@ const ProfilePage: React.FC = () => {
                       type="password"
                       value={passwordData.newPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                      className="input w-full"
+                      className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                       required
                       minLength={8}
                     />
@@ -594,7 +709,7 @@ const ProfilePage: React.FC = () => {
                       type="password"
                       value={passwordData.confirmPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                      className="input w-full"
+                      className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                       required
                     />
                   </div>
@@ -641,6 +756,158 @@ const ProfilePage: React.FC = () => {
                     <div className="bg-ice-50 rounded-lg p-4">
                       <p className="text-sm text-ice-600 mb-1">Account ID</p>
                       <p className="text-sm font-mono text-ice-900">{user.id}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Wallet Tab */}
+            {activeSection === 'wallet' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white rounded-xl shadow-lg p-8">
+                  <h2 className="text-2xl font-bold text-ice-900 mb-6">Wallet & Blockchain</h2>
+                  <div className="space-y-6">
+                    {/* Wallet Balance */}
+                    <div className="bg-gradient-to-br from-arctic-500 to-blue-600 rounded-xl p-6 text-white">
+                      <p className="text-white/80 mb-2">Total Balance</p>
+                      <p className="text-4xl font-bold mb-4">${userStats?.walletBalance || 0}</p>
+                      <div className="flex gap-3">
+                        <button className="flex-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 px-4 py-2 rounded-lg font-semibold transition-all">
+                          Add Funds
+                        </button>
+                        <button className="flex-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 px-4 py-2 rounded-lg font-semibold transition-all">
+                          Withdraw
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Connected Wallets */}
+                    <div>
+                      <h3 className="text-lg font-bold text-ice-900 mb-4">Connected Wallets</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                              <span className="text-xl">₿</span>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-ice-900">Bitcoin Wallet</p>
+                              <p className="text-sm text-ice-500">Not connected</p>
+                            </div>
+                          </div>
+                          <button className="px-4 py-2 bg-arctic-500 text-white rounded-lg font-semibold hover:bg-arctic-600 transition-all">
+                            Connect
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                              <span className="text-xl">Ξ</span>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-ice-900">Ethereum Wallet</p>
+                              <p className="text-sm text-ice-500">Not connected</p>
+                            </div>
+                          </div>
+                          <button className="px-4 py-2 bg-arctic-500 text-white rounded-lg font-semibold hover:bg-arctic-600 transition-all">
+                            Connect
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Transaction History */}
+                    <div>
+                      <h3 className="text-lg font-bold text-ice-900 mb-4">Recent Transactions</h3>
+                      <div className="text-center py-8 text-ice-500">
+                        No transactions yet
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Integrations Tab */}
+            {activeSection === 'integrations' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white rounded-xl shadow-lg p-8">
+                  <h2 className="text-2xl font-bold text-ice-900 mb-6">Integrations</h2>
+                  <p className="text-ice-600 mb-6">Connect your favorite services to enhance your Isbjörn experience</p>
+
+                  <div className="space-y-4">
+                    {/* Stripe */}
+                    <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">💳</span>
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-ice-900">Stripe</h3>
+                          <p className="text-sm text-ice-500">Process payments & donations</p>
+                        </div>
+                      </div>
+                      <button className="px-4 py-2 bg-white border-2 border-ice-300 text-ice-700 rounded-lg font-semibold hover:bg-ice-50 transition-all">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* PayPal */}
+                    <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">🅿️</span>
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-ice-900">PayPal</h3>
+                          <p className="text-sm text-ice-500">Alternative payment method</p>
+                        </div>
+                      </div>
+                      <button className="px-4 py-2 bg-white border-2 border-ice-300 text-ice-700 rounded-lg font-semibold hover:bg-ice-50 transition-all">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Mailchimp */}
+                    <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">📧</span>
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-ice-900">Mailchimp</h3>
+                          <p className="text-sm text-ice-500">Email marketing & newsletters</p>
+                        </div>
+                      </div>
+                      <button className="px-4 py-2 bg-white border-2 border-ice-300 text-ice-700 rounded-lg font-semibold hover:bg-ice-50 transition-all">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Slack */}
+                    <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">💬</span>
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-ice-900">Slack</h3>
+                          <p className="text-sm text-ice-500">Team notifications & updates</p>
+                        </div>
+                      </div>
+                      <button className="px-4 py-2 bg-white border-2 border-ice-300 text-ice-700 rounded-lg font-semibold hover:bg-ice-50 transition-all">
+                        Connect
+                      </button>
                     </div>
                   </div>
                 </div>
