@@ -8,6 +8,7 @@ import {
   GlobeAltIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
+import Footer from '@/components/Footer';
 
 // Snowflake component for arctic animation
 const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
@@ -16,7 +17,7 @@ const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
 
   return (
     <motion.div
-      className="absolute text-arctic-200 opacity-60"
+      className="absolute text-blue-200 opacity-40"
       style={{ left: `${randomX}%`, top: '-20px' }}
       animate={{
         y: ['0vh', '110vh'],
@@ -39,24 +40,7 @@ const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
 
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* YouTube Video Background */}
-      <div className="fixed inset-0 z-0 overflow-hidden">
-        <iframe
-          className="absolute top-1/2 left-1/2 w-screen h-screen min-w-full min-h-full object-cover"
-          style={{
-            transform: 'translate(-50%, -50%) scale(1.5)',
-            pointerEvents: 'none'
-          }}
-          src="https://www.youtube.com/embed/64ZaC04ppLQ?autoplay=1&mute=1&loop=1&playlist=64ZaC04ppLQ&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
-          title="Background Video"
-          frameBorder="0"
-          allow="autoplay; encrypted-media"
-        />
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/50"></div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 relative">
       {/* Arctic Snowfall Animation - subtle overlay */}
       <div className="fixed inset-0 pointer-events-none z-10">
         {Array.from({ length: 20 }).map((_, i) => (
@@ -72,31 +56,51 @@ const HomePage: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="text-center mb-24"
+          className="text-center mb-12"
         >
           <motion.h1
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.4 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight drop-shadow-2xl"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold text-blue-600 mb-6 leading-tight"
           >
-            It's time to save the world
+            It's time to save the polar bears
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto font-light leading-relaxed drop-shadow-lg"
+            className="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto font-light leading-relaxed mb-8"
           >
             Safe transparent donations from the 1%, our world's climate mission decided by you.
           </motion.p>
+
+          {/* Video in Rounded Box */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="max-w-5xl mx-auto mb-12"
+          >
+            <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-blue-200">
+              <div className="relative" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src="https://www.youtube.com/embed/64ZaC04ppLQ?autoplay=1&mute=1&loop=1&playlist=64ZaC04ppLQ&controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+                  title="Polar Bears Video"
+                  frameBorder="0"
+                  allow="autoplay; encrypted-media"
+                />
+              </div>
+            </div>
+          </motion.div>
 
           {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center"
+            transition={{ duration: 0.8, delay: 1 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <a
               href="/donate"
@@ -106,7 +110,7 @@ const HomePage: React.FC = () => {
             </a>
             <a
               href="/vote"
-              className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold text-lg rounded-xl border-2 border-white/30 hover:bg-white/20 hover:scale-105 transition-all duration-300"
+              className="px-8 py-4 bg-white text-blue-600 font-bold text-lg rounded-xl border-2 border-blue-200 hover:bg-blue-50 hover:scale-105 transition-all duration-300 shadow-lg"
             >
               Join the Mission
             </a>
@@ -124,7 +128,7 @@ const HomePage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.2 }}
-            className="text-3xl md:text-5xl font-bold text-center text-white mb-12 drop-shadow-lg"
+            className="text-3xl md:text-5xl font-bold text-center text-blue-600 mb-12"
           >
             What is Isbjörn?
           </motion.h2>
@@ -135,13 +139,13 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.3 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
+              className="bg-white rounded-2xl p-6 shadow-xl border-2 border-blue-100 hover:border-blue-300 hover:scale-105 transition-all duration-300 group"
             >
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
                 <LockClosedIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Blockchain Verified</h3>
-              <p className="text-white/80 text-sm">Every donation tracked on-chain with complete transparency</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Blockchain Verified</h3>
+              <p className="text-gray-600 text-sm">Every donation tracked on-chain with complete transparency</p>
             </motion.div>
 
             {/* Feature 2: IRD Compliant */}
@@ -149,13 +153,13 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.4 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
+              className="bg-white rounded-2xl p-6 shadow-xl border-2 border-blue-100 hover:border-blue-300 hover:scale-105 transition-all duration-300 group"
             >
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
                 <HeartIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">IRD Compliant</h3>
-              <p className="text-white/80 text-sm">Get instant tax receipts for all your donations</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">IRD Compliant</h3>
+              <p className="text-gray-600 text-sm">Get instant tax receipts for all your donations</p>
             </motion.div>
 
             {/* Feature 3: Community Governance */}
@@ -163,13 +167,13 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.5 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
+              className="bg-white rounded-2xl p-6 shadow-xl border-2 border-blue-100 hover:border-blue-300 hover:scale-105 transition-all duration-300 group"
             >
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
                 <UserGroupIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Community Governance</h3>
-              <p className="text-white/80 text-sm">You decide where the funds go through voting</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Community Governance</h3>
+              <p className="text-gray-600 text-sm">You decide where the funds go through voting</p>
             </motion.div>
 
             {/* Feature 4: Validator Network */}
@@ -177,13 +181,13 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.6 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
+              className="bg-white rounded-2xl p-6 shadow-xl border-2 border-blue-100 hover:border-blue-300 hover:scale-105 transition-all duration-300 group"
             >
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
                 <ChartBarIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Validator Network</h3>
-              <p className="text-white/80 text-sm">Decentralized validation ensures integrity</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Validator Network</h3>
+              <p className="text-gray-600 text-sm">Decentralized validation ensures integrity</p>
             </motion.div>
 
             {/* Feature 5: Global Climate Service */}
@@ -191,13 +195,13 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.7 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
+              className="bg-white rounded-2xl p-6 shadow-xl border-2 border-blue-100 hover:border-blue-300 hover:scale-105 transition-all duration-300 group"
             >
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
                 <GlobeAltIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Global Climate Service</h3>
-              <p className="text-white/80 text-sm">Supporting climate initiatives worldwide</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Global Climate Service</h3>
+              <p className="text-gray-600 text-sm">Supporting climate initiatives worldwide</p>
             </motion.div>
 
             {/* Feature 6: Zero Hidden Fees */}
@@ -205,18 +209,21 @@ const HomePage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.8 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
+              className="bg-white rounded-2xl p-6 shadow-xl border-2 border-blue-100 hover:border-blue-300 hover:scale-105 transition-all duration-300 group"
             >
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
                 <ShieldCheckIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Zero Hidden Fees</h3>
-              <p className="text-white/80 text-sm">100% of your donation goes to the cause</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Zero Hidden Fees</h3>
+              <p className="text-gray-600 text-sm">100% of your donation goes to the cause</p>
             </motion.div>
           </div>
         </motion.div>
 
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

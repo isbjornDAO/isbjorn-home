@@ -15,63 +15,79 @@ import {
   LinkIcon,
 } from '@heroicons/react/24/outline';
 
-// Spirit Animals with meaningful traits and charity logos
+// Spirit Animals with meaningful traits and emojis
 const SPIRIT_ANIMALS = [
   {
-    id: 'isbjorn',
-    name: 'Isbjörn',
-    logo: '/logo.png',
+    id: 'polar_bear',
+    name: 'Polar Bear',
+    emoji: '🐻‍❄️',
     trait: 'Compassionate Pioneer',
     description: 'Bold, generous, and mission-driven. You lead charitable giving with transparency and heart.',
-    color: 'from-arctic-50 to-ice-100'
-  },
-  {
-    id: 'polar_bear',
-    name: 'WWF',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/2/24/WWF_logo.svg/1200px-WWF_logo.svg.png',
-    trait: 'Resilient Leader',
-    description: 'Strong, protective, and adaptable. You lead with courage and care for your community.',
     color: 'from-blue-50 to-cyan-100'
   },
   {
     id: 'wolf',
-    name: 'Earth Day Network',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Earth_Day.svg/1200px-Earth_Day.svg.png',
+    name: 'Wolf',
+    emoji: '🐺',
     trait: 'Strategic Collaborator',
     description: 'Loyal, intelligent, and team-oriented. You thrive through collaboration and community.',
     color: 'from-gray-50 to-slate-100'
   },
   {
     id: 'owl',
-    name: 'Forest & Bird',
-    logo: 'https://www.birdlife.org/wp-content/uploads/2021/04/New_Zealand.png',
+    name: 'Owl',
+    emoji: '🦉',
     trait: 'Wise Observer',
     description: 'Thoughtful, insightful, and patient. You make informed decisions with careful consideration.',
     color: 'from-purple-50 to-indigo-100'
   },
   {
     id: 'penguin',
-    name: 'Ocean Conservancy',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Ocean_Conservancy_logo.svg/1200px-Ocean_Conservancy_logo.svg.png',
+    name: 'Penguin',
+    emoji: '🐧',
     trait: 'Dedicated Supporter',
     description: 'Committed, reliable, and nurturing. You stand by your values and support those around you.',
     color: 'from-orange-50 to-amber-100'
   },
   {
     id: 'fox',
-    name: 'Wildlife Conservation',
-    logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c4/Wildlife_Conservation_Society_logo.svg/1200px-Wildlife_Conservation_Society_logo.svg.png',
+    name: 'Fox',
+    emoji: '🦊',
     trait: 'Resourceful Innovator',
     description: 'Creative, adaptable, and clever. You find innovative solutions to complex challenges.',
     color: 'from-emerald-50 to-teal-100'
   },
   {
     id: 'whale',
-    name: 'Greenpeace',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Greenpeace_logo.svg/1200px-Greenpeace_logo.svg.png',
+    name: 'Whale',
+    emoji: '🐋',
     trait: 'Empathetic Communicator',
     description: 'Compassionate, expressive, and connected. You build bridges and foster understanding.',
     color: 'from-sky-50 to-blue-100'
+  },
+  {
+    id: 'eagle',
+    name: 'Eagle',
+    emoji: '🦅',
+    trait: 'Visionary Leader',
+    description: 'Strategic, focused, and powerful. You see the big picture and inspire others to reach new heights.',
+    color: 'from-amber-50 to-yellow-100'
+  },
+  {
+    id: 'elephant',
+    name: 'Elephant',
+    emoji: '🐘',
+    trait: 'Steadfast Guardian',
+    description: 'Strong, loyal, and protective. You never forget and always stand by your community.',
+    color: 'from-stone-50 to-gray-100'
+  },
+  {
+    id: 'dolphin',
+    name: 'Dolphin',
+    emoji: '🐬',
+    trait: 'Joyful Connector',
+    description: 'Playful, intelligent, and social. You bring joy and create meaningful connections.',
+    color: 'from-cyan-50 to-blue-100'
   }
 ];
 
@@ -143,10 +159,10 @@ const ProfilePage: React.FC = () => {
 
   const handleSpiritAnimalSelect = async (animalId: string) => {
     try {
+      setShowSpiritAnimalModal(false);
       const updatedUser = await authService.updateProfile({ spiritAnimal: animalId });
       updateUser(updatedUser);
       setSelectedSpiritAnimal(animalId);
-      setShowSpiritAnimalModal(false);
       toast.success('Spirit animal updated!');
     } catch (error: any) {
       toast.error('Failed to update spirit animal');
@@ -387,15 +403,7 @@ const ProfilePage: React.FC = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : currentAnimal ? (
-                          <img
-                            src={currentAnimal.logo}
-                            alt={currentAnimal.name}
-                            className="w-full h-full object-cover p-2"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              e.currentTarget.parentElement!.innerHTML = '<div class="text-6xl">👤</div>';
-                            }}
-                          />
+                          <div className="text-6xl">{currentAnimal.emoji}</div>
                         ) : (
                           <div className="text-6xl">👤</div>
                         )}
@@ -421,13 +429,43 @@ const ProfilePage: React.FC = () => {
                         disabled={uploadingPicture}
                       />
                       {/* Spirit Animal button */}
-                      <button
-                        onClick={() => setShowSpiritAnimalModal(true)}
-                        className="absolute -bottom-2 -left-2 bg-white text-arctic-600 rounded-full p-2 shadow-lg hover:scale-110 transition-transform"
-                        title="Choose Spirit Animal"
+                      <div
+                        className="absolute -bottom-2 -left-2"
+                        onMouseEnter={() => setShowSpiritAnimalModal(true)}
+                        onMouseLeave={() => setShowSpiritAnimalModal(false)}
                       >
-                        <SparklesIcon className="w-5 h-5" />
-                      </button>
+                        <div className="bg-white text-arctic-600 rounded-full p-2 shadow-lg hover:scale-110 transition-transform cursor-pointer">
+                          <SparklesIcon className="w-5 h-5" />
+                        </div>
+
+                        {/* Spirit Animal Picker - appears on hover */}
+                        {showSpiritAnimalModal && (
+                          <div className="absolute bottom-full left-0 mb-2 bg-white rounded-xl shadow-2xl p-3 border-2 border-arctic-200 z-50">
+                            <div className="grid grid-cols-3 gap-2">
+                              {SPIRIT_ANIMALS.map((animal) => (
+                                <button
+                                  key={animal.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSpiritAnimalSelect(animal.id);
+                                  }}
+                                  className={`
+                                    w-12 h-12 rounded-lg flex items-center justify-center text-2xl
+                                    transition-all hover:scale-125 hover:shadow-lg
+                                    ${selectedSpiritAnimal === animal.id
+                                      ? 'bg-arctic-100 ring-2 ring-arctic-500'
+                                      : 'hover:bg-ice-50'
+                                    }
+                                  `}
+                                  title={animal.name}
+                                >
+                                  {animal.emoji}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* User Info & Level */}
@@ -445,9 +483,8 @@ const ProfilePage: React.FC = () => {
                       <p className="text-white/80 mb-4">{user.email}</p>
 
                       {currentAnimal && (
-                        <div className="inline-block bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 mb-4">
-                          <div className="text-sm font-semibold">{currentAnimal.trait}</div>
-                          <div className="text-xs text-white/80">{currentAnimal.name}</div>
+                        <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 mb-4">
+                          <span className="text-2xl">{currentAnimal.emoji}</span>
                         </div>
                       )}
 
@@ -846,15 +883,15 @@ const ProfilePage: React.FC = () => {
                   <p className="text-ice-600 mb-6">Connect your favorite services to enhance your Isbjörn experience</p>
 
                   <div className="space-y-4">
-                    {/* Stripe */}
+                    {/* Xero */}
                     <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <span className="text-2xl">💳</span>
+                          <span className="text-2xl">📊</span>
                         </div>
                         <div>
-                          <h3 className="font-bold text-ice-900">Stripe</h3>
-                          <p className="text-sm text-ice-500">Process payments & donations</p>
+                          <h3 className="font-bold text-ice-900">Xero</h3>
+                          <p className="text-sm text-ice-500">Sync donations to accounting system</p>
                         </div>
                       </div>
                       <button className="px-4 py-2 bg-white border-2 border-ice-300 text-ice-700 rounded-lg font-semibold hover:bg-ice-50 transition-all">
@@ -862,15 +899,15 @@ const ProfilePage: React.FC = () => {
                       </button>
                     </div>
 
-                    {/* PayPal */}
+                    {/* QuickBooks */}
                     <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <span className="text-2xl">🅿️</span>
+                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">📗</span>
                         </div>
                         <div>
-                          <h3 className="font-bold text-ice-900">PayPal</h3>
-                          <p className="text-sm text-ice-500">Alternative payment method</p>
+                          <h3 className="font-bold text-ice-900">QuickBooks</h3>
+                          <p className="text-sm text-ice-500">Track donations in QuickBooks</p>
                         </div>
                       </div>
                       <button className="px-4 py-2 bg-white border-2 border-ice-300 text-ice-700 rounded-lg font-semibold hover:bg-ice-50 transition-all">
@@ -878,15 +915,15 @@ const ProfilePage: React.FC = () => {
                       </button>
                     </div>
 
-                    {/* Mailchimp */}
+                    {/* NZ Charities Services */}
                     <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                          <span className="text-2xl">📧</span>
+                        <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">🇳🇿</span>
                         </div>
                         <div>
-                          <h3 className="font-bold text-ice-900">Mailchimp</h3>
-                          <p className="text-sm text-ice-500">Email marketing & newsletters</p>
+                          <h3 className="font-bold text-ice-900">NZ Charities Services</h3>
+                          <p className="text-sm text-ice-500">Verify charity registration & compliance</p>
                         </div>
                       </div>
                       <button className="px-4 py-2 bg-white border-2 border-ice-300 text-ice-700 rounded-lg font-semibold hover:bg-ice-50 transition-all">
@@ -894,19 +931,35 @@ const ProfilePage: React.FC = () => {
                       </button>
                     </div>
 
-                    {/* Slack */}
+                    {/* IRD */}
                     <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <span className="text-2xl">💬</span>
+                          <span className="text-2xl">🧾</span>
                         </div>
                         <div>
-                          <h3 className="font-bold text-ice-900">Slack</h3>
-                          <p className="text-sm text-ice-500">Team notifications & updates</p>
+                          <h3 className="font-bold text-ice-900">IRD (Inland Revenue)</h3>
+                          <p className="text-sm text-ice-500">Automatic tax receipt generation</p>
                         </div>
                       </div>
                       <button className="px-4 py-2 bg-white border-2 border-ice-300 text-ice-700 rounded-lg font-semibold hover:bg-ice-50 transition-all">
                         Connect
+                      </button>
+                    </div>
+
+                    {/* Blockchain Explorer */}
+                    <div className="flex items-center justify-between p-4 border-2 border-ice-200 rounded-lg hover:border-arctic-300 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                          <span className="text-2xl">⛓️</span>
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-ice-900">Blockchain Explorer</h3>
+                          <p className="text-sm text-ice-500">View transaction history on-chain</p>
+                        </div>
+                      </div>
+                      <button className="px-4 py-2 bg-arctic-500 text-white rounded-lg font-semibold hover:bg-arctic-600 transition-all">
+                        Connected
                       </button>
                     </div>
                   </div>
@@ -916,59 +969,6 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Spirit Animal Modal */}
-      {showSpiritAnimalModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-ice-200">
-              <h2 className="text-2xl font-bold text-ice-900">Choose Your Spirit Animal</h2>
-              <p className="text-ice-600 mt-1">Select the animal that best represents your values and approach</p>
-            </div>
-
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {SPIRIT_ANIMALS.map((animal) => (
-                <button
-                  key={animal.id}
-                  onClick={() => handleSpiritAnimalSelect(animal.id)}
-                  className={`
-                    relative p-6 rounded-xl border-2 text-left transition-all hover:scale-105
-                    ${selectedSpiritAnimal === animal.id
-                      ? 'border-arctic-500 bg-arctic-50'
-                      : 'border-ice-200 bg-white hover:border-arctic-300'
-                    }
-                  `}
-                >
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${animal.color} rounded-t-xl`} />
-                  <div className="w-20 h-20 mb-3 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                    <img
-                      src={animal.logo}
-                      alt={animal.name}
-                      className="w-full h-full object-contain p-2"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement!.innerHTML = '<div class="text-4xl">🏔️</div>';
-                      }}
-                    />
-                  </div>
-                  <h3 className="font-bold text-ice-900 mb-1">{animal.name}</h3>
-                  <div className="text-sm font-semibold text-arctic-600 mb-2">{animal.trait}</div>
-                  <p className="text-xs text-ice-600">{animal.description}</p>
-                </button>
-              ))}
-            </div>
-
-            <div className="p-6 border-t border-ice-200 flex justify-end">
-              <button
-                onClick={() => setShowSpiritAnimalModal(false)}
-                className="px-6 py-2 text-ice-600 hover:text-ice-900 font-medium"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

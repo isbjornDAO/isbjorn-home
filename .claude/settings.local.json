@@ -4,7 +4,8 @@
       "WebFetch(domain:build.avax.network)",
       "WebFetch(domain:www.palantir.com)",
       "Bash(npm run lint)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

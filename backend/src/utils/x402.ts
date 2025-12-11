@@ -12,8 +12,9 @@ const network = process.env.X402_NETWORK || 'avalanche-fuji';
 
 // Validate configuration
 if (!thirdwebSecretKey) {
-    console.error('ERROR: THIRDWEB_SECRET_KEY environment variable not set!');
-    throw new Error('THIRDWEB_SECRET_KEY is required for X402 payments');
+    console.warn('⚠️  WARNING: THIRDWEB_SECRET_KEY environment variable not set!');
+    console.warn('⚠️  X402 payments will NOT work without this key.');
+    console.warn('⚠️  Get your key from: https://thirdweb.com/dashboard');
 }
 
 if (!serverWalletAddress) {
@@ -27,16 +28,16 @@ console.log('X402 Config:', {
     chain: 'Avalanche Fuji (43113)'
 });
 
-// Create Thirdweb client
-export const thirdwebClient = createThirdwebClient({
+// Create Thirdweb client (only if secret key is available)
+export const thirdwebClient = thirdwebSecretKey ? createThirdwebClient({
     secretKey: thirdwebSecretKey,
-});
+}) : null;
 
-// Create X402 facilitator instance
-export const thirdwebFacilitator = facilitator({
+// Create X402 facilitator instance (only if client exists)
+export const thirdwebFacilitator = thirdwebClient ? facilitator({
     client: thirdwebClient,
     serverWalletAddress: serverWalletAddress,
-});
+}) : null;
 
 // Export chain configuration
 export const x402Chain = avalancheFuji; // Fuji testnet
@@ -44,7 +45,11 @@ export const x402Chain = avalancheFuji; // Fuji testnet
 // Export server wallet address for payment settlement
 export const payToAddress = serverWalletAddress;
 
-console.log('✅ X402 Thirdweb facilitator initialized successfully');
+if (thirdwebClient && thirdwebFacilitator) {
+    console.log('✅ X402 Thirdweb facilitator initialized successfully');
+} else {
+    console.log('⚠️  X402 running in DEMO mode - Add THIRDWEB_SECRET_KEY to enable real payments');
+}
 
 // Legacy compatibility interface for existing code
 const x402 = {

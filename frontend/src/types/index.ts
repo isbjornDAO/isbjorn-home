@@ -6,6 +6,7 @@ export interface User {
   taxId?: string;
   address?: Address;
   walletAddress?: string;
+  profilePicture?: string;
   xp: number;
   level: number;
   coins: number;

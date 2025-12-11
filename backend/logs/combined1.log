@@ -8582,3 +8582,19 @@
 {"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-12-10 00:25:36"}
 {"level":"info","message":"Server running on port 5001 in development mode","service":"isbjorn-api","timestamp":"2025-12-10 00:25:36"}
 {"level":"info","message":"API Documentation: http://localhost:5001/api-docs","service":"isbjorn-api","timestamp":"2025-12-10 00:25:36"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-11 18:29:09"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-11 18:29:11"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-11 18:29:13"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-11 18:29:14"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-11 18:29:14"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-11 18:29:14"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-11 18:29:22"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-11 18:29:22"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-11 18:29:22"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-11 18:29:22"}
+{"level":"error","message":"Failed to initialize blockchain service: Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-11 18:29:22"}
+{"level":"warn","message":"Blockchain initialization failed - running without blockchain features Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-11 18:29:22"}
+{"level":"info","message":"Job processing initialized","service":"isbjorn-api","timestamp":"2025-12-11 18:29:22"}
+{"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-12-11 18:29:22"}
+{"level":"info","message":"Server running on port 5001 in development mode","service":"isbjorn-api","timestamp":"2025-12-11 18:29:22"}
+{"level":"info","message":"API Documentation: http://localhost:5001/api-docs","service":"isbjorn-api","timestamp":"2025-12-11 18:29:22"}

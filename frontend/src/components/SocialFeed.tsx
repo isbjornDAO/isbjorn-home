@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { HeartIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, ChatBubbleLeftIcon, CheckBadgeIcon, ShareIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
 interface SocialPost {
@@ -12,6 +12,11 @@ interface SocialPost {
   comments: number;
   isLiked: boolean;
   category: 'update' | 'milestone' | 'emergency' | 'success' | 'announcement';
+  author?: {
+    name: string;
+    icon: string;
+    verified: boolean;
+  };
 }
 
 interface SocialFeedProps {
@@ -20,36 +25,63 @@ interface SocialFeedProps {
 }
 
 const SocialFeed: React.FC<SocialFeedProps> = ({ nonprofitName, nonprofitId }) => {
+  // Get charity icon based on name
+  const getCharityIcon = (name: string) => {
+    const icons: Record<string, string> = {
+      'Isbjorn': 'https://logo.clearbit.com/isbjorn.io',
+      'Forest & Bird': 'https://www.birdlife.org/wp-content/uploads/2021/04/New_Zealand.png',
+      'Greenpeace': 'https://logo.clearbit.com/greenpeace.org',
+      'WWF': 'https://upload.wikimedia.org/wikipedia/en/thumb/2/24/WWF_logo.svg/1200px-WWF_logo.svg.png',
+      'default': 'https://via.placeholder.com/100'
+    };
+    return icons[name] || icons['default'];
+  };
+
   // Mock data - replace with actual API call
   const [posts, setPosts] = useState<SocialPost[]>([
     {
       id: '1',
-      content: 'Thanks to your support, we\'ve reached 500 families with clean water this month! Every donation makes a real difference in people\'s lives.',
+      content: 'Thanks to your support, we\'ve reached 500 families with clean water this month! Every donation makes a real difference in people\'s lives. 💧',
       images: ['https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400'],
       timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       likes: 124,
       comments: 18,
       isLiked: false,
-      category: 'success'
+      category: 'success',
+      author: {
+        name: nonprofitName,
+        icon: getCharityIcon(nonprofitName),
+        verified: true
+      }
     },
     {
       id: '2',
-      content: 'Construction of our new community center is progressing well. We\'re on track to open next month!',
+      content: 'Construction of our new community center is progressing well. We\'re on track to open next month! 🏗️',
       images: ['https://images.unsplash.com/photo-1607400201515-c2c41c07d307?w=400'],
       timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       likes: 89,
       comments: 12,
       isLiked: false,
-      category: 'update'
+      category: 'update',
+      author: {
+        name: nonprofitName,
+        icon: getCharityIcon(nonprofitName),
+        verified: true
+      }
     },
     {
       id: '3',
-      content: 'MILESTONE: We\'ve distributed 10,000 meals to families in need since the start of this program. Thank you for being part of this journey!',
+      content: '🎉 MILESTONE: We\'ve distributed 10,000 meals to families in need since the start of this program. Thank you for being part of this journey!',
       timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
       likes: 256,
       comments: 45,
       isLiked: false,
-      category: 'milestone'
+      category: 'milestone',
+      author: {
+        name: nonprofitName,
+        icon: getCharityIcon(nonprofitName),
+        verified: true
+      }
     }
   ]);
 
@@ -90,61 +122,119 @@ const SocialFeed: React.FC<SocialFeedProps> = ({ nonprofitName, nonprofitId }) =
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-ice-100">
-      <h2 className="text-xl font-bold text-ice-900 mb-6">Latest Posts</h2>
+    <div className="space-y-4">
+      {/* Timeline Header */}
+      <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
+        <h2 className="text-xl font-bold text-gray-900">Timeline</h2>
+      </div>
 
-      <div className="space-y-6">
+      {/* Posts */}
+      <div className="space-y-4">
         {posts.map((post, idx) => (
           <motion.div
             key={post.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="border border-ice-200 rounded-xl p-5 hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-3">
-              <span className={`text-xs px-3 py-1 rounded-full border font-semibold uppercase ${getCategoryBadge(post.category)}`}>
-                {post.category}
-              </span>
-              <span className="text-sm text-ice-500">{formatTimeAgo(post.timestamp)}</span>
-            </div>
+            {/* Post Header - Like Facebook */}
+            <div className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                {/* Profile Picture */}
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    src={post.author?.icon}
+                    alt={post.author?.name}
+                    className="w-full h-full object-contain p-1"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `<span class="text-lg font-bold text-blue-600">${post.author?.name.charAt(0)}</span>`;
+                      }
+                    }}
+                  />
+                </div>
 
-            {/* Content */}
-            <p className="text-ice-700 mb-4 leading-relaxed">{post.content}</p>
+                {/* Name and Time */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold text-gray-900">{post.author?.name}</span>
+                    {post.author?.verified && (
+                      <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <span>{formatTimeAgo(post.timestamp)}</span>
+                    <span>•</span>
+                    <span className="text-xs">🌍</span>
+                  </div>
+                </div>
+
+                {/* Category Badge */}
+                <span className={`text-xs px-2 py-1 rounded-full border font-semibold ${getCategoryBadge(post.category)}`}>
+                  {post.category}
+                </span>
+              </div>
+
+              {/* Content */}
+              <p className="text-gray-900 mb-3 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+            </div>
 
             {/* Images */}
             {post.images && post.images.length > 0 && (
-              <div className="mb-4 grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-1">
                 {post.images.map((img, i) => (
                   <img
                     key={i}
                     src={img}
                     alt={`Update ${i + 1}`}
-                    className="w-full h-48 object-cover rounded-lg"
+                    className="w-full h-auto object-cover"
                   />
                 ))}
               </div>
             )}
 
-            {/* Actions */}
-            <div className="flex items-center space-x-6 pt-3 border-t border-ice-200">
+            {/* Stats Bar */}
+            <div className="px-4 py-2 flex items-center justify-between text-sm text-gray-500 border-t border-gray-100">
+              <div className="flex items-center gap-1">
+                <div className="flex -space-x-1">
+                  <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white text-xs">
+                    ❤️
+                  </div>
+                </div>
+                <span>{post.likes}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span>{post.comments} comments</span>
+              </div>
+            </div>
+
+            {/* Actions - Like Facebook */}
+            <div className="px-4 py-2 flex items-center border-t border-gray-200 divide-x divide-gray-200">
               <button
                 onClick={() => handleLike(post.id)}
-                className="flex items-center space-x-2 transition-colors group"
+                className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-gray-50 transition-colors rounded-lg group"
               >
                 {post.isLiked ? (
                   <HeartSolidIcon className="w-5 h-5 text-red-500" />
                 ) : (
-                  <HeartIcon className="w-5 h-5 text-ice-500 group-hover:text-red-500" />
+                  <HeartIcon className="w-5 h-5 text-gray-600 group-hover:text-red-500" />
                 )}
-                <span className={`font-semibold ${post.isLiked ? 'text-red-500' : 'text-ice-700'}`}>
-                  {post.likes}
+                <span className={`font-semibold ${post.isLiked ? 'text-red-500' : 'text-gray-600 group-hover:text-gray-900'}`}>
+                  Like
                 </span>
               </button>
-              <button className="flex items-center space-x-2 text-ice-500 hover:text-arctic-600 transition-colors">
-                <ChatBubbleLeftIcon className="w-5 h-5" />
-                <span className="font-semibold text-ice-700">{post.comments}</span>
+              <button className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-gray-50 transition-colors rounded-lg group">
+                <ChatBubbleLeftIcon className="w-5 h-5 text-gray-600 group-hover:text-gray-900" />
+                <span className="font-semibold text-gray-600 group-hover:text-gray-900">Comment</span>
+              </button>
+              <button className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-gray-50 transition-colors rounded-lg group">
+                <ShareIcon className="w-5 h-5 text-gray-600 group-hover:text-gray-900" />
+                <span className="font-semibold text-gray-600 group-hover:text-gray-900">Share</span>
               </button>
             </div>
           </motion.div>

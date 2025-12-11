@@ -9,31 +9,30 @@ interface LiveCam {
 }
 
 // Polar Bears International live cams from explore.org
-// Note: Replace these placeholder IDs with actual YouTube video IDs or explore.org embed URLs
 const liveCams: LiveCam[] = [
   {
     id: '1',
     title: 'Polar Bear Cam - Hudson Bay',
     description: 'Watch wild polar bears on the shores of Hudson Bay, Canada',
-    embedUrl: 'https://www.youtube.com/embed/PLACEHOLDER_VIDEO_ID_1?autoplay=1&mute=1'
+    embedUrl: 'https://explore.org/live-cams/player/polar-bear-cam?autoplay=1&muted=1'
   },
   {
     id: '2',
-    title: 'Polar Bear Cam - Wapusk National Park',
+    title: 'Polar Bear Cam - Cape Churchill',
     description: 'Live view from Cape Churchill in Wapusk National Park',
-    embedUrl: 'https://www.youtube.com/embed/PLACEHOLDER_VIDEO_ID_2?autoplay=1&mute=1'
+    embedUrl: 'https://explore.org/live-cams/player/polar-bear-cape-churchill-cam?autoplay=1&muted=1'
   },
   {
     id: '3',
     title: 'Tundra Buggy Lodge Cam',
     description: 'Watch polar bears near the Tundra Buggy Lodge in Churchill',
-    embedUrl: 'https://www.youtube.com/embed/PLACEHOLDER_VIDEO_ID_3?autoplay=1&mute=1'
+    embedUrl: 'https://explore.org/live-cams/player/polar-bear-lodge-cam?autoplay=1&muted=1'
   },
   {
     id: '4',
-    title: 'Northern Lights & Polar Bears',
-    description: 'Experience the Aurora Borealis and polar bear habitat',
-    embedUrl: 'https://www.youtube.com/embed/PLACEHOLDER_VIDEO_ID_4?autoplay=1&mute=1'
+    title: 'Tundra Buggy Lodge - South Cam',
+    description: 'Southern view of polar bears at the Tundra Buggy Lodge',
+    embedUrl: 'https://explore.org/live-cams/player/polar-bear-tundra-buggy-lodge-south?autoplay=1&muted=1'
   }
 ];
 
@@ -99,22 +98,45 @@ const LiveCamsPage: React.FC = () => {
               </div>
 
               {/* Video Player */}
-              <div className="relative" style={{ paddingBottom: '56.25%' }}>
+              <div className="relative bg-gray-900" style={{ paddingBottom: '56.25%' }}>
                 <iframe
                   src={cam.embedUrl}
                   title={cam.title}
                   className="absolute top-0 left-0 w-full h-full"
                   frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                   allowFullScreen
+                  loading="lazy"
                 />
+                {/* Fallback link if iframe is blocked */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <a
+                    href={cam.embedUrl.split('?')[0].replace('/live-cams/player/', '/livecams/polar-bears/')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pointer-events-auto hidden bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                    id={`fallback-${cam.id}`}
+                  >
+                    Open Camera in New Tab
+                  </a>
+                </div>
               </div>
 
               {/* Info Footer */}
               <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
-                  Stream provided by explore.org • Best viewing during polar bear season (Oct-Nov)
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-600">
+                    Stream provided by explore.org
+                  </p>
+                  <a
+                    href={cam.embedUrl.split('?')[0].replace('/live-cams/player/', '/livecams/polar-bears/')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    Watch on Explore.org
+                  </a>
+                </div>
               </div>
             </div>
           ))}

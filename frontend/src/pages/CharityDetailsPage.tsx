@@ -378,12 +378,13 @@ const CharityDetailsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Content Area - Facebook Group Style */}
+        <div className="bg-gray-100 min-h-screen">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {/* Left Column - Main Content (Posts Focus) */}
-            <div className="lg:col-span-2 space-y-6">
+              {/* Left Column - Main Content (Posts Focus) */}
+              <div className="lg:col-span-2 space-y-4">
 
               {/* Posts Tab */}
               {activeTab === 'posts' && (
@@ -483,9 +484,26 @@ const CharityDetailsPage: React.FC = () => {
               )}
             </div>
 
-            {/* Right Column - Donation Card (Sticky) */}
+            {/* Right Column - Donation Card & Info (Sticky) */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24">
+              <div className="sticky top-24 space-y-4">
+                {/* About Card - Facebook Group Style */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">About</h3>
+                  <p className="text-sm text-gray-700 mb-3">{charity.description}</p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <span>🌍</span>
+                      <span className="font-medium">Public</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <span>👥</span>
+                      <span className="font-medium">{campaignData.donorCount.toLocaleString()} supporters</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Donation Card */}
                 <div className="bg-white border-2 border-blue-100 rounded-xl p-6 shadow-lg">
                   <h3 className="text-xl font-bold text-gray-900 mb-6">Make a donation</h3>
 

@@ -502,10 +502,50 @@ const DonationForm: React.FC = () => {
           </div>
         )}
 
-
-        {/* Icon-Focused Charity Grid */}
         {!loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Trending Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
+                <h2 className="text-2xl font-bold text-arctic-900 mb-6 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                  </svg>
+                  Trending
+                </h2>
+                <div className="space-y-3">
+                  {charities
+                    .filter(c => c.trending)
+                    .sort((a, b) => (b.followerIncrease || 0) - (a.followerIncrease || 0))
+                    .slice(0, 10)
+                    .map((charity, index) => (
+                      <div
+                        key={charity.id}
+                        onClick={(e) => handleLearnMore(charity.id, e)}
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-ice-50 transition-all cursor-pointer group"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-arctic-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-arctic-900 truncate group-hover:text-arctic-600 transition-colors">
+                            {charity.name}
+                          </p>
+                          <p className="text-xs text-arctic-500 flex items-center gap-1">
+                            <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                            </svg>
+                            +{((charity.followerIncrease || 0) / 1000).toFixed(1)}k
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Icon-Focused Charity Grid */}
+            <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
             {charities.map((charity) => {
               const isFollowing = followingIds.has(charity.id);
 
@@ -637,6 +677,7 @@ const DonationForm: React.FC = () => {
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </div>

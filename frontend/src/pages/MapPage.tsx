@@ -282,7 +282,7 @@ const getCategoryIcon = (category: string): string => {
   }
 };
 
-// Simple blue marker with category icons (no animations)
+// Simple blue marker - Home icons for headquarters, pins for missions
 const createPropertyBasedIcon = (
   object: CharityBase,
   colorMode: ColorMode,
@@ -290,33 +290,36 @@ const createPropertyBasedIcon = (
   propertyMap?: Record<string, string>,
   pulse: boolean = false
 ) => {
-  const sizes = { headquarters: 40, regional: 32, field: 28 };
-  const size = sizes[object.type] || 32;
-
-  // Always use blue color
+  const isHeadquarters = object.type === 'headquarters';
+  const size = isHeadquarters ? 44 : 36;
   const color = '#3b82f6'; // Blue
 
-  const categoryIcon = getCategoryIcon(object.category);
-
-  // Home icon for headquarters (top non-profits)
-  const isHeadquarters = object.type === 'headquarters';
-  const iconSVG = isHeadquarters
-    ? `<path d="M12 3L3 9v11h6v-6h6v6h6V9l-9-6zm0 2.3L18 9v9h-2v-6H8v6H6V9l6-3.7z" fill="${color}"/>`
-    : categoryIcon;
-
-  return new Icon({
-    iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
-        <circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="2"/>
-        <circle cx="12" cy="12" r="7" fill="white" opacity="0.95"/>
-        <g transform="scale(0.7) translate(5, 5)">
-          ${iconSVG}
-        </g>
-      </svg>
-    `)}`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2]
-  });
+  // Home icon for headquarters (where donations come from)
+  // Simple pin with circle for missions (where money goes to)
+  if (isHeadquarters) {
+    return new Icon({
+      iconUrl: `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
+          <circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="2.5"/>
+          <path d="M12 3L4 9v10h5v-6h6v6h5V9l-8-6z" fill="white"/>
+        </svg>
+      `)}`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2]
+    });
+  } else {
+    // Mission pin - simple pin shape with circle
+    return new Icon({
+      iconUrl: `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
+          <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2.5"/>
+          <circle cx="12" cy="12" r="4" fill="white"/>
+        </svg>
+      `)}`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2]
+    });
+  }
 };
 
 // Clean live data indicator - just the pulse
@@ -757,7 +760,7 @@ const MapPage: React.FC = () => {
     {
       id: 'climate',
       name: 'Climate Zones',
-      visible: true,
+      visible: false,
       opacity: 1,
       activeOpacity: 1,
       inactiveOpacity: 0.6,
@@ -922,12 +925,19 @@ const MapPage: React.FC = () => {
       },
     ];
 
+    // Flight paths: from headquarters (homes) to missions (pins)
     const mockPaths: FlightPath[] = [
-      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 51.5074, lng: -0.1278 }, fromName: 'NY', toName: 'London', amount: 250000, type: 'funding', active: true, timestamp: new Date(Date.now() - 3600000), speed: 1.2 },
-      { id: 'fp2', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'London', toName: 'Kenya', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
-      { id: 'fp3', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: 1.3521, lng: 103.8198 }, fromName: 'Tokyo', toName: 'Singapore', amount: 120000, type: 'collaboration', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
-      { id: 'fp4', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 35.6762, lng: 139.6503 }, fromName: 'NY', toName: 'Tokyo', amount: 340000, type: 'data', active: true, timestamp: new Date(Date.now() - 5400000), speed: 0.8 },
-      { id: 'fp5', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -23.5505, lng: -46.6333 }, fromName: 'London', toName: 'Brazil', amount: 210000, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
+      // From Global Climate HQ (NY) to missions
+      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: -23.5505, lng: -46.6333 }, fromName: 'Global Climate HQ', toName: 'South America', amount: 250000, type: 'funding', active: true, timestamp: new Date(Date.now() - 3600000), speed: 1.2 },
+      { id: 'fp2', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 64.1466, lng: -21.9426 }, fromName: 'Global Climate HQ', toName: 'Arctic Research', amount: 340000, type: 'funding', active: true, timestamp: new Date(Date.now() - 5400000), speed: 0.8 },
+
+      // From EU Operations (London) to missions
+      { id: 'fp3', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'EU Operations', toName: 'African Regional', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
+      { id: 'fp4', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 25.2048, lng: 55.2708 }, fromName: 'EU Operations', toName: 'Middle East', amount: 210000, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
+
+      // From Asia-Pacific Hub (Tokyo) to missions
+      { id: 'fp5', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -3.4653, lng: -62.2159 }, fromName: 'Asia-Pacific Hub', toName: 'Amazon Station', amount: 120000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
+      { id: 'fp6', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'Asia-Pacific Hub', toName: 'African Regional', amount: 150000, type: 'funding', active: true, timestamp: new Date(Date.now() - 2400000), speed: 1.1 },
     ];
 
     const mockZones: ClimateZone[] = [
@@ -1280,116 +1290,7 @@ const MapPage: React.FC = () => {
             <MapInteractionHandler onZoomChange={setCurrentZoom} />
             <ZoomControls />
 
-            {/* Climate Zones */}
-            {getLayerByType('climate')?.visible && filteredZones.map(zone => {
-              const layer = getLayerByType('climate')!;
-              const pathOptions = {
-                color: getSeverityColor(zone.severity),
-                fillColor: getSeverityColor(zone.severity),
-                fillOpacity: layer.fillPolygons ? layer.opacity * (zone.changing ? 0.35 : 0.25) : 0,
-                weight: layer.strokeWidth,
-                opacity: layer.opacity * 0.8,
-                dashArray: layer.strokePattern === 'dashed' ? '8, 4' : undefined
-              };
-
-              const popupContent = (
-                <Popup maxWidth={400}>
-                  <div className="text-sm w-80 bg-white">
-                    {/* Header with gradient background */}
-                    <div className={`-m-3 mb-3 p-4 rounded-t-lg ${
-                      zone.severity === 'critical' ? 'bg-gradient-to-r from-red-600 to-red-700' :
-                      zone.severity === 'high' ? 'bg-gradient-to-r from-orange-600 to-orange-700' :
-                      zone.severity === 'medium' ? 'bg-gradient-to-r from-yellow-600 to-yellow-700' :
-                      'bg-gradient-to-r from-blue-600 to-blue-700'
-                    }`}>
-                      <div className="flex items-center justify-between text-white">
-                        <h3 className="text-lg font-bold">{zone.name}</h3>
-                        <span className={`text-xs px-3 py-1 rounded-full font-bold bg-white ${
-                          zone.severity === 'critical' ? 'text-red-700' :
-                          zone.severity === 'high' ? 'text-orange-700' :
-                          zone.severity === 'medium' ? 'text-yellow-700' :
-                          'text-blue-700'
-                        }`}>{zone.severity.toUpperCase()}</span>
-                      </div>
-                      <div className="text-white text-xs mt-2 opacity-90 font-medium capitalize">
-                        {zone.type} Crisis
-                      </div>
-                    </div>
-
-                    {/* Key Stats */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-blue-50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">Priority Level</div>
-                        <div className={`text-base font-bold ${
-                          zone.severity === 'critical' ? 'text-red-600' :
-                          zone.severity === 'high' ? 'text-orange-600' :
-                          zone.severity === 'medium' ? 'text-yellow-600' : 'text-blue-600'
-                        }`}>
-                          {zone.severity.toUpperCase()}
-                        </div>
-                      </div>
-                      <div className="bg-purple-50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">People Served</div>
-                        <div className="text-base font-bold text-purple-600">
-                          {(zone.affectedPopulation / 1000000).toFixed(1)}M
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Region Overview */}
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border-2 border-gray-200 mb-3">
-                      <div className="font-bold text-sm text-gray-800 mb-2">
-                        Regional Information
-                      </div>
-                      <p className="text-xs text-gray-600 leading-relaxed mb-3">
-                        This region requires support for {zone.type} relief efforts. Projects focus on sustainable solutions and community resilience.
-                      </p>
-                      <div className="text-xs text-gray-500">
-                        Last updated: {new Date(zone.lastUpdated).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                </Popup>
-              );
-
-              // Render Polygon if bounds exist, otherwise Circle
-              if (zone.polygonBounds && zone.polygonBounds.length > 0) {
-                return (
-                  <Polygon
-                    key={zone.id}
-                    positions={zone.polygonBounds}
-                    pathOptions={pathOptions}
-                  >
-                    {layer.showTooltips && popupContent}
-                  </Polygon>
-                );
-              } else {
-                return (
-                  <Circle
-                    key={zone.id}
-                    center={[zone.location.lat, zone.location.lng]}
-                    radius={zone.radius}
-                    pathOptions={pathOptions}
-                  >
-                    {layer.showTooltips && popupContent}
-                  </Circle>
-                );
-              }
-            })}
-
-            {/* Mission Regions - Interactive with hover */}
-            {missionRegions.map(region => (
-              <InteractiveMissionRegion
-                key={region.id}
-                region={region}
-                onSelect={(r) => {
-                  setSelectedRegion(r);
-                  console.log('Selected mission region:', r.name);
-                }}
-              />
-            ))}
-
-            {/* Enhanced Flight Paths with pulse */}
+            {/* Blue Animated Lines - Donations from headquarters to missions */}
             {filteredPaths.map(path => {
               const layer = getLayerByType(path.type);
               if (!layer) return null;
