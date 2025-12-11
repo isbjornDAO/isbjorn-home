@@ -8,7 +8,6 @@ import {
   GlobeAltIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import Footer from '@/components/Footer';
 
 // Snowflake component for arctic animation
 const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
@@ -221,9 +220,6 @@ const HomePage: React.FC = () => {
         </motion.div>
 
       </div>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
