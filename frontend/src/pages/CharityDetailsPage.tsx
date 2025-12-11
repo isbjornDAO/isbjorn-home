@@ -482,129 +482,130 @@ const CharityDetailsPage: React.FC = () => {
                   </div>
                 </div>
               )}
-            </div>
+              </div>
 
-            {/* Right Column - Donation Card & Info (Sticky) */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-4">
-                {/* About Card - Facebook Group Style */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-3">About</h3>
-                  <p className="text-sm text-gray-700 mb-3">{charity.description}</p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <span>🌍</span>
-                      <span className="font-medium">Public</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <span>👥</span>
-                      <span className="font-medium">{campaignData.donorCount.toLocaleString()} supporters</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Donation Card */}
-                <div className="bg-white border-2 border-blue-100 rounded-xl p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Make a donation</h3>
-
-                  {/* Quick Amount Buttons */}
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    {[10, 25, 50, 100, 250, 500].map((suggestedAmount) => (
-                      <button
-                        key={suggestedAmount}
-                        type="button"
-                        onClick={() => setAmount(suggestedAmount.toString())}
-                        className={`py-3 px-2 border-2 rounded-lg font-bold transition-all ${
-                          amount === suggestedAmount.toString()
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-300 text-gray-700 hover:border-blue-400 hover:bg-gray-50'
-                        }`}
-                      >
-                        ${suggestedAmount}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Custom Amount */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Or enter custom amount
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg font-semibold">$</span>
-                      <input
-                        type="number"
-                        min="1"
-                        step="0.01"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        placeholder="0.00"
-                        className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-semibold"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Email Input */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Email for tax receipt
-                    </label>
-                    <input
-                      type="email"
-                      value={receiptEmail}
-                      onChange={(e) => setReceiptEmail(e.target.value)}
-                      placeholder="you@company.co.nz"
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  {/* Total Display */}
-                  {amount && (
-                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-gray-700">Your donation</span>
-                        <span className="font-bold text-gray-900 text-xl">${amount} NZD</span>
+              {/* Right Column - Donation Card & Info (Sticky) */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-24 space-y-4">
+                  {/* About Card - Facebook Group Style */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">About</h3>
+                    <p className="text-sm text-gray-700 mb-3">{charity.description}</p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <span>🌍</span>
+                        <span className="font-medium">Public</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <span>👥</span>
+                        <span className="font-medium">{campaignData.donorCount.toLocaleString()} supporters</span>
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Donate Button */}
-                  <button
-                    type="button"
-                    onClick={handleDonate}
-                    disabled={!amount || !receiptEmail || loading}
-                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Processing...' : 'Donate now'}
-                  </button>
+                  {/* Donation Card */}
+                  <div className="bg-white border-2 border-blue-100 rounded-xl p-6 shadow-lg">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6">Make a donation</h3>
 
-                  {/* Trust Badges */}
-                  <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <CheckCircleIcon className="w-5 h-5 text-blue-500" />
-                      <span>100% blockchain verified</span>
+                    {/* Quick Amount Buttons */}
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {[10, 25, 50, 100, 250, 500].map((suggestedAmount) => (
+                        <button
+                          key={suggestedAmount}
+                          type="button"
+                          onClick={() => setAmount(suggestedAmount.toString())}
+                          className={`py-3 px-2 border-2 rounded-lg font-bold transition-all ${
+                            amount === suggestedAmount.toString()
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 text-gray-700 hover:border-blue-400 hover:bg-gray-50'
+                          }`}
+                        >
+                          ${suggestedAmount}
+                        </button>
+                      ))}
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <CheckCircleIcon className="w-5 h-5 text-blue-500" />
-                      <span>IRD-compliant tax receipt</span>
+
+                    {/* Custom Amount */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Or enter custom amount
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg font-semibold">$</span>
+                        <input
+                          type="number"
+                          min="1"
+                          step="0.01"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          placeholder="0.00"
+                          className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-semibold"
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <CheckCircleIcon className="w-5 h-5 text-blue-500" />
-                      <span>Secure X402 payments</span>
+
+                    {/* Email Input */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Email for tax receipt
+                      </label>
+                      <input
+                        type="email"
+                        value={receiptEmail}
+                        onChange={(e) => setReceiptEmail(e.target.value)}
+                        placeholder="you@company.co.nz"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    {/* Total Display */}
+                    {amount && (
+                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-gray-700">Your donation</span>
+                          <span className="font-bold text-gray-900 text-xl">${amount} NZD</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Donate Button */}
+                    <button
+                      type="button"
+                      onClick={handleDonate}
+                      disabled={!amount || !receiptEmail || loading}
+                      className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Processing...' : 'Donate now'}
+                    </button>
+
+                    {/* Trust Badges */}
+                    <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <CheckCircleIcon className="w-5 h-5 text-blue-500" />
+                        <span>100% blockchain verified</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <CheckCircleIcon className="w-5 h-5 text-blue-500" />
+                        <span>IRD-compliant tax receipt</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <CheckCircleIcon className="w-5 h-5 text-blue-500" />
+                        <span>Secure X402 payments</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Share Section */}
-                <div className="mt-6 bg-blue-50 border-2 border-blue-100 rounded-xl p-6">
-                  <h4 className="font-bold text-gray-900 mb-3">Share this campaign</h4>
-                  <button
-                    onClick={handleShare}
-                    className="w-full flex items-center justify-center gap-2 bg-white border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all"
-                  >
-                    <ShareIcon className="w-5 h-5" />
-                    {shareSuccess ? 'Link copied!' : 'Share'}
-                  </button>
+                  {/* Share Section */}
+                  <div className="mt-6 bg-blue-50 border-2 border-blue-100 rounded-xl p-6">
+                    <h4 className="font-bold text-gray-900 mb-3">Share this campaign</h4>
+                    <button
+                      onClick={handleShare}
+                      className="w-full flex items-center justify-center gap-2 bg-white border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+                    >
+                      <ShareIcon className="w-5 h-5" />
+                      {shareSuccess ? 'Link copied!' : 'Share'}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
