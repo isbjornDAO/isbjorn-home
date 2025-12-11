@@ -4,6 +4,8 @@ import { BellIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
 import { API_URL } from '@/utils/apiUrl';
 import { useAuth } from '@/contexts/AuthContext';
+import polarBearMapBg from '@/assets/polar-bear-donate-bg.jpg';
+import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
 
 const DonationForm: React.FC = () => {
   const navigate = useNavigate();
@@ -23,8 +25,8 @@ const DonationForm: React.FC = () => {
       country: 'Global',
       location: 'Worldwide',
       description: 'Leading the fight against climate change through innovative blockchain-based climate action and transparency.',
-      charityPhoto: 'https://images.unsplash.com/photo-1483794344563-d27a8d18014e?w=800',
-      icon: 'https://logo.clearbit.com/isbjorn.io',
+      charityPhoto: polarBearMapBg,
+      icon: isbjornLogo,
       verified: true,
       totalReceived: 5200000,
       donationCount: 68400,
@@ -416,7 +418,13 @@ const DonationForm: React.FC = () => {
         const result = await response.json();
 
         if (result.success && result.data && result.data.length > 0) {
-          setCharities(result.data);
+          // Update Isbjorn charity to use polar bear map image and logo
+          const updatedCharities = result.data.map((charity: any) =>
+            charity.id === 'isbjorn' || charity.name === 'Isbjorn'
+              ? { ...charity, charityPhoto: polarBearMapBg, icon: isbjornLogo }
+              : charity
+          );
+          setCharities(updatedCharities);
         } else {
           // Fallback to famous NGOs
           setCharities(famousNGOs);

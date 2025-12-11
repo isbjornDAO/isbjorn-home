@@ -7,7 +7,11 @@
       "Bash(findstr:*)",
       "WebSearch",
       "Bash(npm run build:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm start)",
+      "Bash(curl:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

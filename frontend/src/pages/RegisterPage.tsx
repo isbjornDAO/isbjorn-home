@@ -63,7 +63,7 @@ const RegisterPage: React.FC = () => {
   // Redirect if already authenticated - show loading spinner while checking
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+      navigate('/profile', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 

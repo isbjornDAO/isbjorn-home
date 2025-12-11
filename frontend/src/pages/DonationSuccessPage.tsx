@@ -45,7 +45,7 @@ const DonationSuccessPage: React.FC = () => {
   };
 
   const handleViewDashboard = () => {
-    navigate('/dashboard');
+    navigate('/profile');
   };
 
   if (!donation) {
@@ -197,7 +197,7 @@ const DonationSuccessPage: React.FC = () => {
             onClick={handleViewDashboard}
             className="flex-1 bg-white border-2 border-arctic-600 text-arctic-600 py-2 px-4 text-sm rounded-lg font-semibold hover:bg-arctic-50 transition-colors"
           >
-            View Dashboard
+            View Profile
           </button>
 
           <button

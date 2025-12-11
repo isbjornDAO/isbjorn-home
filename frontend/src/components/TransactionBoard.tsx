@@ -165,9 +165,9 @@ const TransactionBoard: React.FC = () => {
     <div className="bg-[#0a1628] text-white font-mono p-8 rounded-xl overflow-hidden min-h-[600px]">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <PaperAirplaneIcon className="w-8 h-8" />
-        <h1 className="text-4xl font-light tracking-wide">Transactions</h1>
-        <ArrowUpRightIcon className="w-8 h-8" />
+        <PaperAirplaneIcon className="w-8 h-8 text-white" />
+        <h1 className="text-4xl font-light tracking-wide text-white">Transactions</h1>
+        <ArrowUpRightIcon className="w-8 h-8 text-white" />
       </div>
 
       {/* Column Headers */}

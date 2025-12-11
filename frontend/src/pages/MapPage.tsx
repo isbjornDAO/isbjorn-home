@@ -229,7 +229,7 @@ const AnimatedFlightPath: React.FC<{
   const animatedPoint = arcPoints[pointIndex] as [number, number];
 
   // Always use blue color
-  const blueColor = '#3b82f6';
+  const blueColor = 'rgb(3, 105, 161)';
 
   return (
     <>
@@ -259,7 +259,7 @@ const AnimatedFlightPath: React.FC<{
 
 // Get category icon SVG path (using blue color)
 const getCategoryIcon = (category: string): string => {
-  const iconColor = '#3b82f6'; // Blue
+  const iconColor = 'rgb(3, 105, 161)'; // Blue
   switch (category) {
     case 'Climate':
       // Thermometer/climate icon
@@ -292,7 +292,7 @@ const createPropertyBasedIcon = (
 ) => {
   const isHeadquarters = object.type === 'headquarters';
   const size = isHeadquarters ? 44 : 36;
-  const color = '#3b82f6'; // Blue
+  const color = 'rgb(3, 105, 161)'; // Blue
 
   // Home icon for headquarters (where donations come from)
   // Simple pin with circle for missions (where money goes to)
@@ -301,7 +301,14 @@ const createPropertyBasedIcon = (
       iconUrl: `data:image/svg+xml;base64,${btoa(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
           <circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="2.5"/>
-          <path d="M12 3L4 9v10h5v-6h6v6h5V9l-8-6z" fill="white"/>
+          <rect x="7" y="7" width="10" height="10" fill="white"/>
+          <rect x="8.5" y="8.5" width="2" height="2" fill="${color}"/>
+          <rect x="11.5" y="8.5" width="2" height="2" fill="${color}"/>
+          <rect x="14.5" y="8.5" width="2" height="2" fill="${color}"/>
+          <rect x="8.5" y="11.5" width="2" height="2" fill="${color}"/>
+          <rect x="11.5" y="11.5" width="2" height="2" fill="${color}"/>
+          <rect x="14.5" y="11.5" width="2" height="2" fill="${color}"/>
+          <rect x="11.5" y="14.5" width="2" height="2.5" fill="${color}"/>
         </svg>
       `)}`,
       iconSize: [size, size],
@@ -411,7 +418,7 @@ const ZoomControls: React.FC = () => {
         onClick={() => map.zoomIn()}
         className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <span className="text-xl font-bold" style={{ color: '#3b82f6' }}>+</span>
+        <span className="text-xl font-bold" style={{ color: 'rgb(3, 105, 161)' }}>+</span>
       </motion.button>
       <motion.button
         whileHover={{ scale: 1.05 }}
@@ -419,7 +426,7 @@ const ZoomControls: React.FC = () => {
         onClick={() => map.zoomOut()}
         className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <span className="text-xl font-bold" style={{ color: '#3b82f6' }}>−</span>
+        <span className="text-xl font-bold" style={{ color: 'rgb(3, 105, 161)' }}>−</span>
       </motion.button>
       <motion.button
         whileHover={{ scale: 1.05 }}
@@ -427,7 +434,7 @@ const ZoomControls: React.FC = () => {
         onClick={() => map.setView([10, 170], 2)}
         className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
       >
-        <GlobeAltIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
+        <GlobeAltIcon className="w-5 h-5" style={{ color: 'rgb(3, 105, 161)' }} />
       </motion.button>
     </div>
   );
@@ -443,9 +450,9 @@ const InteractiveMissionRegion: React.FC<{
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return '#10b981'; // green
-      case 'planned': return '#3b82f6'; // blue
+      case 'planned': return 'rgb(3, 105, 161)'; // blue
       case 'completed': return '#6b7280'; // gray
-      default: return '#3b82f6';
+      default: return 'rgb(3, 105, 161)';
     }
   };
 
@@ -454,8 +461,8 @@ const InteractiveMissionRegion: React.FC<{
       case 'critical': return '#ef4444'; // red
       case 'high': return '#f97316'; // orange
       case 'medium': return '#eab308'; // yellow
-      case 'low': return '#3b82f6'; // blue
-      default: return '#3b82f6';
+      case 'low': return 'rgb(3, 105, 161)'; // blue
+      default: return 'rgb(3, 105, 161)';
     }
   };
 
@@ -611,6 +618,9 @@ const MapPage: React.FC = () => {
       content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations.',
       timestamp: new Date(Date.now() - 3600000),
       category: 'Climate',
+      upvotes: 142,
+      downvotes: 3,
+      userVote: null as 'up' | 'down' | null,
     },
     {
       id: 2,
@@ -622,6 +632,9 @@ const MapPage: React.FC = () => {
       content: 'Reached our milestone! Thanks to all supporters who made this reforestation initiative possible.',
       timestamp: new Date(Date.now() - 7200000),
       category: 'Forest',
+      upvotes: 289,
+      downvotes: 5,
+      userVote: null as 'up' | 'down' | null,
     },
     {
       id: 3,
@@ -633,6 +646,9 @@ const MapPage: React.FC = () => {
       content: 'Removed 50 tons of plastic this month. Progress is steady with our new drone technology.',
       timestamp: new Date(Date.now() - 14400000),
       category: 'Conservation',
+      upvotes: 187,
+      downvotes: 8,
+      userVote: null as 'up' | 'down' | null,
     },
     {
       id: 4,
@@ -644,8 +660,42 @@ const MapPage: React.FC = () => {
       content: 'Protecting Arctic ecosystems threatened by climate change - temperature monitoring shows concerning trends.',
       timestamp: new Date(Date.now() - 21600000),
       category: 'Climate',
+      upvotes: 231,
+      downvotes: 12,
+      userVote: null as 'up' | 'down' | null,
     },
   ]);
+
+  // Handle voting on news items
+  const handleVote = (newsId: number, voteType: 'up' | 'down') => {
+    setNewsFeed(prev => prev.map(item => {
+      if (item.id !== newsId) return item;
+
+      const currentVote = item.userVote;
+      let newUpvotes = item.upvotes;
+      let newDownvotes = item.downvotes;
+      let newUserVote: 'up' | 'down' | null = voteType;
+
+      // Remove previous vote if exists
+      if (currentVote === 'up') newUpvotes--;
+      if (currentVote === 'down') newDownvotes--;
+
+      // Add new vote or cancel if same
+      if (currentVote === voteType) {
+        newUserVote = null; // Cancel vote
+      } else {
+        if (voteType === 'up') newUpvotes++;
+        if (voteType === 'down') newDownvotes++;
+      }
+
+      return {
+        ...item,
+        upvotes: newUpvotes,
+        downvotes: newDownvotes,
+        userVote: newUserVote,
+      };
+    }));
+  };
 
   const [liveMissions, setLiveMissions] = useState([
     { id: 1, name: 'Arctic Ice Monitoring', location: 'Iceland', votes: 521, funding: 820000, progress: 68, status: 'active' as const },
@@ -732,7 +782,7 @@ const MapPage: React.FC = () => {
       opacity: 0.8,
       activeOpacity: 0.9,
       inactiveOpacity: 0.25,
-      color: '#3b82f6',
+      color: 'rgb(3, 105, 161)',
       colorMode: 'fixed',
       strokePattern: 'dotted',
       strokeWidth: 2,
@@ -801,7 +851,7 @@ const MapPage: React.FC = () => {
   const categoryColorMap = {
     'Climate': '#06b6d4',
     'Conservation': '#10b981',
-    'Water': '#3b82f6',
+    'Water': 'rgb(3, 105, 161)',
     'Forest': '#22c55e',
     'Ocean': '#0ea5e9'
   };
@@ -884,50 +934,50 @@ const MapPage: React.FC = () => {
   const loadMockData = () => {
     const mockBases: CharityBase[] = [
       {
-        id: 'hq1', name: 'Global Climate HQ', location: { lat: 40.7128, lng: -74.0060 }, type: 'headquarters',
-        activeProjects: 45, category: 'Climate', fundingReceived: 2500000, lastActivity: new Date(), impact: 95,
+        id: 'hq1', name: 'NRDC Headquarters', location: { lat: 40.7128, lng: -74.0060 }, type: 'headquarters',
+        activeProjects: 45, category: 'Climate', fundingReceived: 2500000, lastActivity: new Date(), impact: 1247,
         properties: { region: 'Americas', established: 2010 },
         regionalClimateData: { avgTemperature: 12.5, temperatureTrend: +1.2, airQualityIndex: 85, forestCoverage: 24, waterAvailability: 78, carbonFootprint: 45000, renewableEnergy: 32 }
       },
       {
-        id: 'hq2', name: 'EU Operations', location: { lat: 51.5074, lng: -0.1278 }, type: 'headquarters',
-        activeProjects: 38, category: 'Conservation', fundingReceived: 1800000, lastActivity: new Date(), impact: 88,
+        id: 'hq2', name: 'WWF UK', location: { lat: 51.5074, lng: -0.1278 }, type: 'headquarters',
+        activeProjects: 38, category: 'Conservation', fundingReceived: 1800000, lastActivity: new Date(), impact: 892,
         properties: { region: 'Europe', established: 2012 },
         regionalClimateData: { avgTemperature: 10.8, temperatureTrend: +0.9, airQualityIndex: 72, forestCoverage: 38, waterAvailability: 85, carbonFootprint: 38000, renewableEnergy: 48 }
       },
       {
-        id: 'hq3', name: 'Asia-Pacific Hub', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters',
-        activeProjects: 52, category: 'Climate', fundingReceived: 3200000, lastActivity: new Date(), impact: 92,
+        id: 'hq3', name: 'WWF Japan', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters',
+        activeProjects: 52, category: 'Climate', fundingReceived: 3200000, lastActivity: new Date(), impact: 1563,
         properties: { region: 'Asia', established: 2008 },
         regionalClimateData: { avgTemperature: 16.3, temperatureTrend: +1.5, airQualityIndex: 145, forestCoverage: 31, waterAvailability: 68, carbonFootprint: 52000, renewableEnergy: 28 }
       },
       {
         id: 'r1', name: 'African Regional', location: { lat: -1.2921, lng: 36.8219 }, type: 'regional',
-        activeProjects: 28, category: 'Water', fundingReceived: 950000, lastActivity: new Date(), impact: 78,
+        activeProjects: 28, category: 'Water', fundingReceived: 950000, lastActivity: new Date(), impact: 534,
         properties: { region: 'Africa', established: 2015 },
         regionalClimateData: { avgTemperature: 24.5, temperatureTrend: +1.8, airQualityIndex: 95, forestCoverage: 42, waterAvailability: 45, carbonFootprint: 12000, renewableEnergy: 18 }
       },
       {
         id: 'r2', name: 'South America', location: { lat: -23.5505, lng: -46.6333 }, type: 'regional',
-        activeProjects: 31, category: 'Forest', fundingReceived: 1200000, lastActivity: new Date(), impact: 85,
+        activeProjects: 31, category: 'Forest', fundingReceived: 1200000, lastActivity: new Date(), impact: 678,
         properties: { region: 'South America', established: 2013 },
         regionalClimateData: { avgTemperature: 19.5, temperatureTrend: +1.3, airQualityIndex: 105, forestCoverage: 58, waterAvailability: 72, carbonFootprint: 28000, renewableEnergy: 42 }
       },
       {
         id: 'r3', name: 'Middle East', location: { lat: 25.2048, lng: 55.2708 }, type: 'regional',
-        activeProjects: 22, category: 'Climate', fundingReceived: 780000, lastActivity: new Date(), impact: 72,
+        activeProjects: 22, category: 'Climate', fundingReceived: 780000, lastActivity: new Date(), impact: 423,
         properties: { region: 'Middle East', established: 2016 },
         regionalClimateData: { avgTemperature: 28.2, temperatureTrend: +2.1, airQualityIndex: 165, forestCoverage: 8, waterAvailability: 22, carbonFootprint: 68000, renewableEnergy: 15 }
       },
       {
         id: 'f1', name: 'Arctic Research', location: { lat: 64.1466, lng: -21.9426 }, type: 'field',
-        activeProjects: 8, category: 'Climate', fundingReceived: 450000, lastActivity: new Date(), impact: 68,
+        activeProjects: 8, category: 'Climate', fundingReceived: 450000, lastActivity: new Date(), impact: 289,
         properties: { region: 'Arctic', established: 2018 },
         regionalClimateData: { avgTemperature: -2.5, temperatureTrend: +3.2, airQualityIndex: 25, forestCoverage: 12, waterAvailability: 95, carbonFootprint: 5000, renewableEnergy: 65 }
       },
       {
         id: 'f2', name: 'Amazon Station', location: { lat: -3.4653, lng: -62.2159 }, type: 'field',
-        activeProjects: 12, category: 'Forest', fundingReceived: 620000, lastActivity: new Date(), impact: 82,
+        activeProjects: 12, category: 'Forest', fundingReceived: 620000, lastActivity: new Date(), impact: 371,
         properties: { region: 'Amazon', established: 2014 },
         regionalClimateData: { avgTemperature: 26.8, temperatureTrend: +1.6, airQualityIndex: 45, forestCoverage: 78, waterAvailability: 88, carbonFootprint: 8000, renewableEnergy: 72 }
       },
@@ -935,17 +985,17 @@ const MapPage: React.FC = () => {
 
     // Flight paths: from headquarters (homes) to missions (pins)
     const mockPaths: FlightPath[] = [
-      // From Global Climate HQ (NY) to missions
-      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: -23.5505, lng: -46.6333 }, fromName: 'Global Climate HQ', toName: 'South America', amount: 250000, type: 'funding', active: true, timestamp: new Date(Date.now() - 3600000), speed: 1.2 },
-      { id: 'fp2', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 64.1466, lng: -21.9426 }, fromName: 'Global Climate HQ', toName: 'Arctic Research', amount: 340000, type: 'funding', active: true, timestamp: new Date(Date.now() - 5400000), speed: 0.8 },
+      // From NRDC Headquarters (NY) to missions
+      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: -23.5505, lng: -46.6333 }, fromName: 'NRDC Headquarters', toName: 'South America', amount: 250000, type: 'funding', active: true, timestamp: new Date(Date.now() - 3600000), speed: 1.2 },
+      { id: 'fp2', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 64.1466, lng: -21.9426 }, fromName: 'NRDC Headquarters', toName: 'Arctic Research', amount: 340000, type: 'funding', active: true, timestamp: new Date(Date.now() - 5400000), speed: 0.8 },
 
-      // From EU Operations (London) to missions
-      { id: 'fp3', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'EU Operations', toName: 'African Regional', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
-      { id: 'fp4', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 25.2048, lng: 55.2708 }, fromName: 'EU Operations', toName: 'Middle East', amount: 210000, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
+      // From WWF UK (London) to missions
+      { id: 'fp3', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF UK', toName: 'African Regional', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
+      { id: 'fp4', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 25.2048, lng: 55.2708 }, fromName: 'WWF UK', toName: 'Middle East', amount: 210000, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
 
-      // From Asia-Pacific Hub (Tokyo) to missions
-      { id: 'fp5', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -3.4653, lng: -62.2159 }, fromName: 'Asia-Pacific Hub', toName: 'Amazon Station', amount: 120000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
-      { id: 'fp6', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'Asia-Pacific Hub', toName: 'African Regional', amount: 150000, type: 'funding', active: true, timestamp: new Date(Date.now() - 2400000), speed: 1.1 },
+      // From WWF Japan (Tokyo) to missions
+      { id: 'fp5', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -3.4653, lng: -62.2159 }, fromName: 'WWF Japan', toName: 'Amazon Station', amount: 120000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
+      { id: 'fp6', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF Japan', toName: 'African Regional', amount: 150000, type: 'funding', active: true, timestamp: new Date(Date.now() - 2400000), speed: 1.1 },
     ];
 
     const mockZones: ClimateZone[] = [
@@ -1139,13 +1189,13 @@ const MapPage: React.FC = () => {
   return (
     <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col overflow-hidden">
       {/* Clean Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-3 flex items-center justify-between z-10 shadow-sm flex-shrink-0">
+      <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-2 flex items-center justify-between z-10 shadow-sm flex-shrink-0">
         <div className="flex items-center space-x-4 flex-1">
           {/* Trending Non-Profits */}
           <div className="flex items-center gap-4 flex-1 overflow-hidden">
             <div className="flex items-center gap-2 whitespace-nowrap">
               <span className="text-sm font-bold text-gray-700">Trending</span>
-              <BoltIcon className="w-4 h-4" style={{ color: '#3b82f6' }} />
+              <BoltIcon className="w-4 h-4" style={{ color: 'rgb(3, 105, 161)' }} />
             </div>
             <div className="flex items-center gap-2 flex-1 overflow-hidden">
               {[
@@ -1160,7 +1210,7 @@ const MapPage: React.FC = () => {
               ].map((charity, index) => (
                 <button
                   key={charity.id}
-                  onClick={() => navigate(`/charity/${charity.slug}`)}
+                  onClick={() => navigate('/donate')}
                   className="group relative flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200 hover:border-blue-400 bg-white hover:bg-blue-50 transition-all cursor-pointer flex-shrink-0"
                 >
                   <span className="text-xs font-bold text-gray-500">#{index + 1}</span>
@@ -1229,7 +1279,7 @@ const MapPage: React.FC = () => {
                 ? 'text-white shadow-lg'
                 : 'bg-white border border-blue-200 hover:bg-blue-50'
             }`}
-            style={showFilterPanel ? { backgroundColor: '#3b82f6' } : { color: '#3b82f6' }}
+            style={showFilterPanel ? { backgroundColor: 'rgb(3, 105, 161)' } : { color: 'rgb(3, 105, 161)' }}
           >
             <FunnelIcon className="w-5 h-5" />
             <span className="text-sm font-semibold">Filter</span>
@@ -1242,7 +1292,7 @@ const MapPage: React.FC = () => {
             onClick={handleRefresh}
             disabled={isRefreshing}
             className="p-2 rounded-lg bg-white border border-blue-200 hover:bg-blue-50 transition-all shadow-sm"
-            style={{ color: '#3b82f6' }}
+            style={{ color: 'rgb(3, 105, 161)' }}
             title="Refresh Data"
           >
             <ArrowPathIcon className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -1250,9 +1300,9 @@ const MapPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex relative px-4 pb-4 pt-4 gap-4 overflow-hidden min-h-0">
+      <div className="flex relative px-4 pb-4 pt-4 gap-4 overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
         {/* Conditional View: Map or Transaction Board */}
-        <div className="flex-1 relative rounded-2xl shadow-xl border border-blue-200 overflow-hidden min-h-0 min-w-0" style={{ backgroundColor: '#3b82f6' }}>
+        <div className="flex-1 relative rounded-2xl shadow-xl border border-blue-200 overflow-hidden min-w-0" style={{ backgroundColor: 'rgb(3, 105, 161)', height: '100%' }}>
           {viewMode === 'transactions' ? (
             <div className="h-full overflow-auto">
               <TransactionBoard />
@@ -1260,7 +1310,7 @@ const MapPage: React.FC = () => {
           ) : (
           <MapContainer
             center={[10, 170]}
-            zoom={2}
+            zoom={3}
             minZoom={2}
             maxZoom={18}
             style={{ height: '100%', width: '100%' }}
@@ -1305,54 +1355,42 @@ const MapPage: React.FC = () => {
                   }}
                 >
                   {layer.showTooltips && (
-                    <Popup maxWidth={350}>
-                      <div className="text-sm w-72 bg-white">
-                        {/* Header with gradient */}
-                        <div className="-m-3 mb-3 p-4 rounded-t-lg bg-gradient-to-r from-blue-600 to-teal-600">
-                          <div className="flex items-center justify-between text-white">
-                            <h3 className="text-base font-bold">{base.name}</h3>
+                    <Popup maxWidth={280} autoPan={true} autoPanPadding={[50, 50]} className="custom-popup">
+                      <div className="text-sm w-64 bg-white p-4 rounded-lg">
+                        {/* Header */}
+                        <div className="mb-3 pb-3 border-b border-blue-100">
+                          <div className="flex items-center justify-between mb-1">
+                            <h3 className="text-base font-bold text-gray-900">{base.name}</h3>
                             {base.recentActivity && (
-                              <span className="text-xs bg-green-400 text-green-900 px-2 py-1 rounded-full font-bold animate-pulse">LIVE</span>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">LIVE</span>
                             )}
                           </div>
-                          <div className="text-white text-xs mt-1 opacity-90 font-medium flex items-center gap-2">
+                          <div className="text-xs text-gray-500 flex items-center gap-2">
                             <span className="capitalize">{base.type}</span>
                             <span>•</span>
                             <span>{base.category}</span>
                           </div>
                         </div>
 
-                        {/* Key Stats Cards */}
-                        <div className="grid grid-cols-3 gap-2 mb-3">
-                          <div className="bg-blue-50 rounded-lg p-2 text-center">
-                            <div className="text-xs text-gray-500 mb-1">Projects</div>
-                            <div className="text-lg font-bold text-blue-600">{base.activeProjects}</div>
+                        {/* Key Stats */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500 mb-0.5">Projects</div>
+                            <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{base.activeProjects}</div>
                           </div>
-                          <div className="bg-green-50 rounded-lg p-2 text-center">
-                            <div className="text-xs text-gray-500 mb-1">Funding</div>
-                            <div className="text-lg font-bold text-green-600">${(base.fundingReceived / 1000).toFixed(0)}K</div>
+                          <div className="text-center border-x border-blue-100">
+                            <div className="text-xs text-gray-500 mb-0.5">Funding</div>
+                            <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>
+                              ${base.fundingReceived >= 1000000
+                                ? (base.fundingReceived / 1000000).toFixed(1) + 'M'
+                                : (base.fundingReceived / 1000).toFixed(0) + 'K'}
+                            </div>
                           </div>
-                          <div className="bg-teal-50 rounded-lg p-2 text-center">
-                            <div className="text-xs text-gray-500 mb-1">Impact</div>
-                            <div className="text-lg font-bold text-teal-600">{base.impact}%</div>
-                          </div>
-                        </div>
-
-                        {/* Activity Status */}
-                        <div className="bg-blue-50 rounded-lg p-3 mb-3">
-                          <div className="text-xs text-gray-600 mb-1">Last Activity</div>
-                          <div className="text-sm font-semibold text-gray-800">
-                            {base.lastActivity.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500 mb-0.5">Contributions</div>
+                            <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{base.impact}</div>
                           </div>
                         </div>
-
-                        {/* Action Button */}
-                        <button
-                          onClick={() => setSelectedBase(base)}
-                          className="w-full bg-gradient-to-r from-blue-600 to-teal-600 text-white py-2 px-4 rounded-lg font-semibold text-sm hover:shadow-lg transition-shadow"
-                        >
-                          View Details & Vote
-                        </button>
                       </div>
                     </Popup>
                   )}
@@ -1375,7 +1413,7 @@ const MapPage: React.FC = () => {
             >
               <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-teal-50">
                 <div className="flex items-center space-x-2">
-                  <ChartBarIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
+                  <ChartBarIcon className="w-5 h-5" style={{ color: 'rgb(3, 105, 161)' }} />
                   <h3 className="font-bold text-gray-800">Impact Overview</h3>
                 </div>
                 <button
@@ -1505,10 +1543,10 @@ const MapPage: React.FC = () => {
               transition={{ type: 'spring', damping: 25 }}
               className="absolute right-6 top-6 w-96 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] max-h-[calc(100vh-160px)] overflow-hidden flex flex-col"
             >
-              <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50">
+              <div className="px-5 py-4 border-b border-blue-200 flex items-center justify-between bg-white">
                 <div className="flex items-center space-x-2">
-                  <FunnelIcon className="w-5 h-5" style={{ color: '#3b82f6' }} />
-                  <h3 className="font-bold text-gray-800">Filter Charities</h3>
+                  <FunnelIcon className="w-5 h-5" style={{ color: 'rgb(3, 105, 161)' }} />
+                  <h3 className="font-bold" style={{ color: 'rgb(3, 105, 161)' }}>Filter Charities</h3>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -1521,7 +1559,7 @@ const MapPage: React.FC = () => {
                       impactThreshold: 0
                     })}
                     className="text-xs px-3 py-1.5 rounded-lg transition-all font-semibold"
-                    style={{ backgroundColor: '#e0f2fe', color: '#3b82f6' }}
+                    style={{ backgroundColor: '#e0f2fe', color: 'rgb(3, 105, 161)' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#bae6fd'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e0f2fe'}
                   >
@@ -1538,14 +1576,13 @@ const MapPage: React.FC = () => {
 
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
                 {/* Focus Area Filter */}
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <label className="text-sm font-bold text-gray-800 mb-3 block flex items-center">
-                    <span className="w-1 h-4 bg-blue-600 rounded mr-2"></span>
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-bold mb-3 block" style={{ color: 'rgb(3, 105, 161)' }}>
                     Focus Areas
                   </label>
                   <div className="space-y-2">
                     {['Climate', 'Conservation', 'Water', 'Forest', 'Ocean'].map(category => (
-                      <label key={category} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-blue-100 transition-colors">
+                      <label key={category} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-blue-50 transition-colors">
                         <input
                           type="checkbox"
                           checked={filters.category.includes(category)}
@@ -1557,7 +1594,8 @@ const MapPage: React.FC = () => {
                                 : prev.category.filter(c => c !== category)
                             }));
                           }}
-                          className="w-4 h-4 rounded border-blue-300 bg-white text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                          className="w-4 h-4 rounded border-blue-300 bg-white focus:ring-offset-0"
+                          style={{ accentColor: 'rgb(3, 105, 161)' }}
                         />
                         <span className="text-sm text-gray-700 group-hover:text-gray-900 font-medium">{category}</span>
                       </label>
@@ -1566,14 +1604,13 @@ const MapPage: React.FC = () => {
                 </div>
 
                 {/* Organization Type Filter */}
-                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
-                  <label className="text-sm font-bold text-gray-800 mb-3 block flex items-center">
-                    <span className="w-1 h-4 bg-teal-600 rounded mr-2"></span>
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-bold mb-3 block" style={{ color: 'rgb(3, 105, 161)' }}>
                     Organization Type
                   </label>
                   <div className="space-y-2">
                     {['headquarters', 'regional', 'field'].map(type => (
-                      <label key={type} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-teal-100 transition-colors">
+                      <label key={type} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-blue-50 transition-colors">
                         <input
                           type="checkbox"
                           checked={filters.type.includes(type)}
@@ -1585,7 +1622,8 @@ const MapPage: React.FC = () => {
                                 : prev.type.filter(t => t !== type)
                             }));
                           }}
-                          className="w-4 h-4 rounded border-teal-300 bg-white text-teal-600 focus:ring-teal-500 focus:ring-offset-0"
+                          className="w-4 h-4 rounded border-blue-300 bg-white focus:ring-offset-0"
+                          style={{ accentColor: 'rgb(3, 105, 161)' }}
                         />
                         <span className="text-sm text-gray-700 group-hover:text-gray-900 font-medium capitalize">{type}</span>
                       </label>
@@ -1594,13 +1632,12 @@ const MapPage: React.FC = () => {
                 </div>
 
                 {/* Impact Threshold */}
-                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-                  <label className="text-sm font-bold text-gray-800 mb-3 block flex items-center justify-between">
-                    <span className="flex items-center">
-                      <span className="w-1 h-4 bg-purple-600 rounded mr-2"></span>
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-bold mb-3 block flex items-center justify-between">
+                    <span style={{ color: 'rgb(3, 105, 161)' }}>
                       Minimum Impact Score
                     </span>
-                    <span className="text-purple-600 font-bold text-base">{filters.impactThreshold}%</span>
+                    <span className="font-bold text-base" style={{ color: 'rgb(3, 105, 161)' }}>{filters.impactThreshold}%</span>
                   </label>
                   <input
                     type="range"
@@ -1609,9 +1646,10 @@ const MapPage: React.FC = () => {
                     step="5"
                     value={filters.impactThreshold}
                     onChange={(e) => setFilters(prev => ({ ...prev, impactThreshold: parseInt(e.target.value) }))}
-                    className="w-full h-2.5 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                    className="w-full h-2.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                    style={{ accentColor: 'rgb(3, 105, 161)' }}
                   />
-                  <div className="flex justify-between text-xs text-purple-600 font-medium mt-2">
+                  <div className="flex justify-between text-xs font-medium mt-2" style={{ color: 'rgb(3, 105, 161)' }}>
                     <span>0%</span>
                     <span>50%</span>
                     <span>100%</span>
@@ -1619,13 +1657,12 @@ const MapPage: React.FC = () => {
                 </div>
 
                 {/* Funding Range */}
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                  <label className="text-sm font-bold text-gray-800 mb-3 block flex items-center justify-between">
-                    <span className="flex items-center">
-                      <span className="w-1 h-4 bg-green-600 rounded mr-2"></span>
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-bold mb-3 block flex items-center justify-between">
+                    <span style={{ color: 'rgb(3, 105, 161)' }}>
                       Funding Range
                     </span>
-                    <span className="text-green-600 font-bold text-xs">
+                    <span className="font-bold text-xs" style={{ color: 'rgb(3, 105, 161)' }}>
                       ${(filters.fundingRange[0] / 1000).toFixed(0)}K - ${(filters.fundingRange[1] / 1000000).toFixed(1)}M
                     </span>
                   </label>
@@ -1640,21 +1677,22 @@ const MapPage: React.FC = () => {
                         ...prev,
                         fundingRange: [prev.fundingRange[0], parseInt(e.target.value)]
                       }))}
-                      className="w-full h-2.5 bg-green-200 rounded-lg appearance-none cursor-pointer accent-green-600"
+                      className="w-full h-2.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                      style={{ accentColor: 'rgb(3, 105, 161)' }}
                     />
                   </div>
                 </div>
 
                 {/* Results Summary */}
-                <div className="bg-gradient-to-r from-blue-600 to-teal-600 rounded-xl p-4 text-white">
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-xs font-semibold opacity-90 mb-1">Showing Results</div>
-                      <div className="text-2xl font-bold">{filteredBases.length}</div>
+                      <div className="text-xs font-semibold mb-1" style={{ color: 'rgb(3, 105, 161)' }}>Showing Results</div>
+                      <div className="text-2xl font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{filteredBases.length}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs font-semibold opacity-90 mb-1">of Total</div>
-                      <div className="text-2xl font-bold">{charityBases.length}</div>
+                      <div className="text-xs font-semibold mb-1" style={{ color: 'rgb(3, 105, 161)' }}>of Total</div>
+                      <div className="text-2xl font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{charityBases.length}</div>
                     </div>
                   </div>
                 </div>
@@ -1664,23 +1702,23 @@ const MapPage: React.FC = () => {
         </AnimatePresence>
 
         {/* Right Side Panel - Timeline */}
-        <div className="w-96 flex flex-col gap-4 min-h-0">
+        <div className="w-96 flex flex-col gap-3" style={{ height: '100%' }}>
           {/* Timeline */}
-          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 flex-1 overflow-hidden flex flex-col min-h-0">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
+          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-3 overflow-hidden flex flex-col" style={{ height: '100%' }}>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: 'rgb(3, 105, 161)' }}>
                 <SignalIcon className="w-5 h-5" />
                 <span>Timeline</span>
               </h3>
             </div>
-            <div className="flex-1 overflow-y-auto space-y-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="flex-1 overflow-y-auto space-y-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {newsFeed.map((news, index) => (
                 <div
                   key={news.id}
-                  className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-3 hover:shadow-md transition-all cursor-pointer"
+                  className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-2 hover:shadow-md transition-all cursor-pointer"
                   onClick={() => navigate('/donate')}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-2">
                     {/* Author Profile Picture */}
                     <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                       <img
@@ -1699,7 +1737,7 @@ const MapPage: React.FC = () => {
                         <div>
                           <div className="flex items-center gap-1">
                             <span className="text-sm font-bold text-gray-900">{news.authorName}</span>
-                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'rgb(3, 105, 161)' }}>
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
                           </div>
@@ -1722,9 +1760,41 @@ const MapPage: React.FC = () => {
                         {news.content}
                       </p>
 
-                      {/* Category badge */}
-                      <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: '#3b82f6' }}>
-                        {news.category}
+                      {/* Category badge and votes */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: 'rgb(3, 105, 161)' }}>
+                          {news.category}
+                        </div>
+
+                        {/* Vote buttons */}
+                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handleVote(news.id, 'up')}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition-all ${
+                              news.userVote === 'up'
+                                ? 'bg-green-100 text-green-700'
+                                : 'hover:bg-gray-100 text-gray-500'
+                            }`}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                            </svg>
+                            <span className="text-xs font-semibold">{news.upvotes}</span>
+                          </button>
+                          <button
+                            onClick={() => handleVote(news.id, 'down')}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition-all ${
+                              news.userVote === 'down'
+                                ? 'bg-red-100 text-red-700'
+                                : 'hover:bg-gray-100 text-gray-500'
+                            }`}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                            </svg>
+                            <span className="text-xs font-semibold">{news.downvotes}</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1733,13 +1803,13 @@ const MapPage: React.FC = () => {
             </div>
 
             {/* View All Link */}
-            <div className="mt-3 pt-3 border-t border-blue-100 text-center">
+            <div className="mt-2 pt-2 border-t border-blue-100 text-center">
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/donate')}
                 className="text-sm font-semibold hover:underline"
-                style={{ color: '#3b82f6' }}
+                style={{ color: 'rgb(3, 105, 161)' }}
               >
-                View all updates on Home →
+                View all updates on Donate →
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { VideoCameraIcon, UserGroupIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { VideoCameraIcon, UserGroupIcon, PaperAirplaneIcon, HeartIcon, GiftIcon } from '@heroicons/react/24/outline';
 
 interface LiveCam {
   id: string;
@@ -15,6 +15,8 @@ interface ChatMessage {
   message: string;
   timestamp: Date;
   avatar?: string;
+  type?: 'message' | 'donation';
+  amount?: number;
 }
 
 // Polar Bears International live cams from YouTube
@@ -23,28 +25,28 @@ const liveCams: LiveCam[] = [
     id: '1',
     title: 'Polar Bear Cam - Hudson Bay',
     description: 'Watch wild polar bears on the shores of Hudson Bay, Canada',
-    embedUrl: 'https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1',
+    embedUrl: 'https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&fs=0',
     viewers: 1247
   },
   {
     id: '2',
     title: 'Wapusk National Park',
     description: 'Live from Wapusk National Park in Churchill',
-    embedUrl: 'https://www.youtube.com/embed/ZGCCMkurNGc?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1',
+    embedUrl: 'https://www.youtube.com/embed/ZGCCMkurNGc?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&fs=0',
     viewers: 823
   },
   {
     id: '3',
     title: 'Tundra Buggy Lodge',
     description: 'Polar bears near the Tundra Buggy Lodge',
-    embedUrl: 'https://www.youtube.com/embed/4XzYvaDCv7s?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1',
+    embedUrl: 'https://www.youtube.com/embed/4XzYvaDCv7s?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&fs=0',
     viewers: 654
   },
   {
     id: '4',
     title: 'Northern Lights Habitat',
     description: 'Aurora Borealis and polar bear habitat',
-    embedUrl: 'https://www.youtube.com/embed/lyX7ZxWU64A?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1',
+    embedUrl: 'https://www.youtube.com/embed/lyX7ZxWU64A?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&fs=0',
     viewers: 432
   }
 ];
@@ -52,27 +54,40 @@ const liveCams: LiveCam[] = [
 const LiveCamsPage: React.FC = () => {
   const [featuredCam, setFeaturedCam] = useState(liveCams[0]);
   const [chatMessage, setChatMessage] = useState('');
+  const [donationAmount, setDonationAmount] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      user: 'PolarFan92',
+      user: 'Marcus',
       message: 'Amazing shot! Look at that bear!',
-      timestamp: new Date(Date.now() - 120000),
-      avatar: '🐻'
+      timestamp: new Date(Date.now() - 180000),
+      avatar: '🐻‍❄️',
+      type: 'message'
     },
     {
       id: '2',
-      user: 'ArcticExplorer',
-      message: 'This stream is so peaceful',
-      timestamp: new Date(Date.now() - 60000),
-      avatar: '❄️'
+      user: 'Sarah_Chen',
+      message: 'donated to support this stream',
+      timestamp: new Date(Date.now() - 120000),
+      avatar: '🦊',
+      type: 'donation',
+      amount: 25
     },
     {
       id: '3',
-      user: 'ConservationistJane',
-      message: 'Thanks for supporting polar bear conservation!',
+      user: 'Alex',
+      message: 'This stream is so peaceful',
+      timestamp: new Date(Date.now() - 60000),
+      avatar: '🐆',
+      type: 'message'
+    },
+    {
+      id: '4',
+      user: 'Emma',
+      message: 'love that bear! what\'s his name?',
       timestamp: new Date(Date.now() - 30000),
-      avatar: '🌍'
+      avatar: '🦭',
+      type: 'message'
     }
   ]);
 
@@ -87,11 +102,34 @@ const LiveCamsPage: React.FC = () => {
       user: 'You',
       message: chatMessage,
       timestamp: new Date(),
-      avatar: '👤'
+      avatar: '🐺',
+      type: 'message'
     };
 
     setChatMessages([...chatMessages, newMessage]);
     setChatMessage('');
+  };
+
+  const handleDonate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!donationAmount || parseFloat(donationAmount) <= 0) return;
+
+    // Add donation message to chat
+    const donationMessage: ChatMessage = {
+      id: Date.now().toString(),
+      user: 'You',
+      message: 'donated to support this stream',
+      timestamp: new Date(),
+      avatar: '🧊',
+      type: 'donation',
+      amount: parseFloat(donationAmount)
+    };
+
+    setChatMessages([...chatMessages, donationMessage]);
+
+    // TODO: Integrate with your donation API
+    // alert(`Donation of $${donationAmount} to support ${featuredCam.title}!`);
+    setDonationAmount('');
   };
 
   const formatTime = (date: Date) => {
@@ -109,9 +147,9 @@ const LiveCamsPage: React.FC = () => {
   return (
     <div className="bg-gray-900">
       {/* Main Content - Twitch Layout */}
-      <div className="flex flex-col lg:flex-row h-screen lg:h-auto" style={{ minHeight: '800px' }}>
+      <div className="flex flex-col lg:flex-row" style={{ minHeight: '800px' }}>
         {/* Left Sidebar - Other Streams (hidden on mobile) */}
-        <div className="hidden lg:block lg:w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto flex-shrink-0">
+        <div className="hidden lg:block lg:w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto flex-shrink-0 [&::-webkit-scrollbar]:hidden">
           <div className="p-4">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
               Other Streams ({otherCams.length})
@@ -153,17 +191,23 @@ const LiveCamsPage: React.FC = () => {
         </div>
 
         {/* Center - Featured Stream */}
-        <div className="flex-1 bg-black overflow-y-auto">
+        <div className="flex-1 bg-black overflow-y-auto [&::-webkit-scrollbar]:hidden">
           {/* Video Player */}
           <div className="w-full bg-black" style={{ paddingTop: '56.25%', position: 'relative' }}>
             <iframe
               src={featuredCam.embedUrl}
               title={featuredCam.title}
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-              allowFullScreen
             />
+            {/* Overlays to block YouTube logo and title */}
+            {/* Block YouTube logo in top-right */}
+            <div className="absolute top-0 right-0 w-24 h-16 bg-black opacity-0 pointer-events-auto z-50"></div>
+            {/* Block YouTube title at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/80 to-transparent pointer-events-auto z-50"></div>
+            {/* Block watch on YouTube button */}
+            <div className="absolute bottom-2 right-2 w-32 h-10 bg-black opacity-0 pointer-events-auto z-50"></div>
           </div>
 
           {/* Stream Info */}
@@ -189,20 +233,11 @@ const LiveCamsPage: React.FC = () => {
                 <h2 className="text-xl font-bold text-white mb-1">{featuredCam.title}</h2>
                 <p className="text-gray-400 text-sm">{featuredCam.description}</p>
               </div>
-              <a
-                href="/donate"
-                className="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md font-semibold transition-colors"
-              >
-                Support Conservation
-              </a>
             </div>
           </div>
 
           {/* About Section */}
           <div className="bg-gray-800 p-6">
-            <h3 className="text-lg font-semibold text-white mb-3">
-              About the Polar Bear Cams
-            </h3>
             <div className="text-gray-300 space-y-2 text-sm">
               <p>
                 These live cameras are located in Churchill, Manitoba, and Wapusk National Park along the shores of Hudson Bay, Canada—known as the "Polar Bear Capital of the World."
@@ -235,7 +270,7 @@ const LiveCamsPage: React.FC = () => {
         </div>
 
         {/* Right Sidebar - Chat (hidden on mobile) */}
-        <div className="hidden lg:flex lg:w-80 bg-gray-800 border-l border-gray-700 flex-col flex-shrink-0">
+        <div className="hidden lg:flex lg:w-80 bg-gray-800 border-l border-gray-700 flex-col flex-shrink-0 [&::-webkit-scrollbar]:hidden">
           {/* Chat Header */}
           <div className="p-4 border-b border-gray-700 flex-shrink-0">
             <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
@@ -243,24 +278,55 @@ const LiveCamsPage: React.FC = () => {
             </h2>
           </div>
 
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {chatMessages.map((msg) => (
-              <div key={msg.id} className="flex gap-2">
-                <div className="flex-shrink-0 text-2xl">{msg.avatar}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-semibold text-purple-400 text-sm">{msg.user}</span>
-                    <span className="text-gray-500 text-xs">{formatTime(msg.timestamp)}</span>
-                  </div>
-                  <p className="text-gray-200 text-sm mt-0.5 break-words">{msg.message}</p>
-                </div>
+          {/* Donation Box */}
+          <div className="p-4 bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-b border-purple-700/50 flex-shrink-0">
+            <div className="mb-3">
+              <div className="flex items-center gap-2 mb-1">
+                <HeartIcon className="h-5 w-5 text-pink-400" />
+                <h3 className="text-sm font-bold text-white">Support This Stream</h3>
               </div>
-            ))}
+              <p className="text-xs text-gray-300">Help protect polar bears and their habitat</p>
+            </div>
+            <form onSubmit={handleDonate} className="space-y-3">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={donationAmount}
+                    onChange={(e) => setDonationAmount(e.target.value)}
+                    placeholder="25"
+                    className="w-full pl-7 pr-3 py-2 bg-gray-700 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={!donationAmount || parseFloat(donationAmount) <= 0}
+                  className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-600/50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md font-semibold text-sm transition-colors flex items-center gap-2"
+                >
+                  <GiftIcon className="h-4 w-4" />
+                  Donate
+                </button>
+              </div>
+              <div className="flex gap-2">
+                {[5, 10, 25, 50].map((amount) => (
+                  <button
+                    key={amount}
+                    type="button"
+                    onClick={() => setDonationAmount(amount.toString())}
+                    className="flex-1 bg-gray-700 hover:bg-purple-600 text-gray-300 hover:text-white py-1.5 rounded text-xs font-semibold transition-colors"
+                  >
+                    ${amount}
+                  </button>
+                ))}
+              </div>
+            </form>
           </div>
 
-          {/* Chat Input */}
-          <div className="p-4 border-t border-gray-700 flex-shrink-0">
+          {/* Chat Input - positioned at top for visibility */}
+          <div className="p-4 border-b border-gray-700 flex-shrink-0">
             <form onSubmit={handleSendMessage} className="flex gap-2">
               <input
                 type="text"
@@ -277,6 +343,36 @@ const LiveCamsPage: React.FC = () => {
                 <PaperAirplaneIcon className="h-5 w-5" />
               </button>
             </form>
+          </div>
+
+          {/* Chat Messages - fills remaining space */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 [&::-webkit-scrollbar]:hidden">
+            {chatMessages.map((msg) => (
+              <div key={msg.id} className={`flex gap-3 ${msg.type === 'donation' ? 'bg-gradient-to-r from-purple-900/20 to-pink-900/20 -mx-4 px-4 py-2 border-l-4 border-pink-500' : ''}`}>
+                {/* Avatar as profile picture */}
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-xl border-2 border-gray-600">
+                    {msg.avatar}
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2">
+                    <span className={`font-semibold text-sm ${msg.type === 'donation' ? 'text-pink-400' : 'text-purple-400'}`}>
+                      {msg.user}
+                    </span>
+                    {msg.type === 'donation' && msg.amount && (
+                      <span className="bg-pink-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                        ${msg.amount}
+                      </span>
+                    )}
+                    <span className="text-gray-500 text-xs">{formatTime(msg.timestamp)}</span>
+                  </div>
+                  <p className={`text-sm mt-0.5 break-words ${msg.type === 'donation' ? 'text-pink-200 font-medium' : 'text-gray-200'}`}>
+                    {msg.message}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

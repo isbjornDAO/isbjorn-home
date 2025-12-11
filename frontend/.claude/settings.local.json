@@ -11,7 +11,8 @@
       "Bash(npm run dev:backend:*)",
       "Bash(timeout:*)",
       "Bash(ping:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []

@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
       });
       toast.success(`Welcome back, ${user.companyName}!`);
-      navigate('/dashboard');
+      navigate('/profile');
     } catch (error: any) {
       const message = getErrorMessage(error);
       setState(prev => ({
@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
       });
       toast.success('Registration successful! Welcome to Isbjorn.');
-      navigate('/dashboard');
+      navigate('/profile');
     } catch (error: any) {
       const message = getErrorMessage(error);
       setState(prev => ({

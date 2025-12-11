@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -25,83 +25,40 @@ const LoginPage: React.FC = () => {
   const { openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const [walletAuthAttempted, setWalletAuthAttempted] = useState(false);
-  const isAuthenticatingRef = useRef(false); // Prevent concurrent auth attempts
   const [isWalletAuthenticating, setIsWalletAuthenticating] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  // Redirect if already authenticated OR wallet connected - show loading spinner while checking
+  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
-    } else if (isConnected && address && !walletAuthAttempted && !isAuthenticatingRef.current) {
-      // Wallet is connected, auto-authenticate in background
-      authenticateWallet();
+      navigate('/profile', { replace: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, isConnected, address, walletAuthAttempted, navigate]);
+  }, [isAuthenticated, navigate]);
 
-  // If we're still checking auth status, already authenticated, or actively authenticating with wallet, show loading
-  if (isLoading || isAuthenticated || isWalletAuthenticating) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-arctic-600 mb-4"></div>
-          <p className="text-gray-600">
-            {isAuthenticated
-              ? 'Redirecting...'
-              : isWalletAuthenticating
-                ? 'Signing in with wallet...'
-                : 'Checking authentication...'}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Reset wallet auth state when disconnected
-  useEffect(() => {
-    if (!isConnected) {
-      setWalletAuthAttempted(false);
-      isAuthenticatingRef.current = false;
-      setIsWalletAuthenticating(false);
-    }
-  }, [isConnected]);
-
-  // Wallet authentication handler with useCallback to prevent recreation
-  const authenticateWallet = useCallback(async () => {
-    // Guard #1: Check if already authenticating (prevents concurrent requests)
-    if (isAuthenticatingRef.current) {
-      console.log('[Wallet Auth] Already authenticating, skipping...');
-      return;
-    }
-
-    // Guard #2: Check connection status
+  // Wallet authentication handler - only called when button is clicked
+  const authenticateWallet = async () => {
     if (!isConnected || !address) {
       toast.error('Please connect your wallet first');
       return;
     }
 
-    // Guard #3: Check if already attempted (prevents double attempts)
-    if (walletAuthAttempted) {
-      console.log('[Wallet Auth] Already attempted, skipping...');
-      return;
-    }
-
-    console.log('[Wallet Auth] Starting authentication for address:', address);
-    isAuthenticatingRef.current = true;
-    setWalletAuthAttempted(true);
     setIsWalletAuthenticating(true);
 
     try {
       // Create message to sign
       const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
 
+      toast.loading('Please sign the message in your wallet...', { id: 'wallet-sign' });
+
       // Request signature
       const signature = await signMessageAsync({ message });
+
+      toast.loading('Authenticating...', { id: 'wallet-sign' });
+
+      console.log('Sending wallet auth request:', { address, message: message.substring(0, 50) + '...' });
 
       // Send to backend for verification and authentication
       const response = await apiService.post<{
@@ -114,6 +71,8 @@ const LoginPage: React.FC = () => {
         signature,
       });
 
+      console.log('Wallet auth response received:', { hasToken: !!response.token });
+
       // Store token and user data
       localStorage.setItem('authToken', response.token);
       if (response.refreshToken) {
@@ -123,33 +82,27 @@ const LoginPage: React.FC = () => {
       // Refresh auth state to update context
       await checkAuthStatus();
 
-      toast.success('Wallet authenticated successfully!');
+      toast.success('Wallet authenticated successfully!', { id: 'wallet-sign' });
 
-      // Navigate to dashboard immediately after successful authentication
-      navigate('/dashboard', { replace: true });
+      // Navigate to profile
+      navigate('/profile', { replace: true });
     } catch (error: any) {
       console.error('Wallet authentication error:', error);
-      setWalletAuthAttempted(false); // Allow retry on error
-      isAuthenticatingRef.current = false;
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       setIsWalletAuthenticating(false);
 
-      if (error.message?.includes('User rejected')) {
-        toast.error('Signature rejected. Please sign the message to authenticate.');
+      if (error.message?.includes('User rejected') || error.message?.includes('rejected')) {
+        toast.error('Signature rejected. Please try again.', { id: 'wallet-sign' });
       } else {
-        toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
-      }
-    } finally {
-      // Only clear authenticating state if there was an error
-      // On success, we navigate away so this cleanup isn't needed
-      if (!isAuthenticatingRef.current) {
-        setIsWalletAuthenticating(false);
-      }
-
-      if (isAuthenticatingRef.current) {
-        console.log('[Wallet Auth] Authentication completed - navigating to dashboard');
+        const errorMsg = error.response?.data?.message || error.message || 'Failed to authenticate with wallet';
+        toast.error(errorMsg, { id: 'wallet-sign' });
       }
     }
-  }, [isConnected, address, walletAuthAttempted, signMessageAsync, checkAuthStatus, navigate]);
+  };
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
@@ -206,17 +159,27 @@ const LoginPage: React.FC = () => {
     });
   };
 
+  // Auto-authenticate when wallet is connected (either from button click or already connected on page load)
+  useEffect(() => {
+    if (isConnected && address && !isWalletAuthenticating && !isAuthenticated) {
+      // Small delay to ensure wallet is fully ready
+      const timer = setTimeout(() => {
+        authenticateWallet();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isConnected, address, isAuthenticated]);
+
   const handleWalletLogin = async () => {
     if (isConnected && address) {
       // If already connected, authenticate immediately
       await authenticateWallet();
     } else if (openConnectModal) {
-      // If not connected, open wallet connect modal (auto-auth will trigger on connect)
+      // If not connected, open wallet connect modal
+      // The useEffect will auto-authenticate after connection
       openConnectModal();
-      toast('Please connect your wallet to continue', {
-        icon: '👛',
-        duration: 3000,
-      });
+    } else {
+      toast.error('Wallet connection unavailable');
     }
   };
 
@@ -227,9 +190,23 @@ const LoginPage: React.FC = () => {
         icon: 'ℹ️',
         duration: 3000,
       });
-      navigate('/dashboard');
+      navigate('/profile');
     }
   };
+
+  // Show loading spinner when checking auth or when wallet is authenticating
+  if (isLoading || isWalletAuthenticating) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-arctic-600 mb-4"></div>
+          <p className="text-gray-600">
+            {isWalletAuthenticating ? 'Authenticating wallet...' : 'Checking authentication...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50">
@@ -291,11 +268,28 @@ const LoginPage: React.FC = () => {
               {/* Quick Sign In */}
               <div className="mb-6">
                 <p className="text-sm text-gray-600 text-center mb-4">Choose your preferred sign-in method</p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
+                  <button
+                    type="button"
+                    onClick={handleWalletLogin}
+                    disabled={isWalletAuthenticating}
+                    className="flex items-center justify-center gap-3 p-4 border-2 border-arctic-300 bg-gradient-to-r from-arctic-50 to-ice-50 rounded-xl hover:border-arctic-500 hover:from-arctic-100 hover:to-ice-100 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg className="w-6 h-6 text-arctic-600 group-hover:text-arctic-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
+                      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
+                      <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+                    </svg>
+                    <span className="text-sm font-bold text-gray-800 group-hover:text-arctic-700">
+                      {isWalletAuthenticating ? 'Signing in...' : isConnected ? `Sign in as ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Sign in with Wallet'}
+                    </span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={handleGoogleLogin}
-                    className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
+                    className="relative flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl opacity-60 cursor-not-allowed"
+                    disabled
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -303,22 +297,9 @@ const LoginPage: React.FC = () => {
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                    <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">Continue with Google</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleWalletLogin}
-                    disabled={walletAuthAttempted && isConnected}
-                    className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <svg className="w-5 h-5 text-arctic-600 group-hover:text-arctic-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-                      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-                      <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
-                    </svg>
-                    <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">
-                      {walletAuthAttempted && isConnected ? 'Authenticating...' : isConnected ? `Sign in as ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Continue with Wallet'}
+                    <span className="text-sm font-semibold text-gray-500">Continue with Google</span>
+                    <span className="absolute -top-2 -right-2 bg-gray-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+                      Coming Soon
                     </span>
                   </button>
                 </div>
@@ -410,7 +391,7 @@ const LoginPage: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mt-8 text-center"
+            className="mt-8 mb-12 text-center"
           >
             <div className="flex items-center justify-center gap-6 text-sm">
               <div>

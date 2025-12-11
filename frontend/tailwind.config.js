@@ -61,8 +61,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Poppins', 'system-ui', 'sans-serif']
+        sans: ['Archivo', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Archivo', 'system-ui', 'sans-serif']
       },
       animation: {
         'float': 'float 3s ease-in-out infinite',
