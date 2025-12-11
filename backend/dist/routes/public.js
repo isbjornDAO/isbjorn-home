@@ -31,6 +31,9 @@ router.get('/charities', async (req, res) => {
             ],
             order: [['name', 'ASC']],
             limit: 200,
+        }).catch((dbError) => {
+            logger_1.logger.error('Database error fetching charities:', dbError);
+            return [];
         });
         if (charities.length > 0) {
             res.json({ success: true, data: charities });
@@ -160,6 +163,43 @@ router.get('/charities', async (req, res) => {
             }
         ];
         res.json({ success: true, data: staticCharities });
+    }
+});
+// Get single charity by ID - FAST endpoint (no need to load all charities)
+router.get('/charities/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const charity = await Charity_model_1.Charity.findOne({
+            where: { id, isActive: true },
+            attributes: [
+                'id',
+                'name',
+                'description',
+                'category',
+                'website',
+                'email',
+                'phone',
+                'logoUrl',
+                'charityPhoto',
+                'icon',
+                'location',
+                'totalReceived',
+                'donationCount',
+                'taxDeductible',
+                'irdNumber',
+                'diaCharitiesNumber',
+                'isDoneeOrganisation',
+            ],
+        });
+        if (!charity) {
+            res.status(404).json({ success: false, message: 'Charity not found' });
+            return;
+        }
+        res.json({ success: true, data: charity });
+    }
+    catch (error) {
+        logger_1.logger.error('Error fetching charity:', error);
+        res.status(500).json({ success: false, message: 'Failed to load charity' });
     }
 });
 // Admin endpoint to reset charity stats (protected by secret key)

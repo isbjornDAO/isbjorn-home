@@ -19,12 +19,12 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5001',
         changeOrigin: true
       },
       // Safety net: catch any calls missing the /api prefix (e.g. /auth/...)
       '/auth': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth/, '/api/auth')
       }
@@ -36,12 +36,27 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
-    chunkSizeWarningLimit: 1000, // Wallet libraries are large but lazy-loaded
+    sourcemap: false, // Disable sourcemaps in production for faster builds
+    minify: 'esbuild', // Use esbuild for faster minification
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        // Let Vite handle chunk splitting automatically
-        manualChunks: undefined
+        // Manual chunking for better caching
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('wagmi') || id.includes('viem') || id.includes('@rainbow')) {
+              return 'vendor-web3';
+            }
+            if (id.includes('thirdweb')) {
+              return 'vendor-thirdweb';
+            }
+            return 'vendor';
+          }
+        }
       }
     }
   }

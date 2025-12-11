@@ -1,44 +1,113 @@
-import React from 'react';
-import { VideoCameraIcon } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
+import { VideoCameraIcon, UserGroupIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 interface LiveCam {
   id: string;
   title: string;
   description: string;
   embedUrl: string;
+  viewers?: number;
 }
 
-// Polar Bears International live cams from explore.org
+interface ChatMessage {
+  id: string;
+  user: string;
+  message: string;
+  timestamp: Date;
+  avatar?: string;
+}
+
+// Polar Bears International live cams from YouTube
 const liveCams: LiveCam[] = [
   {
     id: '1',
     title: 'Polar Bear Cam - Hudson Bay',
     description: 'Watch wild polar bears on the shores of Hudson Bay, Canada',
-    embedUrl: 'https://explore.org/live-cams/player/polar-bear-cam?autoplay=1&muted=1'
+    embedUrl: 'https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=1&mute=0',
+    viewers: 1247
   },
   {
     id: '2',
-    title: 'Polar Bear Cam - Cape Churchill',
-    description: 'Live view from Cape Churchill in Wapusk National Park',
-    embedUrl: 'https://explore.org/live-cams/player/polar-bear-cape-churchill-cam?autoplay=1&muted=1'
+    title: 'Wapusk National Park',
+    description: 'Live from Wapusk National Park in Churchill',
+    embedUrl: 'https://www.youtube.com/embed/ZGCCMkurNGc?autoplay=0&mute=1',
+    viewers: 823
   },
   {
     id: '3',
-    title: 'Tundra Buggy Lodge Cam',
-    description: 'Watch polar bears near the Tundra Buggy Lodge in Churchill',
-    embedUrl: 'https://explore.org/live-cams/player/polar-bear-lodge-cam?autoplay=1&muted=1'
+    title: 'Tundra Buggy Lodge',
+    description: 'Polar bears near the Tundra Buggy Lodge',
+    embedUrl: 'https://www.youtube.com/embed/4XzYvaDCv7s?autoplay=0&mute=1',
+    viewers: 654
   },
   {
     id: '4',
-    title: 'Tundra Buggy Lodge - South Cam',
-    description: 'Southern view of polar bears at the Tundra Buggy Lodge',
-    embedUrl: 'https://explore.org/live-cams/player/polar-bear-tundra-buggy-lodge-south?autoplay=1&muted=1'
+    title: 'Northern Lights Habitat',
+    description: 'Aurora Borealis and polar bear habitat',
+    embedUrl: 'https://www.youtube.com/embed/lyX7ZxWU64A?autoplay=0&mute=1',
+    viewers: 432
   }
 ];
 
 const LiveCamsPage: React.FC = () => {
+  const [featuredCam, setFeaturedCam] = useState(liveCams[0]);
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: '1',
+      user: 'PolarFan92',
+      message: 'Amazing shot! Look at that bear!',
+      timestamp: new Date(Date.now() - 120000),
+      avatar: '🐻'
+    },
+    {
+      id: '2',
+      user: 'ArcticExplorer',
+      message: 'This stream is so peaceful',
+      timestamp: new Date(Date.now() - 60000),
+      avatar: '❄️'
+    },
+    {
+      id: '3',
+      user: 'ConservationistJane',
+      message: 'Thanks for supporting polar bear conservation!',
+      timestamp: new Date(Date.now() - 30000),
+      avatar: '🌍'
+    }
+  ]);
+
+  const otherCams = liveCams.filter(cam => cam.id !== featuredCam.id);
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatMessage.trim()) return;
+
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      user: 'You',
+      message: chatMessage,
+      timestamp: new Date(),
+      avatar: '👤'
+    };
+
+    setChatMessages([...chatMessages, newMessage]);
+    setChatMessage('');
+  };
+
+  const formatTime = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${Math.floor(diffHours / 24)}d ago`;
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

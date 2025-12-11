@@ -599,43 +599,51 @@ const MapPage: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<'map' | 'transactions'>('map');
 
-  // News feed state
+  // News feed state - people from organizations
   const [newsFeed, setNewsFeed] = useState([
     {
       id: 1,
       ngo: 'Greenpeace',
+      authorName: 'Dr. Sarah Chen',
+      authorRole: 'Climate Scientist',
+      authorPhoto: 'https://i.pravatar.cc/150?img=5',
       title: 'Arctic Research Breakthrough',
       content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations.',
       timestamp: new Date(Date.now() - 3600000),
       category: 'Climate',
-      logo: 'https://logo.clearbit.com/greenpeace.org'
     },
     {
       id: 2,
       ngo: 'Rainforest Alliance',
+      authorName: 'Marcus Silva',
+      authorRole: 'Forest Conservation Lead',
+      authorPhoto: 'https://i.pravatar.cc/150?img=12',
       title: '1 Million Trees Planted',
       content: 'Reached our milestone! Thanks to all supporters who made this reforestation initiative possible.',
       timestamp: new Date(Date.now() - 7200000),
       category: 'Forest',
-      logo: 'https://logo.clearbit.com/rainforest-alliance.org'
     },
     {
       id: 3,
       ngo: 'Ocean Conservancy',
+      authorName: 'Emily Rodriguez',
+      authorRole: 'Marine Biologist',
+      authorPhoto: 'https://i.pravatar.cc/150?img=9',
       title: 'Pacific Cleanup Update',
       content: 'Removed 50 tons of plastic this month. Progress is steady with our new drone technology.',
       timestamp: new Date(Date.now() - 14400000),
       category: 'Conservation',
-      logo: 'https://logo.clearbit.com/oceanconservancy.org'
     },
     {
       id: 4,
       ngo: 'World Wide Fund for Nature',
+      authorName: 'James Anderson',
+      authorRole: 'Wildlife Conservation Director',
+      authorPhoto: 'https://i.pravatar.cc/150?img=15',
       title: 'Climate Resilience Program',
       content: 'Protecting Arctic ecosystems threatened by climate change - temperature monitoring shows concerning trends.',
       timestamp: new Date(Date.now() - 21600000),
       category: 'Climate',
-      logo: 'https://logo.clearbit.com/worldwildlife.org'
     },
   ]);
 
@@ -1133,28 +1141,24 @@ const MapPage: React.FC = () => {
       {/* Clean Header */}
       <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold flex items-center space-x-2">
-            <GlobeAltIcon className="w-7 h-7" style={{ color: '#3b82f6' }} />
-            <span style={{ color: '#3b82f6' }}>Global Impact Network</span>
-          </h1>
-          <LiveDataIndicator status={dataStreamStatus} updateCount={updateCount} />
-        </div>
-
-        <div className="flex items-center space-x-3">
-          {/* Search */}
+          {/* Search - moved up from right side */}
           <div className="relative">
-            <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#3b82f6' }} />
+            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#3b82f6' }} />
             <input
               type="text"
               placeholder="Search charities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-white text-gray-700 text-sm rounded-lg border border-blue-200 focus:outline-none w-56 placeholder-gray-400 shadow-sm"
+              className="pl-10 pr-4 py-2.5 bg-white text-gray-700 text-base rounded-lg border border-blue-200 focus:outline-none w-80 placeholder-gray-400 shadow-sm"
               style={{ '--tw-ring-color': '#3b82f6' } as React.CSSProperties}
               onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px #3b82f6'}
               onBlur={(e) => e.target.style.boxShadow = ''}
             />
           </div>
+          <LiveDataIndicator status={dataStreamStatus} updateCount={updateCount} />
+        </div>
+
+        <div className="flex items-center space-x-3">
 
           <div className="h-6 w-px bg-blue-200"></div>
 
@@ -1676,14 +1680,14 @@ const MapPage: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Right Side Panel - Latest Updates */}
+        {/* Right Side Panel - Timeline */}
         <div className="w-96 flex flex-col gap-4">
-          {/* Latest Updates */}
+          {/* Timeline */}
           <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 flex-1 overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
                 <SignalIcon className="w-5 h-5" />
-                <span>Latest Updates</span>
+                <span>Timeline</span>
               </h3>
             </div>
             <div className="flex-1 overflow-y-auto space-y-3">
@@ -1697,23 +1701,33 @@ const MapPage: React.FC = () => {
                   onClick={() => navigate('/donate')}
                 >
                   <div className="flex items-start gap-3">
-                    {/* NGO Logo */}
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-white border border-blue-100 p-1.5">
+                    {/* Author Profile Picture */}
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                       <img
-                        src={news.logo}
-                        alt={`${news.ngo} logo`}
-                        className="w-full h-full object-contain"
+                        src={news.authorPhoto}
+                        alt={news.authorName}
+                        className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(news.ngo)}&background=3b82f6&color=fff&size=128`;
+                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(news.authorName)}&background=3b82f6&color=fff&size=128`;
                         }}
                       />
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      {/* Header */}
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold" style={{ color: '#3b82f6' }}>{news.ngo}</span>
-                        <span className="text-xs text-gray-500">
+                      {/* Header - Author info */}
+                      <div className="flex items-start justify-between mb-1">
+                        <div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm font-bold text-gray-900">{news.authorName}</span>
+                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {news.authorRole} at {news.ngo}
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-500 flex-shrink-0">
                           {Math.floor((Date.now() - news.timestamp.getTime()) / 3600000)}h ago
                         </span>
                       </div>

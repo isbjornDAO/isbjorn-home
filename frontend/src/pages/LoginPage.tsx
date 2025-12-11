@@ -26,27 +26,35 @@ const LoginPage: React.FC = () => {
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const [walletAuthAttempted, setWalletAuthAttempted] = useState(false);
-  const [walletLoginInitiated, setWalletLoginInitiated] = useState(false);
   const isAuthenticatingRef = useRef(false); // Prevent concurrent auth attempts
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  // Redirect if already authenticated - show loading spinner while checking
+  // Redirect if already authenticated OR wallet connected - show loading spinner while checking
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
+    } else if (isConnected && address && !walletAuthAttempted && !isAuthenticatingRef.current) {
+      // Wallet is connected, auto-authenticate in background
+      authenticateWallet();
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isConnected, address, walletAuthAttempted, navigate, authenticateWallet]);
 
-  // If we're still checking auth status or already authenticated, show loading
-  if (isLoading || isAuthenticated) {
+  // If we're still checking auth status, already authenticated, or wallet connected (auto-login), show loading
+  if (isLoading || isAuthenticated || (isConnected && address)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-arctic-600 mb-4"></div>
-          <p className="text-gray-600">{isAuthenticated ? 'Redirecting...' : 'Checking authentication...'}</p>
+          <p className="text-gray-600">
+            {isAuthenticated
+              ? 'Redirecting...'
+              : isConnected && address
+                ? 'Signing in with wallet...'
+                : 'Checking authentication...'}
+          </p>
         </div>
       </div>
     );
@@ -56,7 +64,6 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     if (!isConnected) {
       setWalletAuthAttempted(false);
-      setWalletLoginInitiated(false);
       isAuthenticatingRef.current = false;
     }
   }, [isConnected]);
@@ -130,14 +137,6 @@ const LoginPage: React.FC = () => {
     }
   }, [isConnected, address, walletAuthAttempted, signMessageAsync, checkAuthStatus]);
 
-  // Auto-trigger authentication when wallet connects after user initiated login
-  useEffect(() => {
-    if (isConnected && address && walletLoginInitiated && !walletAuthAttempted && !isAuthenticatingRef.current) {
-      console.log('[Wallet Auth Effect] Auto-triggering wallet authentication');
-      authenticateWallet();
-    }
-  }, [isConnected, address, walletLoginInitiated, walletAuthAttempted, authenticateWallet]);
-
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
     {
@@ -198,8 +197,7 @@ const LoginPage: React.FC = () => {
       // If already connected, authenticate immediately
       await authenticateWallet();
     } else if (openConnectModal) {
-      // If not connected, open wallet connect modal and mark login as initiated
-      setWalletLoginInitiated(true);
+      // If not connected, open wallet connect modal (auto-auth will trigger on connect)
       openConnectModal();
       toast('Please connect your wallet to continue', {
         icon: '👛',

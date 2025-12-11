@@ -28,7 +28,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 5200000,
       donationCount: 68400,
-      followerCount: 95200,
+      followerCount: 0,
       trending: true,
       followerIncrease: 2400
     },
@@ -44,7 +44,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2800000,
       donationCount: 42100,
-      followerCount: 58700,
+      followerCount: 0,
       trending: true,
       followerIncrease: 890
     },
@@ -62,7 +62,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 6500000,
       donationCount: 89200,
-      followerCount: 156000,
+      followerCount: 0,
       trending: true,
       followerIncrease: 3200
     },
@@ -78,7 +78,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 5800000,
       donationCount: 76300,
-      followerCount: 134000,
+      followerCount: 0,
       trending: true,
       followerIncrease: 1800
     },
@@ -94,7 +94,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 6200000,
       donationCount: 82400,
-      followerCount: 148000
+      followerCount: 0,
     },
     {
       id: 'conservation-international',
@@ -108,7 +108,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4900000,
       donationCount: 64800,
-      followerCount: 112000
+      followerCount: 0,
     },
     {
       id: 'edf',
@@ -122,7 +122,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4600000,
       donationCount: 61200,
-      followerCount: 98500
+      followerCount: 0,
     },
     {
       id: 'nrdc',
@@ -136,7 +136,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4300000,
       donationCount: 58900,
-      followerCount: 92800
+      followerCount: 0,
     },
     {
       id: 'sierra-club',
@@ -150,7 +150,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 3800000,
       donationCount: 52400,
-      followerCount: 86500
+      followerCount: 0,
     },
     {
       id: 'rainforest-alliance',
@@ -164,7 +164,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 3600000,
       donationCount: 49800,
-      followerCount: 78900
+      followerCount: 0,
     },
     {
       id: '350org',
@@ -178,7 +178,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2900000,
       donationCount: 41800,
-      followerCount: 68200,
+      followerCount: 0,
       trending: true,
       followerIncrease: 1200
     },
@@ -194,7 +194,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 3100000,
       donationCount: 43200,
-      followerCount: 65400
+      followerCount: 0,
     },
     {
       id: 'friends-of-earth',
@@ -208,7 +208,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2700000,
       donationCount: 38900,
-      followerCount: 59600
+      followerCount: 0,
     },
     {
       id: 'rainforest-foundation',
@@ -222,7 +222,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2100000,
       donationCount: 32600,
-      followerCount: 48700
+      followerCount: 0,
     },
     {
       id: 'amazon-watch',
@@ -236,7 +236,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2200000,
       donationCount: 34100,
-      followerCount: 51800,
+      followerCount: 0,
       trending: true,
       followerIncrease: 890
     },
@@ -252,7 +252,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4200000,
       donationCount: 57600,
-      followerCount: 84900
+      followerCount: 0,
     },
     {
       id: 'climate-reality',
@@ -266,7 +266,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2300000,
       donationCount: 34800,
-      followerCount: 53400,
+      followerCount: 0,
       trending: true,
       followerIncrease: 1450
     },
@@ -282,7 +282,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2000000,
       donationCount: 31200,
-      followerCount: 47900
+      followerCount: 0,
     },
     {
       id: 'rainforest-trust',
@@ -296,7 +296,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2700000,
       donationCount: 38600,
-      followerCount: 57200
+      followerCount: 0,
     },
     {
       id: 'plant-for-the-planet',
@@ -310,7 +310,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1400000,
       donationCount: 22700,
-      followerCount: 35200,
+      followerCount: 0,
       trending: true,
       followerIncrease: 750
     },
@@ -326,7 +326,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1600000,
       donationCount: 25300,
-      followerCount: 39700
+      followerCount: 0,
     },
     {
       id: 'ocean-cleanup',
@@ -340,7 +340,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 4500000,
       donationCount: 62300,
-      followerCount: 96800,
+      followerCount: 0,
       trending: true,
       followerIncrease: 4100
     },
@@ -356,7 +356,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1100000,
       donationCount: 19800,
-      followerCount: 30600,
+      followerCount: 0,
       trending: true,
       followerIncrease: 650
     },
@@ -372,7 +372,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1350000,
       donationCount: 22100,
-      followerCount: 34200
+      followerCount: 0,
     },
     {
       id: 'extinction-rebellion',
@@ -386,7 +386,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 1850000,
       donationCount: 28900,
-      followerCount: 52100,
+      followerCount: 0,
       trending: true,
       followerIncrease: 1340
     },
@@ -402,7 +402,7 @@ const DonationForm: React.FC = () => {
       verified: true,
       totalReceived: 2100000,
       donationCount: 32400,
-      followerCount: 61800,
+      followerCount: 0,
       trending: true,
       followerIncrease: 1850
     },
@@ -503,49 +503,7 @@ const DonationForm: React.FC = () => {
         )}
 
         {!loading && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Trending Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
-                <h2 className="text-2xl font-bold text-arctic-900 mb-6 flex items-center gap-2">
-                  <svg className="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                  </svg>
-                  Trending
-                </h2>
-                <div className="space-y-3">
-                  {charities
-                    .filter(c => c.trending)
-                    .sort((a, b) => (b.followerIncrease || 0) - (a.followerIncrease || 0))
-                    .slice(0, 10)
-                    .map((charity, index) => (
-                      <div
-                        key={charity.id}
-                        onClick={(e) => handleLearnMore(charity.id, e)}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-ice-50 transition-all cursor-pointer group"
-                      >
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-arctic-500 to-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                          {index + 1}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-arctic-900 truncate group-hover:text-arctic-600 transition-colors">
-                            {charity.name}
-                          </p>
-                          <p className="text-xs text-arctic-500 flex items-center gap-1">
-                            <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                            </svg>
-                            +{((charity.followerIncrease || 0) / 1000).toFixed(1)}k
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Icon-Focused Charity Grid */}
-            <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {charities.map((charity) => {
               const isFollowing = followingIds.has(charity.id);
 
@@ -563,30 +521,6 @@ const DonationForm: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
-                    {/* Verification Badge */}
-                    {charity.verified && (
-                      <div className="absolute top-3 left-3 sm:top-4 sm:left-4" style={{ backgroundColor: '#3b82f6' }}>
-                        <div className="text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold flex items-center">
-                          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          <span className="hidden sm:inline">Verified</span>
-                          <span className="sm:hidden">✓</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Trending Badge */}
-                    {charity.trending && charity.followerIncrease && (
-                      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-gradient-to-r from-orange-500 to-red-500">
-                        <div className="text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold flex items-center shadow-lg">
-                          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                          </svg>
-                          <span>+{(charity.followerIncrease / 1000).toFixed(1)}k</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   {/* Content */}
@@ -677,7 +611,6 @@ const DonationForm: React.FC = () => {
                 </div>
               );
             })}
-            </div>
           </div>
         )}
       </div>

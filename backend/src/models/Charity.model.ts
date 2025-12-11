@@ -15,6 +15,17 @@ import { Donation } from './Donation.model';
 @Table({
   tableName: 'charities',
   timestamps: true,
+  indexes: [
+    { fields: ['is_active'] },
+    { fields: ['is_donee_organisation'] },
+    { fields: ['name'] },
+    { fields: ['category'] },
+    { fields: ['dia_charities_number'] },
+    { fields: ['ird_number'] },
+    { fields: ['created_at'] },
+    { fields: ['is_active', 'is_donee_organisation'] }, // Composite index for common query
+    { fields: ['is_active', 'name'] }, // For filtered sorting
+  ],
 })
 export class Charity extends Model {
   @PrimaryKey

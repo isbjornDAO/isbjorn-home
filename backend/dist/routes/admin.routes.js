@@ -16,8 +16,8 @@ router.get('/stats', auth_1.authenticateToken, auth_1.requireAdmin, async (req, 
         const totalUsers = await User_model_1.User.count();
         const totalDonations = await Donation_model_1.Donation.count();
         const totalCharities = await Charity_model_1.Charity.count({ where: { isActive: true } });
-        const donations = await Donation_model_1.Donation.findAll();
-        const totalAmount = donations.reduce((sum, donation) => sum + donation.amount, 0);
+        // Use SQL SUM() instead of loading all donations into memory
+        const totalAmount = await Donation_model_1.Donation.sum('amount') || 0;
         const recentDonations = await Donation_model_1.Donation.findAll({
             limit: 10,
             order: [['createdAt', 'DESC']],

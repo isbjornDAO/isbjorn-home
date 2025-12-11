@@ -49,8 +49,8 @@ function createSequelizeInstance(): Sequelize {
         } : false,
       },
       pool: {
-        max: 5,
-        min: 0,
+        max: 20, // Increased from 5 for better concurrent request handling
+        min: 2,  // Keep some connections warm
         acquire: 30000,
         idle: 10000,
       },
