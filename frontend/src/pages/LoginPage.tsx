@@ -27,6 +27,7 @@ const LoginPage: React.FC = () => {
   const { signMessageAsync } = useSignMessage();
   const [walletAuthAttempted, setWalletAuthAttempted] = useState(false);
   const isAuthenticatingRef = useRef(false); // Prevent concurrent auth attempts
+  const [isWalletAuthenticating, setIsWalletAuthenticating] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -43,8 +44,8 @@ const LoginPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isConnected, address, walletAuthAttempted, navigate]);
 
-  // If we're still checking auth status, already authenticated, or wallet connected (auto-login), show loading
-  if (isLoading || isAuthenticated || (isConnected && address)) {
+  // If we're still checking auth status, already authenticated, or actively authenticating with wallet, show loading
+  if (isLoading || isAuthenticated || isWalletAuthenticating) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50 flex items-center justify-center">
         <div className="text-center">
@@ -52,7 +53,7 @@ const LoginPage: React.FC = () => {
           <p className="text-gray-600">
             {isAuthenticated
               ? 'Redirecting...'
-              : isConnected && address
+              : isWalletAuthenticating
                 ? 'Signing in with wallet...'
                 : 'Checking authentication...'}
           </p>
@@ -66,6 +67,7 @@ const LoginPage: React.FC = () => {
     if (!isConnected) {
       setWalletAuthAttempted(false);
       isAuthenticatingRef.current = false;
+      setIsWalletAuthenticating(false);
     }
   }, [isConnected]);
 
@@ -92,6 +94,7 @@ const LoginPage: React.FC = () => {
     console.log('[Wallet Auth] Starting authentication for address:', address);
     isAuthenticatingRef.current = true;
     setWalletAuthAttempted(true);
+    setIsWalletAuthenticating(true);
 
     try {
       // Create message to sign
@@ -117,13 +120,18 @@ const LoginPage: React.FC = () => {
         localStorage.setItem('refreshToken', response.refreshToken);
       }
 
-      // Refresh auth state to update context and trigger navigation
+      // Refresh auth state to update context
       await checkAuthStatus();
+
       toast.success('Wallet authenticated successfully!');
+
+      // Navigate to dashboard immediately after successful authentication
+      navigate('/dashboard', { replace: true });
     } catch (error: any) {
       console.error('Wallet authentication error:', error);
       setWalletAuthAttempted(false); // Allow retry on error
       isAuthenticatingRef.current = false;
+      setIsWalletAuthenticating(false);
 
       if (error.message?.includes('User rejected')) {
         toast.error('Signature rejected. Please sign the message to authenticate.');
@@ -131,12 +139,17 @@ const LoginPage: React.FC = () => {
         toast.error(error.response?.data?.message || 'Failed to authenticate with wallet');
       }
     } finally {
-      // Only clear the ref on success (it stays true to prevent re-auth)
+      // Only clear authenticating state if there was an error
+      // On success, we navigate away so this cleanup isn't needed
+      if (!isAuthenticatingRef.current) {
+        setIsWalletAuthenticating(false);
+      }
+
       if (isAuthenticatingRef.current) {
-        console.log('[Wallet Auth] Authentication completed');
+        console.log('[Wallet Auth] Authentication completed - navigating to dashboard');
       }
     }
-  }, [isConnected, address, walletAuthAttempted, signMessageAsync, checkAuthStatus]);
+  }, [isConnected, address, walletAuthAttempted, signMessageAsync, checkAuthStatus, navigate]);
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [

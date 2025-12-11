@@ -484,7 +484,7 @@ const DonationForm: React.FC = () => {
           }}
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold font-display mb-3 sm:mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold font-display mb-3 sm:mb-4 text-white">
             Choose a Charity
           </h1>
           <p className="text-lg sm:text-xl text-ice-100 max-w-3xl mx-auto px-4">
@@ -503,7 +503,7 @@ const DonationForm: React.FC = () => {
         )}
 
         {!loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-3 gap-4 sm:gap-6">
             {charities.map((charity) => {
               const isFollowing = followingIds.has(charity.id);
 
@@ -511,10 +511,10 @@ const DonationForm: React.FC = () => {
                 <div
                   key={charity.id}
                   onClick={(e) => handleLearnMore(charity.id, e)}
-                  className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-ice-100 hover:border-arctic-200 flex flex-col h-full cursor-pointer"
+                  className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-ice-100 hover:border-arctic-200 flex flex-col cursor-pointer"
                 >
                   {/* Hero Image */}
-                  <div className="relative h-40 sm:h-48 overflow-hidden">
+                  <div className="relative h-32 overflow-hidden">
                     <img
                       src={charity.charityPhoto}
                       alt={`${charity.name} charitable work`}
@@ -524,12 +524,12 @@ const DonationForm: React.FC = () => {
                   </div>
 
                   {/* Content */}
-                  <div className="p-4 sm:p-6 flex flex-col flex-1">
+                  <div className="p-4 flex flex-col">
                     {/* Header with Logo and Follow Button */}
-                    <div className="flex items-start justify-between mb-3 sm:mb-4">
-                      <div className="flex items-start gap-3 flex-1">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-start gap-2 flex-1">
                         {/* Logo next to name */}
-                        <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-full flex items-center justify-center shadow-md border-2 border-blue-100 p-2">
+                        <div className="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md border-2 border-blue-100 p-1.5">
                           <img
                             src={charity.icon}
                             alt={`${charity.name} logo`}
@@ -538,19 +538,19 @@ const DonationForm: React.FC = () => {
                               e.currentTarget.style.display = 'none';
                               const parent = e.currentTarget.parentElement;
                               if (parent) {
-                                parent.innerHTML = `<span class="text-lg sm:text-xl font-bold" style="color: #3b82f6">${charity.name.charAt(0)}</span>`;
+                                parent.innerHTML = `<span class="text-sm font-bold" style="color: #3b82f6">${charity.name.charAt(0)}</span>`;
                               }
                             }}
                           />
                         </div>
 
-                        <div className="flex-1">
-                          <h3 className="text-lg sm:text-xl font-bold mb-1" style={{ color: '#3b82f6' }}>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base font-bold mb-0.5 truncate" style={{ color: '#3b82f6' }}>
                             {charity.name}
                           </h3>
-                          <div className="flex items-center text-xs sm:text-sm text-gray-600 mb-2">
-                            <span className="inline-block w-2 h-2 rounded-full mr-2" style={{ backgroundColor: '#3b82f6' }}></span>
-                            <span className="truncate">{charity.category} • {charity.country || charity.location || 'New Zealand'}</span>
+                          <div className="flex items-center text-xs text-gray-600">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5" style={{ backgroundColor: '#3b82f6' }}></span>
+                            <span className="truncate">{charity.category}</span>
                           </div>
                         </div>
                       </div>
@@ -558,7 +558,7 @@ const DonationForm: React.FC = () => {
                       {/* Follow Button */}
                       <button
                         onClick={(e) => handleFollowToggle(charity.id, e)}
-                        className={`follow-button flex-shrink-0 ml-2 p-2 rounded-full transition-all ${
+                        className={`follow-button flex-shrink-0 ml-2 p-1.5 rounded-full transition-all ${
                           isFollowing
                             ? 'text-white shadow-md'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -567,38 +567,35 @@ const DonationForm: React.FC = () => {
                         title={isFollowing ? 'Following' : 'Follow for updates'}
                       >
                         {isFollowing ? (
-                          <BellSolidIcon className="w-5 h-5" />
+                          <BellSolidIcon className="w-4 h-4" />
                         ) : (
-                          <BellIcon className="w-5 h-5" />
+                          <BellIcon className="w-4 h-4" />
                         )}
                       </button>
                     </div>
 
                     {/* Description */}
-                    <p className="text-arctic-700 text-sm mb-3 sm:mb-4 leading-relaxed line-clamp-3">
+                    <p className="text-arctic-700 text-xs mb-3 leading-relaxed line-clamp-2">
                       {charity.description}
                     </p>
 
-                    {/* Spacer to push stats and buttons to bottom */}
-                    <div className="flex-1"></div>
-
                     {/* Stats Grid - 3 columns */}
-                    <div className="grid grid-cols-3 gap-2 mb-3">
-                      <div className="text-center p-2 bg-ice-50 rounded-lg">
-                        <div className="text-base sm:text-lg font-bold text-arctic-900">
+                    <div className="grid grid-cols-3 gap-1.5 mb-2">
+                      <div className="text-center p-1.5 bg-ice-50 rounded-lg">
+                        <div className="text-sm font-bold text-arctic-900">
                           ${(charity.totalReceived / 1000).toFixed(0)}k
                         </div>
                         <div className="text-xs text-arctic-500">Raised</div>
                       </div>
-                      <div className="text-center p-2 bg-ice-50 rounded-lg">
-                        <div className="text-base sm:text-lg font-bold text-arctic-900">
+                      <div className="text-center p-1.5 bg-ice-50 rounded-lg">
+                        <div className="text-sm font-bold text-arctic-900">
                           {(charity.donationCount / 1000).toFixed(1)}k
                         </div>
                         <div className="text-xs text-arctic-500">Donations</div>
                       </div>
-                      <div className="text-center p-2 bg-arctic-50 rounded-lg">
-                        <div className="text-base sm:text-lg font-bold text-arctic-900 flex items-center justify-center gap-1">
-                          <UserGroupIcon className="w-4 h-4" />
+                      <div className="text-center p-1.5 bg-arctic-50 rounded-lg">
+                        <div className="text-sm font-bold text-arctic-900 flex items-center justify-center gap-1">
+                          <UserGroupIcon className="w-3 h-3" />
                           {charity.followerCount ? (charity.followerCount / 1000).toFixed(1) + 'k' : '0'}
                         </div>
                         <div className="text-xs text-arctic-500">Followers</div>
@@ -606,7 +603,7 @@ const DonationForm: React.FC = () => {
                     </div>
 
                     {/* Click hint */}
-                    <div className="mt-2 text-center text-sm text-arctic-600">Click to learn more & donate</div>
+                    <div className="text-center text-xs text-arctic-600">Click to learn more & donate</div>
                   </div>
                 </div>
               );

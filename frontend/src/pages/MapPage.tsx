@@ -1139,23 +1139,67 @@ const MapPage: React.FC = () => {
   return (
     <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col overflow-hidden">
       {/* Clean Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
-        <div className="flex items-center space-x-4">
-          {/* Search - moved up from right side */}
-          <div className="relative">
-            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#3b82f6' }} />
-            <input
-              type="text"
-              placeholder="Search charities..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white text-gray-700 text-base rounded-lg border border-blue-200 focus:outline-none w-80 placeholder-gray-400 shadow-sm"
-              style={{ '--tw-ring-color': '#3b82f6' } as React.CSSProperties}
-              onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px #3b82f6'}
-              onBlur={(e) => e.target.style.boxShadow = ''}
-            />
+      <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-3 flex items-center justify-between z-10 shadow-sm flex-shrink-0">
+        <div className="flex items-center space-x-4 flex-1">
+          {/* Trending Non-Profits */}
+          <div className="flex items-center gap-4 flex-1 overflow-hidden">
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className="text-sm font-bold text-gray-700">Trending</span>
+              <BoltIcon className="w-4 h-4" style={{ color: '#3b82f6' }} />
+            </div>
+            <div className="flex items-center gap-2 flex-1 overflow-hidden">
+              {[
+                { id: '1', name: 'Isbjorn', category: 'Climate', funding: 2500000, projects: 45, region: 'Global', slug: 'isbjorn' },
+                { id: '2', name: 'Greenpeace', category: 'Conservation', funding: 1800000, projects: 38, region: 'Global', slug: 'greenpeace' },
+                { id: '3', name: 'WWF', category: 'Wildlife', funding: 3200000, projects: 52, region: 'Global', slug: 'wwf' },
+                { id: '4', name: 'Ocean Conservancy', category: 'Water', funding: 950000, projects: 28, region: 'Pacific', slug: 'ocean-conservancy' },
+                { id: '5', name: 'Rainforest Alliance', category: 'Forest', funding: 1200000, projects: 31, region: 'Amazon', slug: 'rainforest-alliance' },
+                { id: '6', name: 'Sierra Club', category: 'Climate', funding: 780000, projects: 22, region: 'Americas', slug: 'sierra-club' },
+                { id: '7', name: 'Nature Conservancy', category: 'Conservation', funding: 2100000, projects: 41, region: 'Global', slug: 'nature-conservancy' },
+                { id: '8', name: 'Conservation Intl', category: 'Climate', funding: 1450000, projects: 35, region: 'Global', slug: 'conservation-international' }
+              ].map((charity, index) => (
+                <button
+                  key={charity.id}
+                  onClick={() => navigate(`/charity/${charity.slug}`)}
+                  className="group relative flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200 hover:border-blue-400 bg-white hover:bg-blue-50 transition-all cursor-pointer flex-shrink-0"
+                >
+                  <span className="text-xs font-bold text-gray-500">#{index + 1}</span>
+                  <span className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                    {charity.name}
+                  </span>
+
+                  {/* Hover tooltip */}
+                  <div className="absolute top-full left-0 mt-2 hidden group-hover:block z-50 w-64">
+                    <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-2xl">
+                      <div className="font-bold mb-2 text-sm">{charity.name}</div>
+                      <div className="space-y-1 text-gray-300">
+                        <div className="flex justify-between">
+                          <span>Category:</span>
+                          <span className="text-white font-semibold">{charity.category}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Funding:</span>
+                          <span className="text-green-400 font-semibold">${(charity.funding / 1000).toFixed(0)}K</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Projects:</span>
+                          <span className="text-blue-400 font-semibold">{charity.projects}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Region:</span>
+                          <span className="text-white font-semibold">{charity.region}</span>
+                        </div>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-gray-400 italic">
+                        Click to donate
+                      </div>
+                      <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-          <LiveDataIndicator status={dataStreamStatus} updateCount={updateCount} />
         </div>
 
         <div className="flex items-center space-x-3">
@@ -1206,70 +1250,9 @@ const MapPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Trending - DexScreener Style */}
-      <div className="px-6 pt-3 pb-2">
-        <div className="bg-white rounded-lg border border-blue-100 shadow-sm px-4 py-2">
-          <div className="flex items-center gap-4 overflow-x-hidden">
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              <span className="text-sm font-bold text-gray-700">Trending Non-Profits</span>
-              <BoltIcon className="w-4 h-4" style={{ color: '#3b82f6' }} />
-            </div>
-            <div className="flex items-center gap-3">
-              {charityBases
-                .sort((a, b) => b.fundingReceived - a.fundingReceived)
-                .slice(0, 6)
-                .map((charity, index) => (
-                  <motion.button
-                    key={charity.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.4 }}
-                    onClick={() => navigate(`/donate`)}
-                    className="group relative flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-blue-400 bg-white hover:bg-blue-50 transition-all cursor-pointer"
-                  >
-                    <span className="text-xs font-bold text-gray-500">#{index + 1}</span>
-                    <span className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                      {charity.name.split(' ')[0]}
-                    </span>
-
-                    {/* Hover tooltip */}
-                    <div className="absolute top-full left-0 mt-2 hidden group-hover:block z-50 w-64">
-                      <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-2xl">
-                        <div className="font-bold mb-2 text-sm">{charity.name}</div>
-                        <div className="space-y-1 text-gray-300">
-                          <div className="flex justify-between">
-                            <span>Category:</span>
-                            <span className="text-white font-semibold">{charity.category}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Funding:</span>
-                            <span className="text-green-400 font-semibold">${(charity.fundingReceived / 1000).toFixed(0)}K</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Projects:</span>
-                            <span className="text-blue-400 font-semibold">{charity.activeProjects}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Region:</span>
-                            <span className="text-white font-semibold">{charity.properties.region}</span>
-                          </div>
-                        </div>
-                        <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-gray-400 italic">
-                          Click to donate
-                        </div>
-                        <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 flex relative px-6 pb-6 gap-6 overflow-hidden">
+      <div className="flex-1 flex relative px-4 pb-4 pt-4 gap-4 overflow-hidden min-h-0">
         {/* Conditional View: Map or Transaction Board */}
-        <div className="flex-1 relative rounded-2xl shadow-xl border border-blue-200 overflow-hidden" style={{ backgroundColor: '#3b82f6' }}>
+        <div className="flex-1 relative rounded-2xl shadow-xl border border-blue-200 overflow-hidden min-h-0 min-w-0" style={{ backgroundColor: '#3b82f6' }}>
           {viewMode === 'transactions' ? (
             <div className="h-full overflow-auto">
               <TransactionBoard />
@@ -1681,22 +1664,19 @@ const MapPage: React.FC = () => {
         </AnimatePresence>
 
         {/* Right Side Panel - Timeline */}
-        <div className="w-96 flex flex-col gap-4">
+        <div className="w-96 flex flex-col gap-4 min-h-0">
           {/* Timeline */}
-          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 flex-1 overflow-hidden flex flex-col">
+          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-4 flex-1 overflow-hidden flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: '#3b82f6' }}>
                 <SignalIcon className="w-5 h-5" />
                 <span>Timeline</span>
               </h3>
             </div>
-            <div className="flex-1 overflow-y-auto space-y-3">
+            <div className="flex-1 overflow-y-auto space-y-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {newsFeed.map((news, index) => (
-                <motion.div
+                <div
                   key={news.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.15, duration: 0.8, ease: "easeOut" }}
                   className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-3 hover:shadow-md transition-all cursor-pointer"
                   onClick={() => navigate('/donate')}
                 >
@@ -1748,7 +1728,7 @@ const MapPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 

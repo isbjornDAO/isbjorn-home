@@ -23,28 +23,28 @@ const liveCams: LiveCam[] = [
     id: '1',
     title: 'Polar Bear Cam - Hudson Bay',
     description: 'Watch wild polar bears on the shores of Hudson Bay, Canada',
-    embedUrl: 'https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=1&mute=0',
+    embedUrl: 'https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1',
     viewers: 1247
   },
   {
     id: '2',
     title: 'Wapusk National Park',
     description: 'Live from Wapusk National Park in Churchill',
-    embedUrl: 'https://www.youtube.com/embed/ZGCCMkurNGc?autoplay=0&mute=1',
+    embedUrl: 'https://www.youtube.com/embed/ZGCCMkurNGc?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1',
     viewers: 823
   },
   {
     id: '3',
     title: 'Tundra Buggy Lodge',
     description: 'Polar bears near the Tundra Buggy Lodge',
-    embedUrl: 'https://www.youtube.com/embed/4XzYvaDCv7s?autoplay=0&mute=1',
+    embedUrl: 'https://www.youtube.com/embed/4XzYvaDCv7s?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1',
     viewers: 654
   },
   {
     id: '4',
     title: 'Northern Lights Habitat',
     description: 'Aurora Borealis and polar bear habitat',
-    embedUrl: 'https://www.youtube.com/embed/lyX7ZxWU64A?autoplay=0&mute=1',
+    embedUrl: 'https://www.youtube.com/embed/lyX7ZxWU64A?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1',
     viewers: 432
   }
 ];
@@ -108,18 +108,6 @@ const LiveCamsPage: React.FC = () => {
 
   return (
     <div className="bg-gray-900">
-      {/* Header */}
-      <div className="bg-gray-800 border-b border-gray-700">
-        <div className="px-4 py-3">
-          <div className="flex items-center gap-3">
-            <VideoCameraIcon className="h-6 w-6 text-purple-400" />
-            <h1 className="text-xl font-bold text-white">
-              Polar Bear Live Cams
-            </h1>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content - Twitch Layout */}
       <div className="flex flex-col lg:flex-row h-screen lg:h-auto" style={{ minHeight: '800px' }}>
         {/* Left Sidebar - Other Streams (hidden on mobile) */}

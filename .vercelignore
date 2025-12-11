@@ -11,7 +11,7 @@ yarn-error.log
 .env.test
 
 # Build artifacts
-dist
+# Note: dist is built during deployment, don't commit it but Vercel needs to build it
 build
 .next
 .cache
