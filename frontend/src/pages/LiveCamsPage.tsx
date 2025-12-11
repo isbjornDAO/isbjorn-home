@@ -107,9 +107,9 @@ const LiveCamsPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full bg-gray-900 flex flex-col" style={{ minHeight: 'calc(100vh - 64px)' }}>
+    <div className="bg-gray-900">
       {/* Header */}
-      <div className="bg-gray-800 border-b border-gray-700 flex-shrink-0">
+      <div className="bg-gray-800 border-b border-gray-700">
         <div className="px-4 py-3">
           <div className="flex items-center gap-3">
             <VideoCameraIcon className="h-6 w-6 text-purple-400" />
@@ -121,7 +121,7 @@ const LiveCamsPage: React.FC = () => {
       </div>
 
       {/* Main Content - Twitch Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden" style={{ minHeight: 'calc(100vh - 128px)' }}>
+      <div className="flex flex-col lg:flex-row h-screen lg:h-auto" style={{ minHeight: '800px' }}>
         {/* Left Sidebar - Other Streams (hidden on mobile) */}
         <div className="hidden lg:block lg:w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto flex-shrink-0">
           <div className="p-4">
@@ -135,16 +135,12 @@ const LiveCamsPage: React.FC = () => {
                   onClick={() => setFeaturedCam(cam)}
                   className="w-full bg-gray-700 hover:bg-gray-600 rounded-lg overflow-hidden transition-colors text-left group"
                 >
-                  {/* Thumbnail */}
-                  <div className="relative bg-gray-900" style={{ paddingBottom: '56.25%' }}>
-                    <iframe
-                      src={cam.embedUrl}
-                      title={cam.title}
-                      className="absolute top-0 left-0 w-full h-full pointer-events-none"
-                      frameBorder="0"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                  {/* Thumbnail Placeholder */}
+                  <div className="relative bg-gray-900 flex items-center justify-center" style={{ paddingBottom: '56.25%' }}>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <VideoCameraIcon className="h-12 w-12 text-gray-600" />
+                    </div>
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded flex items-center gap-1 z-10">
                       <div className="h-2 w-2 bg-white rounded-full animate-pulse"></div>
                       LIVE
                     </div>
@@ -154,7 +150,7 @@ const LiveCamsPage: React.FC = () => {
                     <h3 className="text-sm font-semibold text-white group-hover:text-purple-400 transition-colors line-clamp-2">
                       {cam.title}
                     </h3>
-                    <p className="text-xs text-gray-400 mt-1">{cam.description}</p>
+                    <p className="text-xs text-gray-400 mt-1 line-clamp-2">{cam.description}</p>
                     {cam.viewers && (
                       <div className="flex items-center gap-1 mt-2">
                         <UserGroupIcon className="h-3 w-3 text-gray-400" />
@@ -169,13 +165,13 @@ const LiveCamsPage: React.FC = () => {
         </div>
 
         {/* Center - Featured Stream */}
-        <div className="flex-1 flex flex-col bg-black overflow-y-auto">
+        <div className="flex-1 bg-black overflow-y-auto">
           {/* Video Player */}
-          <div className="relative bg-black" style={{ paddingBottom: '56.25%', maxHeight: 'calc(100vh - 200px)' }}>
+          <div className="w-full bg-black" style={{ paddingTop: '56.25%', position: 'relative' }}>
             <iframe
               src={featuredCam.embedUrl}
               title={featuredCam.title}
-              className="absolute top-0 left-0 w-full h-full"
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               allowFullScreen
