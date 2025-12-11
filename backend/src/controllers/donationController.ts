@@ -28,21 +28,28 @@ export class DonationController {
                 metadata: { businessId, paymentMethod: 'x402' }
             });
 
-            // 2. Initiate x402 payment (Mock)
+            // 2. Initiate x402 payment
             const payment = await x402Service.createPayment({
                 amount,
                 currency: currency || 'USD',
-                recipient: process.env.ISBJORN_WALLET || '0x0C39f0970CF3118Fd004A3f069E59dabc6714980'
+                recipient: process.env.X402_SERVER_WALLET_ADDRESS || '0x0C39f0970CF3118Fd004A3f069E59dabc6714980',
+                donationId: donation.id,
+                metadata: { businessId }
             });
 
             // 3. Update donation with payment ID
-            await donation.update({ stripePaymentIntentId: payment.id }); // Reusing field or add new one
+            await donation.update({
+                stripePaymentIntentId: payment.id,
+                provider: 'x402'
+            });
 
             res.json({
                 success: true,
                 donationId: donation.id,
                 paymentId: payment.id,
-                status: payment.status
+                paymentIntent: payment,
+                status: payment.status,
+                message: 'Payment intent created. Complete payment on frontend using x402.'
             });
 
         } catch (error) {
@@ -113,6 +120,61 @@ export class DonationController {
             res.json({ success: true, data: donations });
         } catch (error) {
             logger.error('Error fetching history:', error);
+            res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
+
+    /**
+     * Settle payment on-chain using X402
+     * This endpoint is called after user authorizes payment on frontend
+     */
+    async settleX402Payment(req: Request, res: Response) {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+
+            const { donationId, transactionHash } = req.body;
+
+            // Find the donation
+            const donation = await Donation.findByPk(donationId);
+            if (!donation) {
+                return res.status(404).json({ success: false, message: 'Donation not found' });
+            }
+
+            // Verify the transaction hash if provided
+            if (transactionHash) {
+                const verification = await x402Service.verifyPayment(
+                    donation.stripePaymentIntentId!,
+                    transactionHash
+                );
+
+                // Update donation with transaction details
+                await donation.update({
+                    status: DonationStatus.COMPLETED,
+                    blockchainTxHash: transactionHash,
+                    completedAt: new Date(),
+                    transactionId: transactionHash
+                });
+
+                logger.info(`Donation ${donationId} settled with tx: ${transactionHash}`);
+
+                return res.json({
+                    success: true,
+                    donation,
+                    verification,
+                    transactionHash
+                });
+            }
+
+            res.status(400).json({
+                success: false,
+                message: 'Transaction hash required for settlement'
+            });
+
+        } catch (error) {
+            logger.error('Error settling x402 payment:', error);
             res.status(500).json({ success: false, message: 'Internal server error' });
         }
     }

@@ -26,6 +26,7 @@ const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const ShopPage = lazy(() => import('@/pages/ShopPage'));
 const DonationForm = lazy(() => import('@/components/DonationForm'));
 const MapPage = lazy(() => import('@/pages/MapPage'));
+const LiveCamsPage = lazy(() => import('@/pages/LiveCamsPage'));
 const VotePage = lazy(() => import('@/pages/VotePage'));
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
               <Route path="/charity/:id" element={<CharityDetailsPage />} />
               <Route path="/system-status" element={<SystemStatusPage />} />
               <Route path="/map" element={<MapPage />} />
+              <Route path="/live" element={<LiveCamsPage />} />
               <Route path="/vote" element={<VotePage />} />
               {/* Legacy redirect */}
               <Route path="/node" element={<Navigate to="/vote" replace />} />

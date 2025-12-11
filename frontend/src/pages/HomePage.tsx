@@ -39,126 +39,179 @@ const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
 
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Arctic Snowfall Animation */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <Snowflake key={i} delay={i * 0.3} />
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* YouTube Video Background */}
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        <iframe
+          className="absolute top-1/2 left-1/2 w-screen h-screen min-w-full min-h-full object-cover"
+          style={{
+            transform: 'translate(-50%, -50%) scale(1.5)',
+            pointerEvents: 'none'
+          }}
+          src="https://www.youtube.com/embed/64ZaC04ppLQ?autoplay=1&mute=1&loop=1&playlist=64ZaC04ppLQ&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+          title="Background Video"
+          frameBorder="0"
+          allow="autoplay; encrypted-media"
+        />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/50"></div>
+      </div>
+
+      {/* Arctic Snowfall Animation - subtle overlay */}
+      <div className="fixed inset-0 pointer-events-none z-10">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <Snowflake key={i} delay={i * 0.4} />
         ))}
       </div>
 
-      {/* Gradient Orbs for depth */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-arctic-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-ice-200/40 rounded-full blur-3xl"></div>
-      </div>
-
       {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
 
         {/* Hero Title */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          transition={{ duration: 1, delay: 0.2 }}
+          className="text-center mb-24"
         >
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-arctic-600 via-arctic-500 to-ice-600 bg-clip-text text-transparent mb-6 leading-tight">
+          <motion.h1
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.4 }}
+            className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight drop-shadow-2xl"
+          >
             It's time to save the world
-          </h1>
-          <p className="text-xl md:text-2xl text-ice-700 max-w-4xl mx-auto font-light leading-relaxed">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.6 }}
+            className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto font-light leading-relaxed drop-shadow-lg"
+          >
             Safe transparent donations from the 1%, our world's climate mission decided by you.
-          </p>
+          </motion.p>
+
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <a
+              href="/donate"
+              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold text-lg rounded-xl shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300"
+            >
+              Start Donating
+            </a>
+            <a
+              href="/vote"
+              className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold text-lg rounded-xl border-2 border-white/30 hover:bg-white/20 hover:scale-105 transition-all duration-300"
+            >
+              Join the Mission
+            </a>
+          </motion.div>
         </motion.div>
 
         {/* What is Isbjörn Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.8, delay: 1 }}
           className="mb-20"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-arctic-900 mb-8">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+            className="text-3xl md:text-5xl font-bold text-center text-white mb-12 drop-shadow-lg"
+          >
             What is Isbjörn?
-          </h2>
+          </motion.h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {/* Feature 1: Blockchain Verified */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
+              transition={{ duration: 0.6, delay: 1.3 }}
+              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
             >
-              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <LockClosedIcon className="w-5 h-5 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
+                <LockClosedIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-base font-bold text-arctic-900">Blockchain Verified</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Blockchain Verified</h3>
+              <p className="text-white/80 text-sm">Every donation tracked on-chain with complete transparency</p>
             </motion.div>
 
             {/* Feature 2: IRD Compliant */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
+              transition={{ duration: 0.6, delay: 1.4 }}
+              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
             >
-              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <HeartIcon className="w-5 h-5 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
+                <HeartIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-base font-bold text-arctic-900">IRD Compliant</h3>
+              <h3 className="text-xl font-bold text-white mb-2">IRD Compliant</h3>
+              <p className="text-white/80 text-sm">Get instant tax receipts for all your donations</p>
             </motion.div>
 
             {/* Feature 3: Community Governance */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
+              transition={{ duration: 0.6, delay: 1.5 }}
+              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
             >
-              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <UserGroupIcon className="w-5 h-5 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
+                <UserGroupIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-base font-bold text-arctic-900">Community Governance</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Community Governance</h3>
+              <p className="text-white/80 text-sm">You decide where the funds go through voting</p>
             </motion.div>
 
             {/* Feature 4: Validator Network */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
+              transition={{ duration: 0.6, delay: 1.6 }}
+              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
             >
-              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <ChartBarIcon className="w-5 h-5 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
+                <ChartBarIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-base font-bold text-arctic-900">Validator Network</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Validator Network</h3>
+              <p className="text-white/80 text-sm">Decentralized validation ensures integrity</p>
             </motion.div>
 
             {/* Feature 5: Global Climate Service */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
+              transition={{ duration: 0.6, delay: 1.7 }}
+              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
             >
-              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <GlobeAltIcon className="w-5 h-5 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
+                <GlobeAltIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-base font-bold text-arctic-900">Global Climate Service</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Global Climate Service</h3>
+              <p className="text-white/80 text-sm">Supporting climate initiatives worldwide</p>
             </motion.div>
 
             {/* Feature 6: Zero Hidden Fees */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              className="bg-gradient-to-br from-white to-ice-50 rounded-lg p-4 shadow border border-ice-200 hover:shadow-lg transition-shadow flex items-center gap-3"
+              transition={{ duration: 0.6, delay: 1.8 }}
+              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300 group"
             >
-              <div className="w-10 h-10 bg-arctic-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <ShieldCheckIcon className="w-5 h-5 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 mb-4 group-hover:scale-110 transition-transform">
+                <ShieldCheckIcon className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-base font-bold text-arctic-900">Zero Hidden Fees</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Zero Hidden Fees</h3>
+              <p className="text-white/80 text-sm">100% of your donation goes to the cause</p>
             </motion.div>
           </div>
         </motion.div>

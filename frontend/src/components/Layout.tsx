@@ -10,6 +10,7 @@ import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   MapIcon,
+  VideoCameraIcon,
   CheckBadgeIcon
 } from '@heroicons/react/24/outline';
 
@@ -25,6 +26,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Home', href: '/', icon: HomeIcon },
     { name: 'Donate', href: '/donate', icon: HeartIcon },
     { name: 'Map', href: '/map', icon: MapIcon },
+    { name: 'Live', href: '/live', icon: VideoCameraIcon },
     { name: 'Vote', href: '/vote', icon: CheckBadgeIcon },
   ];
 

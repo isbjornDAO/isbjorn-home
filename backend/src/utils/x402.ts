@@ -1,60 +1,69 @@
-// X402 SDK initialization using x402-express
-import { paymentMiddleware } from 'x402-express';
+// X402 Thirdweb Facilitator Integration
+import { createThirdwebClient } from "thirdweb";
+import { facilitator } from "thirdweb/x402";
+import { avalancheFuji } from "thirdweb/chains";
 
-console.log('Initializing X402 client with PayAI facilitator...');
+console.log('Initializing X402 with Thirdweb facilitator...');
 
-// X402 Configuration
-const facilitatorUrl = process.env.FACILITATOR_URL || 'https://facilitator.payai.network';
-const payToAddress = process.env.ADDRESS as `0x${string}`;
-const network = process.env.NETWORK || 'base-sepolia';
+// Load configuration
+const thirdwebSecretKey = process.env.THIRDWEB_SECRET_KEY;
+const serverWalletAddress = process.env.X402_SERVER_WALLET_ADDRESS as `0x${string}`;
+const network = process.env.X402_NETWORK || 'avalanche-fuji';
 
-if (!payToAddress) {
-    console.warn('WARNING: ADDRESS environment variable not set. X402 payments will not work.');
+// Validate configuration
+if (!thirdwebSecretKey) {
+    console.error('ERROR: THIRDWEB_SECRET_KEY environment variable not set!');
+    throw new Error('THIRDWEB_SECRET_KEY is required for X402 payments');
+}
+
+if (!serverWalletAddress) {
+    console.error('ERROR: X402_SERVER_WALLET_ADDRESS environment variable not set!');
+    throw new Error('X402_SERVER_WALLET_ADDRESS is required for X402 payments');
 }
 
 console.log('X402 Config:', {
-    facilitatorUrl,
-    payToAddress: payToAddress ? `${payToAddress.substring(0, 10)}...` : 'NOT SET',
-    network
+    serverWalletAddress: `${serverWalletAddress.substring(0, 10)}...${serverWalletAddress.substring(serverWalletAddress.length - 8)}`,
+    network,
+    chain: 'Avalanche Fuji (43113)'
 });
 
-// X402 Payment Middleware - Export for use in routes
-export const x402Middleware = payToAddress ? paymentMiddleware(
-    payToAddress,
-    {
-        "POST /api/x402/donate": {
-            price: "$1.00", // Default price, will be overridden by request
-            network: network as any,
-        },
-        "POST /api/donations": {
-            price: "$1.00",
-            network: network as any,
-        }
-    },
-    { url: facilitatorUrl }
-) : null;
+// Create Thirdweb client
+export const thirdwebClient = createThirdwebClient({
+    secretKey: thirdwebSecretKey,
+});
 
-// Legacy x402 client interface for backwards compatibility
+// Create X402 facilitator instance
+export const thirdwebFacilitator = facilitator({
+    client: thirdwebClient,
+    serverWalletAddress: serverWalletAddress,
+});
+
+// Export chain configuration
+export const x402Chain = avalancheFuji; // Fuji testnet
+
+// Export server wallet address for payment settlement
+export const payToAddress = serverWalletAddress;
+
+console.log('✅ X402 Thirdweb facilitator initialized successfully');
+
+// Legacy compatibility interface for existing code
 const x402 = {
     checkout: {
         sessions: {
             create: async (params: any) => {
                 console.log('x402.checkout.sessions.create called with:', params);
 
-                if (!payToAddress) {
-                    throw new Error('X402 ADDRESS not configured');
-                }
-
                 // Return payment session details
+                // Note: Actual payment processing now uses settlePayment() with thirdwebFacilitator
                 return {
                     id: `x402_session_${Date.now()}`,
                     url: `${process.env.FRONTEND_URL}/checkout/x402?amount=${params.amount}&currency=${params.currency}`,
                     amount: params.amount,
                     currency: params.currency,
                     metadata: params.metadata,
-                    payTo: payToAddress,
-                    facilitator: facilitatorUrl,
-                    network: network
+                    payTo: serverWalletAddress,
+                    network: network,
+                    chain: avalancheFuji
                 };
             }
         }
@@ -66,11 +75,11 @@ const x402 = {
                 id: `x402_wallet_${Date.now()}`,
                 customer_id: params.customer_id,
                 email: params.email,
-                address: payToAddress
+                address: serverWalletAddress
             };
         },
         charge: async (walletId: string, params: any) => {
-            // Charges happen through x402 payment protocol
+            // Charges happen through x402 payment protocol via settlePayment()
             return {
                 id: `x402_charge_${Date.now()}`,
                 walletId,
@@ -100,7 +109,5 @@ const x402 = {
         }
     }
 };
-
-console.log('X402 Client initialized successfully');
 
 export default x402;

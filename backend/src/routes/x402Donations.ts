@@ -20,6 +20,15 @@ router.post(
     donationController.verifyAndReceipt
 );
 
+router.post(
+    '/settle',
+    [
+        body('donationId').isString().notEmpty().withMessage('Donation ID is required'),
+        body('transactionHash').isString().notEmpty().withMessage('Transaction hash is required'),
+    ],
+    donationController.settleX402Payment
+);
+
 router.get(
     '/history',
     authenticateToken,
