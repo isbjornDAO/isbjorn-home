@@ -107,23 +107,132 @@ const LiveCamsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-gray-800 border-b border-gray-700 flex-shrink-0">
+        <div className="px-4 py-3">
           <div className="flex items-center gap-3">
-            <VideoCameraIcon className="h-8 w-8 text-blue-600" />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Polar Bear Live Cams
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Watch polar bears in their natural habitat through live cameras in partnership with{' '}
+            <VideoCameraIcon className="h-6 w-6 text-purple-400" />
+            <h1 className="text-xl font-bold text-white">
+              Polar Bear Live Cams
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - Twitch Layout */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar - Other Streams */}
+        <div className="w-80 bg-gray-800 border-r border-gray-700 overflow-y-auto flex-shrink-0">
+          <div className="p-4">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+              Other Streams ({otherCams.length})
+            </h2>
+            <div className="space-y-3">
+              {otherCams.map((cam) => (
+                <button
+                  key={cam.id}
+                  onClick={() => setFeaturedCam(cam)}
+                  className="w-full bg-gray-700 hover:bg-gray-600 rounded-lg overflow-hidden transition-colors text-left group"
+                >
+                  {/* Thumbnail */}
+                  <div className="relative bg-gray-900" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      src={cam.embedUrl}
+                      title={cam.title}
+                      className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                      frameBorder="0"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                      <div className="h-2 w-2 bg-white rounded-full animate-pulse"></div>
+                      LIVE
+                    </div>
+                  </div>
+                  {/* Stream Info */}
+                  <div className="p-3">
+                    <h3 className="text-sm font-semibold text-white group-hover:text-purple-400 transition-colors line-clamp-2">
+                      {cam.title}
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-1">{cam.description}</p>
+                    {cam.viewers && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <UserGroupIcon className="h-3 w-3 text-gray-400" />
+                        <span className="text-xs text-gray-400">{cam.viewers.toLocaleString()} viewers</span>
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Center - Featured Stream */}
+        <div className="flex-1 flex flex-col bg-black overflow-y-auto">
+          {/* Video Player */}
+          <div className="relative bg-black" style={{ paddingBottom: '56.25%', maxHeight: 'calc(100vh - 200px)' }}>
+            <iframe
+              src={featuredCam.embedUrl}
+              title={featuredCam.title}
+              className="absolute top-0 left-0 w-full h-full"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              allowFullScreen
+            />
+          </div>
+
+          {/* Stream Info */}
+          <div className="bg-gray-800 p-4 border-b border-gray-700">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="relative">
+                    <div className="h-3 w-3 bg-red-500 rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full animate-ping"></div>
+                  </div>
+                  <span className="text-red-500 font-bold text-sm">LIVE</span>
+                  {featuredCam.viewers && (
+                    <>
+                      <span className="text-gray-500">•</span>
+                      <div className="flex items-center gap-1">
+                        <UserGroupIcon className="h-4 w-4 text-gray-400" />
+                        <span className="text-gray-300 text-sm">{featuredCam.viewers.toLocaleString()} viewers</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <h2 className="text-xl font-bold text-white mb-1">{featuredCam.title}</h2>
+                <p className="text-gray-400 text-sm">{featuredCam.description}</p>
+              </div>
+              <a
+                href="/donate"
+                className="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md font-semibold transition-colors"
+              >
+                Support Conservation
+              </a>
+            </div>
+          </div>
+
+          {/* About Section */}
+          <div className="bg-gray-800 p-6">
+            <h3 className="text-lg font-semibold text-white mb-3">
+              About the Polar Bear Cams
+            </h3>
+            <div className="text-gray-300 space-y-2 text-sm">
+              <p>
+                These live cameras are located in Churchill, Manitoba, and Wapusk National Park along the shores of Hudson Bay, Canada—known as the "Polar Bear Capital of the World."
+              </p>
+              <p>
+                The best time to view polar bears is during their migration season (October-November) when they gather along the coast waiting for sea ice to form. During off-season, you may see archived footage or other Arctic wildlife.
+              </p>
+              <p>
+                Stream provided by{' '}
                 <a
                   href="https://polarbearsinternational.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-purple-400 hover:text-purple-300 font-medium"
                 >
                   Polar Bears International
                 </a>
@@ -132,7 +241,7 @@ const LiveCamsPage: React.FC = () => {
                   href="https://explore.org"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-purple-400 hover:text-purple-300 font-medium"
                 >
                   explore.org
                 </a>
@@ -140,106 +249,51 @@ const LiveCamsPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Live Cams Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {liveCams.map((cam) => (
-            <div
-              key={cam.id}
-              className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200"
-            >
-              {/* Cam Title */}
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3">
-                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="relative">
-                      <div className="h-3 w-3 bg-red-500 rounded-full animate-pulse"></div>
-                      <div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full animate-ping"></div>
-                    </div>
-                    <span>LIVE</span>
-                  </div>
-                  <span className="mx-2">•</span>
-                  {cam.title}
-                </h2>
-                <p className="text-blue-100 text-sm mt-1">{cam.description}</p>
-              </div>
-
-              {/* Video Player */}
-              <div className="relative bg-gray-900" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  src={cam.embedUrl}
-                  title={cam.title}
-                  className="absolute top-0 left-0 w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                  allowFullScreen
-                  loading="lazy"
-                />
-                {/* Fallback link if iframe is blocked */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <a
-                    href={cam.embedUrl.split('?')[0].replace('/live-cams/player/', '/livecams/polar-bears/')}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="pointer-events-auto hidden bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-                    id={`fallback-${cam.id}`}
-                  >
-                    Open Camera in New Tab
-                  </a>
-                </div>
-              </div>
-
-              {/* Info Footer */}
-              <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-600">
-                    Stream provided by explore.org
-                  </p>
-                  <a
-                    href={cam.embedUrl.split('?')[0].replace('/live-cams/player/', '/livecams/polar-bears/')}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
-                  >
-                    Watch on Explore.org
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Info Section */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            About the Polar Bear Cams
-          </h3>
-          <div className="text-gray-700 space-y-2">
-            <p>
-              These live cameras are located in Churchill, Manitoba, and Wapusk National Park along the shores of Hudson Bay, Canada—known as the "Polar Bear Capital of the World."
-            </p>
-            <p>
-              The best time to view polar bears is during their migration season (October-November) when they gather along the coast waiting for sea ice to form. During off-season, you may see archived footage or other Arctic wildlife.
-            </p>
-            <p>
-              This initiative is made possible through partnerships with Polar Bears International, explore.org, and Frontiers North Adventures, bringing you up-close views of these magnificent animals in their natural habitat.
-            </p>
+        {/* Right Sidebar - Chat */}
+        <div className="w-80 bg-gray-800 border-l border-gray-700 flex flex-col flex-shrink-0">
+          {/* Chat Header */}
+          <div className="p-4 border-b border-gray-700 flex-shrink-0">
+            <h2 className="text-sm font-semibold text-white uppercase tracking-wider">
+              Live Chat
+            </h2>
           </div>
-        </div>
 
-        {/* Call to Action */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 mb-4">
-            Help protect polar bears and their habitat
-          </p>
-          <a
-            href="/donate"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-          >
-            Support Polar Bear Conservation
-          </a>
+          {/* Chat Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {chatMessages.map((msg) => (
+              <div key={msg.id} className="flex gap-2">
+                <div className="flex-shrink-0 text-2xl">{msg.avatar}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-semibold text-purple-400 text-sm">{msg.user}</span>
+                    <span className="text-gray-500 text-xs">{formatTime(msg.timestamp)}</span>
+                  </div>
+                  <p className="text-gray-200 text-sm mt-0.5 break-words">{msg.message}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Chat Input */}
+          <div className="p-4 border-t border-gray-700 flex-shrink-0">
+            <form onSubmit={handleSendMessage} className="flex gap-2">
+              <input
+                type="text"
+                value={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
+                placeholder="Send a message..."
+                className="flex-1 bg-gray-700 text-white placeholder-gray-400 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+              />
+              <button
+                type="submit"
+                disabled={!chatMessage.trim()}
+                className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white p-2 rounded-md transition-colors"
+              >
+                <PaperAirplaneIcon className="h-5 w-5" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

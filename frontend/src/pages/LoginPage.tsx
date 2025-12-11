@@ -40,7 +40,8 @@ const LoginPage: React.FC = () => {
       // Wallet is connected, auto-authenticate in background
       authenticateWallet();
     }
-  }, [isAuthenticated, isConnected, address, walletAuthAttempted, navigate, authenticateWallet]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isConnected, address, walletAuthAttempted, navigate]);
 
   // If we're still checking auth status, already authenticated, or wallet connected (auto-login), show loading
   if (isLoading || isAuthenticated || (isConnected && address)) {
