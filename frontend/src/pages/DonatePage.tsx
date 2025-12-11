@@ -4,7 +4,6 @@ import { BellIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
 import { API_URL } from '@/utils/apiUrl';
 import { useAuth } from '@/contexts/AuthContext';
-import polarBearDonateBg from '@/assets/polar-bear-donate-bg.jpg';
 
 const DonationForm: React.FC = () => {
   const navigate = useNavigate();
@@ -764,7 +763,7 @@ const DonationForm: React.FC = () => {
         <div
           className="absolute inset-0 bg-cover bg-center opacity-20"
           style={{
-            backgroundImage: `url(${polarBearDonateBg})`,
+            backgroundImage: `url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200)`,
             backgroundPosition: "center 40%"
           }}
         />
@@ -910,7 +909,7 @@ const DonationForm: React.FC = () => {
                       <div className="text-center p-2 bg-arctic-50 rounded-lg">
                         <div className="text-base sm:text-lg font-bold text-arctic-900 flex items-center justify-center gap-1">
                           <UserGroupIcon className="w-4 h-4" />
-                          {(charity.followerCount / 1000).toFixed(1)}k
+                          {charity.followerCount ? (charity.followerCount / 1000).toFixed(1) + 'k' : '0'}
                         </div>
                         <div className="text-xs text-arctic-500">Followers</div>
                       </div>
