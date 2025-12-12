@@ -42,21 +42,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Manual chunking for better caching
-        manualChunks: (id) => {
-          // Vendor chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('wagmi') || id.includes('viem') || id.includes('@rainbow')) {
-              return 'vendor-web3';
-            }
-            if (id.includes('thirdweb')) {
-              return 'vendor-thirdweb';
-            }
-            return 'vendor';
-          }
-        }
       }
     }
   }
