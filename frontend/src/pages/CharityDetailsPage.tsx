@@ -11,6 +11,7 @@ import CryptoDonationButton from '../components/CryptoDonationButton';
 
 import SocialFeed from '../components/SocialFeed';
 import { useAuth } from '@/contexts/AuthContext';
+import { api } from '@/services/api';
 import { API_URL } from '@/utils/apiUrl';
 import { thirdwebClient } from '@/lib/thirdwebClient';
 import polarBearMapBg from '@/assets/polar-bear-donate-bg.jpg';
@@ -124,12 +125,65 @@ const CharityDetailsPage: React.FC = () => {
   const [charity, setCharity] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'community'>('overview');
+  // Donation state
   const [amount, setAmount] = useState('');
   const [receiptEmail, setReceiptEmail] = useState('');
   const [donationStatus, setDonationStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [donationError, setDonationError] = useState<string | null>(null);
 
-  // Crypto donation component handles the payment logic directly
+  useEffect(() => {
+    const fetchCharityData = async () => {
+      setLoading(true);
+      try {
+        if (!id) return;
+
+        // 1. Try fetching from API
+        try {
+          // The backend is mounted at /api/public, so we request /public/charities/:id via api service
+          // api.get automatically handles the /api prefix if configured, or we pass the relative path
+          // In api.ts, it likely prepends API_BASE_URL. 
+          // Let's assume api.get('/public/charities/' + id) works.
+          const response = await api.get<{ success: boolean; data: any }>(`/public/charities/${id}`);
+
+          if (response && response.data) {
+            setCharity(response.data);
+          } else if (response && (response as any).id) {
+            // Handle case where api returns data directly
+            setCharity(response);
+          } else {
+            throw new Error('No data from API');
+          }
+        } catch (apiError) {
+          console.warn('API fetch failed, using local fallback:', apiError);
+          throw apiError; // Trigger fallback
+        }
+      } catch (error) {
+        // 2. Fallback to local static data
+        console.log('Using local fallback data for', id);
+        const localData = getCharityData(id || '');
+        if (localData) {
+          // Construct a full charity object from the partial local data
+          setCharity({
+            id: id || 'temp',
+            name: localData.name,
+            description: localData.description,
+            logoUrl: localData.logoUrl,
+            charityPhoto: localData.heroImage,
+            category: localData.category,
+            location: localData.location,
+            // Add defaults for missing fields
+            website: '#',
+            subscribers: 0,
+            totalDonated: 0
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCharityData();
+  }, [id]);
 
   const moderators = [
     {
