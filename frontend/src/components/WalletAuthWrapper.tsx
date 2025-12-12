@@ -29,6 +29,20 @@ export const WalletAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
     // Only attempt once per session
     if (hasAttemptedRef.current) return;
 
+    // Check if we already have a valid token
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      // We have a token, just verify it instead of logging in again
+      await checkAuthStatus();
+
+      // If token still exists after check, it's valid
+      if (localStorage.getItem('authToken')) {
+        hasAttemptedRef.current = true;
+        return;
+      }
+      // If invalid (token removed), continue to login
+    }
+
     isAuthenticatingRef.current = true;
     hasAttemptedRef.current = true;
 
@@ -37,6 +51,13 @@ export const WalletAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
 
       toast.loading('Authenticating wallet...', { id: 'wallet-auth' });
 
+      // Sign the message using the wallet
+      if (!activeAccount) {
+        throw new Error('No active account found');
+      }
+
+      const signature = await activeAccount.signMessage({ message });
+
       const response = await apiService.post<{
         user: any;
         token: string;
@@ -44,7 +65,7 @@ export const WalletAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
       }>('/auth/wallet-login', {
         address,
         message,
-        signature: 'thirdweb-auth',
+        signature,
       });
 
       // Store token and user data

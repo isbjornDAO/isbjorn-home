@@ -13,6 +13,7 @@ import './styles/index.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import { WalletProvider } from './contexts/WalletContext';
 import { config } from './config/wagmi';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,45 +27,47 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <WagmiProvider config={config}>
-        <RainbowKitProvider>
-          <WalletProvider>
-            <BrowserRouter
-              future={{
-                v7_startTransition: true,
-                v7_relativeSplatPath: true,
-              }}
-            >
-              <App />
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: '#1e293b',
-                    color: '#f1f5f9',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                  },
-                  success: {
-                    iconTheme: {
-                      primary: '#06b6d4',
-                      secondary: '#f1f5f9',
-                    },
-                  },
-                  error: {
-                    iconTheme: {
-                      primary: '#ef4444',
-                      secondary: '#f1f5f9',
-                    },
-                  },
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider config={config}>
+          <RainbowKitProvider>
+            <WalletProvider>
+              <BrowserRouter
+                future={{
+                  v7_startTransition: true,
+                  v7_relativeSplatPath: true,
                 }}
-              />
-            </BrowserRouter>
-          </WalletProvider>
-        </RainbowKitProvider>
-      </WagmiProvider>
-    </QueryClientProvider>
+              >
+                <App />
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: '#1e293b',
+                      color: '#f1f5f9',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.875rem',
+                    },
+                    success: {
+                      iconTheme: {
+                        primary: '#06b6d4',
+                        secondary: '#f1f5f9',
+                      },
+                    },
+                    error: {
+                      iconTheme: {
+                        primary: '#ef4444',
+                        secondary: '#f1f5f9',
+                      },
+                    },
+                  }}
+                />
+              </BrowserRouter>
+            </WalletProvider>
+          </RainbowKitProvider>
+        </WagmiProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

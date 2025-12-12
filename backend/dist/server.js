@@ -145,6 +145,15 @@ async function startServer() {
         server.listen(PORT, () => {
             logger_1.logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
             logger_1.logger.info(`API Documentation: http://localhost:${PORT}/api-docs`);
+            // DEBUG: Write port to file to verify
+            try {
+                const fs = require('fs');
+                const path = require('path');
+                fs.writeFileSync(path.join(__dirname, '../server_debug.log'), `Server running on port ${PORT}\nTimestamp: ${new Date().toISOString()}`);
+            }
+            catch (e) {
+                console.error('Failed to write debug log', e);
+            }
         });
     }
     catch (error) {

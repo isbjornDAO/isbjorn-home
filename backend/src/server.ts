@@ -159,6 +159,7 @@ async function startServer() {
     server.listen(PORT, () => {
       logger.info(`Server running on port ${PORT} in ${NODE_ENV} mode`);
       logger.info(`API Documentation: http://localhost:${PORT}/api-docs`);
+
     });
   } catch (error) {
     logger.error('Failed to start server:', error);

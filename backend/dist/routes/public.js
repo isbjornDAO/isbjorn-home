@@ -11,6 +11,10 @@ const logger_1 = require("../utils/logger");
 const nzbn_search_1 = __importDefault(require("./nzbn-search"));
 const router = express_1.default.Router();
 const isProduction = process.env.NODE_ENV === 'production';
+// Simple ping endpoint for health check
+router.get('/ping', (req, res) => {
+    res.json({ success: true, message: 'pong', timestamp: new Date().toISOString() });
+});
 router.get('/charities', async (req, res) => {
     try {
         // Prefer real charities from the database
@@ -171,29 +175,13 @@ router.get('/charities', async (req, res) => {
     }
     catch (error) {
         logger_1.logger.error('Error fetching charities:', error);
-        if (isProduction) {
-            res.status(500).json({ success: false, message: 'Failed to load charities' });
-            return;
-        }
-        // In non-production, return static data even if database fails
-        const staticCharities = [
-            {
-                id: 'isbjorn',
-                name: 'Isbjorn',
-                description: 'Leading the fight against climate change through innovative blockchain-based climate action and transparency.',
-                category: 'Climate',
-                country: 'Global',
-                location: 'Worldwide',
-                website: 'https://isbjorn.io',
-                logoUrl: 'https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61b2dcbcac4228310e9fda70_Isbjorn%20PNG%20(5).png',
-                charityPhoto: 'https://images.unsplash.com/photo-1483794344563-d27a8d18014e?w=800',
-                icon: 'https://logo.clearbit.com/isbjorn.io',
-                totalReceived: 5200000,
-                donationCount: 68400,
-                verified: true
-            }
-        ];
-        res.json({ success: true, data: staticCharities });
+        // DEBUG: Return detailed error
+        res.status(500).json({
+            success: false,
+            message: 'Failed to load charities',
+            error: error.message,
+            stack: error.stack
+        });
     }
 });
 // Get single charity by ID - FAST endpoint (no need to load all charities)
