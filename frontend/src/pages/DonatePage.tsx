@@ -7,16 +7,51 @@ import { useAuth } from '@/contexts/AuthContext';
 import polarBearMapBg from '@/assets/polar-bear-donate-bg.jpg';
 import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
 
-// Logo URLs
-const LOGOS = {
-  pbi: 'https://yt3.googleusercontent.com/ytc/AIdro_nB6jh9b2fWM_waKdcFDnQdgeK8W_agIMeY0Brr6w7nOd7e=s900-c-k-c0x00ffffff-no-rj',
-  wwf: 'https://wwf.org.nz/sites/default/files/WWF_Logo_Small_RGB_72dpi.jpg',
-  greenpeace: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqT3WLnmfJY0NDTHiiQ0X8rXuKe0Z6MemnCQ&s',
-  oceanConservancy: 'https://pbs.twimg.com/profile_images/1807788861755686913/bht5Mpvj_400x400.jpg',
-  rainforest: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI2oAZ7-NvxwzPEtRkvIauwl4-LSwxkGPClg&s',
-  sierraClub: 'https://sustainableferc.org/wp-content/uploads/2020/07/Sierra-Club.jpg',
-  natureConservancy: 'https://www.iwmc.org/wp-content/uploads/2021/05/44450209.jpeg',
-  conservationIntl: 'https://yt3.googleusercontent.com/ytc/AIdro_laD18-CRTy5FZG7NF2jjp7UQXST_45gpvQcMVViQfv4w=s900-c-k-c0x00ffffff-no-rj',
+// Local logo imports
+import pbiLogo from '@/assets/logos/pbi.jpg';
+import wwfLogo from '@/assets/logos/wwf.jpg';
+import greenpeaceLogo from '@/assets/logos/greenpeace.jpg';
+import oceanConservancyLogo from '@/assets/logos/ocean-conservancy.jpg';
+import rainforestLogo from '@/assets/logos/rainforest.jpg';
+import sierraClubLogo from '@/assets/logos/sierra-club.jpg';
+import natureConservancyLogo from '@/assets/logos/nature-conservancy.jpg';
+import conservationIntlLogo from '@/assets/logos/conservation-intl.jpg';
+
+// Logo mapping for all charity IDs
+const LOGO_MAP: Record<string, string> = {
+  'pbi': pbiLogo,
+  'isbjorn': pbiLogo,
+  'wwf': wwfLogo,
+  'wwf-uk': wwfLogo,
+  'wwf-japan': wwfLogo,
+  'greenpeace': greenpeaceLogo,
+  'ocean-conservancy': oceanConservancyLogo,
+  'the-nature-conservancy': natureConservancyLogo,
+  'nature-conservancy': natureConservancyLogo,
+  'rainforest-alliance': rainforestLogo,
+  'rainforest': rainforestLogo,
+  'conservation-intl': conservationIntlLogo,
+  'conservation-international': conservationIntlLogo,
+  'sierra-club': sierraClubLogo,
+};
+
+// Helper function to get logo for a charity
+const getCharityLogo = (charityId: string, charityName?: string): string | undefined => {
+  const normalizedId = charityId?.toLowerCase().replace(/\s+/g, '-');
+  if (LOGO_MAP[normalizedId]) return LOGO_MAP[normalizedId];
+
+  // Try to match by name patterns
+  const lowerName = charityName?.toLowerCase() || '';
+  if (lowerName.includes('polar bear') || lowerName.includes('isbjorn')) return pbiLogo;
+  if (lowerName.includes('wwf')) return wwfLogo;
+  if (lowerName.includes('greenpeace')) return greenpeaceLogo;
+  if (lowerName.includes('ocean conservancy')) return oceanConservancyLogo;
+  if (lowerName.includes('nature conservancy')) return natureConservancyLogo;
+  if (lowerName.includes('rainforest')) return rainforestLogo;
+  if (lowerName.includes('conservation international')) return conservationIntlLogo;
+  if (lowerName.includes('sierra club')) return sierraClubLogo;
+
+  return undefined;
 };
 
 const DonationForm: React.FC = () => {
@@ -37,7 +72,7 @@ const DonationForm: React.FC = () => {
       location: 'Worldwide',
       description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
       charityPhoto: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg',
-      icon: LOGOS.pbi,
+      icon: pbiLogo,
       verified: true,
       totalReceived: 58000,
       donationCount: 7200,
@@ -53,7 +88,7 @@ const DonationForm: React.FC = () => {
       location: 'London',
       description: 'Leading conservation organization working to protect wildlife and halt deforestation in Europe and beyond.',
       charityPhoto: 'https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=800',
-      icon: LOGOS.wwf,
+      icon: wwfLogo,
       verified: true,
       totalReceived: 45000,
       donationCount: 5100,
@@ -69,7 +104,7 @@ const DonationForm: React.FC = () => {
       location: 'Tokyo',
       description: 'Protecting nature and combating climate change through conservation efforts across Asia-Pacific.',
       charityPhoto: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800',
-      icon: LOGOS.wwf,
+      icon: wwfLogo,
       verified: true,
       totalReceived: 38000,
       donationCount: 4500,
@@ -85,7 +120,7 @@ const DonationForm: React.FC = () => {
       location: 'Worldwide',
       description: 'Global environmental organization campaigning to end climate change and protect biodiversity.',
       charityPhoto: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800',
-      icon: LOGOS.greenpeace,
+      icon: greenpeaceLogo,
       verified: true,
       totalReceived: 52000,
       donationCount: 6400,
@@ -101,7 +136,7 @@ const DonationForm: React.FC = () => {
       location: 'Washington, DC',
       description: 'Working to protect the ocean from today\'s greatest global challenges through science-based solutions.',
       charityPhoto: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
-      icon: LOGOS.oceanConservancy,
+      icon: oceanConservancyLogo,
       verified: true,
       totalReceived: 42000,
       donationCount: 5200,
@@ -117,7 +152,7 @@ const DonationForm: React.FC = () => {
       location: 'Worldwide',
       description: 'Protecting ecologically important lands and waters for nature and people.',
       charityPhoto: 'https://images.unsplash.com/photo-1549366021-9f761d450615?w=800',
-      icon: LOGOS.natureConservancy,
+      icon: natureConservancyLogo,
       verified: true,
       totalReceived: 32000,
       donationCount: 3200,
@@ -133,7 +168,7 @@ const DonationForm: React.FC = () => {
       location: 'Worldwide',
       description: 'Protecting rainforests and biodiversity through sustainable practices.',
       charityPhoto: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
-      icon: LOGOS.rainforest,
+      icon: rainforestLogo,
       verified: true,
       totalReceived: 28000,
       donationCount: 2800,
@@ -149,7 +184,7 @@ const DonationForm: React.FC = () => {
       location: 'Worldwide',
       description: 'Building a healthier and more prosperous world by protecting nature.',
       charityPhoto: 'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=800',
-      icon: LOGOS.conservationIntl,
+      icon: conservationIntlLogo,
       verified: true,
       totalReceived: 24000,
       donationCount: 2100,
@@ -165,7 +200,7 @@ const DonationForm: React.FC = () => {
       location: 'Oakland, CA',
       description: 'Exploring, enjoying, and protecting the wild places of the earth.',
       charityPhoto: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=800',
-      icon: LOGOS.sierraClub,
+      icon: sierraClubLogo,
       verified: true,
       totalReceived: 21000,
       donationCount: 1600,
@@ -183,19 +218,21 @@ const DonationForm: React.FC = () => {
         const result = await response.json();
 
         if (result.success && result.data && result.data.length > 0) {
-          // Update Isbjorn charity to use Polar Bears International branding
-          const updatedCharities = result.data.map((charity: any) =>
-            charity.id === 'isbjorn' || charity.id === 'pbi' || charity.name === 'Isbjorn'
-              ? {
-                ...charity,
+          // Map all charities to include local logo icons
+          const updatedCharities = result.data.map((charity: any) => {
+            const logo = getCharityLogo(charity.id, charity.name);
+            return {
+              ...charity,
+              icon: logo || charity.icon,
+              // Special handling for Isbjorn -> PBI branding
+              ...(charity.id === 'isbjorn' || charity.name === 'Isbjorn' ? {
                 id: 'pbi',
                 name: 'Polar Bears International',
                 description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
                 charityPhoto: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg',
-                icon: LOGOS.pbi
-              }
-              : charity
-          );
+              } : {})
+            };
+          });
           setCharities(updatedCharities);
         } else {
           // Fallback to famous NGOs
@@ -309,11 +346,11 @@ const DonationForm: React.FC = () => {
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-start gap-2 flex-1">
                         {/* Logo next to name */}
-                        <div className="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md border-2 border-blue-100 p-1.5">
+                        <div className="flex-shrink-0 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md overflow-hidden">
                           <img
                             src={charity.icon}
                             alt={`${charity.name} logo`}
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-cover scale-125"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                               const parent = e.currentTarget.parentElement;

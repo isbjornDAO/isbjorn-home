@@ -16,8 +16,6 @@ const DonationSuccessPage = lazy(() => import('@/pages/DonationSuccessPage'));
 const ComplianceDashboardPage = lazy(() => import('@/pages/ComplianceDashboardPage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 const AdminPage = lazy(() => import('@/pages/AdminPage'));
-const LoginPage = lazy(() => import('@/pages/LoginPage'));
-const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
 const ReceiptPage = lazy(() => import('@/pages/ReceiptPage'));
 const CharityDetailsPage = lazy(() => import('@/pages/CharityDetailsPage'));
 const IntegrationsPage = lazy(() => import('@/pages/IntegrationsPage'));
@@ -63,9 +61,10 @@ function App() {
                   <Route path="/business-dashboard" element={<ProtectedRoute><BusinessDashboard /></ProtectedRoute>} />
                   <Route path="/donate-business" element={<DonationForm />} />
 
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/signup" element={<RegisterPage />} />
-                  <Route path="/register" element={<Navigate to="/signup" replace />} />
+                  {/* Auth routes removed - using thirdweb ConnectButton in navbar */}
+                  <Route path="/login" element={<Navigate to="/" replace />} />
+                  <Route path="/signup" element={<Navigate to="/" replace />} />
+                  <Route path="/register" element={<Navigate to="/" replace />} />
                   <Route
                     path="/dashboard"
                     element={

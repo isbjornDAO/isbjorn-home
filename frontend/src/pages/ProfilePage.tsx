@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useActiveAccount } from 'thirdweb/react';
 import { authService } from '@/services/auth';
 import { api } from '@/services/api';
 import toast from 'react-hot-toast';
@@ -93,6 +94,7 @@ const SPIRIT_ANIMALS = [
 
 const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
+  const activeAccount = useActiveAccount();
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
@@ -283,12 +285,26 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  if (!user) {
+  // If no user from traditional auth, but wallet is connected, create a wallet-based user object
+  const effectiveUser = user || (activeAccount ? {
+    id: activeAccount.address,
+    username: `${activeAccount.address.slice(0, 6)}...${activeAccount.address.slice(-4)}`,
+    email: '',
+    role: 'user' as const,
+    walletAddress: activeAccount.address,
+    spiritAnimal: null,
+    profilePicture: '',
+    donationStreak: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  } : null);
+
+  if (!effectiveUser) {
     return (
       <div className="min-h-screen bg-ice-50 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <h2 className="text-xl font-bold text-ice-900 mb-4">Please Sign In</h2>
-          <p className="text-ice-600">You need to be signed in to view your profile.</p>
+          <h2 className="text-xl font-bold text-ice-900 mb-4">Please Connect Wallet</h2>
+          <p className="text-ice-600">Connect your wallet to view your profile.</p>
         </div>
       </div>
     );
@@ -472,9 +488,9 @@ const ProfilePage: React.FC = () => {
                             className="w-10 h-10 rounded-full border-2 border-white/30 object-cover"
                           />
                         )}
-                        <h2 className="text-3xl font-bold">{user.username}</h2>
+                        <h2 className="text-3xl font-bold">{effectiveUser.username}</h2>
                       </div>
-                      <p className="text-white/80 mb-4">{user.email}</p>
+                      <p className="text-white/80 mb-4">{effectiveUser.email}</p>
 
                       {currentAnimal && (
                         <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 mb-4">
@@ -540,7 +556,7 @@ const ProfilePage: React.FC = () => {
                   <div className="bg-white rounded-xl p-6 shadow-lg border border-arctic-100">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-2xl">🔥</span>
-                      <span className="text-3xl font-bold text-arctic-600">{user.donationStreak || 0}</span>
+                      <span className="text-3xl font-bold text-arctic-600">{effectiveUser.donationStreak || 0}</span>
                     </div>
                     <p className="text-sm text-ice-600 font-medium">Day Streak</p>
                   </div>
@@ -770,23 +786,23 @@ const ProfilePage: React.FC = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="bg-ice-50 rounded-lg p-4">
                       <p className="text-sm text-ice-600 mb-1">Account Type</p>
-                      <p className="text-lg font-bold text-ice-900 capitalize">{user.role}</p>
+                      <p className="text-lg font-bold text-ice-900 capitalize">{effectiveUser.role}</p>
                     </div>
                     <div className="bg-ice-50 rounded-lg p-4">
                       <p className="text-sm text-ice-600 mb-1">Member Since</p>
                       <p className="text-lg font-bold text-ice-900">
-                        {new Date(user.createdAt).toLocaleDateString()}
+                        {new Date(effectiveUser.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="bg-ice-50 rounded-lg p-4">
                       <p className="text-sm text-ice-600 mb-1">Last Updated</p>
                       <p className="text-lg font-bold text-ice-900">
-                        {new Date(user.updatedAt).toLocaleDateString()}
+                        {new Date(effectiveUser.updatedAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="bg-ice-50 rounded-lg p-4">
                       <p className="text-sm text-ice-600 mb-1">Account ID</p>
-                      <p className="text-sm font-mono text-ice-900">{user.id}</p>
+                      <p className="text-sm font-mono text-ice-900">{effectiveUser.id}</p>
                     </div>
                   </div>
                 </div>

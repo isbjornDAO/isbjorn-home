@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { ConnectButton, useActiveAccount, useActiveWallet, useDisconnect } from 'thirdweb/react';
+import { thirdwebClient } from '@/lib/thirdwebClient';
+import { inAppWallet, createWallet } from 'thirdweb/wallets';
 import Logo from './Logo';
 import Footer from './Footer';
 import {
@@ -14,6 +17,18 @@ import {
   CheckBadgeIcon
 } from '@heroicons/react/24/outline';
 
+// Wallet options for thirdweb ConnectButton
+const wallets = [
+  inAppWallet({
+    auth: {
+      options: ["email", "google", "apple", "discord"],
+    },
+  }),
+  createWallet("io.metamask"),
+  createWallet("com.coinbase.wallet"),
+  createWallet("io.rabby"),
+];
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -21,6 +36,9 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const activeAccount = useActiveAccount();
+  const activeWallet = useActiveWallet();
+  const { disconnect } = useDisconnect();
 
   const navigation = [
     { name: 'Home', href: '/', icon: HomeIcon },
@@ -31,6 +49,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Handle full logout (both traditional auth and wallet)
+  const handleLogout = () => {
+    if (activeWallet) {
+      disconnect(activeWallet);
+    }
+    logout();
+  };
+
+  // Check if user is connected (either traditional auth or wallet)
+  const isConnected = isAuthenticated || !!activeAccount;
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-ice-50 to-white">
@@ -67,17 +96,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {isAuthenticated && user ? (
+              {isConnected ? (
                 <div className="flex items-center space-x-1 sm:space-x-3">
+                  {/* Profile link */}
                   <Link
                     to="/profile"
                     className="flex items-center space-x-2 px-2 sm:px-4 py-2 rounded-lg text-sm font-medium text-ice-700 hover:bg-ice-50 transition-colors"
                   >
                     <UserCircleIcon className="w-5 h-5" />
-                    <span className="hidden sm:inline">{user.username || user.email}</span>
+                    <span className="hidden sm:inline">
+                      {user?.username || user?.email || (activeAccount?.address ? `${activeAccount.address.slice(0, 6)}...${activeAccount.address.slice(-4)}` : 'Profile')}
+                    </span>
                   </Link>
 
-                  {user.role === 'admin' && (
+                  {/* Admin link */}
+                  {user?.role === 'admin' && (
                     <Link
                       to="/admin"
                       className="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
@@ -87,29 +120,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </Link>
                   )}
 
+                  {/* Logout button */}
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
-                    title="Logout"
+                    title="Sign Out"
                   >
                     <ArrowRightOnRectangleIcon className="w-5 h-5" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2 sm:space-x-3">
-                  <Link
-                    to="/login"
-                    className="hidden sm:block px-4 py-2 text-sm font-medium text-ice-700 hover:text-ice-900 transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="bg-gradient-to-r from-arctic-500 to-polar-500 text-white text-sm px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-medium hover:from-arctic-600 hover:to-polar-600 transition-all duration-200 shadow-sm"
-                  >
-                    <span className="hidden sm:inline">Sign up</span>
-                    <span className="sm:hidden">Sign up</span>
-                  </Link>
+                  {/* Thirdweb Connect Button */}
+                  {thirdwebClient && (
+                    <ConnectButton
+                      client={thirdwebClient}
+                      wallets={wallets}
+                      theme="light"
+                      connectButton={{
+                        label: "Connect Wallet",
+                        className: "!bg-gradient-to-r !from-arctic-500 !to-polar-500 !text-white !text-sm !px-4 !py-2 !rounded-lg !font-medium hover:!from-arctic-600 hover:!to-polar-600 !transition-all !duration-200 !shadow-sm",
+                      }}
+                      connectModal={{
+                        title: "Sign in to Isbjorn",
+                        size: "compact",
+                        showThirdwebBranding: false,
+                      }}
+                    />
+                  )}
                 </div>
               )}
             </div>

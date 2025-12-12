@@ -223,6 +223,8 @@ export class AuthService {
       }
 
       const allowedUpdates = [
+        'email',
+        'username',
         'companyName',
         'taxId',
         'address',
@@ -231,6 +233,8 @@ export class AuthService {
         'description',
         'logoUrl',
         'preferences',
+        'spiritAnimal',
+        'profilePicture',
       ];
 
       const filteredUpdates = Object.keys(updates)

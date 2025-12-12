@@ -15,8 +15,105 @@ import { thirdwebClient } from '@/lib/thirdwebClient';
 import polarBearMapBg from '@/assets/polar-bear-donate-bg.jpg';
 import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
 
-// PBI Logo URL
-const PBI_LOGO_URL = 'https://yt3.googleusercontent.com/ytc/AIdro_nB6jh9b2fWM_waKdcFDnQdgeK8W_agIMeY0Brr6w7nOd7e=s900-c-k-c0x00ffffff-no-rj';
+// Local logo imports
+import pbiLogo from '@/assets/logos/pbi.jpg';
+import wwfLogo from '@/assets/logos/wwf.jpg';
+import greenpeaceLogo from '@/assets/logos/greenpeace.jpg';
+import oceanConservancyLogo from '@/assets/logos/ocean-conservancy.jpg';
+import rainforestLogo from '@/assets/logos/rainforest.jpg';
+import sierraClubLogo from '@/assets/logos/sierra-club.jpg';
+import natureConservancyLogo from '@/assets/logos/nature-conservancy.jpg';
+import conservationIntlLogo from '@/assets/logos/conservation-intl.jpg';
+
+// Charity data with logos
+const CHARITY_DATA: Record<string, { name: string; description: string; logoUrl: string; heroImage: string; category: string; location: string }> = {
+  'pbi': {
+    name: 'Polar Bears International',
+    description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
+    logoUrl: pbiLogo,
+    heroImage: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg',
+    category: 'Climate',
+    location: 'Worldwide'
+  },
+  'isbjorn': {
+    name: 'Polar Bears International',
+    description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
+    logoUrl: pbiLogo,
+    heroImage: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg',
+    category: 'Climate',
+    location: 'Worldwide'
+  },
+  'wwf-uk': {
+    name: 'WWF UK',
+    description: 'Leading conservation organization working to protect wildlife and halt deforestation in Europe and beyond.',
+    logoUrl: wwfLogo,
+    heroImage: 'https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=800',
+    category: 'Conservation',
+    location: 'London, UK'
+  },
+  'wwf-japan': {
+    name: 'WWF Japan',
+    description: 'Protecting nature and combating climate change through conservation efforts across Asia-Pacific.',
+    logoUrl: wwfLogo,
+    heroImage: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800',
+    category: 'Conservation',
+    location: 'Tokyo, Japan'
+  },
+  'greenpeace': {
+    name: 'Greenpeace',
+    description: 'Global environmental organization campaigning to end climate change and protect biodiversity.',
+    logoUrl: greenpeaceLogo,
+    heroImage: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800',
+    category: 'Environment',
+    location: 'Worldwide'
+  },
+  'ocean-conservancy': {
+    name: 'Ocean Conservancy',
+    description: 'Working to protect the ocean from today\'s greatest global challenges through science-based solutions.',
+    logoUrl: oceanConservancyLogo,
+    heroImage: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+    category: 'Ocean',
+    location: 'Washington, DC'
+  },
+  'the-nature-conservancy': {
+    name: 'The Nature Conservancy',
+    description: 'Protecting ecologically important lands and waters for nature and people.',
+    logoUrl: natureConservancyLogo,
+    heroImage: 'https://images.unsplash.com/photo-1549366021-9f761d450615?w=800',
+    category: 'Conservation',
+    location: 'Worldwide'
+  },
+  'rainforest-alliance': {
+    name: 'Rainforest Alliance',
+    description: 'Protecting rainforests and biodiversity through sustainable practices.',
+    logoUrl: rainforestLogo,
+    heroImage: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
+    category: 'Forest',
+    location: 'Worldwide'
+  },
+  'conservation-intl': {
+    name: 'Conservation International',
+    description: 'Building a healthier and more prosperous world by protecting nature.',
+    logoUrl: conservationIntlLogo,
+    heroImage: 'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=800',
+    category: 'Conservation',
+    location: 'Worldwide'
+  },
+  'sierra-club': {
+    name: 'Sierra Club',
+    description: 'Exploring, enjoying, and protecting the wild places of the earth.',
+    logoUrl: sierraClubLogo,
+    heroImage: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=800',
+    category: 'Environment',
+    location: 'Oakland, CA'
+  },
+};
+
+// Helper function to get charity data by ID
+const getCharityData = (charityId: string) => {
+  const normalizedId = charityId === 'isbjorn' ? 'pbi' : charityId;
+  return CHARITY_DATA[normalizedId] || CHARITY_DATA[charityId] || null;
+};
 
 const CharityDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -49,21 +146,27 @@ const CharityDetailsPage: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
+        // First check if we have static data for this charity
+        const staticData = getCharityData(id || '');
+
         const res = await fetch(`${API_URL}/public/charities/${id}`);
 
         if (res.ok) {
           const data = await res.json();
           if (data?.success && data.data) {
-            const charityData = data.data.id === 'isbjorn' || data.data.id === 'pbi' || data.data.name === 'Isbjorn'
-              ? {
-                ...data.data,
-                id: 'pbi',
-                name: 'Polar Bears International',
-                description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
-                logoUrl: PBI_LOGO_URL,
-                heroImage: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg'
-              }
-              : data.data;
+            // Merge API data with static logo data
+            const charityData = {
+              ...data.data,
+              id: id === 'isbjorn' ? 'pbi' : data.data.id,
+              ...(staticData ? {
+                name: staticData.name,
+                description: staticData.description,
+                logoUrl: staticData.logoUrl,
+                heroImage: staticData.heroImage,
+                category: staticData.category,
+                location: staticData.location,
+              } : {})
+            };
             setCharity(charityData);
             return;
           }
@@ -76,16 +179,18 @@ const CharityDetailsPage: React.FC = () => {
             if (listData?.success) {
               const found = listData.data.find((c: any) => String(c.id) === String(id) || c.slug === id || (id === 'pbi' && (c.id === 'isbjorn' || c.name === 'Isbjorn')) || (id === 'isbjorn' && c.id === 'isbjorn'));
               if (found) {
-                const charityData = found.id === 'isbjorn' || found.id === 'pbi' || found.name === 'Isbjorn'
-                  ? {
-                    ...found,
-                    id: 'pbi',
-                    name: 'Polar Bears International',
-                    description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
-                    logoUrl: PBI_LOGO_URL,
-                    heroImage: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg'
-                  }
-                  : found;
+                const charityData = {
+                  ...found,
+                  id: id === 'isbjorn' ? 'pbi' : found.id,
+                  ...(staticData ? {
+                    name: staticData.name,
+                    description: staticData.description,
+                    logoUrl: staticData.logoUrl,
+                    heroImage: staticData.heroImage,
+                    category: staticData.category,
+                    location: staticData.location,
+                  } : {})
+                };
                 setCharity(charityData);
                 return;
               }
@@ -95,25 +200,42 @@ const CharityDetailsPage: React.FC = () => {
           console.log('Could not fetch charity list');
         }
 
-        setCharity({
-          id: id === 'isbjorn' ? 'pbi' : (id || 'unknown'),
-          name: (id === 'isbjorn' || id === 'pbi') ? 'Polar Bears International' : (id || 'unknown').charAt(0).toUpperCase() + (id || 'unknown').slice(1).replace(/-/g, ' '),
-          description: (id === 'isbjorn' || id === 'pbi') ? 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.' : 'Thank you for your support in protecting our planet and wildlife.',
-          category: 'Climate',
-          location: 'Global',
-          logoUrl: (id === 'isbjorn' || id === 'pbi') ? PBI_LOGO_URL : 'https://via.placeholder.com/150',
-          heroImage: (id === 'isbjorn' || id === 'pbi') ? 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg' : polarBearMapBg,
-        });
+        // Fallback to static data or generic
+        if (staticData) {
+          setCharity({
+            id: id === 'isbjorn' ? 'pbi' : id,
+            ...staticData
+          });
+        } else {
+          setCharity({
+            id: id || 'unknown',
+            name: (id || 'unknown').charAt(0).toUpperCase() + (id || 'unknown').slice(1).replace(/-/g, ' '),
+            description: 'Thank you for your support in protecting our planet and wildlife.',
+            category: 'Conservation',
+            location: 'Worldwide',
+            logoUrl: 'https://via.placeholder.com/150',
+            heroImage: polarBearMapBg,
+          });
+        }
       } catch (e) {
-        setCharity({
-          id: id === 'isbjorn' ? 'pbi' : (id || 'unknown'),
-          name: (id === 'isbjorn' || id === 'pbi') ? 'Polar Bears International' : (id || 'unknown').charAt(0).toUpperCase() + (id || 'unknown').slice(1).replace(/-/g, ' '),
-          description: (id === 'isbjorn' || id === 'pbi') ? 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.' : 'Thank you for your support in protecting our planet and wildlife.',
-          category: 'Climate',
-          location: 'Global',
-          logoUrl: (id === 'isbjorn' || id === 'pbi') ? PBI_LOGO_URL : 'https://via.placeholder.com/150',
-          heroImage: (id === 'isbjorn' || id === 'pbi') ? 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg' : polarBearMapBg,
-        });
+        // Fallback to static data or generic on error
+        const staticData = getCharityData(id || '');
+        if (staticData) {
+          setCharity({
+            id: id === 'isbjorn' ? 'pbi' : id,
+            ...staticData
+          });
+        } else {
+          setCharity({
+            id: id || 'unknown',
+            name: (id || 'unknown').charAt(0).toUpperCase() + (id || 'unknown').slice(1).replace(/-/g, ' '),
+            description: 'Thank you for your support in protecting our planet and wildlife.',
+            category: 'Conservation',
+            location: 'Worldwide',
+            logoUrl: 'https://via.placeholder.com/150',
+            heroImage: polarBearMapBg,
+          });
+        }
       } finally {
         setLoading(false);
       }

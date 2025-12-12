@@ -12,17 +12,15 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import NetworkMap from '@/components/NetworkMap';
 
-// Logo URLs
-const LOGOS = {
-  pbi: 'https://yt3.googleusercontent.com/ytc/AIdro_nB6jh9b2fWM_waKdcFDnQdgeK8W_agIMeY0Brr6w7nOd7e=s900-c-k-c0x00ffffff-no-rj',
-  wwf: 'https://wwf.org.nz/sites/default/files/WWF_Logo_Small_RGB_72dpi.jpg',
-  greenpeace: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqT3WLnmfJY0NDTHiiQ0X8rXuKe0Z6MemnCQ&s',
-  oceanConservancy: 'https://pbs.twimg.com/profile_images/1807788861755686913/bht5Mpvj_400x400.jpg',
-  rainforest: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI2oAZ7-NvxwzPEtRkvIauwl4-LSwxkGPClg&s',
-  sierraClub: 'https://sustainableferc.org/wp-content/uploads/2020/07/Sierra-Club.jpg',
-  natureConservancy: 'https://www.iwmc.org/wp-content/uploads/2021/05/44450209.jpeg',
-  conservationIntl: 'https://yt3.googleusercontent.com/ytc/AIdro_laD18-CRTy5FZG7NF2jjp7UQXST_45gpvQcMVViQfv4w=s900-c-k-c0x00ffffff-no-rj',
-};
+// Local logo imports
+import pbiLogo from '@/assets/logos/pbi.jpg';
+import wwfLogo from '@/assets/logos/wwf.jpg';
+import greenpeaceLogo from '@/assets/logos/greenpeace.jpg';
+import oceanConservancyLogo from '@/assets/logos/ocean-conservancy.jpg';
+import rainforestLogo from '@/assets/logos/rainforest.jpg';
+import sierraClubLogo from '@/assets/logos/sierra-club.jpg';
+import natureConservancyLogo from '@/assets/logos/nature-conservancy.jpg';
+import conservationIntlLogo from '@/assets/logos/conservation-intl.jpg';
 
 interface TreasuryStats {
   totalFunds: number;
@@ -77,15 +75,15 @@ const VotePage: React.FC = () => {
         });
 
         setCharityDAOs([
-          { id: 'pbi', name: 'Polar Bears International', activeProposals: 2, totalProposals: 16, followers: 42000, logoUrl: LOGOS.pbi },
-          { id: 'wwf-uk', name: 'WWF UK', activeProposals: 1, totalProposals: 12, followers: 157000, logoUrl: LOGOS.wwf },
-          { id: 'wwf-japan', name: 'WWF Japan', activeProposals: 1, totalProposals: 10, followers: 890, logoUrl: LOGOS.wwf },
-          { id: 'greenpeace', name: 'Greenpeace', activeProposals: 2, totalProposals: 15, followers: 35000, logoUrl: LOGOS.greenpeace },
-          { id: 'ocean-conservancy', name: 'Ocean Conservancy', activeProposals: 2, totalProposals: 12, followers: 28000, logoUrl: LOGOS.oceanConservancy },
-          { id: 'the-nature-conservancy', name: 'The Nature Conservancy', activeProposals: 3, totalProposals: 20, followers: 5600, logoUrl: LOGOS.natureConservancy },
-          { id: 'conservation-intl', name: 'Conservation International', activeProposals: 4, totalProposals: 18, followers: 32000, logoUrl: LOGOS.conservationIntl },
-          { id: 'sierra-club', name: 'Sierra Club', activeProposals: 1, totalProposals: 9, followers: 14000, logoUrl: LOGOS.sierraClub },
-          { id: 'rainforest-alliance', name: 'Rainforest Alliance', activeProposals: 1, totalProposals: 7, followers: 1200, logoUrl: LOGOS.rainforest },
+          { id: 'pbi', name: 'Polar Bears International', activeProposals: 2, totalProposals: 16, followers: 42000, logoUrl: pbiLogo },
+          { id: 'wwf-uk', name: 'WWF UK', activeProposals: 1, totalProposals: 12, followers: 157000, logoUrl: wwfLogo },
+          { id: 'wwf-japan', name: 'WWF Japan', activeProposals: 1, totalProposals: 10, followers: 890, logoUrl: wwfLogo },
+          { id: 'greenpeace', name: 'Greenpeace', activeProposals: 2, totalProposals: 15, followers: 35000, logoUrl: greenpeaceLogo },
+          { id: 'ocean-conservancy', name: 'Ocean Conservancy', activeProposals: 2, totalProposals: 12, followers: 28000, logoUrl: oceanConservancyLogo },
+          { id: 'the-nature-conservancy', name: 'The Nature Conservancy', activeProposals: 3, totalProposals: 20, followers: 5600, logoUrl: natureConservancyLogo },
+          { id: 'conservation-intl', name: 'Conservation International', activeProposals: 4, totalProposals: 18, followers: 32000, logoUrl: conservationIntlLogo },
+          { id: 'sierra-club', name: 'Sierra Club', activeProposals: 1, totalProposals: 9, followers: 14000, logoUrl: sierraClubLogo },
+          { id: 'rainforest-alliance', name: 'Rainforest Alliance', activeProposals: 1, totalProposals: 7, followers: 1200, logoUrl: rainforestLogo },
         ]);
 
         setProposals([
