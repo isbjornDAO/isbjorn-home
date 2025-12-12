@@ -1,3 +1,5 @@
+import React from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import bearGif from '../assets/bearrr.gif';
 
 export const WalletConnect: React.FC = () => {
