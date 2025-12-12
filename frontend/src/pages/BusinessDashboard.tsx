@@ -39,7 +39,7 @@ const BusinessDashboard: React.FC = () => {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900">Business Dashboard</h1>
-                    <p className="text-gray-600 mt-2">Welcome back, {user?.companyName || 'Partner'}</p>
+                    <p className="text-gray-600 mt-2">Welcome back, {user?.username || 'Partner'}</p>
                 </div>
 
                 {/* Stats Grid */}

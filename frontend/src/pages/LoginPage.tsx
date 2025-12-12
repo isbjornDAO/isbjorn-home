@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { EnvelopeIcon, LockClosedIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount, useSignMessage, useDisconnect } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useSignMessage } from 'wagmi';
 import { apiService } from '@/services/api';
 
 import polarBearBg from '@/assets/login-bg.jpg';
@@ -22,22 +22,14 @@ interface NewsUpdate {
 const LoginPage: React.FC = () => {
   const { login, isLoading, isAuthenticated, checkAuthStatus } = useAuth();
   const navigate = useNavigate();
-  const { openConnectModal } = useConnectModal();
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, connector } = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const { disconnect } = useDisconnect();
-  const [isWalletAuthenticating, setIsWalletAuthenticating] = useState(false);
+  const walletAuthInProgress = useRef(false);
+  const previousConnectionStatus = useRef(isConnected);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
-
-  // Disconnect wallet when on login page
-  useEffect(() => {
-    if (isConnected) {
-      disconnect();
-    }
-  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -46,71 +38,62 @@ const LoginPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Wallet authentication handler - only called when button is clicked
-  const authenticateWallet = async () => {
-    if (!isConnected || !address) {
-      toast.error('Please connect your wallet first');
-      return;
-    }
+  // Handle wallet authentication ONLY when wallet connects after button click
+  useEffect(() => {
+    const handleWalletAuth = async () => {
+      // Only authenticate if:
+      // 1. Just connected (wasn't connected before)
+      // 2. Not already authenticating
+      // 3. Have address and connector
+      if (!previousConnectionStatus.current && isConnected && address && connector && !walletAuthInProgress.current) {
+        walletAuthInProgress.current = true;
 
-    setIsWalletAuthenticating(true);
+        try {
+          const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
 
-    try {
-      // Create message to sign
-      const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
+          toast.loading('Please sign the message in your wallet...', { id: 'wallet-auth' });
 
-      toast.loading('Please sign the message in your wallet...', { id: 'wallet-sign' });
+          const signature = await signMessageAsync({ message });
 
-      // Request signature
-      const signature = await signMessageAsync({ message });
+          toast.loading('Authenticating...', { id: 'wallet-auth' });
 
-      toast.loading('Authenticating...', { id: 'wallet-sign' });
+          const response = await apiService.post<{
+            user: any;
+            token: string;
+            refreshToken: string;
+          }>('/auth/wallet-login', {
+            address,
+            message,
+            signature,
+          });
 
-      console.log('Sending wallet auth request:', { address, message: message.substring(0, 50) + '...' });
+          localStorage.setItem('authToken', response.token);
+          if (response.refreshToken) {
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
 
-      // Send to backend for verification and authentication
-      const response = await apiService.post<{
-        user: any;
-        token: string;
-        refreshToken: string;
-      }>('/auth/wallet-login', {
-        address,
-        message,
-        signature,
-      });
+          await checkAuthStatus();
 
-      console.log('Wallet auth response received:', { hasToken: !!response.token });
+          toast.success('Wallet authenticated successfully!', { id: 'wallet-auth' });
+          navigate('/profile', { replace: true });
+        } catch (error: any) {
+          console.error('Wallet authentication error:', error);
 
-      // Store token and user data
-      localStorage.setItem('authToken', response.token);
-      if (response.refreshToken) {
-        localStorage.setItem('refreshToken', response.refreshToken);
+          if (error.message?.includes('User rejected') || error.message?.includes('rejected')) {
+            toast.error('Signature rejected', { id: 'wallet-auth' });
+          } else {
+            const errorMsg = error.response?.data?.message || error.message || 'Failed to authenticate with wallet';
+            toast.error(errorMsg, { id: 'wallet-auth' });
+          }
+        } finally {
+          walletAuthInProgress.current = false;
+        }
       }
+    };
 
-      // Refresh auth state to update context
-      await checkAuthStatus();
-
-      toast.success('Wallet authenticated successfully!', { id: 'wallet-sign' });
-
-      // Navigate to profile
-      navigate('/profile', { replace: true });
-    } catch (error: any) {
-      console.error('Wallet authentication error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
-      setIsWalletAuthenticating(false);
-
-      if (error.message?.includes('User rejected') || error.message?.includes('rejected')) {
-        toast.error('Signature rejected. Please try again.', { id: 'wallet-sign' });
-      } else {
-        const errorMsg = error.response?.data?.message || error.message || 'Failed to authenticate with wallet';
-        toast.error(errorMsg, { id: 'wallet-sign' });
-      }
-    }
-  };
+    previousConnectionStatus.current = isConnected;
+    handleWalletAuth();
+  }, [isConnected, address, connector, signMessageAsync, checkAuthStatus, navigate]);
 
   // Recent news from nonprofits
   const newsUpdates: NewsUpdate[] = [
@@ -167,17 +150,8 @@ const LoginPage: React.FC = () => {
     });
   };
 
-  const handleWalletLogin = async () => {
-    if (isConnected && address) {
-      // If already connected, authenticate when user clicks
-      await authenticateWallet();
-    } else if (openConnectModal) {
-      // If not connected, just open wallet connect modal - don't auto-authenticate
-      openConnectModal();
-    } else {
-      toast.error('Wallet connection unavailable');
-    }
-  };
+  // Using RainbowKit's ConnectButton component instead of useConnectModal hook
+  // This is more resilient to initialization issues
 
   const handleSignUpClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isAuthenticated) {
@@ -190,15 +164,13 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  // Show loading spinner when checking auth or when wallet is authenticating
-  if (isLoading || isWalletAuthenticating) {
+  // Show loading spinner when checking auth
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-ice-50 to-arctic-50 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-arctic-600 mb-4"></div>
-          <p className="text-gray-600">
-            {isWalletAuthenticating ? 'Authenticating wallet...' : 'Checking authentication...'}
-          </p>
+          <p className="text-gray-600">Checking authentication...</p>
         </div>
       </div>
     );
@@ -267,22 +239,6 @@ const LoginPage: React.FC = () => {
               <div className="flex flex-col gap-3">
                 <button
                   type="button"
-                  onClick={handleWalletLogin}
-                  disabled={isWalletAuthenticating}
-                  className="flex items-center justify-center gap-3 p-4 border-2 border-arctic-300 bg-gradient-to-r from-arctic-50 to-ice-50 rounded-xl hover:border-arctic-500 hover:from-arctic-100 hover:to-ice-100 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <svg className="w-6 h-6 text-arctic-600 group-hover:text-arctic-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-                    <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-                  </svg>
-                  <span className="text-sm font-bold text-gray-800 group-hover:text-arctic-700">
-                    {isWalletAuthenticating ? 'Connecting...' : 'Connect Wallet'}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
                   onClick={handleGoogleLogin}
                   className="relative flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl opacity-60 cursor-not-allowed"
                   disabled
@@ -298,6 +254,26 @@ const LoginPage: React.FC = () => {
                     Coming Soon
                   </span>
                 </button>
+
+                <ConnectButton.Custom>
+                  {({ openConnectModal, connectModalOpen }) => (
+                    <button
+                      type="button"
+                      onClick={openConnectModal}
+                      disabled={connectModalOpen}
+                      className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all w-full"
+                    >
+                      <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+                      </svg>
+                      <span className="text-sm font-semibold text-gray-700">
+                        Connect Wallet
+                      </span>
+                    </button>
+                  )}
+                </ConnectButton.Custom>
               </div>
             </div>
 

@@ -1,0 +1,618 @@
+[
+  {
+    "id": "pb_churchill_01",
+    "name": "Nanuk",
+    "currentLocation": {
+      "lat": 58.77,
+      "lng": -94.17
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/15/2024 14:30:00",
+    "trackingHistory": [
+      {
+        "lat": 58.75,
+        "lng": -94.2,
+        "timestamp": "11/10/2024 10:00:00"
+      },
+      {
+        "lat": 58.77,
+        "lng": -94.17,
+        "timestamp": "11/15/2024 14:30:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_02",
+    "name": "Aurora",
+    "currentLocation": {
+      "lat": 59.2,
+      "lng": -94.8
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/14/2024 09:15:00",
+    "trackingHistory": [
+      {
+        "lat": 59.15,
+        "lng": -94.85,
+        "timestamp": "11/08/2024 12:00:00"
+      },
+      {
+        "lat": 59.2,
+        "lng": -94.8,
+        "timestamp": "11/14/2024 09:15:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_03",
+    "name": "Frost",
+    "currentLocation": {
+      "lat": 58.3,
+      "lng": -93.5
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/16/2024 11:00:00",
+    "trackingHistory": [
+      {
+        "lat": 58.25,
+        "lng": -93.45,
+        "timestamp": "11/09/2024 08:00:00"
+      },
+      {
+        "lat": 58.3,
+        "lng": -93.5,
+        "timestamp": "11/16/2024 11:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_04",
+    "name": "Koda",
+    "currentLocation": {
+      "lat": 59.5,
+      "lng": -95.3
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/17/2024 16:45:00",
+    "trackingHistory": [
+      {
+        "lat": 59.45,
+        "lng": -95.25,
+        "timestamp": "11/11/2024 07:00:00"
+      },
+      {
+        "lat": 59.5,
+        "lng": -95.3,
+        "timestamp": "11/17/2024 16:45:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_05",
+    "name": "Blizzard",
+    "currentLocation": {
+      "lat": 58.1,
+      "lng": -94.6
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/15/2024 10:20:00",
+    "trackingHistory": [
+      {
+        "lat": 58.05,
+        "lng": -94.65,
+        "timestamp": "11/07/2024 14:00:00"
+      },
+      {
+        "lat": 58.1,
+        "lng": -94.6,
+        "timestamp": "11/15/2024 10:20:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_06",
+    "name": "Tundra",
+    "currentLocation": {
+      "lat": 59.8,
+      "lng": -94.1
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/18/2024 08:00:00",
+    "trackingHistory": [
+      {
+        "lat": 59.75,
+        "lng": -94.05,
+        "timestamp": "11/12/2024 14:00:00"
+      },
+      {
+        "lat": 59.8,
+        "lng": -94.1,
+        "timestamp": "11/18/2024 08:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_07",
+    "name": "Glacier",
+    "currentLocation": {
+      "lat": 57.9,
+      "lng": -93.2
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/16/2024 15:30:00",
+    "trackingHistory": [
+      {
+        "lat": 57.85,
+        "lng": -93.15,
+        "timestamp": "11/10/2024 09:00:00"
+      },
+      {
+        "lat": 57.9,
+        "lng": -93.2,
+        "timestamp": "11/16/2024 15:30:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_08",
+    "name": "Winter",
+    "currentLocation": {
+      "lat": 60.1,
+      "lng": -95
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/19/2024 12:00:00",
+    "trackingHistory": [
+      {
+        "lat": 60.05,
+        "lng": -94.95,
+        "timestamp": "11/13/2024 10:00:00"
+      },
+      {
+        "lat": 60.1,
+        "lng": -95,
+        "timestamp": "11/19/2024 12:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_09",
+    "name": "Iceberg",
+    "currentLocation": {
+      "lat": 58.5,
+      "lng": -95.5
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/17/2024 09:45:00",
+    "trackingHistory": [
+      {
+        "lat": 58.45,
+        "lng": -95.55,
+        "timestamp": "11/11/2024 11:00:00"
+      },
+      {
+        "lat": 58.5,
+        "lng": -95.5,
+        "timestamp": "11/17/2024 09:45:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_churchill_10",
+    "name": "Snowflake",
+    "currentLocation": {
+      "lat": 59,
+      "lng": -93
+    },
+    "region": "Hudson Bay - Churchill",
+    "lastUpdated": "11/18/2024 14:15:00",
+    "trackingHistory": [
+      {
+        "lat": 58.95,
+        "lng": -92.95,
+        "timestamp": "11/12/2024 16:00:00"
+      },
+      {
+        "lat": 59,
+        "lng": -93,
+        "timestamp": "11/18/2024 14:15:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_svalbard_01",
+    "name": "Oslo",
+    "currentLocation": {
+      "lat": 78.22,
+      "lng": 15.65
+    },
+    "region": "Svalbard, Norway",
+    "lastUpdated": "11/20/2024 10:15:00",
+    "trackingHistory": [
+      {
+        "lat": 78.18,
+        "lng": 15.5,
+        "timestamp": "11/15/2024 12:00:00"
+      },
+      {
+        "lat": 78.22,
+        "lng": 15.65,
+        "timestamp": "11/20/2024 10:15:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_svalbard_02",
+    "name": "Bjorn",
+    "currentLocation": {
+      "lat": 78.5,
+      "lng": 16.2
+    },
+    "region": "Svalbard, Norway",
+    "lastUpdated": "11/19/2024 14:30:00",
+    "trackingHistory": [
+      {
+        "lat": 78.45,
+        "lng": 16.1,
+        "timestamp": "11/14/2024 09:00:00"
+      },
+      {
+        "lat": 78.5,
+        "lng": 16.2,
+        "timestamp": "11/19/2024 14:30:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_svalbard_03",
+    "name": "Freya",
+    "currentLocation": {
+      "lat": 78.15,
+      "lng": 15.3
+    },
+    "region": "Svalbard, Norway",
+    "lastUpdated": "11/21/2024 08:45:00",
+    "trackingHistory": [
+      {
+        "lat": 78.1,
+        "lng": 15.2,
+        "timestamp": "11/16/2024 11:00:00"
+      },
+      {
+        "lat": 78.15,
+        "lng": 15.3,
+        "timestamp": "11/21/2024 08:45:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_svalbard_04",
+    "name": "Thor",
+    "currentLocation": {
+      "lat": 78.35,
+      "lng": 15.8
+    },
+    "region": "Svalbard, Norway",
+    "lastUpdated": "11/18/2024 16:00:00",
+    "trackingHistory": [
+      {
+        "lat": 78.3,
+        "lng": 15.7,
+        "timestamp": "11/13/2024 13:00:00"
+      },
+      {
+        "lat": 78.35,
+        "lng": 15.8,
+        "timestamp": "11/18/2024 16:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_svalbard_05",
+    "name": "Loki",
+    "currentLocation": {
+      "lat": 78.28,
+      "lng": 16.1
+    },
+    "region": "Svalbard, Norway",
+    "lastUpdated": "11/20/2024 11:20:00",
+    "trackingHistory": [
+      {
+        "lat": 78.25,
+        "lng": 16,
+        "timestamp": "11/15/2024 10:00:00"
+      },
+      {
+        "lat": 78.28,
+        "lng": 16.1,
+        "timestamp": "11/20/2024 11:20:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_svalbard_06",
+    "name": "Odin",
+    "currentLocation": {
+      "lat": 78.42,
+      "lng": 15.5
+    },
+    "region": "Svalbard, Norway",
+    "lastUpdated": "11/19/2024 09:00:00",
+    "trackingHistory": [
+      {
+        "lat": 78.38,
+        "lng": 15.45,
+        "timestamp": "11/14/2024 15:00:00"
+      },
+      {
+        "lat": 78.42,
+        "lng": 15.5,
+        "timestamp": "11/19/2024 09:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_svalbard_07",
+    "name": "Sif",
+    "currentLocation": {
+      "lat": 78.18,
+      "lng": 15.9
+    },
+    "region": "Svalbard, Norway",
+    "lastUpdated": "11/21/2024 13:45:00",
+    "trackingHistory": [
+      {
+        "lat": 78.15,
+        "lng": 15.85,
+        "timestamp": "11/16/2024 08:00:00"
+      },
+      {
+        "lat": 78.18,
+        "lng": 15.9,
+        "timestamp": "11/21/2024 13:45:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_svalbard_08",
+    "name": "Saga",
+    "currentLocation": {
+      "lat": 78.33,
+      "lng": 16.05
+    },
+    "region": "Svalbard, Norway",
+    "lastUpdated": "11/17/2024 15:30:00",
+    "trackingHistory": [
+      {
+        "lat": 78.3,
+        "lng": 16,
+        "timestamp": "11/12/2024 12:00:00"
+      },
+      {
+        "lat": 78.33,
+        "lng": 16.05,
+        "timestamp": "11/17/2024 15:30:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_59",
+    "name": "Bear 59",
+    "currentLocation": {
+      "lat": 59.27,
+      "lng": -94.97
+    },
+    "region": "Hudson Bay - USGS Tracking",
+    "lastUpdated": "3/31/2015 00:00:00",
+    "trackingHistory": [
+      {
+        "lat": 59.24,
+        "lng": -95.02,
+        "timestamp": "3/30/2015 12:00:00"
+      },
+      {
+        "lat": 59.27,
+        "lng": -94.97,
+        "timestamp": "3/31/2015 00:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_36",
+    "name": "Bear 36",
+    "currentLocation": {
+      "lat": 58.07,
+      "lng": -93.27
+    },
+    "region": "Hudson Bay - USGS Tracking",
+    "lastUpdated": "4/12/2013 04:00:00",
+    "trackingHistory": [
+      {
+        "lat": 58.04,
+        "lng": -93.32,
+        "timestamp": "4/10/2013 08:00:00"
+      },
+      {
+        "lat": 58.07,
+        "lng": -93.27,
+        "timestamp": "4/12/2013 04:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_58",
+    "name": "Bear 58",
+    "currentLocation": {
+      "lat": 59.970000000000006,
+      "lng": -93.67
+    },
+    "region": "Hudson Bay - USGS Tracking",
+    "lastUpdated": "7/1/2013 00:00:00",
+    "trackingHistory": [
+      {
+        "lat": 59.940000000000005,
+        "lng": -93.72,
+        "timestamp": "6/28/2013 20:00:00"
+      },
+      {
+        "lat": 59.970000000000006,
+        "lng": -93.67,
+        "timestamp": "7/1/2013 00:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_37",
+    "name": "Bear 37",
+    "currentLocation": {
+      "lat": 57.870000000000005,
+      "lng": -94.87
+    },
+    "region": "Hudson Bay - USGS Tracking",
+    "lastUpdated": "10/14/2009 00:00:00",
+    "trackingHistory": [
+      {
+        "lat": 57.84,
+        "lng": -94.92,
+        "timestamp": "10/11/2009 13:00:00"
+      },
+      {
+        "lat": 57.870000000000005,
+        "lng": -94.87,
+        "timestamp": "10/14/2009 00:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_35",
+    "name": "Bear 35",
+    "currentLocation": {
+      "lat": 59.07,
+      "lng": -95.67
+    },
+    "region": "Hudson Bay - USGS Tracking",
+    "lastUpdated": "4/30/2009 00:00:37",
+    "trackingHistory": [
+      {
+        "lat": 59.04,
+        "lng": -95.72,
+        "timestamp": "4/25/2009 12:01:32"
+      },
+      {
+        "lat": 59.07,
+        "lng": -95.67,
+        "timestamp": "4/30/2009 00:00:37"
+      }
+    ]
+  },
+  {
+    "id": "pb_55",
+    "name": "Bear 55",
+    "currentLocation": {
+      "lat": 58.27,
+      "lng": -92.37
+    },
+    "region": "Hudson Bay - USGS Tracking",
+    "lastUpdated": "5/1/2012 00:00:00",
+    "trackingHistory": [
+      {
+        "lat": 58.24,
+        "lng": -92.42,
+        "timestamp": "4/26/2012 12:00:00"
+      },
+      {
+        "lat": 58.27,
+        "lng": -92.37,
+        "timestamp": "5/1/2012 00:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_61",
+    "name": "Bear 61",
+    "currentLocation": {
+      "lat": 60.77,
+      "lng": -94.67
+    },
+    "region": "Hudson Bay - USGS Tracking",
+    "lastUpdated": "5/1/2012 00:00:00",
+    "trackingHistory": [
+      {
+        "lat": 60.74,
+        "lng": -94.72,
+        "timestamp": "4/26/2012 08:00:00"
+      },
+      {
+        "lat": 60.77,
+        "lng": -94.67,
+        "timestamp": "5/1/2012 00:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_38",
+    "name": "Bear 38",
+    "currentLocation": {
+      "lat": 70.805,
+      "lng": -137.7862
+    },
+    "region": "Beaufort Sea",
+    "lastUpdated": "4/19/2005 00:00:00",
+    "trackingHistory": [
+      {
+        "lat": 70.805,
+        "lng": -137.7862,
+        "timestamp": "4/18/2005 18:01:00"
+      },
+      {
+        "lat": 70.8051,
+        "lng": -137.7861,
+        "timestamp": "4/19/2005 16:01:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_60",
+    "name": "Bear 60",
+    "currentLocation": {
+      "lat": 76.017365,
+      "lng": 171.946206
+    },
+    "region": "Beaufort Sea",
+    "lastUpdated": "12/25/2014 02:00:00",
+    "trackingHistory": [
+      {
+        "lat": 75.693183,
+        "lng": 169.862065,
+        "timestamp": "12/14/2014 10:00:00"
+      },
+      {
+        "lat": 76.024833,
+        "lng": 172.054524,
+        "timestamp": "12/21/2014 22:00:00"
+      }
+    ]
+  },
+  {
+    "id": "pb_14",
+    "name": "Bear 14",
+    "currentLocation": {
+      "lat": 71.7633,
+      "lng": -153.7922
+    },
+    "region": "Beaufort Sea",
+    "lastUpdated": "4/14/2005 0:00:00",
+    "trackingHistory": [
+      {
+        "lat": 71.7859,
+        "lng": -153.7909,
+        "timestamp": "4/13/2005 18:00:00"
+      },
+      {
+        "lat": 71.6808,
+        "lng": -153.7907,
+        "timestamp": "4/14/2005 16:01:00"
+      }
+    ]
+  }
+]

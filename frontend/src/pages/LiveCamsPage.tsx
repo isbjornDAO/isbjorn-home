@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { VideoCameraIcon, UserGroupIcon, PaperAirplaneIcon, HeartIcon, GiftIcon } from '@heroicons/react/24/outline';
+import { useFetchWithPayment } from 'thirdweb/react';
+import { thirdwebClient } from '@/lib/thirdwebClient';
+import { API_URL } from '@/utils/apiUrl';
 
 interface LiveCam {
   id: string;
@@ -55,6 +58,7 @@ const LiveCamsPage: React.FC = () => {
   const [featuredCam, setFeaturedCam] = useState(liveCams[0]);
   const [chatMessage, setChatMessage] = useState('');
   const [donationAmount, setDonationAmount] = useState('');
+  const [donationError, setDonationError] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -91,6 +95,21 @@ const LiveCamsPage: React.FC = () => {
     }
   ]);
 
+  // X402 payment hook - only initialize if client is available
+  const x402Hook = thirdwebClient ? useFetchWithPayment(thirdwebClient, {
+    signInRequiredModal: {
+      title: 'Connect Wallet to Donate',
+      description: 'Please connect your wallet to support this stream.',
+      buttonLabel: 'Connect Wallet',
+    },
+    fundWalletOptions: {
+      title: 'Insufficient Funds',
+      description: 'You need more tokens to complete this donation.',
+      buttonLabel: 'Add Funds',
+    },
+  }) : null;
+  const { fetchWithPayment, isPending: isPaymentPending } = x402Hook || { fetchWithPayment: null, isPending: false };
+
   const otherCams = liveCams.filter(cam => cam.id !== featuredCam.id);
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -110,26 +129,61 @@ const LiveCamsPage: React.FC = () => {
     setChatMessage('');
   };
 
-  const handleDonate = (e: React.FormEvent) => {
+  const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!donationAmount || parseFloat(donationAmount) <= 0) return;
 
-    // Add donation message to chat
-    const donationMessage: ChatMessage = {
-      id: Date.now().toString(),
-      user: 'You',
-      message: 'donated to support this stream',
-      timestamp: new Date(),
-      avatar: '🧊',
-      type: 'donation',
-      amount: parseFloat(donationAmount)
-    };
+    setDonationError(null);
 
-    setChatMessages([...chatMessages, donationMessage]);
+    // If thirdweb is configured, use x402 payment
+    if (fetchWithPayment) {
+      try {
+        const response = await fetchWithPayment(`${API_URL}/x402/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: parseFloat(donationAmount),
+            currency: 'USD',
+            streamId: featuredCam.id,
+          }),
+        });
 
-    // TODO: Integrate with your donation API
-    // alert(`Donation of $${donationAmount} to support ${featuredCam.title}!`);
-    setDonationAmount('');
+        if (response && (response as any).success) {
+          // Add donation message to chat
+          const donationMessage: ChatMessage = {
+            id: Date.now().toString(),
+            user: 'You',
+            message: 'donated to support this stream',
+            timestamp: new Date(),
+            avatar: '🪧',
+            type: 'donation',
+            amount: parseFloat(donationAmount)
+          };
+          setChatMessages([...chatMessages, donationMessage]);
+          setDonationAmount('');
+        } else {
+          throw new Error((response as any)?.message || 'Donation failed');
+        }
+      } catch (err: any) {
+        console.error('X402 donation error:', err);
+        setDonationError(err.message || 'Failed to process donation');
+      }
+    } else {
+      // Fallback: Add donation message to chat without payment (for demo)
+      const donationMessage: ChatMessage = {
+        id: Date.now().toString(),
+        user: 'You',
+        message: 'donated to support this stream',
+        timestamp: new Date(),
+        avatar: '🪧',
+        type: 'donation',
+        amount: parseFloat(donationAmount)
+      };
+      setChatMessages([...chatMessages, donationMessage]);
+      setDonationAmount('');
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -303,11 +357,11 @@ const LiveCamsPage: React.FC = () => {
                 </div>
                 <button
                   type="submit"
-                  disabled={!donationAmount || parseFloat(donationAmount) <= 0}
+                  disabled={!donationAmount || parseFloat(donationAmount) <= 0 || isPaymentPending}
                   className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-600/50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md font-semibold text-sm transition-colors flex items-center gap-2"
                 >
                   <GiftIcon className="h-4 w-4" />
-                  Donate
+                  {isPaymentPending ? '...' : 'Donate'}
                 </button>
               </div>
               <div className="flex gap-2">

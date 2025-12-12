@@ -14,7 +14,8 @@
       "Bash(node:*)",
       "Bash(ping:*)",
       "Bash(nul)",
-      "WebFetch(domain:polarbearsinternational.org)"
+      "WebFetch(domain:polarbearsinternational.org)",
+      "Bash(PORT=5001 npm run dev:*)"
     ],
     "deny": [],
     "ask": []

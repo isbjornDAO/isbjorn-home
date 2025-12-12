@@ -6,12 +6,17 @@ import {
   FireIcon,
   GlobeAltIcon,
 } from '@heroicons/react/24/outline';
+import { useFetchWithPayment } from 'thirdweb/react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import SocialFeed from '../components/SocialFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_URL } from '@/utils/apiUrl';
+import { thirdwebClient } from '@/lib/thirdwebClient';
 import polarBearMapBg from '@/assets/polar-bear-donate-bg.jpg';
 import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
+
+// PBI Logo URL
+const PBI_LOGO_URL = 'https://yt3.googleusercontent.com/ytc/AIdro_nB6jh9b2fWM_waKdcFDnQdgeK8W_agIMeY0Brr6w7nOd7e=s900-c-k-c0x00ffffff-no-rj';
 
 const CharityDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +28,23 @@ const CharityDetailsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'community'>('overview');
   const [amount, setAmount] = useState('');
   const [receiptEmail, setReceiptEmail] = useState('');
+  const [donationStatus, setDonationStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [donationError, setDonationError] = useState<string | null>(null);
+
+  // X402 payment hook - only initialize if client is available
+  const x402Hook = thirdwebClient ? useFetchWithPayment(thirdwebClient, {
+    signInRequiredModal: {
+      title: 'Connect Wallet to Donate',
+      description: 'Please connect your wallet to make a crypto donation.',
+      buttonLabel: 'Connect Wallet',
+    },
+    fundWalletOptions: {
+      title: 'Insufficient Funds',
+      description: 'You need more tokens to complete this donation.',
+      buttonLabel: 'Add Funds',
+    },
+  }) : null;
+  const { fetchWithPayment, isPending: isPaymentPending } = x402Hook || { fetchWithPayment: null, isPending: false };
 
   useEffect(() => {
     const load = async () => {
@@ -32,8 +54,15 @@ const CharityDetailsPage: React.FC = () => {
         if (res.ok) {
           const data = await res.json();
           if (data?.success && data.data) {
-            const charityData = data.data.id === 'isbjorn' || data.data.name === 'Isbjorn'
-              ? { ...data.data, name: 'Isbjorn Foundation', logoUrl: isbjornLogo, heroImage: polarBearMapBg }
+            const charityData = data.data.id === 'isbjorn' || data.data.id === 'pbi' || data.data.name === 'Isbjorn'
+              ? {
+                ...data.data,
+                id: 'pbi',
+                name: 'Polar Bears International',
+                description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
+                logoUrl: PBI_LOGO_URL,
+                heroImage: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg'
+              }
               : data.data;
             setCharity(charityData);
             return;
@@ -45,10 +74,17 @@ const CharityDetailsPage: React.FC = () => {
           if (listRes.ok) {
             const listData = await listRes.json();
             if (listData?.success) {
-              const found = listData.data.find((c: any) => String(c.id) === String(id) || c.slug === id);
+              const found = listData.data.find((c: any) => String(c.id) === String(id) || c.slug === id || (id === 'pbi' && (c.id === 'isbjorn' || c.name === 'Isbjorn')) || (id === 'isbjorn' && c.id === 'isbjorn'));
               if (found) {
-                const charityData = found.id === 'isbjorn' || found.name === 'Isbjorn'
-                  ? { ...found, name: 'Isbjorn Foundation', logoUrl: isbjornLogo, heroImage: polarBearMapBg }
+                const charityData = found.id === 'isbjorn' || found.id === 'pbi' || found.name === 'Isbjorn'
+                  ? {
+                    ...found,
+                    id: 'pbi',
+                    name: 'Polar Bears International',
+                    description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
+                    logoUrl: PBI_LOGO_URL,
+                    heroImage: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg'
+                  }
                   : found;
                 setCharity(charityData);
                 return;
@@ -60,23 +96,23 @@ const CharityDetailsPage: React.FC = () => {
         }
 
         setCharity({
-          id,
-          name: id === 'isbjorn' ? 'Isbjorn Foundation' : id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, ' '),
-          description: 'Thank you for your support in protecting our planet and wildlife.',
+          id: id === 'isbjorn' ? 'pbi' : (id || 'unknown'),
+          name: (id === 'isbjorn' || id === 'pbi') ? 'Polar Bears International' : (id || 'unknown').charAt(0).toUpperCase() + (id || 'unknown').slice(1).replace(/-/g, ' '),
+          description: (id === 'isbjorn' || id === 'pbi') ? 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.' : 'Thank you for your support in protecting our planet and wildlife.',
           category: 'Climate',
           location: 'Global',
-          logoUrl: id === 'isbjorn' ? isbjornLogo : 'https://via.placeholder.com/150',
-          heroImage: polarBearMapBg,
+          logoUrl: (id === 'isbjorn' || id === 'pbi') ? PBI_LOGO_URL : 'https://via.placeholder.com/150',
+          heroImage: (id === 'isbjorn' || id === 'pbi') ? 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg' : polarBearMapBg,
         });
       } catch (e) {
         setCharity({
-          id,
-          name: id === 'isbjorn' ? 'Isbjorn Foundation' : id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, ' '),
-          description: 'Thank you for your support in protecting our planet and wildlife.',
+          id: id === 'isbjorn' ? 'pbi' : (id || 'unknown'),
+          name: (id === 'isbjorn' || id === 'pbi') ? 'Polar Bears International' : (id || 'unknown').charAt(0).toUpperCase() + (id || 'unknown').slice(1).replace(/-/g, ' '),
+          description: (id === 'isbjorn' || id === 'pbi') ? 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.' : 'Thank you for your support in protecting our planet and wildlife.',
           category: 'Climate',
           location: 'Global',
-          logoUrl: id === 'isbjorn' ? isbjornLogo : 'https://via.placeholder.com/150',
-          heroImage: polarBearMapBg,
+          logoUrl: (id === 'isbjorn' || id === 'pbi') ? PBI_LOGO_URL : 'https://via.placeholder.com/150',
+          heroImage: (id === 'isbjorn' || id === 'pbi') ? 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg' : polarBearMapBg,
         });
       } finally {
         setLoading(false);
@@ -90,6 +126,56 @@ const CharityDetailsPage: React.FC = () => {
       setReceiptEmail(user.email);
     }
   }, [user, receiptEmail]);
+
+  // Handle x402 donation
+  const handleX402Donate = async () => {
+    if (!amount || !receiptEmail) return;
+
+    if (!fetchWithPayment) {
+      // Fallback to regular donate page if thirdweb not configured
+      navigate('/donate');
+      return;
+    }
+
+    setDonationStatus('idle');
+    setDonationError(null);
+
+    try {
+      const response = await fetchWithPayment(`${API_URL}/x402/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: parseFloat(amount),
+          currency: 'USD',
+          charityId: id,
+          email: receiptEmail,
+        }),
+      });
+
+      if (response && (response as any).success) {
+        setDonationStatus('success');
+        setAmount('');
+        // Show success for 3 seconds then navigate to success page
+        setTimeout(() => {
+          navigate('/donation/success', {
+            state: {
+              amount,
+              charityName: charity?.name,
+              donationId: (response as any).donationId
+            }
+          });
+        }, 1500);
+      } else {
+        throw new Error((response as any)?.message || 'Donation failed');
+      }
+    } catch (err: any) {
+      console.error('X402 donation error:', err);
+      setDonationStatus('error');
+      setDonationError(err.message || 'Failed to process donation');
+    }
+  };
 
   const moderators = [
     {
@@ -387,6 +473,17 @@ const CharityDetailsPage: React.FC = () => {
         time: '2h ago',
         title: 'Arctic Research Breakthrough',
         content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations to track these changes in real-time.',
+        mainPhoto: 'https://th-thumbnailer.cdn-si-edu.com/ffHWvpvKTntgyR6aXuEPM6pDb34=/fit-in/1072x0/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer/b2/7f/b27ff5d9-a07b-400d-8a9d-1e1d63109de1/mar2021_h06_polarbears.jpg',
+        mapLink: '/map?lat=78.22&lng=15.65&zoom=6',
+        mapLabel: 'Arctic monitoring station location',
+      },
+      'pbi': {
+        author: 'Dr. Steven Amstrup',
+        authorPhoto: 'https://www.arcus.org/civicrm/contact/imagefile?photo=steve1_a8d04f7259d817fda6b86ea2ba0977b6.jpg',
+        time: '2h ago',
+        title: 'Arctic Research Breakthrough',
+        content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations to track these changes in real-time.',
+        mainPhoto: 'https://th-thumbnailer.cdn-si-edu.com/ffHWvpvKTntgyR6aXuEPM6pDb34=/fit-in/1072x0/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer/b2/7f/b27ff5d9-a07b-400d-8a9d-1e1d63109de1/mar2021_h06_polarbears.jpg',
         mapLink: '/map?lat=78.22&lng=15.65&zoom=6',
         mapLabel: 'Arctic monitoring station location',
       },
@@ -498,21 +595,19 @@ const CharityDetailsPage: React.FC = () => {
               <div className="flex gap-6">
                 <button
                   onClick={() => setActiveTab('overview')}
-                  className={`py-2 px-1 border-b-2 font-semibold text-sm transition-all ${
-                    activeTab === 'overview'
-                      ? 'border-[rgb(3,105,161)] text-[rgb(3,105,161)]'
-                      : 'border-transparent text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`py-2 px-1 border-b-2 font-semibold text-sm transition-all ${activeTab === 'overview'
+                    ? 'border-[rgb(3,105,161)] text-[rgb(3,105,161)]'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Overview
                 </button>
                 <button
                   onClick={() => setActiveTab('community')}
-                  className={`py-2 px-1 border-b-2 font-semibold text-sm transition-all flex items-center gap-1 ${
-                    activeTab === 'community'
-                      ? 'border-[rgb(3,105,161)] text-[rgb(3,105,161)]'
-                      : 'border-transparent text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`py-2 px-1 border-b-2 font-semibold text-sm transition-all flex items-center gap-1 ${activeTab === 'community'
+                    ? 'border-[rgb(3,105,161)] text-[rgb(3,105,161)]'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   <UserGroupIcon className="w-4 h-4" />
                   Community
@@ -584,69 +679,70 @@ const CharityDetailsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Donate Box */}
-              <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-md">
-                <h3 className="text-base font-bold text-gray-900 mb-4">Donate</h3>
+              {/* Top Mission Card - Timeline Style */}
+              <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/map?lat=78.22&lng=15.65&zoom=6')}>
+                <div className="flex items-start gap-2">
+                  {/* Isbjorn Logo */}
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+                    <img src={isbjornLogo} alt="Isbjorn" className="w-full h-full object-cover" />
+                  </div>
 
-                {/* Quick Amount Buttons */}
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  {[10, 25, 50, 100, 250, 500].map((suggestedAmount) => (
-                    <button
-                      key={suggestedAmount}
-                      type="button"
-                      onClick={() => setAmount(suggestedAmount.toString())}
-                      className={`py-3 px-3 border-2 rounded-lg font-bold text-sm transition-all ${
-                        amount === suggestedAmount.toString()
-                          ? 'border-[rgb(3,105,161)] bg-[rgb(3,105,161)]/10 text-[rgb(3,105,161)]'
-                          : 'border-gray-300 text-gray-700 hover:border-[rgb(3,105,161)]'
-                      }`}
-                    >
-                      ${suggestedAmount}
-                    </button>
-                  ))}
-                </div>
+                  <div className="flex-1 min-w-0">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-1">
+                      <div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm font-bold text-gray-900">Isbjorn Foundation</span>
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'rgb(3, 105, 161)' }}>
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Conservation Team
+                        </div>
+                      </div>
+                    </div>
 
-                {/* Custom Amount */}
-                <div className="mb-3">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Custom</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">$</span>
-                    <input
-                      type="number"
-                      min="1"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      placeholder="0.00"
-                      className="w-full pl-8 pr-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(3,105,161)] focus:border-[rgb(3,105,161)] text-sm"
-                    />
+                    {/* Title */}
+                    <h4 className="font-bold text-sm text-gray-800 mb-1">
+                      Polar Bear Conservation in Svalbard
+                    </h4>
+
+                    {/* Content */}
+                    <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                      Real-time monitoring in Svalbard, Norway. Tracking ice coverage and wildlife patterns.
+                    </p>
+
+                    {/* Mini Map */}
+                    <div className="relative w-full h-24 bg-gray-100 rounded-lg overflow-hidden mb-2 border border-gray-200">
+                      <div className="absolute inset-0 flex items-center justify-center bg-[rgb(3,105,161)]/10">
+                        <div className="text-center">
+                          <svg className="w-8 h-8 mx-auto mb-1 text-[rgb(3,105,161)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                          </svg>
+                          <p className="text-xs font-semibold text-[rgb(3,105,161)]">View on Map</p>
+                          <p className="text-xs text-gray-500">Svalbard, Norway</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Category and Actions */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: 'rgb(3, 105, 161)' }}>
+                        Top Mission
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate('/map?lat=78.22&lng=15.65&zoom=6'); }}
+                          className="flex items-center gap-0.5 px-2 py-1 rounded text-xs font-semibold transition-all bg-[rgb(3,105,161)] text-white hover:bg-[rgb(2,85,131)]"
+                        >
+                          View Map
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Email Input */}
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={receiptEmail}
-                    onChange={(e) => setReceiptEmail(e.target.value)}
-                    placeholder="you@email.com"
-                    className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(3,105,161)] focus:border-[rgb(3,105,161)] text-sm"
-                  />
-                </div>
-
-                {/* Donate Button */}
-                <button
-                  type="button"
-                  onClick={() => navigate('/donate')}
-                  disabled={!amount || !receiptEmail}
-                  className="w-full bg-[rgb(3,105,161)] hover:bg-[rgb(2,85,131)] text-white py-3 rounded-lg font-bold text-base shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Donate now
-                </button>
-
-                <p className="text-xs text-gray-500 text-center mt-3">
-                  Powered by x402 payments
-                </p>
               </div>
             </div>
           </div>
@@ -658,6 +754,7 @@ const CharityDetailsPage: React.FC = () => {
                 {/* Featured Post */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                   <h2 className="text-base font-bold text-gray-900 mb-3">Featured</h2>
+
                   <div className="flex items-center gap-3 mb-3">
                     <img src={getFeaturedPost(id || 'isbjorn').authorPhoto} alt="Author" className="w-10 h-10 rounded-full" />
                     <div>
@@ -670,15 +767,33 @@ const CharityDetailsPage: React.FC = () => {
                     {getFeaturedPost(id || 'isbjorn').content}
                   </p>
 
-                  {/* Map Embed */}
-                  <a href={getFeaturedPost(id || 'isbjorn').mapLink} className="block relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden hover:opacity-90 transition-opacity border border-gray-200 mb-4">
-                    <div className="absolute inset-0 flex items-center justify-center bg-[rgb(3,105,161)]/10">
-                      <div className="text-center">
-                        <svg className="w-12 h-12 mx-auto mb-2 text-[rgb(3,105,161)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  {/* Main Photo */}
+                  {getFeaturedPost(id || 'isbjorn').mainPhoto && (
+                    <div className="relative w-full h-64 mb-4 rounded-lg overflow-hidden">
+                      <img
+                        src={getFeaturedPost(id || 'isbjorn').mainPhoto}
+                        alt={getFeaturedPost(id || 'isbjorn').title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* Map Link - Compact Card */}
+                  <a href={getFeaturedPost(id || 'isbjorn').mapLink} className="block mb-4">
+                    <div className="bg-gradient-to-r from-[rgb(3,105,161)]/10 to-[rgb(3,105,161)]/5 rounded-lg p-4 border border-[rgb(3,105,161)]/20 hover:border-[rgb(3,105,161)]/40 transition-all hover:shadow-md">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-[rgb(3,105,161)]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-6 h-6 text-[rgb(3,105,161)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-[rgb(3,105,161)]">View on Interactive Map</p>
+                          <p className="text-xs text-gray-600">{getFeaturedPost(id || 'isbjorn').mapLabel}</p>
+                        </div>
+                        <svg className="w-5 h-5 text-[rgb(3,105,161)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
-                        <p className="text-sm font-semibold text-[rgb(3,105,161)]">View on Map</p>
-                        <p className="text-xs text-gray-500">{getFeaturedPost(id || 'isbjorn').mapLabel}</p>
                       </div>
                     </div>
                   </a>
@@ -1008,70 +1123,80 @@ const CharityDetailsPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Top Mission Card - Timeline Style */}
-              <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/map?lat=78.22&lng=15.65&zoom=6')}>
-                <div className="flex items-start gap-2">
-                  {/* Isbjorn Logo */}
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden border border-gray-200">
-                    <img src={isbjornLogo} alt="Isbjorn" className="w-full h-full object-cover" />
-                  </div>
+              {/* Donate Box */}
+              <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-md">
+                <h3 className="text-base font-bold text-gray-900 mb-4">Donate</h3>
 
-                  <div className="flex-1 min-w-0">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-1">
-                      <div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm font-bold text-gray-900">Isbjorn Foundation</span>
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'rgb(3, 105, 161)' }}>
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Conservation Team
-                        </div>
-                      </div>
-                    </div>
+                {/* Quick Amount Buttons */}
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  {[10, 25, 50, 100, 250, 500].map((suggestedAmount) => (
+                    <button
+                      key={suggestedAmount}
+                      type="button"
+                      onClick={() => setAmount(suggestedAmount.toString())}
+                      className={`py-3 px-3 border-2 rounded-lg font-bold text-sm transition-all ${amount === suggestedAmount.toString()
+                        ? 'border-[rgb(3,105,161)] bg-[rgb(3,105,161)]/10 text-[rgb(3,105,161)]'
+                        : 'border-gray-300 text-gray-700 hover:border-[rgb(3,105,161)]'
+                        }`}
+                    >
+                      ${suggestedAmount}
+                    </button>
+                  ))}
+                </div>
 
-                    {/* Title */}
-                    <h4 className="font-bold text-sm text-gray-800 mb-1">
-                      Polar Bear Conservation in Svalbard
-                    </h4>
-
-                    {/* Content */}
-                    <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                      Real-time monitoring in Svalbard, Norway. Tracking ice coverage and wildlife patterns.
-                    </p>
-
-                    {/* Mini Map */}
-                    <div className="relative w-full h-24 bg-gray-100 rounded-lg overflow-hidden mb-2 border border-gray-200">
-                      <div className="absolute inset-0 flex items-center justify-center bg-[rgb(3,105,161)]/10">
-                        <div className="text-center">
-                          <svg className="w-8 h-8 mx-auto mb-1 text-[rgb(3,105,161)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                          </svg>
-                          <p className="text-xs font-semibold text-[rgb(3,105,161)]">View on Map</p>
-                          <p className="text-xs text-gray-500">Svalbard, Norway</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Category and Actions */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: 'rgb(3, 105, 161)' }}>
-                        Top Mission
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); navigate('/map?lat=78.22&lng=15.65&zoom=6'); }}
-                          className="flex items-center gap-0.5 px-2 py-1 rounded text-xs font-semibold transition-all bg-[rgb(3,105,161)] text-white hover:bg-[rgb(2,85,131)]"
-                        >
-                          View Map
-                        </button>
-                      </div>
-                    </div>
+                {/* Custom Amount */}
+                <div className="mb-3">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Custom</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">$</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full pl-8 pr-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(3,105,161)] focus:border-[rgb(3,105,161)] text-sm"
+                    />
                   </div>
                 </div>
+
+                {/* Email Input */}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={receiptEmail}
+                    onChange={(e) => setReceiptEmail(e.target.value)}
+                    placeholder="you@email.com"
+                    className="w-full px-3 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[rgb(3,105,161)] focus:border-[rgb(3,105,161)] text-sm"
+                  />
+                </div>
+
+                {/* Donate Button */}
+                <button
+                  type="button"
+                  onClick={handleX402Donate}
+                  disabled={!amount || !receiptEmail || isPaymentPending}
+                  className="w-full bg-[rgb(3,105,161)] hover:bg-[rgb(2,85,131)] text-white py-3 rounded-lg font-bold text-base shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isPaymentPending ? 'Processing...' : 'Donate now'}
+                </button>
+
+                {/* Status Messages */}
+                {donationStatus === 'success' && (
+                  <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700 font-medium text-center">✓ Donation successful! Redirecting...</p>
+                  </div>
+                )}
+                {donationStatus === 'error' && donationError && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-700 text-center">{donationError}</p>
+                  </div>
+                )}
+
+                <p className="text-xs text-gray-500 text-center mt-3">
+                  Powered by x402 payments
+                </p>
               </div>
 
               {activeTab === 'overview' && (
@@ -1134,9 +1259,8 @@ const CharityDetailsPage: React.FC = () => {
                             <p className="text-sm font-semibold text-gray-900">{leader.name}</p>
                             <div className="flex items-center gap-2">
                               <p className="text-sm text-green-600 font-semibold">${leader.totalDonated.toLocaleString()}</p>
-                              <span className={`text-xs font-semibold ${
-                                leader.percentageChange >= 0 ? 'text-green-600' : 'text-gray-500'
-                              }`}>
+                              <span className={`text-xs font-semibold ${leader.percentageChange >= 0 ? 'text-green-600' : 'text-gray-500'
+                                }`}>
                                 {leader.percentageChange >= 0 ? '+' : ''}{leader.percentageChange}%
                               </span>
                             </div>

@@ -1,0 +1,428 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>USGS Alaska Science Center - Polar Bear Research Program</origin>
+        <pubdate>20151015</pubdate>
+        <title>Chukchi Sea Polar Bear Location Data 1985-1996</title>
+        <geoform>tabular digital data</geoform>
+        <pubinfo>
+          <pubplace>Anchorage, Alaska</pubplace>
+          <publish>U.S. Geological Survey, Alaska Science Center</publish>
+        </pubinfo>
+        <othercit>Suggested Citation:  USGS Alaska Science Center - Polar Bear Research Program, 2015, Chukchi Sea Polar Bear location data 1985-1996: U.S. Geological Survey data release, https://doi.org/10.5066/F7BZ643N</othercit>
+        <onlink>https://doi.org/10.5066/F7BZ643N</onlink>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>These data are the raw location data collected from satellite radio-collars fitted on adult female polar bears in the Chukchi Sea, between 1985-1996. The collars were worn by adult female polar bears ranging within the Chukchi Sea subpopulation boundaries as identified by the International Union for the Conservation of Nature's Polar Bear Specialist Group. Agros collars were programmed to transmit for 8 hours centered on 0:00 UTC once every three days. Thus, for two consecutive days the Agros collar did not transmit location data. </abstract>
+      <purpose>Location data were collected as part of a study to better understand the distribution and movement patterns of polar bears in the Chukchi Sea.</purpose>
+      <supplinf>An additional location data collected by the U.S. Fish and Wildlife Service for the years 2008-2013 was also used the associated article (Rode et al. 2015). Those data are available at https://doi.org/10.5061/dryad.n5509</supplinf>
+    </descript>
+    <timeperd>
+      <timeinfo>
+        <rngdates>
+          <begdate>19851116</begdate>
+          <enddate>19960806</enddate>
+        </rngdates>
+      </timeinfo>
+      <current>observed</current>
+    </timeperd>
+    <status>
+      <progress>Complete</progress>
+      <update>None planned</update>
+    </status>
+    <spdom>
+      <descgeog>Chukchi and Northern Bering Seas</descgeog>
+      <bounding>
+        <westbc>162.912</westbc>
+        <eastbc>-142.904</eastbc>
+        <northbc>76.977</northbc>
+        <southbc>59.279</southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>USGS Metadata Identifier</themekt>
+        <themekey>USGS:ASC42</themekey>
+      </theme>
+      <theme>
+        <themekt>ISO 19115 Topic Category</themekt>
+        <themekey>Biota</themekey>
+        <themekey>Environment</themekey>
+      </theme>
+      <theme>
+        <themekt>NASA GCMD Earth Science Keyword Thesaurus</themekt>
+        <themekey>Animals/Vertebrates</themekey>
+        <themekey>Mammals</themekey>
+        <themekey>Carnivores</themekey>
+        <themekey>Bears</themekey>
+        <themekey>Species Life History</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS Biocomplexity Thesaurus</themekt>
+        <themekey>Wildlife</themekey>
+        <themekey>Marine mammals</themekey>
+        <themekey>Threatened Species</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS Thesaurus</themekt>
+        <themekey>Marine ecosystems</themekey>
+        <themekey>Coastal ecosystems</themekey>
+        <themekey>Animal behavior</themekey>
+      </theme>
+      <theme>
+        <themekt>None</themekt>
+        <themekey>Polar bear</themekey>
+        <themekey>Ursus maritimus</themekey>
+      </theme>
+      <place>
+        <placekt>USGS Geographic Names Information System (GNIS)</placekt>
+        <placekey>Alaska</placekey>
+        <placekey>Chukchi Sea</placekey>
+        <placekey>Arctic Ocean</placekey>
+        <placekey>Bering Sea</placekey>
+      </place>
+    </keywords>
+    <taxonomy>
+      <keywtax>
+        <taxonkt>None</taxonkt>
+        <taxonkey>Mammals</taxonkey>
+        <taxonkey>Carnivore</taxonkey>
+        <taxonkey>Bear</taxonkey>
+        <taxonkey>Polar Bear</taxonkey>
+      </keywtax>
+      <taxonsys>
+        <classsys>
+          <classcit>
+            <citeinfo>
+              <origin>ITIS Integrated Taxonomic Information System</origin>
+              <pubdate>Unknown</pubdate>
+              <title>ITIS Integrated Taxonomic Information System</title>
+              <geoform>online database</geoform>
+              <pubinfo>
+                <pubplace>online</pubplace>
+                <publish>ITIS-North America</publish>
+              </pubinfo>
+              <othercit>Taxonomic details retrieved December 31, 2024 from the Integrated Taxonomic Information System online database https://www.itis.gov</othercit>
+              <onlink>https://doi.org/10.5066/F7KH0KBK</onlink>
+            </citeinfo>
+          </classcit>
+        </classsys>
+        <taxonpro>Species were identified by skilled observers in the field based on general appearance. Polar bears are not easily confused with other species.</taxonpro>
+        <taxoncom>Taxonomy is complete for all samples. No vouchers were collected.</taxoncom>
+      </taxonsys>
+      <taxoncl>
+        <taxonrn>Kingdom</taxonrn>
+        <taxonrv>Animalia</taxonrv>
+        <taxoncl>
+          <taxonrn>Subkingdom</taxonrn>
+          <taxonrv>Bilateria</taxonrv>
+          <taxoncl>
+            <taxonrn>Infrakingdom</taxonrn>
+            <taxonrv>Deuterostomia</taxonrv>
+            <taxoncl>
+              <taxonrn>Phylum</taxonrn>
+              <taxonrv>Chordata</taxonrv>
+              <taxoncl>
+                <taxonrn>Subphylum</taxonrn>
+                <taxonrv>Vertebrata</taxonrv>
+                <taxoncl>
+                  <taxonrn>Infraphylum</taxonrn>
+                  <taxonrv>Gnathostomata</taxonrv>
+                  <taxoncl>
+                    <taxonrn>Superclass</taxonrn>
+                    <taxonrv>Tetrapoda</taxonrv>
+                    <taxoncl>
+                      <taxonrn>Class</taxonrn>
+                      <taxonrv>Mammalia</taxonrv>
+                      <taxoncl>
+                        <taxonrn>Subclass</taxonrn>
+                        <taxonrv>Theria</taxonrv>
+                        <taxoncl>
+                          <taxonrn>Infraclass</taxonrn>
+                          <taxonrv>Eutheria</taxonrv>
+                          <taxoncl>
+                            <taxonrn>Order</taxonrn>
+                            <taxonrv>Carnivora</taxonrv>
+                            <taxoncl>
+                              <taxonrn>Suborder</taxonrn>
+                              <taxonrv>Caniformia</taxonrv>
+                              <taxoncl>
+                                <taxonrn>Family</taxonrn>
+                                <taxonrv>Ursidae</taxonrv>
+                                <taxoncl>
+                                  <taxonrn>Genus</taxonrn>
+                                  <taxonrv>Ursus</taxonrv>
+                                  <taxoncl>
+                                    <taxonrn>Species</taxonrn>
+                                    <taxonrv>Ursus maritimus</taxonrv>
+                                    <common>Polar Bear</common>
+                                    <common>TSN: 180542</common>
+                                  </taxoncl>
+                                </taxoncl>
+                              </taxoncl>
+                            </taxoncl>
+                          </taxoncl>
+                        </taxoncl>
+                      </taxoncl>
+                    </taxoncl>
+                  </taxoncl>
+                </taxoncl>
+              </taxoncl>
+            </taxoncl>
+          </taxoncl>
+        </taxoncl>
+      </taxoncl>
+    </taxonomy>
+    <accconst>No access constraints.</accconst>
+    <useconst>No use constraints. We request that the suggested citation of this USGS data release be included in any publications that reference or utilize these data.</useconst>
+    <ptcontac>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey, Alaska Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>4210 University Drive</address>
+          <city>Anchorage</city>
+          <state>Alaska</state>
+          <postal>99508</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>907-786-7000</cntvoice>
+        <cntemail>gs-ak_asc_datamanagers@usgs.gov</cntemail>
+      </cntinfo>
+    </ptcontac>
+    <crossref>
+      <citeinfo>
+        <origin>Rode, K.D.</origin>
+        <origin>Wilson, R.R.</origin>
+        <origin>Regehr, E.V.</origin>
+        <origin>St Martin, M.</origin>
+        <origin>Douglas, D.C.</origin>
+        <origin>Olson, J.W.</origin>
+        <pubdate>2015</pubdate>
+        <title>Increased Land Use by Chukchi Sea Polar Bears in Relation to Changing Sea Ice Conditions</title>
+        <geoform>journal article</geoform>
+        <serinfo>
+          <sername>PLoS ONE</sername>
+          <issue>10:e0142213</issue>
+        </serinfo>
+        <pubinfo>
+          <pubplace>online</pubplace>
+          <publish>PLoS</publish>
+        </pubinfo>
+        <othercit>Rode, K.D., Wilson, R.R., Regehr, E.V., St Martin, M., Douglas, D.C., Olson, J.W., 2015. Increased land use by Chukchi Sea polar bears in relation to changing sea ice conditions. PLoS ONE 10:e0142213. https://doi.org/10.1371/journal.pone.0142213</othercit>
+        <onlink>https://doi.org/10.1371/journal.pone.0142213</onlink>
+      </citeinfo>
+    </crossref>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>No formal accuracy tests were performed.</attraccr>
+    </attracc>
+    <logic>Attribute values fall within expected ranges.</logic>
+    <complete>Data are complete relative to completeness of Argos transmissions. Transmissions are made once every 3 days and not transmitted when a bear is in the water.</complete>
+    <posacc>
+      <horizpa>
+        <horizpar>Radio-collar locations were determined by the Argos System with accuracy from &lt; 250 m to &gt; 1500 m (see http://www.argos-system.org/web/en/78-faq.php#faq-theme-55).</horizpar>
+      </horizpa>
+    </posacc>
+    <lineage>
+      <procstep>
+        <procdesc>METHODS - FIELD:
+
+        Capture protocols were approved by the U.S. Geological Survey, (USGS) Alaska Science Center and USFWS Region 7 Institutional Animal Care and Use Committees. Polar bears were captured and released on sea ice or land between mid-March and early May in the Chukchi and Northern Bering Seas 1986-1995. Polar bears were located from a helicopter and immobilized with a dart containing either M-99 in 1986 or zolazepam-tiletamine (Telazol® or Zoletil®).
+
+        Only adult female bears (≥ 4 years old) can safely be fitted with collars because they are no longer growing. Adult males were not collared because their necks are larger than their heads, preventing collar retention. Satellite radio-collars were manufactured by Telonics Inc., Mesa, AZ and worn multiple years.</procdesc>
+        <procdate>Unknown</procdate>
+      </procstep>
+      <procstep>
+        <procdesc>LITERATURE CITED:
+
+        Rode, K.D., Wilson, R.R., Regehr, E.V., St Martin, M., Douglas, D.C., Olson, J.W., 2016. Data from: Increased land use by Chukchi Sea polar bears in relation to changing sea ice conditions. Dryad. https://doi.org/10.5061/dryad.n5509</procdesc>
+        <procdate>Unknown</procdate>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <direct>Point</direct>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <geograph>
+        <latres>0.00001</latres>
+        <longres>0.00001</longres>
+        <geogunit>Decimal degrees</geogunit>
+      </geograph>
+      <geodetic>
+        <horizdn>World Geodetic System of 1984 (WGS84)</horizdn>
+        <ellips>World Geodetic System of 1984 (WGS84)</ellips>
+        <semiaxis>6378137</semiaxis>
+        <denflat>298.257223563</denflat>
+      </geodetic>
+    </horizsys>
+  </spref>
+  <eainfo>
+    <detailed>
+      <enttyp>
+        <enttypl>polarBear_argosLocations_chukchi_1985-1996_rode.csv</enttypl>
+        <enttypd>Table with Agros position information transmitted from collars worn by female polar bears in the Chukchi Sea from 1985-1996. Presented in a Comma Separated Value (CSV) formatted table.</enttypd>
+        <enttypds>Author defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Animal</attrlabl>
+        <attrdef>A unique international identification number for a bear.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <udom>A unique international identification number for a bear.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Date</attrlabl>
+        <attrdef>The date the location was obtained in Universal Coordinated Time (UTC).</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>11/16/1985</rdommin>
+            <rdommax>8/6/1996</rdommax>
+            <attrunit>Date (MM/DD/YYYY; UTC)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Time</attrlabl>
+        <attrdef>The time the location was obtained in Universal Coordinated Time (UTC).</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0:00:00</rdommin>
+            <rdommax>23:59:59</rdommax>
+            <attrunit>Time (HH:mm:ss; UTC)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>The latitude measurement transmitted from a collar.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>59.279</rdommin>
+            <rdommax>76.977</rdommax>
+            <attrunit>Decimal degrees (WGS84)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>The longitude measurement transmitted from a collar.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-179.788</rdommin>
+            <rdommax>179.999</rdommax>
+            <attrunit>Decimal degrees (WGS84)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LocationQuality</attrlabl>
+        <attrdef>A value provided by the Agros system regarding the accuracy of the location (see http://www.argos-system.org/web/en/78-faq.php#faq-theme-55 for specifications on associated accuracies for the categories in that column).</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>L1, L2, L3</edomv>
+            <edomvd>L1,L2,L3 = The location was obtained with 4 messages or more.</edomvd>
+            <edomvds>Agros system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>LA</edomv>
+            <edomvd>LA  = The location was obtained with 3 messages.</edomvd>
+            <edomvds>Agros system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>LB</edomv>
+            <edomvd>LB = The location was obtained with 2 messages.</edomvd>
+            <edomvds>Agros system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>LZ</edomv>
+            <edomvd>LZ =  The location process failed.</edomvd>
+            <edomvds>Agros system</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey</cntorg>
+          <cntper>USGS ScienceBase Team</cntper>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>Denver Federal Center, Building 810, Mail Stop 302</address>
+          <city>Denver</city>
+          <state>Colorado</state>
+          <postal>80225</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>1-888-275-8747</cntvoice>
+        <cntemail>sciencebase@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <resdesc>The U.S. Geological Survey, Alaska Science Center is the authoritative source of these data, distributed by ScienceBase (a USGS Trusted Digital Repository).</resdesc>
+    <distliab>Unless otherwise stated, all data, metadata and related materials are considered to satisfy the quality standards relative to the purpose for which the data were collected. Although these data and associated metadata have been reviewed for accuracy and completeness and approved for release by the U.S. Geological Survey, no warranty expressed or implied is made regarding the display or utility of the data for other purposes or on all computer systems, nor shall the act of distribution constitute any such warranty. Any use of trade, firm, or product names is for descriptive purposes only and does not imply endorsement by the U.S. Government.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>CSV</formname>
+          <formcont>Tabular data in CSV format; FGDC metadata in XML and HTML formats.</formcont>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>https://doi.org/10.5066/F7BZ643N</networkr>
+              </networka>
+            </computer>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <metainfo>
+    <metd>20241231</metd>
+    <metc>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey, Alaska Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>4210 University Drive</address>
+          <city>Anchorage</city>
+          <state>Alaska</state>
+          <postal>99508</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>907-786-7000</cntvoice>
+        <cntemail>gs-ak_asc_datamanagers@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metstdn>FGDC Biological Data Profile of the Content Standard for Digital Geospatial Metadata (CSDGM)</metstdn>
+    <metstdv>FGDC-STD-001.1-1999</metstdv>
+  </metainfo>
+</metadata>

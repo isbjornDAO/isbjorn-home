@@ -105,7 +105,7 @@ const ProfilePage: React.FC = () => {
   // Profile form state
   const [profileData, setProfileData] = useState({
     email: user?.email || '',
-    companyName: user?.companyName || '',
+    username: user?.username || user?.companyName || user?.name || '',
     taxId: user?.taxId || '',
     address: {
       street: user?.address?.street || '',
@@ -127,7 +127,7 @@ const ProfilePage: React.FC = () => {
     if (user) {
       setProfileData({
         email: user.email || '',
-        companyName: user.companyName || '',
+        username: user.username || user.companyName || user.name || '',
         taxId: user.taxId || '',
         address: {
           street: user.address?.street || '',
@@ -226,7 +226,7 @@ const ProfilePage: React.FC = () => {
     try {
       const updates: any = {
         email: profileData.email,
-        companyName: profileData.companyName,
+        username: profileData.username,
       };
 
       if (profileData.taxId) {
@@ -472,7 +472,7 @@ const ProfilePage: React.FC = () => {
                             className="w-10 h-10 rounded-full border-2 border-white/30 object-cover"
                           />
                         )}
-                        <h2 className="text-3xl font-bold">{user.companyName}</h2>
+                        <h2 className="text-3xl font-bold">{user.username}</h2>
                       </div>
                       <p className="text-white/80 mb-4">{user.email}</p>
 
@@ -574,12 +574,12 @@ const ProfilePage: React.FC = () => {
 
                       <div>
                         <label className="block text-sm font-semibold text-ice-900 mb-2">
-                          Company Name
+                          Username
                         </label>
                         <input
                           type="text"
-                          value={profileData.companyName}
-                          onChange={(e) => setProfileData({ ...profileData, companyName: e.target.value })}
+                          value={profileData.username}
+                          onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
                           className="w-full px-4 py-2.5 rounded-lg border-2 border-ice-200 bg-white text-ice-900 focus:border-arctic-500 focus:ring-2 focus:ring-arctic-500/20 placeholder:text-ice-400 transition-all"
                           required
                         />

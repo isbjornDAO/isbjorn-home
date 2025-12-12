@@ -7,6 +7,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import polarBearMapBg from '@/assets/polar-bear-donate-bg.jpg';
 import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
 
+// Logo URLs
+const LOGOS = {
+  pbi: 'https://yt3.googleusercontent.com/ytc/AIdro_nB6jh9b2fWM_waKdcFDnQdgeK8W_agIMeY0Brr6w7nOd7e=s900-c-k-c0x00ffffff-no-rj',
+  wwf: 'https://wwf.org.nz/sites/default/files/WWF_Logo_Small_RGB_72dpi.jpg',
+  greenpeace: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqT3WLnmfJY0NDTHiiQ0X8rXuKe0Z6MemnCQ&s',
+  oceanConservancy: 'https://pbs.twimg.com/profile_images/1807788861755686913/bht5Mpvj_400x400.jpg',
+  rainforest: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI2oAZ7-NvxwzPEtRkvIauwl4-LSwxkGPClg&s',
+  sierraClub: 'https://sustainableferc.org/wp-content/uploads/2020/07/Sierra-Club.jpg',
+  natureConservancy: 'https://www.iwmc.org/wp-content/uploads/2021/05/44450209.jpeg',
+  conservationIntl: 'https://yt3.googleusercontent.com/ytc/AIdro_laD18-CRTy5FZG7NF2jjp7UQXST_45gpvQcMVViQfv4w=s900-c-k-c0x00ffffff-no-rj',
+};
+
 const DonationForm: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -18,36 +30,20 @@ const DonationForm: React.FC = () => {
   // Top Climate-Focused Charities
   const famousNGOs = [
     {
-      id: 'isbjorn',
-      name: 'Isbjorn',
+      id: 'pbi',
+      name: 'Polar Bears International',
       category: 'Climate',
       country: 'Global',
       location: 'Worldwide',
-      description: 'Leading the fight against climate change through innovative blockchain-based climate action and transparency.',
-      charityPhoto: polarBearMapBg,
-      icon: isbjornLogo,
+      description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
+      charityPhoto: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg',
+      icon: LOGOS.pbi,
       verified: true,
-      totalReceived: 5200000,
-      donationCount: 68400,
-      followerCount: 0,
+      totalReceived: 58000,
+      donationCount: 7200,
+      followerCount: 42000,
       trending: true,
-      followerIncrease: 2400
-    },
-    {
-      id: 'nrdc',
-      name: 'Natural Resources Defense Council',
-      category: 'Climate Law',
-      country: 'United States',
-      location: 'New York, NY',
-      description: 'Using law and science to combat climate change, protect public health, and preserve natural systems.',
-      charityPhoto: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/NRDC_Logo.svg/200px-NRDC_Logo.svg.png',
-      verified: true,
-      totalReceived: 4300000,
-      donationCount: 58900,
-      followerCount: 0,
-      trending: true,
-      followerIncrease: 2100
+      followerIncrease: 142
     },
     {
       id: 'wwf-uk',
@@ -57,13 +53,13 @@ const DonationForm: React.FC = () => {
       location: 'London',
       description: 'Leading conservation organization working to protect wildlife and halt deforestation in Europe and beyond.',
       charityPhoto: 'https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=800',
-      icon: 'https://upload.wikimedia.org/wikipedia/en/thumb/2/24/WWF_logo.svg/200px-WWF_logo.svg.png',
+      icon: LOGOS.wwf,
       verified: true,
-      totalReceived: 1800000,
-      donationCount: 38000,
-      followerCount: 0,
+      totalReceived: 45000,
+      donationCount: 5100,
+      followerCount: 157000,
       trending: true,
-      followerIncrease: 1500
+      followerIncrease: 98
     },
     {
       id: 'wwf-japan',
@@ -73,93 +69,109 @@ const DonationForm: React.FC = () => {
       location: 'Tokyo',
       description: 'Protecting nature and combating climate change through conservation efforts across Asia-Pacific.',
       charityPhoto: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800',
-      icon: 'https://upload.wikimedia.org/wikipedia/en/thumb/2/24/WWF_logo.svg/200px-WWF_logo.svg.png',
+      icon: LOGOS.wwf,
       verified: true,
-      totalReceived: 3200000,
-      donationCount: 52000,
-      followerCount: 0,
+      totalReceived: 38000,
+      donationCount: 4500,
+      followerCount: 890,
       trending: true,
-      followerIncrease: 1800
+      followerIncrease: 76
     },
     {
-      id: 'african-regional',
-      name: 'African Regional Conservation',
-      category: 'Water',
-      country: 'Kenya',
-      location: 'Nairobi',
-      description: 'Regional conservation efforts focused on water conservation and wildlife protection across Africa.',
+      id: 'greenpeace',
+      name: 'Greenpeace',
+      category: 'Environment',
+      country: 'Global',
+      location: 'Worldwide',
+      description: 'Global environmental organization campaigning to end climate change and protect biodiversity.',
+      charityPhoto: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800',
+      icon: LOGOS.greenpeace,
+      verified: true,
+      totalReceived: 52000,
+      donationCount: 6400,
+      followerCount: 35000,
+      trending: true,
+      followerIncrease: 128
+    },
+    {
+      id: 'ocean-conservancy',
+      name: 'Ocean Conservancy',
+      category: 'Ocean',
+      country: 'United States',
+      location: 'Washington, DC',
+      description: 'Working to protect the ocean from today\'s greatest global challenges through science-based solutions.',
+      charityPhoto: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+      icon: LOGOS.oceanConservancy,
+      verified: true,
+      totalReceived: 42000,
+      donationCount: 5200,
+      followerCount: 28000,
+      trending: true,
+      followerIncrease: 95
+    },
+    {
+      id: 'the-nature-conservancy',
+      name: 'The Nature Conservancy',
+      category: 'Conservation',
+      country: 'Global',
+      location: 'Worldwide',
+      description: 'Protecting ecologically important lands and waters for nature and people.',
       charityPhoto: 'https://images.unsplash.com/photo-1549366021-9f761d450615?w=800',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/The_Nature_Conservancy_logo.svg/200px-The_Nature_Conservancy_logo.svg.png',
+      icon: LOGOS.natureConservancy,
       verified: true,
-      totalReceived: 950000,
-      donationCount: 28000,
-      followerCount: 0,
+      totalReceived: 32000,
+      donationCount: 3200,
+      followerCount: 5600,
       trending: false,
-      followerIncrease: 800
+      followerIncrease: 45
     },
     {
-      id: 'south-america',
-      name: 'South America Conservation Alliance',
+      id: 'rainforest-alliance',
+      name: 'Rainforest Alliance',
       category: 'Forest',
-      country: 'Brazil',
-      location: 'S\u00e3o Paulo',
-      description: 'Protecting rainforests and biodiversity across South America through sustainable practices.',
+      country: 'Global',
+      location: 'Worldwide',
+      description: 'Protecting rainforests and biodiversity through sustainable practices.',
       charityPhoto: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
-      icon: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Rainforest_Alliance_logo.svg/200px-Rainforest_Alliance_logo.svg.png',
+      icon: LOGOS.rainforest,
       verified: true,
-      totalReceived: 1200000,
-      donationCount: 31000,
-      followerCount: 0,
+      totalReceived: 28000,
+      donationCount: 2800,
+      followerCount: 1200,
       trending: true,
-      followerIncrease: 1200
+      followerIncrease: 52
     },
     {
-      id: 'middle-east',
-      name: 'Middle East Environmental Initiative',
-      category: 'Climate',
-      country: 'UAE',
-      location: 'Dubai',
-      description: 'Climate action and environmental protection across the Middle East region.',
+      id: 'conservation-intl',
+      name: 'Conservation International',
+      category: 'Conservation',
+      country: 'Global',
+      location: 'Worldwide',
+      description: 'Building a healthier and more prosperous world by protecting nature.',
       charityPhoto: 'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=800',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/WRI_Logo.svg/200px-WRI_Logo.svg.png',
+      icon: LOGOS.conservationIntl,
       verified: true,
-      totalReceived: 780000,
-      donationCount: 22000,
-      followerCount: 0,
+      totalReceived: 24000,
+      donationCount: 2100,
+      followerCount: 32000,
       trending: false,
-      followerIncrease: 450
+      followerIncrease: 32
     },
     {
-      id: 'arctic-research',
-      name: 'Arctic Research Foundation',
-      category: 'Climate',
-      country: 'Iceland',
-      location: 'Reykjavik',
-      description: 'Leading Arctic climate research and monitoring ice melt in northern regions.',
+      id: 'sierra-club',
+      name: 'Sierra Club',
+      category: 'Environment',
+      country: 'United States',
+      location: 'Oakland, CA',
+      description: 'Exploring, enjoying, and protecting the wild places of the earth.',
       charityPhoto: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=800',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/WRI_Logo.svg/200px-WRI_Logo.svg.png',
+      icon: LOGOS.sierraClub,
       verified: true,
-      totalReceived: 450000,
-      donationCount: 8000,
-      followerCount: 0,
+      totalReceived: 21000,
+      donationCount: 1600,
+      followerCount: 14000,
       trending: true,
-      followerIncrease: 950
-    },
-    {
-      id: 'amazon-station',
-      name: 'Amazon Research Station',
-      category: 'Forest',
-      country: 'Brazil',
-      location: 'Amazon Basin',
-      description: 'Field research and conservation in the heart of the Amazon rainforest.',
-      charityPhoto: 'https://images.unsplash.com/photo-1425913397330-cf8af2ff40a1?w=800',
-      icon: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d4/Rainforest_Alliance_logo.svg/200px-Rainforest_Alliance_logo.svg.png',
-      verified: true,
-      totalReceived: 620000,
-      donationCount: 12000,
-      followerCount: 0,
-      trending: false,
-      followerIncrease: 650
+      followerIncrease: 28
     },
   ];
 
@@ -171,10 +183,17 @@ const DonationForm: React.FC = () => {
         const result = await response.json();
 
         if (result.success && result.data && result.data.length > 0) {
-          // Update Isbjorn charity to use polar bear map image and logo
+          // Update Isbjorn charity to use Polar Bears International branding
           const updatedCharities = result.data.map((charity: any) =>
-            charity.id === 'isbjorn' || charity.name === 'Isbjorn'
-              ? { ...charity, charityPhoto: polarBearMapBg, icon: isbjornLogo }
+            charity.id === 'isbjorn' || charity.id === 'pbi' || charity.name === 'Isbjorn'
+              ? {
+                ...charity,
+                id: 'pbi',
+                name: 'Polar Bears International',
+                description: 'Working to conserve polar bears and the sea ice they depend on through research, education, and action on climate change.',
+                charityPhoto: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg',
+                icon: LOGOS.pbi
+              }
               : charity
           );
           setCharities(updatedCharities);
@@ -319,11 +338,10 @@ const DonationForm: React.FC = () => {
                       {/* Follow Button */}
                       <button
                         onClick={(e) => handleFollowToggle(charity.id, e)}
-                        className={`follow-button flex-shrink-0 ml-2 p-1.5 rounded-full transition-all ${
-                          isFollowing
-                            ? 'text-white shadow-md'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
+                        className={`follow-button flex-shrink-0 ml-2 p-1.5 rounded-full transition-all ${isFollowing
+                          ? 'text-white shadow-md'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
                         style={isFollowing ? { backgroundColor: '#3b82f6' } : {}}
                         title={isFollowing ? 'Following' : 'Follow for updates'}
                       >

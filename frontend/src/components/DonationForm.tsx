@@ -11,7 +11,7 @@ const DonationForm: React.FC = () => {
 
     const handleX402Donate = async () => {
         try {
-            const result = await createPayment(amount, 'USD', user?.companyName);
+            const result = await createPayment(amount, 'USD', user?.username);
             setDonationId(result.donationId);
             setStep('success'); // In real flow, we'd wait for wallet signature/payment completion
         } catch (err) {

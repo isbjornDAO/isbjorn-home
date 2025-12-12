@@ -1,12 +1,15 @@
 export interface User {
   id: string;
   email: string;
-  companyName: string;
+  username: string;
+  companyName?: string; // Deprecated, use username
   role: 'user' | 'admin';
   taxId?: string;
   address?: Address;
   walletAddress?: string;
   profilePicture?: string;
+  avatar?: string;
+  name?: string;
   xp: number;
   level: number;
   coins: number;

@@ -24,6 +24,7 @@ export enum UserRole {
   timestamps: true,
   indexes: [
     { fields: ['email'] },
+    { fields: ['username'] },
     { fields: ['company_name'] },
     { fields: ['created_at'] },
   ],
@@ -61,7 +62,13 @@ export class User extends Model {
     type: DataType.STRING,
     allowNull: true,
   })
-  companyName?: string;
+  username?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  companyName?: string; // Deprecated, use username
 
   @Column({
     type: DataType.STRING,
@@ -258,6 +265,12 @@ export class User extends Model {
     defaultValue: 0,
   })
   longestStreak!: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  spiritAnimal?: string;
 
   @HasMany(() => Donation)
   donations!: Donation[];

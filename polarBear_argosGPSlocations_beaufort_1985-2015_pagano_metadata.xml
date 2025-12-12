@@ -1,0 +1,535 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>Pagano, Anthony M. (ORCID:0000-0003-2176-0909)</origin>
+        <origin>Douglas, David C. (ORCID:0000-0003-0186-1104)</origin>
+        <origin>Durner, George M. (ORCID:0000-0002-3370-1191)</origin>
+        <origin>Atwood, Todd C. (ORCID:0000-0002-1971-3110)</origin>
+        <pubdate>20180206</pubdate>
+        <title>Locations Collected 1985-2015 from Female Polar Bears (Ursus maritimus) with Dependent Young Instrumented in the Southern Beaufort Sea with Satellite-linked Transmitters by the USGS</title>
+        <geoform>tabular digital data</geoform>
+        <pubinfo>
+          <pubplace>Anchorage, Alaska</pubplace>
+          <publish>U.S. Geological Survey, Alaska Science Center</publish>
+        </pubinfo>
+        <othercit>Suggested Citation:  Pagano, A.M., Douglas, D.C., Durner, G.M., Atwood, T.C., 2018, Locations collected 1985-2015 from female polar bears (Ursus maritimus) with dependent young instrumented in the southern Beaufort Sea with satellite-linked transmitters by the USGS: U.S. Geological Survey data release, https://doi.org/10.5066/F7RV0MK4</othercit>
+        <onlink>https://doi.org/10.5066/F7RV0MK4</onlink>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>This dataset contains a select subset of Argos and GPS locations collected by satellite data collection systems from collared adult female polar bears that were instrumented in the southern Beaufort Sea between 1985-2015.</abstract>
+      <purpose>These data were collected to gain insights into movements of southern Beaufort Sea polar bears. These data were collected from adult female polar bears who had dependent young at the time of their collar application and whose satellite-linked transmitters transmitted location data for at least 300 days.</purpose>
+    </descript>
+    <timeperd>
+      <timeinfo>
+        <rngdates>
+          <begdate>19850506</begdate>
+          <enddate>20150331</enddate>
+        </rngdates>
+      </timeinfo>
+      <current>observed</current>
+    </timeperd>
+    <status>
+      <progress>Complete</progress>
+      <update>None planned</update>
+    </status>
+    <spdom>
+      <descgeog>southern Beaufort Sea</descgeog>
+      <bounding>
+        <westbc>165.59</westbc>
+        <eastbc>-110.97</eastbc>
+        <northbc>84.06</northbc>
+        <southbc>58.68</southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>USGS Metadata Identifier</themekt>
+        <themekey>USGS:ASC170</themekey>
+      </theme>
+      <theme>
+        <themekt>ISO 19115 Topic Category</themekt>
+        <themekey>Biota</themekey>
+        <themekey>Environment</themekey>
+      </theme>
+      <theme>
+        <themekt>NASA GCMD Earth Science Keyword Thesaurus</themekt>
+        <themekey>Animals/vertebrates</themekey>
+        <themekey>Mammals</themekey>
+        <themekey>Carnivores</themekey>
+        <themekey>Bears</themekey>
+        <themekey>Species life history</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS CSA Biocomplexity Thesaurus</themekt>
+        <themekey>Wildlife</themekey>
+        <themekey>Mammals</themekey>
+        <themekey>Marine mammals</themekey>
+        <themekey>Threatened Species</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS Thesaurus</themekt>
+        <themekey>Wildlife biology</themekey>
+        <themekey>Animal behavior</themekey>
+        <themekey>Telemetry</themekey>
+      </theme>
+      <theme>
+        <themekt>None</themekt>
+        <themekey>Polar Bear</themekey>
+        <themekey>Ursus maritimus</themekey>
+      </theme>
+      <place>
+        <placekt>USGS Geographic Names Information System (GNIS)</placekt>
+        <placekey>Alaska</placekey>
+        <placekey>Beaufort Sea</placekey>
+      </place>
+    </keywords>
+    <taxonomy>
+      <keywtax>
+        <taxonkt>None</taxonkt>
+        <taxonkey>Mammals</taxonkey>
+        <taxonkey>Carnivore</taxonkey>
+        <taxonkey>Bear</taxonkey>
+        <taxonkey>Polar bears</taxonkey>
+      </keywtax>
+      <taxonsys>
+        <classsys>
+          <classcit>
+            <citeinfo>
+              <origin>ITIS Integrated Taxonomic Information System</origin>
+              <pubdate>Unknown</pubdate>
+              <title>ITIS Integrated Taxonomic Information System</title>
+              <geoform>online database</geoform>
+              <pubinfo>
+                <pubplace>online</pubplace>
+                <publish>ITIS-North America</publish>
+              </pubinfo>
+              <othercit>Taxonomic details retrieved January 4, 2025 from the Integrated Taxonomic Information System online database https://www.itis.gov</othercit>
+              <onlink>https://doi.org/10.5066/F7KH0KBK</onlink>
+            </citeinfo>
+          </classcit>
+        </classsys>
+        <taxonpro>Species identification was made by skilled observers in the field based on general appearance. Polar bears are easily distinguishable from other species by physical characteristics and habitat use patterns.</taxonpro>
+      </taxonsys>
+      <taxoncl>
+        <taxonrn>Kingdom</taxonrn>
+        <taxonrv>Animalia</taxonrv>
+        <taxoncl>
+          <taxonrn>Subkingdom</taxonrn>
+          <taxonrv>Bilateria</taxonrv>
+          <taxoncl>
+            <taxonrn>Infrakingdom</taxonrn>
+            <taxonrv>Deuterostomia</taxonrv>
+            <taxoncl>
+              <taxonrn>Phylum</taxonrn>
+              <taxonrv>Chordata</taxonrv>
+              <taxoncl>
+                <taxonrn>Subphylum</taxonrn>
+                <taxonrv>Vertebrata</taxonrv>
+                <taxoncl>
+                  <taxonrn>Infraphylum</taxonrn>
+                  <taxonrv>Gnathostomata</taxonrv>
+                  <taxoncl>
+                    <taxonrn>Superclass</taxonrn>
+                    <taxonrv>Tetrapoda</taxonrv>
+                    <taxoncl>
+                      <taxonrn>Class</taxonrn>
+                      <taxonrv>Mammalia</taxonrv>
+                      <taxoncl>
+                        <taxonrn>Subclass</taxonrn>
+                        <taxonrv>Theria</taxonrv>
+                        <taxoncl>
+                          <taxonrn>Infraclass</taxonrn>
+                          <taxonrv>Eutheria</taxonrv>
+                          <taxoncl>
+                            <taxonrn>Order</taxonrn>
+                            <taxonrv>Carnivora</taxonrv>
+                            <taxoncl>
+                              <taxonrn>Suborder</taxonrn>
+                              <taxonrv>Caniformia</taxonrv>
+                              <taxoncl>
+                                <taxonrn>Family</taxonrn>
+                                <taxonrv>Ursidae</taxonrv>
+                                <taxoncl>
+                                  <taxonrn>Genus</taxonrn>
+                                  <taxonrv>Ursus</taxonrv>
+                                  <taxoncl>
+                                    <taxonrn>Species</taxonrn>
+                                    <taxonrv>Ursus maritimus</taxonrv>
+                                    <common>Polar bear</common>
+                                    <common>TSN: 180542</common>
+                                  </taxoncl>
+                                </taxoncl>
+                              </taxoncl>
+                            </taxoncl>
+                          </taxoncl>
+                        </taxoncl>
+                      </taxoncl>
+                    </taxoncl>
+                  </taxoncl>
+                </taxoncl>
+              </taxoncl>
+            </taxoncl>
+          </taxoncl>
+        </taxoncl>
+      </taxoncl>
+    </taxonomy>
+    <accconst>No access constraints.</accconst>
+    <useconst>No use constraints. We request that the suggested citation of this USGS data release be included in any publications that reference or utilize these data.</useconst>
+    <ptcontac>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey, Alaska Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>4210 University Drive</address>
+          <city>Anchorage</city>
+          <state>Alaska</state>
+          <postal>99508</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>907-786-7000</cntvoice>
+        <cntemail>gs-ak_asc_datamanagers@usgs.gov</cntemail>
+      </cntinfo>
+    </ptcontac>
+    <crossref>
+      <citeinfo>
+        <origin>Sequeira, A.M.M.</origin>
+        <origin>Rodríguez, J.P.</origin>
+        <origin>Eguíluz, V.M.</origin>
+        <origin>Harcourt, R.G.</origin>
+        <origin>Hindell, M.A.</origin>
+        <origin>Sims, D.W.</origin>
+        <origin>Duarte, C.M.</origin>
+        <origin>Costa, D.P.</origin>
+        <origin>Fernández-Gracia, J.</origin>
+        <origin>Ferreira, L.C.</origin>
+        <origin>Hays, G.C.</origin>
+        <origin>Heupel, M.R.</origin>
+        <origin>Meekan, M.G.</origin>
+        <origin>Aven, A.M.</origin>
+        <origin>Bailleul, F.</origin>
+        <origin>Baylis, A.</origin>
+        <origin>Berumen, M.L.</origin>
+        <origin>Braun, C.D.</origin>
+        <origin>Burns, J.</origin>
+        <origin>Caley, M.J.</origin>
+        <origin>Campbell, R.</origin>
+        <origin>Carmichael, R.H.</origin>
+        <origin>Clua, E.</origin>
+        <origin>Einoder, L.</origin>
+        <origin>Friedlaender, A.</origin>
+        <origin>Goebel, M.E.</origin>
+        <origin>Goldsworthy, S.D.</origin>
+        <origin>Guinet, C.</origin>
+        <origin>Gunn, J.</origin>
+        <origin>Hamer, D.</origin>
+        <origin>Hammerschlag, N.</origin>
+        <origin>Hammill, M.O.</origin>
+        <origin>Hückstädt, L.A.</origin>
+        <origin>Humphries, N.E.</origin>
+        <origin>Lea, M.-A.</origin>
+        <origin>Lowther, A.</origin>
+        <origin>Mackay, A.</origin>
+        <origin>McHuron, E.</origin>
+        <origin>McKenzie, J.</origin>
+        <origin>McLeay, L.</origin>
+        <origin>McMahon, C.R.</origin>
+        <origin>Mengersen, K.L.</origin>
+        <origin>Muelbert, M.C.</origin>
+        <origin>Pagano, A.M.</origin>
+        <origin>Page, B.</origin>
+        <origin>Nuno, Q.</origin>
+        <origin>Robinson, P.W.</origin>
+        <origin>Shaffer, S.A.</origin>
+        <origin>Shivji, M.S.</origin>
+        <origin>Skomal, G.B.</origin>
+        <origin>Thorrold, S.R.</origin>
+        <origin>Amtmann-Villegas, S.</origin>
+        <origin>Weise, M.</origin>
+        <origin>Wells, R.S.</origin>
+        <origin>Wetherbee, B.M.</origin>
+        <origin>Wiebkin, A.</origin>
+        <origin>Wienecke, B.</origin>
+        <origin>Thums, M.</origin>
+        <pubdate>2018</pubdate>
+        <title>Convergence of Marine Megafauna Movement Patterns in Coastal and Open Oceans</title>
+        <geoform>journal article</geoform>
+        <serinfo>
+          <sername>Proceedings of the National Academy of Sciences</sername>
+          <issue>115(12):3072-3077</issue>
+        </serinfo>
+        <pubinfo>
+          <pubplace>online</pubplace>
+          <publish>National Academy of Sciences</publish>
+        </pubinfo>
+        <othercit>Sequeira, A.M.M., Rodríguez, J.P., Eguíluz, V.M., Harcourt, R.G., Hindell, M.A., et al., 2018. Convergence of marine megafauna movement patterns in coastal and open oceans. Proceedings of the National Academy of Sciences 115(12):3072-3077. https://doi.org/10.1073/pnas.1716137115</othercit>
+        <onlink>https://doi.org/10.1073/pnas.1716137115</onlink>
+      </citeinfo>
+    </crossref>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>No formal attribute accuracy tests were conducted.</attraccr>
+    </attracc>
+    <logic>Attribute values fall within expected ranges.</logic>
+    <complete>Data set is considered complete for the information presented. Instances in which the GPS failed to record a fix are denoted by N/A.</complete>
+    <posacc>
+      <horizpa>
+        <horizpar>Transmitter locations were determined by the Argos System with accuracy from &lt; 250 m to &gt; 1500 m (see http://www.argos-system.org/web/en/78-faq.php#faq-theme-55) or via the processing of global positioning system onboard the transmitter with accuracy of &lt; 30 m.</horizpar>
+      </horizpa>
+    </posacc>
+    <lineage>
+      <procstep>
+        <procdesc>METHODS - FIELD:
+
+        We programmed Argos transmitters with a duty cycle of 4-12 hours every 1-7 days to transmit digitally encoded messages that could be received by the Argos System (Argos, www.argos-system.org).  We programmed collars that estimated  locations onboard with the use of a GPS to process a location estimate every 1-8 hours, which were then retained in a memory bank onboard the collar and transmitted with a duty cycle of 4 hours every 1-2 days to the Argos data collection system as a digitally encoded message.
+
+        We collected Argos satellite telemetry locations from a sample of 40 adult female polar bears between 6 May 1985 and 26 March 2012.
+
+        We collected GPS satellite telemetry locations from a sample of 22 adult female polar bears between 5 April 2004 and 31 March 2015.</procdesc>
+        <procdate>Unknown</procdate>
+      </procstep>
+      <procstep>
+        <procdesc>METHODS - ANALYSIS:
+
+        We used the Douglas Argos-filter (Douglas et al. 2012) with the 'hybrid' option to filter Argos locations with an algorithm based on spatial redundancy, movement rates, and turning angles with a maximum rate of 10 km/h and rejected locations at the apex of highly acute angles (RATECOEF = 15). We selected the location that was the highest quality per duty-cycle. GPS locations were not filtered.
+
+        We selected data from adult female polar bears who had dependent young at the time of their collar application and whose satellite-linked transmitters transmitted location data for at least 300 days.</procdesc>
+        <procdate>Unknown</procdate>
+      </procstep>
+      <procstep>
+        <procdesc>LITERATURE CITED:
+
+        Douglas, D.C., Weinzierl, R., Davidson, S.C., Kays, R., Wikelski, M., Bohrer, G., 2012. Moderating Argos location errors in animal tracking data. Methods in Ecology and Evolution 3(6):999-1007. https://doi.org/10.1111/j.2041-210X.2012.00245.x
+
+        Tomkiewicz, S., Fuller, M.R., Kie, J.G., Bates,  K.K., 2010. Global positioning system and associated technologies in animal behaviour and ecological research. Philosophical Transactions of the Royal Society B 365(1550):2163-2176. https://doi.org/10.1098/rstb.2010.0090</procdesc>
+        <procdate>Unknown</procdate>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <direct>Point</direct>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <geograph>
+        <latres>0.000001</latres>
+        <longres>0.000001</longres>
+        <geogunit>Decimal degrees</geogunit>
+      </geograph>
+      <geodetic>
+        <horizdn>World Geodetic System of 1984 (WGS84)</horizdn>
+        <ellips>World Geodetic System of 1984 (WGS84)</ellips>
+        <semiaxis>6378137</semiaxis>
+        <denflat>298.257223563</denflat>
+      </geodetic>
+    </horizsys>
+  </spref>
+  <eainfo>
+    <detailed>
+      <enttyp>
+        <enttypl>polarBear_argosGPSlocations_beaufort_1985-2015_pagano.csv</enttypl>
+        <enttypd>Satellite locations of southern Beaufort Sea polar bears, 1985-2015. Presented in a Comma Separated Value (CSV) formatted table.</enttypd>
+        <enttypds>Author defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Bear</attrlabl>
+        <attrdef>Sample identifier.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1</rdommin>
+            <rdommax>62</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Type</attrlabl>
+        <attrdef>Indicates whether locations were determined by Argos or GPS satellites.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>Argos</edomv>
+            <edomvd>Locations determined by Argos satellites.</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>GPS</edomv>
+            <edomvd>Locations determined by GPS satellites.</edomvd>
+            <edomvds>Author defined</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Date</attrlabl>
+        <attrdef>The date (MM/DD/YYYY) the location was obtained in Universal Coordinated Time (UTC).</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>05/06/1985</rdommin>
+            <rdommax>3/31/2015</rdommax>
+            <attrunit>Date (MM/DD/YYYY; UTC)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Time</attrlabl>
+        <attrdef>The time (HH:MM:SS) the location was obtained in Universal Coordinated Time (UTC).</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>00:00:00</rdommin>
+            <rdommax>23:59:59</rdommax>
+            <attrunit>Time (HH:MM:SS; UTC)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>The latitude measurement from a satellite-linked transmitter.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>58.6789</rdommin>
+            <rdommax>84.057</rdommax>
+            <attrunit>Decimal degress (WGS84)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>The longitude measurement from a satellite-linked transmitter.</attrdef>
+        <attrdefs>Author defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-179.97129</rdommin>
+            <rdommax>179.992</rdommax>
+            <attrunit>Decimal degress (WGS84)</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LocationQuality</attrlabl>
+        <attrdef>A value provided by the Argos system regarding the accuracy of the location (see http://www.argos-system.org/web/en/78-faq.php#faq-theme-55 for specifications on associated accuracies for the categories in that column).</attrdef>
+        <attrdefs>Author</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>L3</edomv>
+            <edomvd>The location was obtained with 4 messages or more with an estimated error of &lt;250m.</edomvd>
+            <edomvds>Argos system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>L2</edomv>
+            <edomvd>The location was obtained with 4 messages or more with an estimated error of &lt;500m.</edomvd>
+            <edomvds>Argos system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>L1</edomv>
+            <edomvd>The location was obtained with 4 messages or more with an estimated error of &lt;1500m.</edomvd>
+            <edomvds>Argos system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>L0</edomv>
+            <edomvd>The location was obtained with 4 messages or more with an estimated error of &gt;1500m.</edomvd>
+            <edomvds>Argos system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>LA</edomv>
+            <edomvd>The location was obtained with 3 messages with no accuracy estimation.</edomvd>
+            <edomvds>Argos system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>LB</edomv>
+            <edomvd>The location was obtained with 1 or 2 messages with no accuracy estimation.</edomvd>
+            <edomvds>Argos system</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>LZ</edomv>
+            <edomvd>The location process failed.</edomvd>
+            <edomvds>Argos system</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey</cntorg>
+          <cntper>USGS ScienceBase Team</cntper>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>Denver Federal Center, Building 810, Mail Stop 302</address>
+          <city>Denver</city>
+          <state>Colorado</state>
+          <postal>80225</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>1-888-275-8747</cntvoice>
+        <cntemail>sciencebase@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <resdesc>The U.S. Geological Survey, Alaska Science Center is the authoritative source of these data, distributed by ScienceBase (a USGS Trusted Digital Repository).</resdesc>
+    <distliab>Unless otherwise stated, all data, metadata and related materials are considered to satisfy the quality standards relative to the purpose for which the data were collected. Although these data and associated metadata have been reviewed for accuracy and completeness and approved for release by the U.S. Geological Survey, no warranty expressed or implied is made regarding the display or utility of the data for other purposes or on all computer systems, nor shall the act of distribution constitute any such warranty. Any use of trade, firm, or product names is for descriptive purposes only and does not imply endorsement by the U.S. Government.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>CSV</formname>
+          <formcont>Tabular data in CSV format; FGDC metadata in XML and HTML formats.</formcont>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>https://doi.org/10.5066/F7RV0MK4</networkr>
+              </networka>
+            </computer>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <metainfo>
+    <metd>20250106</metd>
+    <metc>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>U.S. Geological Survey, Alaska Science Center</cntorg>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>Mailing and Physical</addrtype>
+          <address>4210 University Drive</address>
+          <city>Anchorage</city>
+          <state>Alaska</state>
+          <postal>99508</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>907-786-7000</cntvoice>
+        <cntemail>gs-ak_asc_datamanagers@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metstdn>FGDC Biological Data Profile of the Content Standard for Digital Geospatial Metadata (CSDGM)</metstdn>
+    <metstdv>FGDC-STD-001.1-1999</metstdv>
+  </metainfo>
+</metadata>

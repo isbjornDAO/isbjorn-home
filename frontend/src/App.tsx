@@ -1,7 +1,9 @@
 import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { ThirdwebProvider } from 'thirdweb/react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { BlockchainProvider } from '@/contexts/BlockchainContext';
+import { WalletAuthWrapper } from '@/components/WalletAuthWrapper';
 import Layout from '@/components/Layout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -31,97 +33,103 @@ const VotePage = lazy(() => import('@/pages/VotePage'));
 
 function App() {
   return (
-    <AuthProvider>
-      <BlockchainProvider>
-        <Layout>
-          <Suspense fallback={<LoadingSpinner fullScreen />}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
+    <ThirdwebProvider>
+      <AuthProvider>
+        <BlockchainProvider>
+          <WalletAuthWrapper>
+            <Layout>
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
 
-              <Route path="/donate" element={<DonatePage />} />
+                  <Route path="/donate" element={<DonatePage />} />
 
-              {/* Advanced Donation Flows */}
-              <Route path="/donate-streamlined" element={<StreamlinedDonatePage />} />
-              <Route path="/donate-simple" element={<SimpleDonatePage />} />
-              <Route path="/donation/success" element={<DonationSuccessPage />} />
-              <Route path="/compliance" element={<ComplianceDashboardPage />} />
-              <Route path="/charity/:id" element={<CharityDetailsPage />} />
-              <Route path="/system-status" element={<SystemStatusPage />} />
-              <Route path="/map" element={<MapPage />} />
-              <Route path="/live" element={<LiveCamsPage />} />
-              <Route path="/vote" element={<VotePage />} />
-              {/* Legacy redirect */}
-              <Route path="/node" element={<Navigate to="/vote" replace />} />
+                  {/* Advanced Donation Flows */}
+                  <Route path="/donate-streamlined" element={<StreamlinedDonatePage />} />
+                  <Route path="/donate-simple" element={<SimpleDonatePage />} />
+                  <Route path="/donation/success" element={<DonationSuccessPage />} />
+                  <Route path="/compliance" element={<ComplianceDashboardPage />} />
+                  {/* Redirect old Isbjorn URL to new PBI URL */}
+                  <Route path="/charity/isbjorn" element={<Navigate to="/charity/pbi" replace />} />
+                  <Route path="/charity/:id" element={<CharityDetailsPage />} />
+                  <Route path="/system-status" element={<SystemStatusPage />} />
+                  <Route path="/map" element={<MapPage />} />
+                  <Route path="/live" element={<LiveCamsPage />} />
+                  <Route path="/vote" element={<VotePage />} />
+                  {/* Legacy redirect */}
+                  <Route path="/node" element={<Navigate to="/vote" replace />} />
 
-              {/* Business Portal */}
-              <Route path="/business-dashboard" element={<ProtectedRoute><BusinessDashboard /></ProtectedRoute>} />
-              <Route path="/donate-business" element={<DonationForm />} />
+                  {/* Business Portal */}
+                  <Route path="/business-dashboard" element={<ProtectedRoute><BusinessDashboard /></ProtectedRoute>} />
+                  <Route path="/donate-business" element={<DonationForm />} />
 
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<RegisterPage />} />
-              <Route path="/register" element={<Navigate to="/signup" replace />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/*"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/integrations"
-                element={
-                  <ProtectedRoute>
-                    <IntegrationsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/wallet"
-                element={
-                  <ProtectedRoute>
-                    <WalletPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/shop"
-                element={
-                  <ProtectedRoute>
-                    <ShopPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/receipt/:id"
-                element={
-                  <ProtectedRoute>
-                    <ReceiptPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </Layout>
-      </BlockchainProvider>
-    </AuthProvider>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<RegisterPage />} />
+                  <Route path="/register" element={<Navigate to="/signup" replace />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <DashboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/*"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <AdminPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/integrations"
+                    element={
+                      <ProtectedRoute>
+                        <IntegrationsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/wallet"
+                    element={
+                      <ProtectedRoute>
+                        <WalletPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <ProfilePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/shop"
+                    element={
+                      <ProtectedRoute>
+                        <ShopPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/receipt/:id"
+                    element={
+                      <ProtectedRoute>
+                        <ReceiptPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </Layout>
+          </WalletAuthWrapper>
+        </BlockchainProvider>
+      </AuthProvider>
+    </ThirdwebProvider>
   );
 }
 

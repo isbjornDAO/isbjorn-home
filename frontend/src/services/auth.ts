@@ -9,7 +9,7 @@ interface LoginRequest {
 interface RegisterRequest {
   email: string;
   password: string;
-  companyName: string;
+  username: string;
   nzbn?: string;
   taxId?: string;
   address?: {

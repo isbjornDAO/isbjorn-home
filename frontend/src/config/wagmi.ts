@@ -21,16 +21,19 @@ const wallets = [
   },
 ];
 
+const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'c588218e86933fc20e4a803aea450bd9';
+
 const connectors = connectorsForWallets(wallets, {
   appName: 'Isbjorn DAO',
-  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
+  projectId,
 });
 
 export const config = createConfig({
   connectors,
   chains: [avalanche, avalancheFuji],
   transports: {
-    [avalanche.id]: http(),
-    [avalancheFuji.id]: http(),
+    // Use explicit RPC URLs to avoid network detection issues
+    [avalanche.id]: http('https://api.avax.network/ext/bc/C/rpc'),
+    [avalancheFuji.id]: http('https://api.avax-test.network/ext/bc/C/rpc'),
   },
 });

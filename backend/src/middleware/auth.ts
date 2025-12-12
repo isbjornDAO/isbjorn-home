@@ -43,9 +43,16 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     const user = await User.findByPk(decoded.id);
     logger.info(`User found: ${user ? user.id : 'null'}`);
 
-    if (!user || !user.isActive) {
-      logger.warn('User not found or inactive');
+    if (!user) {
+      logger.warn('User not found');
       return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    // Use getDataValue or dataValues to avoid class field shadowing issues
+    const isActive = user.getDataValue ? user.getDataValue('isActive') : user.dataValues?.isActive;
+    if (isActive === false) {
+      logger.warn('User is inactive');
+      return res.status(401).json({ error: 'Account is inactive' });
     }
 
     req.user = user;

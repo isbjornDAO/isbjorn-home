@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isbjørn Pitch Deck</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a1628, #1a2a4a);
+            color: #fff;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 2px solid rgba(100, 200, 255, 0.2);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 5rem;
+            color: #38bdf8;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 3.5rem;
+            color: #38bdf8;
+            margin-bottom: 40px;
+        }
+
+        .mega-stat {
+            font-size: 8rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .mega-stat.red {
+            color: #f87171;
+        }
+
+        .mega-stat.green {
+            color: #4ade80;
+        }
+
+        .mega-stat.orange {
+            color: #fb923c;
+        }
+
+        .mega-stat.blue {
+            color: #38bdf8;
+        }
+
+        .stat-label {
+            font-size: 2rem;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            gap: 80px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        ul {
+            list-style: none;
+            font-size: 2rem;
+            line-height: 2.5;
+        }
+
+        ul li::before {
+            content: '• ';
+            color: #38bdf8;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .photo-placeholder {
+            background: rgba(56, 189, 248, 0.1);
+            border: 2px dashed rgba(56, 189, 248, 0.4);
+            border-radius: 12px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .photo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .photo-large {
+            background: rgba(56, 189, 248, 0.1);
+            border: 2px dashed rgba(56, 189, 248, 0.4);
+            border-radius: 16px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        .photo-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+
+        .highlight {
+            background: rgba(34, 197, 94, 0.2);
+            border-left: 4px solid #22c55e;
+            padding: 25px;
+            margin: 30px 0;
+            font-size: 1.8rem;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .slide-num {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            color: rgba(148, 163, 184, 0.4);
+        }
+
+        .vs-table {
+            width: 100%;
+            font-size: 1.8rem;
+            margin: 30px 0;
+        }
+
+        .vs-table td {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .vs-table .old {
+            color: #f87171;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .vs-table .new {
+            color: #4ade80;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .vs-table .label {
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        @media print {
+            .slide {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SLIDE 1: TITLE -->
+    <section class="slide">
+        <h1>🐻‍❄️ Isbjørn</h1>
+        <p style="font-size: 2.5rem; color: #94a3b8; margin-bottom: 50px;">Transparent Conservation Funding</p>
+
+        <div class="stat-row">
+            <div class="stat-box">
+                <div class="mega-stat green">0%</div>
+                <div class="stat-label">Platform Fees</div>
+            </div>
+            <div class="stat-box">
+                <div class="mega-stat blue">100%</div>
+                <div class="stat-label">Transparency</div>
+            </div>
+            <div class="stat-box">
+                <div class="mega-stat orange">8%</div>
+                <div class="stat-label">Staking APY</div>
+            </div>
+        </div>
+
+        <div class="photo-grid" style="margin-top: 50px;">
+            <div class="photo-placeholder">📷 Add photo 1</div>
+            <div class="photo-placeholder">📷 Add photo 2</div>
+            <div class="photo-placeholder">📷 Add photo 3</div>
+        </div>
+        <span class="slide-num">1</span>
+    </section>
+
+    <!-- SLIDE 2: THE PROBLEM -->
+    <section class="slide">
+        <h2>❌ Traditional Donations</h2>
+
+        <div class="stat-row">
+            <div class="stat-box">
+                <div class="mega-stat red">5%</div>
+                <div class="stat-label">Fees Eaten</div>
+            </div>
+            <div class="stat-box">
+                <div class="mega-stat red">$17B</div>
+                <div class="stat-label">Lost to Overhead/Year</div>
+            </div>
+        </div>
+
+        <ul style="margin-top: 40px;">
+            <li>No transparency — black box</li>
+            <li>Days to settle payments</li>
+            <li>No community engagement</li>
+        </ul>
+
+        <div class="photo-grid" style="margin-top: 40px;">
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+        </div>
+        <span class="slide-num">2</span>
+    </section>
+
+    <!-- SLIDE 3: THE SOLUTION -->
+    <section class="slide">
+        <h2>✅ X402 = 0% Fees</h2>
+
+        <div class="two-col">
+            <div>
+                <div class="mega-stat green" style="font-size: 10rem;">0%</div>
+                <div class="stat-label" style="font-size: 2.5rem;">Platform Fees</div>
+
+                <ul style="margin-top: 40px; font-size: 1.6rem;">
+                    <li>Pay with card — no crypto needed</li>
+                    <li>Settlement in 30 seconds</li>
+                    <li>On-chain receipt</li>
+                </ul>
+            </div>
+            <div class="photo-large">📷 Add photo</div>
+        </div>
+        <span class="slide-num">3</span>
+    </section>
+
+    <!-- SLIDE 4: FACEBOOK EXODUS -->
+    <section class="slide">
+        <h2>👥 Users Leaving Facebook</h2>
+
+        <div class="stat-row">
+            <div class="stat-box">
+                <div class="mega-stat red">-15%</div>
+                <div class="stat-label">Daily Users (2024)</div>
+            </div>
+            <div class="stat-box">
+                <div class="mega-stat red">71→33%</div>
+                <div class="stat-label">US Teens</div>
+            </div>
+        </div>
+
+        <ul style="margin-top: 40px;">
+            <li>Privacy concerns</li>
+            <li>Algorithm over connection</li>
+            <li>Seeking purpose-driven community</li>
+        </ul>
+
+        <div class="highlight">🎯 Isbjørn: A community for animal conservation</div>
+
+        <div class="photo-grid">
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+        </div>
+        <span class="slide-num">4</span>
+    </section>
+
+    <!-- SLIDE 5: VALIDATOR NODES -->
+    <section class="slide">
+        <h2>🏛️ Business Donations → Validator Nodes</h2>
+
+        <div class="two-col">
+            <div>
+                <div class="mega-stat orange">8%</div>
+                <div class="stat-label">Annual Staking APY</div>
+
+                <ul style="margin-top: 50px; font-size: 1.6rem;">
+                    <li>Donations locked as validators</li>
+                    <li>Staking rewards fund operations</li>
+                    <li>Community votes on allocation</li>
+                    <li>Perpetual funding model</li>
+                </ul>
+            </div>
+            <div class="photo-large">📷 Validator diagram</div>
+        </div>
+        <span class="slide-num">5</span>
+    </section>
+
+    <!-- SLIDE 6: TRANSPARENCY -->
+    <section class="slide">
+        <h2>🔍 100% Transparency</h2>
+
+        <div class="stat-row">
+            <div class="stat-box">
+                <div class="mega-stat green">100%</div>
+                <div class="stat-label">On-Chain</div>
+            </div>
+            <div class="stat-box">
+                <div class="mega-stat blue">&lt;30s</div>
+                <div class="stat-label">Receipt</div>
+            </div>
+            <div class="stat-box">
+                <div class="mega-stat green">∞</div>
+                <div class="stat-label">Audit Trail</div>
+            </div>
+        </div>
+
+        <ul style="margin-top: 40px;">
+            <li>Every transaction on blockchain</li>
+            <li>Verified charity registrations</li>
+            <li>Open source smart contracts</li>
+        </ul>
+
+        <div class="photo-grid" style="margin-top: 30px;">
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+        </div>
+        <span class="slide-num">6</span>
+    </section>
+
+    <!-- SLIDE 7: RESEARCH MAP -->
+    <section class="slide">
+        <h2>🗺️ Interactive Research Map</h2>
+
+        <div class="two-col">
+            <div>
+                <ul style="font-size: 1.8rem;">
+                    <li>Real-time polar bear tracking</li>
+                    <li>30+ years GPS data</li>
+                    <li>Climate scientists network</li>
+                    <li>Activists & researchers</li>
+                </ul>
+
+                <div class="stat-row" style="margin-top: 40px;">
+                    <div class="stat-box">
+                        <div class="mega-stat blue" style="font-size: 5rem;">20</div>
+                        <div class="stat-label">Subpopulations</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="mega-stat blue" style="font-size: 5rem;">25+</div>
+                        <div class="stat-label">Research Networks</div>
+                    </div>
+                </div>
+            </div>
+            <div class="photo-large">📷 Map screenshot</div>
+        </div>
+        <span class="slide-num">7</span>
+    </section>
+
+    <!-- SLIDE 8: POLAR BEARS -->
+    <section class="slide">
+        <h2>🐻‍❄️ Polar Bear Conservation</h2>
+
+        <div class="stat-row">
+            <div class="stat-box">
+                <div class="mega-stat red">26K</div>
+                <div class="stat-label">Remaining</div>
+            </div>
+            <div class="stat-box">
+                <div class="mega-stat red">4x</div>
+                <div class="stat-label">Arctic Warming</div>
+            </div>
+            <div class="stat-box">
+                <div class="mega-stat red">-50%</div>
+                <div class="stat-label">Hudson Bay Pop.</div>
+            </div>
+        </div>
+
+        <div class="photo-grid" style="margin-top: 50px;">
+            <div class="photo-placeholder">📷 Polar bear photo</div>
+            <div class="photo-placeholder">📷 Polar bear photo</div>
+            <div class="photo-placeholder">📷 Polar bear photo</div>
+        </div>
+
+        <div class="highlight">🎯 Every donation tracked, every impact visible</div>
+        <span class="slide-num">8</span>
+    </section>
+
+    <!-- SLIDE 9: COMPARISON -->
+    <section class="slide">
+        <h2>📊 Why Isbjørn Wins</h2>
+
+        <table class="vs-table">
+            <tr>
+                <td></td>
+                <td class="label">TRADITIONAL</td>
+                <td class="label">ISBJØRN</td>
+            </tr>
+            <tr>
+                <td>Fees</td>
+                <td class="old">5%</td>
+                <td class="new">0%</td>
+            </tr>
+            <tr>
+                <td>Transparency</td>
+                <td class="old">None</td>
+                <td class="new">100%</td>
+            </tr>
+            <tr>
+                <td>Settlement</td>
+                <td class="old">Days</td>
+                <td class="new">30 sec</td>
+            </tr>
+            <tr>
+                <td>Community</td>
+                <td class="old">None</td>
+                <td class="new">DAO Votes</td>
+            </tr>
+        </table>
+
+        <div class="photo-grid" style="margin-top: 40px;">
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+        </div>
+        <span class="slide-num">9</span>
+    </section>
+
+    <!-- SLIDE 10: CONTACT -->
+    <section class="slide">
+        <h1>🐻‍❄️ Isbjørn</h1>
+        <p style="font-size: 2.5rem; color: #94a3b8; margin-bottom: 60px;">Donate transparently. Build community. Save
+            polar bears.</p>
+
+        <ul style="font-size: 2rem; line-height: 2.5;">
+            <li>🌐 isbjorn.co.nz</li>
+            <li>📧 support@isbjorn.co.nz</li>
+            <li>⛓️ Avalanche L1 + X402</li>
+        </ul>
+
+        <div class="photo-grid" style="margin-top: 50px;">
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+            <div class="photo-placeholder">📷 Photo</div>
+        </div>
+        <span class="slide-num">10</span>
+    </section>
+
+</body>
+
+</html>

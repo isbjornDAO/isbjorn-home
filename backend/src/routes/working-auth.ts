@@ -10,12 +10,15 @@ const router = express.Router();
 // Registration with proper bcrypt password hashing
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, companyName } = req.body;
+    const { email, password, username, companyName } = req.body;
 
-    if (!email || !password || !companyName) {
+    // Accept either username or companyName
+    const displayName = username || companyName;
+
+    if (!email || !password || !displayName) {
       return res.status(400).json({
         success: false,
-        message: 'Email, password, and company name are required'
+        message: 'Email, password, and username are required'
       });
     }
 
@@ -32,7 +35,8 @@ router.post('/register', async (req, res) => {
     const user = await User.create({
       email: email.toLowerCase(),
       password: password, // Will be hashed by BeforeCreate hook
-      companyName,
+      username: displayName,
+      companyName: displayName, // Keep both for backward compatibility
       role: 'user',
       isActive: true,
       emailVerified: true
@@ -55,6 +59,7 @@ router.post('/register', async (req, res) => {
       user: {
         id: user.dataValues.id,
         email: user.dataValues.email,
+        username: user.dataValues.username,
         companyName: user.dataValues.companyName,
         role: user.dataValues.role
       },
@@ -116,6 +121,7 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.dataValues.id,
         email: user.dataValues.email,
+        username: user.dataValues.username,
         companyName: user.dataValues.companyName,
         role: user.dataValues.role
       },
@@ -174,9 +180,11 @@ router.post('/wallet-login', async (req, res) => {
 
     if (!user) {
       // Create new user with wallet
+      const defaultName = `User ${normalizedAddress.substring(0, 6)}`;
       user = await User.create({
         walletAddress: normalizedAddress,
-        companyName: `User ${normalizedAddress.substring(0, 6)}`,
+        username: defaultName,
+        companyName: defaultName,
         role: 'user',
         isActive: true,
         emailVerified: false
@@ -210,6 +218,7 @@ router.post('/wallet-login', async (req, res) => {
       user: {
         id: user.dataValues.id,
         email: user.dataValues.email,
+        username: user.dataValues.username,
         companyName: user.dataValues.companyName,
         role: user.dataValues.role,
         walletAddress: user.dataValues.walletAddress
@@ -242,12 +251,31 @@ router.get('/me', async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
+    // Return all user fields needed by frontend
     res.json({
       id: user.dataValues.id,
       email: user.dataValues.email,
+      username: user.dataValues.username,
       companyName: user.dataValues.companyName,
       role: user.dataValues.role,
       walletAddress: user.dataValues.walletAddress,
+      taxId: user.dataValues.taxId,
+      address: user.dataValues.address,
+      profilePicture: user.dataValues.logoUrl,
+      avatar: user.dataValues.logoUrl,
+      name: user.dataValues.username,
+      xp: user.dataValues.xp || 0,
+      level: user.dataValues.level || 1,
+      coins: user.dataValues.coins || 0,
+      badges: user.dataValues.badges || [],
+      donationStreak: user.dataValues.donationStreak || 0,
+      longestDonationStreak: user.dataValues.longestDonationStreak || 0,
+      currentStreak: user.dataValues.currentStreak || 0,
+      longestStreak: user.dataValues.longestStreak || 0,
+      lastActive: user.dataValues.lastActive,
+      spiritAnimal: user.dataValues.spiritAnimal,
+      createdAt: user.dataValues.createdAt,
+      updatedAt: user.dataValues.updatedAt,
     });
   } catch (error) {
     logger.error('Get current user error:', error);
@@ -267,7 +295,7 @@ router.patch('/profile', authenticateToken, async (req, res) => {
     }
 
     // Filter allowed updates
-    const allowedFields = ['email', 'companyName', 'phone', 'website', 'description', 'logoUrl', 'preferences', 'taxId', 'address'];
+    const allowedFields = ['email', 'username', 'companyName', 'phone', 'website', 'description', 'logoUrl', 'preferences', 'taxId', 'address'];
     const filteredUpdates: any = {};
 
     for (const key of allowedFields) {
@@ -276,12 +304,21 @@ router.patch('/profile', authenticateToken, async (req, res) => {
       }
     }
 
+    // Sync username and companyName for backward compatibility
+    if (updates.username !== undefined && updates.companyName === undefined) {
+      filteredUpdates.companyName = updates.username;
+    }
+    if (updates.companyName !== undefined && updates.username === undefined) {
+      filteredUpdates.username = updates.companyName;
+    }
+
     await user.update(filteredUpdates);
     logger.info(`User profile updated: ${userId}`);
 
     res.json({
       id: user.dataValues.id,
       email: user.dataValues.email,
+      username: user.dataValues.username,
       companyName: user.dataValues.companyName,
       phone: user.dataValues.phone,
       website: user.dataValues.website,

@@ -53,7 +53,7 @@ const DashboardPage: React.FC = () => {
     <div className="min-h-screen bg-ice-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-ice-900">Welcome back, {user.companyName}</h1>
+          <h1 className="text-3xl font-bold text-ice-900">Welcome back, {user.username}</h1>
           <p className="text-ice-600 mt-2">Here's your donation activity</p>
         </div>
 

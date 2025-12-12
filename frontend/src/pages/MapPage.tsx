@@ -24,6 +24,7 @@ import {
 } from '@heroicons/react/24/outline';
 import TransactionBoard from '@/components/TransactionBoard';
 import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
+import { getPolarBearData, type PolarBearData } from '@/services/polarBearService';
 
 // Fix for default marker icons
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -116,6 +117,29 @@ interface MissionRegion {
   polygonBounds: [number, number][];
   projectCount: number;
   priority: 'low' | 'medium' | 'high' | 'critical';
+}
+
+interface PolarBearTracking {
+  id: string;
+  name: string;
+  sex: 'male' | 'female';
+  age: number;
+  currentLocation: { lat: number; lng: number };
+  lastUpdated: Date;
+  status: 'active' | 'inactive' | 'hibernating';
+  trackingHistory: Array<{
+    lat: number;
+    lng: number;
+    timestamp: Date;
+    speed?: number; // km/h
+  }>;
+  healthStatus: 'excellent' | 'good' | 'fair' | 'poor';
+  weight: number; // kg
+  tagId: string;
+  region: string;
+  seaIceCondition: 'stable' | 'declining' | 'critical';
+  huntingSuccess: number; // percentage
+  distanceTraveled: number; // km in last 30 days
 }
 
 interface LayerStyleConfig {
@@ -615,6 +639,7 @@ const MapPage: React.FC = () => {
 
   const [climateZones, setClimateZones] = useState<ClimateZone[]>([]);
   const [missionRegions, setMissionRegions] = useState<MissionRegion[]>([]);
+  const [polarBears, setPolarBears] = useState<PolarBearData[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedBase, setSelectedBase] = useState<CharityBase | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<MissionRegion | null>(null);
@@ -727,9 +752,9 @@ const MapPage: React.FC = () => {
   };
 
   const [liveMissions, setLiveMissions] = useState([
-    { id: 1, name: 'Arctic Ice Monitoring', location: 'Iceland', votes: 521, funding: 820000, progress: 68, status: 'active' as const },
-    { id: 2, name: 'Amazon Protection', location: 'Brazil', votes: 498, funding: 950000, progress: 82, status: 'active' as const },
-    { id: 3, name: 'Ocean Cleanup', location: 'Pacific', votes: 456, funding: 720000, progress: 45, status: 'active' as const },
+    { id: 1, name: 'Arctic Ice Monitoring', location: 'Iceland', votes: 521, funding: 48000, progress: 68, status: 'active' as const },
+    { id: 2, name: 'Amazon Protection', location: 'Brazil', votes: 498, funding: 55000, progress: 82, status: 'active' as const },
+    { id: 3, name: 'Ocean Cleanup', location: 'Pacific', votes: 456, funding: 42000, progress: 45, status: 'active' as const },
   ]);
 
   // Saved style presets
@@ -864,6 +889,26 @@ const MapPage: React.FC = () => {
       showLabels: true,
       showTooltips: true
     },
+    {
+      id: 'polarbears',
+      name: 'Polar Bear Tracking',
+      visible: true,
+      opacity: 1,
+      activeOpacity: 1,
+      inactiveOpacity: 0.5,
+      color: '#ffffff',
+      colorMode: 'fixed',
+      strokePattern: 'solid',
+      strokeWidth: 2,
+      showArrows: false,
+      fillPolygons: false,
+      icon: GlobeAltIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: true,
+      showTooltips: true
+    },
   ]);
 
   // Filters
@@ -871,7 +916,7 @@ const MapPage: React.FC = () => {
     category: [],
     type: [],
     severity: [],
-    fundingRange: [0, 10000000],
+    fundingRange: [0, 100000],
     dateRange: null,
     impactThreshold: 0
   });
@@ -961,58 +1006,63 @@ const MapPage: React.FC = () => {
   }, []);
 
   const loadMockData = () => {
+    // Load real polar bear tracking data from USGS
+    const polarBearData = getPolarBearData();
+    setPolarBears(polarBearData);
+    console.log(`Loaded ${polarBearData.length} polar bears from USGS tracking data`);
+
     const mockBases: CharityBase[] = [
       {
         id: 'hq1', name: 'NRDC Headquarters', location: { lat: 40.7128, lng: -74.0060 }, type: 'headquarters',
-        activeProjects: 45, category: 'Climate', fundingReceived: 2500000, lastActivity: new Date(), impact: 1247,
+        activeProjects: 45, category: 'Climate', fundingReceived: 58000, lastActivity: new Date(), impact: 8247,
         properties: { region: 'Americas', established: 2010 },
         regionalClimateData: { avgTemperature: 12.5, temperatureTrend: +1.2, airQualityIndex: 85, forestCoverage: 24, waterAvailability: 78, carbonFootprint: 45000, renewableEnergy: 32 }
       },
       {
         id: 'hq2', name: 'WWF UK', location: { lat: 51.5074, lng: -0.1278 }, type: 'headquarters',
-        activeProjects: 38, category: 'Conservation', fundingReceived: 1800000, lastActivity: new Date(), impact: 892,
+        activeProjects: 38, category: 'Conservation', fundingReceived: 45000, lastActivity: new Date(), impact: 6892,
         properties: { region: 'Europe', established: 2012 },
         regionalClimateData: { avgTemperature: 10.8, temperatureTrend: +0.9, airQualityIndex: 72, forestCoverage: 38, waterAvailability: 85, carbonFootprint: 38000, renewableEnergy: 48 }
       },
       {
         id: 'hq3', name: 'WWF Japan', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters',
-        activeProjects: 52, category: 'Climate', fundingReceived: 3200000, lastActivity: new Date(), impact: 1563,
+        activeProjects: 52, category: 'Climate', fundingReceived: 60000, lastActivity: new Date(), impact: 9563,
         properties: { region: 'Asia', established: 2008 },
         regionalClimateData: { avgTemperature: 16.3, temperatureTrend: +1.5, airQualityIndex: 145, forestCoverage: 31, waterAvailability: 68, carbonFootprint: 52000, renewableEnergy: 28 }
       },
       {
         id: 'r1', name: 'African Regional', location: { lat: -1.2921, lng: 36.8219 }, type: 'regional',
-        activeProjects: 28, category: 'Water', fundingReceived: 950000, lastActivity: new Date(), impact: 534,
+        activeProjects: 28, category: 'Water', fundingReceived: 32000, lastActivity: new Date(), impact: 4534,
         properties: { region: 'Africa', established: 2015 },
         regionalClimateData: { avgTemperature: 24.5, temperatureTrend: +1.8, airQualityIndex: 95, forestCoverage: 42, waterAvailability: 45, carbonFootprint: 12000, renewableEnergy: 18 }
       },
       {
         id: 'r2', name: 'South America', location: { lat: -23.5505, lng: -46.6333 }, type: 'regional',
-        activeProjects: 31, category: 'Forest', fundingReceived: 1200000, lastActivity: new Date(), impact: 678,
+        activeProjects: 31, category: 'Forest', fundingReceived: 38000, lastActivity: new Date(), impact: 5678,
         properties: { region: 'South America', established: 2013 },
         regionalClimateData: { avgTemperature: 19.5, temperatureTrend: +1.3, airQualityIndex: 105, forestCoverage: 58, waterAvailability: 72, carbonFootprint: 28000, renewableEnergy: 42 }
       },
       {
         id: 'r3', name: 'Middle East', location: { lat: 25.2048, lng: 55.2708 }, type: 'regional',
-        activeProjects: 22, category: 'Climate', fundingReceived: 780000, lastActivity: new Date(), impact: 423,
+        activeProjects: 22, category: 'Climate', fundingReceived: 28000, lastActivity: new Date(), impact: 3423,
         properties: { region: 'Middle East', established: 2016 },
         regionalClimateData: { avgTemperature: 28.2, temperatureTrend: +2.1, airQualityIndex: 165, forestCoverage: 8, waterAvailability: 22, carbonFootprint: 68000, renewableEnergy: 15 }
       },
       {
         id: 'f1', name: 'Arctic Research', location: { lat: 64.1466, lng: -21.9426 }, type: 'field',
-        activeProjects: 8, category: 'Climate', fundingReceived: 450000, lastActivity: new Date(), impact: 289,
+        activeProjects: 8, category: 'Climate', fundingReceived: 22000, lastActivity: new Date(), impact: 2289,
         properties: { region: 'Arctic', established: 2018 },
         regionalClimateData: { avgTemperature: -2.5, temperatureTrend: +3.2, airQualityIndex: 25, forestCoverage: 12, waterAvailability: 95, carbonFootprint: 5000, renewableEnergy: 65 }
       },
       {
         id: 'f2', name: 'Amazon Station', location: { lat: -3.4653, lng: -62.2159 }, type: 'field',
-        activeProjects: 12, category: 'Forest', fundingReceived: 620000, lastActivity: new Date(), impact: 371,
+        activeProjects: 12, category: 'Forest', fundingReceived: 25000, lastActivity: new Date(), impact: 3371,
         properties: { region: 'Amazon', established: 2014 },
         regionalClimateData: { avgTemperature: 26.8, temperatureTrend: +1.6, airQualityIndex: 45, forestCoverage: 78, waterAvailability: 88, carbonFootprint: 8000, renewableEnergy: 72 }
       },
       {
         id: 'f3', name: 'Svalbard Polar Research', location: { lat: 78.22, lng: 15.65 }, type: 'field',
-        activeProjects: 2, category: 'Climate', fundingReceived: 180000, lastActivity: new Date(), impact: 542,
+        activeProjects: 2, category: 'Climate', fundingReceived: 20000, lastActivity: new Date(), impact: 2542,
         properties: { region: 'Arctic', established: 2019 },
         pulseIntensity: 2.5,
         recentActivity: true,
@@ -1023,17 +1073,17 @@ const MapPage: React.FC = () => {
     // Flight paths: from headquarters (homes) to missions (pins)
     const mockPaths: FlightPath[] = [
       // From NRDC Headquarters (NY) to missions
-      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: -23.5505, lng: -46.6333 }, fromName: 'NRDC Headquarters', toName: 'South America', amount: 250000, type: 'funding', active: true, timestamp: new Date(Date.now() - 3600000), speed: 1.2 },
-      { id: 'fp2', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 64.1466, lng: -21.9426 }, fromName: 'NRDC Headquarters', toName: 'Arctic Research', amount: 340000, type: 'funding', active: true, timestamp: new Date(Date.now() - 5400000), speed: 0.8 },
+      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: -23.5505, lng: -46.6333 }, fromName: 'NRDC Headquarters', toName: 'South America', amount: 8500, type: 'funding', active: true, timestamp: new Date(Date.now() - 3600000), speed: 1.2 },
+      { id: 'fp2', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 64.1466, lng: -21.9426 }, fromName: 'NRDC Headquarters', toName: 'Arctic Research', amount: 12000, type: 'funding', active: true, timestamp: new Date(Date.now() - 5400000), speed: 0.8 },
 
       // From WWF UK (London) to missions
-      { id: 'fp3', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF UK', toName: 'African Regional', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
-      { id: 'fp4', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 25.2048, lng: 55.2708 }, fromName: 'WWF UK', toName: 'Middle East', amount: 210000, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
-      { id: 'fp7', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 78.22, lng: 15.65 }, fromName: 'WWF UK', toName: 'Svalbard Polar Research', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1200000), speed: 1.3, intensity: 1.8 },
+      { id: 'fp3', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF UK', toName: 'African Regional', amount: 6500, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
+      { id: 'fp4', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 25.2048, lng: 55.2708 }, fromName: 'WWF UK', toName: 'Middle East', amount: 7500, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
+      { id: 'fp7', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 78.22, lng: 15.65 }, fromName: 'WWF UK', toName: 'Svalbard Polar Research', amount: 6500, type: 'funding', active: true, timestamp: new Date(Date.now() - 1200000), speed: 1.3, intensity: 1.8 },
 
       // From WWF Japan (Tokyo) to missions
-      { id: 'fp5', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -3.4653, lng: -62.2159 }, fromName: 'WWF Japan', toName: 'Amazon Station', amount: 120000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
-      { id: 'fp6', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF Japan', toName: 'African Regional', amount: 150000, type: 'funding', active: true, timestamp: new Date(Date.now() - 2400000), speed: 1.1 },
+      { id: 'fp5', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -3.4653, lng: -62.2159 }, fromName: 'WWF Japan', toName: 'Amazon Station', amount: 5000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
+      { id: 'fp6', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF Japan', toName: 'African Regional', amount: 5500, type: 'funding', active: true, timestamp: new Date(Date.now() - 2400000), speed: 1.1 },
     ];
 
     const mockZones: ClimateZone[] = [
@@ -1085,8 +1135,8 @@ const MapPage: React.FC = () => {
         name: 'North Island New Zealand - Coastal Restoration',
         description: 'Protecting coastal ecosystems and marine biodiversity around North Island',
         status: 'active',
-        fundingGoal: 500000,
-        fundingReceived: 340000,
+        fundingGoal: 50000,
+        fundingReceived: 34000,
         startDate: new Date('2024-01-15'),
         projectCount: 8,
         priority: 'high',
@@ -1101,8 +1151,8 @@ const MapPage: React.FC = () => {
         name: 'Great Barrier Reef Protection',
         description: 'Coral restoration and water quality improvement initiative',
         status: 'active',
-        fundingGoal: 850000,
-        fundingReceived: 680000,
+        fundingGoal: 60000,
+        fundingReceived: 48000,
         startDate: new Date('2023-09-01'),
         projectCount: 12,
         priority: 'critical',
@@ -1118,8 +1168,8 @@ const MapPage: React.FC = () => {
         name: 'Amazon River Basin',
         description: 'Indigenous community support and forest conservation',
         status: 'active',
-        fundingGoal: 1200000,
-        fundingReceived: 950000,
+        fundingGoal: 60000,
+        fundingReceived: 52000,
         startDate: new Date('2023-06-20'),
         projectCount: 15,
         priority: 'critical',
@@ -1133,8 +1183,8 @@ const MapPage: React.FC = () => {
         name: 'Mediterranean Sea Initiative',
         description: 'Marine plastic cleanup and sustainable fishing practices',
         status: 'active',
-        fundingGoal: 650000,
-        fundingReceived: 420000,
+        fundingGoal: 55000,
+        fundingReceived: 38000,
         startDate: new Date('2024-03-10'),
         projectCount: 10,
         priority: 'high',
@@ -1149,8 +1199,8 @@ const MapPage: React.FC = () => {
         name: 'Serengeti Conservation Zone',
         description: 'Wildlife protection and anti-poaching operations',
         status: 'planned',
-        fundingGoal: 750000,
-        fundingReceived: 180000,
+        fundingGoal: 45000,
+        fundingReceived: 22000,
         startDate: new Date('2024-06-01'),
         projectCount: 6,
         priority: 'medium',
@@ -1237,15 +1287,15 @@ const MapPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-2 flex-1 overflow-hidden">
               {[
-                { id: '1', name: 'Isbjorn', category: 'Climate', funding: 2500000, projects: 45, region: 'Global', slug: 'isbjorn' },
-                { id: '2', name: 'NRDC', category: 'Climate', funding: 2500000, projects: 45, region: 'Americas', slug: 'nrdc' },
-                { id: '3', name: 'WWF UK', category: 'Conservation', funding: 1800000, projects: 38, region: 'Europe', slug: 'wwf-uk' },
-                { id: '4', name: 'WWF Japan', category: 'Climate', funding: 3200000, projects: 52, region: 'Asia', slug: 'wwf-japan' },
-                { id: '5', name: 'African Regional', category: 'Water', funding: 950000, projects: 28, region: 'Africa', slug: 'african-regional' },
-                { id: '6', name: 'South America', category: 'Forest', funding: 1200000, projects: 31, region: 'South America', slug: 'south-america' },
-                { id: '7', name: 'Middle East', category: 'Climate', funding: 780000, projects: 22, region: 'Middle East', slug: 'middle-east' },
-                { id: '8', name: 'Arctic Research', category: 'Climate', funding: 450000, projects: 8, region: 'Arctic', slug: 'arctic-research' },
-                { id: '9', name: 'Amazon Station', category: 'Forest', funding: 620000, projects: 12, region: 'Amazon', slug: 'amazon-station' }
+                { id: '1', name: 'Isbjorn', category: 'Climate', funding: 58000, projects: 45, region: 'Global', slug: 'isbjorn' },
+                { id: '2', name: 'NRDC', category: 'Climate', funding: 58000, projects: 45, region: 'Americas', slug: 'nrdc' },
+                { id: '3', name: 'WWF UK', category: 'Conservation', funding: 45000, projects: 38, region: 'Europe', slug: 'wwf-uk' },
+                { id: '4', name: 'WWF Japan', category: 'Climate', funding: 60000, projects: 52, region: 'Asia', slug: 'wwf-japan' },
+                { id: '5', name: 'African Regional', category: 'Water', funding: 32000, projects: 28, region: 'Africa', slug: 'african-regional' },
+                { id: '6', name: 'South America', category: 'Forest', funding: 38000, projects: 31, region: 'South America', slug: 'south-america' },
+                { id: '7', name: 'Middle East', category: 'Climate', funding: 28000, projects: 22, region: 'Middle East', slug: 'middle-east' },
+                { id: '8', name: 'Arctic Research', category: 'Climate', funding: 22000, projects: 8, region: 'Arctic', slug: 'arctic-research' },
+                { id: '9', name: 'Amazon Station', category: 'Forest', funding: 25000, projects: 12, region: 'Amazon', slug: 'amazon-station' }
               ].map((charity, index) => (
                 <button
                   key={charity.id}
@@ -1437,6 +1487,120 @@ const MapPage: React.FC = () => {
                     </Popup>
                   )}
                 </Marker>
+              );
+            })}
+
+            {/* Polar Bear Tracking - REAL DATA from USGS + Churchill */}
+            {getLayerByType('polarbears')?.visible && polarBears.map((bear) => {
+              const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="36" height="36">
+                <defs>
+                  <filter id="shadow">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+                  </filter>
+                </defs>
+
+                <!-- Polar bear silhouette -->
+                <g filter="url(#shadow)">
+                  <!-- Back legs -->
+                  <ellipse cx="20" cy="48" rx="6" ry="9" fill="#ffffff"/>
+                  <ellipse cx="44" cy="48" rx="6" ry="9" fill="#ffffff"/>
+
+                  <!-- Body -->
+                  <ellipse cx="32" cy="38" rx="16" ry="18" fill="#ffffff"/>
+
+                  <!-- Head -->
+                  <ellipse cx="32" cy="20" rx="12" ry="13" fill="#ffffff"/>
+
+                  <!-- Snout -->
+                  <ellipse cx="32" cy="26" rx="7" ry="5" fill="#f8f8f8"/>
+
+                  <!-- Ears -->
+                  <ellipse cx="24" cy="12" rx="5" ry="6" fill="#ffffff"/>
+                  <ellipse cx="40" cy="12" rx="5" ry="6" fill="#ffffff"/>
+
+                  <!-- Front legs -->
+                  <ellipse cx="24" cy="52" rx="5" ry="8" fill="#ffffff"/>
+                  <ellipse cx="40" cy="52" rx="5" ry="8" fill="#ffffff"/>
+
+                  <!-- Eyes -->
+                  <circle cx="28" cy="18" r="2" fill="#1a1a1a"/>
+                  <circle cx="36" cy="18" r="2" fill="#1a1a1a"/>
+
+                  <!-- Nose -->
+                  <ellipse cx="32" cy="26" rx="2.5" ry="2" fill="#1a1a1a"/>
+                </g>
+
+                <!-- Blue tracking indicator -->
+                <circle cx="52" cy="12" r="8" fill="#0369a1" stroke="#ffffff" stroke-width="2"/>
+                <path d="M 52 8 L 52 16 M 48 12 L 56 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+              </svg>`;
+              const polarBearIcon = new Icon({
+                iconUrl: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgIcon),
+                iconSize: [36, 36],
+                iconAnchor: [18, 54],
+                popupAnchor: [0, -54],
+              });
+
+              return (
+                <React.Fragment key={bear.id}>
+                  {/* Polar bear current location */}
+                  <Marker
+                    position={[bear.currentLocation.lat, bear.currentLocation.lng]}
+                    icon={polarBearIcon}
+                  >
+                    <Popup maxWidth={280} className="custom-popup">
+                      <div className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl">
+                        {/* Bear emoji header */}
+                        <div className="text-center mb-4">
+                          <div className="text-5xl mb-2">🐻‍❄️</div>
+                          <h3 className="text-xl font-bold text-gray-900 mb-1">{bear.name}</h3>
+                          <div className="inline-block px-3 py-1 bg-blue-100 rounded-full">
+                            <span className="text-xs font-semibold text-blue-700">📍 {bear.region}</span>
+                          </div>
+                        </div>
+
+                        {/* Simple stats */}
+                        <div className="bg-white rounded-lg p-4 shadow-sm space-y-3 mb-3">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">📅</span>
+                            <div>
+                              <div className="text-xs text-gray-500">Last Seen</div>
+                              <div className="text-sm font-semibold text-gray-900">{bear.lastUpdated.split(' ')[0]}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">🗺️</span>
+                            <div>
+                              <div className="text-xs text-gray-500">Tracked Locations</div>
+                              <div className="text-sm font-semibold" style={{ color: 'rgb(3, 105, 161)' }}>
+                                {bear.trackingHistory.length} GPS points
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Friendly note */}
+                        <div className="text-center text-xs text-gray-600 bg-blue-50 rounded-lg p-2">
+                          <span className="font-semibold">🛰️ Real GPS Tracking Data</span>
+                          <div className="text-[10px] mt-1">USGS & Polar Bears International</div>
+                        </div>
+                      </div>
+                    </Popup>
+                  </Marker>
+
+                  {/* Tracking path - subtle */}
+                  {bear.trackingHistory.length > 1 && (
+                    <Polyline
+                      positions={bear.trackingHistory.map(point => [point.lat, point.lng])}
+                      pathOptions={{
+                        color: '#0369a1',
+                        weight: 1,
+                        opacity: 0.3,
+                        dashArray: '3, 3'
+                      }}
+                    />
+                  )}
+                </React.Fragment>
               );
             })}
           </MapContainer>

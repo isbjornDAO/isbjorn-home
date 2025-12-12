@@ -74,7 +74,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     className="flex items-center space-x-2 px-2 sm:px-4 py-2 rounded-lg text-sm font-medium text-ice-700 hover:bg-ice-50 transition-colors"
                   >
                     <UserCircleIcon className="w-5 h-5" />
-                    <span className="hidden sm:inline">{user.companyName || user.email}</span>
+                    <span className="hidden sm:inline">{user.username || user.email}</span>
                   </Link>
 
                   {user.role === 'admin' && (

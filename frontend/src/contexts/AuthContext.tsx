@@ -16,7 +16,7 @@ interface AuthContextType extends AuthState {
 interface RegisterData {
   email: string;
   password: string;
-  companyName: string;
+  username: string;
   nzbn?: string;
   taxId?: string;
   address?: {
@@ -94,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading: false,
         error: null,
       });
-      toast.success(`Welcome back, ${user.companyName}!`);
+      toast.success(`Welcome back, ${user.username}!`);
       navigate('/profile');
     } catch (error: any) {
       const message = getErrorMessage(error);

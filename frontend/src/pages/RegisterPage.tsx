@@ -46,7 +46,7 @@ const RegisterPage: React.FC = () => {
   const isAuthenticatingRef = useRef(false); // Prevent concurrent auth attempts
   const [accountType, setAccountType] = useState<AccountType>('individual');
   const [formData, setFormData] = useState({
-    name: '', // Maps to companyName
+    name: '', // Maps to username
     nzbn: '',
     email: '',
     password: '',
@@ -223,7 +223,7 @@ const RegisterPage: React.FC = () => {
 
     try {
       await register({
-        companyName: formData.name, // Mapping Full Name to Company Name field
+        username: formData.name, // Mapping Full Name to username field
         nzbn: accountType === 'business' ? formData.nzbn : undefined,
         email: formData.email,
         password: formData.password,
@@ -247,6 +247,60 @@ const RegisterPage: React.FC = () => {
       duration: 3000,
     });
   };
+
+  // Auto-authenticate when wallet connects (no need to click again)
+  useEffect(() => {
+    const autoAuthenticateWallet = async () => {
+      // Only auto-auth if: wallet just connected, not already authenticated, not already in progress
+      if (isConnected && address && !isAuthenticated && !walletAuthAttempted && !isAuthenticatingRef.current) {
+        console.log('[Wallet Signup] Auto-authenticating after connection...');
+        isAuthenticatingRef.current = true;
+        setWalletAuthAttempted(true);
+
+        try {
+          const message = `Sign this message to register with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
+
+          toast.loading('Please sign the message in your wallet...', { id: 'wallet-auth' });
+
+          const signature = await signMessageAsync({ message });
+
+          toast.loading('Creating your account...', { id: 'wallet-auth' });
+
+          const response = await apiService.post<{
+            user: any;
+            token: string;
+            refreshToken: string;
+          }>('/auth/wallet-login', {
+            address,
+            message,
+            signature,
+          });
+
+          localStorage.setItem('authToken', response.token);
+          if (response.refreshToken) {
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
+
+          await checkAuthStatus();
+          toast.success('Welcome to Isbjorn!', { id: 'wallet-auth' });
+          navigate('/profile', { replace: true });
+        } catch (error: any) {
+          console.error('Wallet authentication error:', error);
+          setWalletAuthAttempted(false);
+          isAuthenticatingRef.current = false;
+
+          if (error.message?.includes('User rejected') || error.message?.includes('rejected')) {
+            toast.error('Signature rejected', { id: 'wallet-auth' });
+          } else {
+            const errorMsg = error.response?.data?.message || error.message || 'Failed to register';
+            toast.error(errorMsg, { id: 'wallet-auth' });
+          }
+        }
+      }
+    };
+
+    autoAuthenticateWallet();
+  }, [isConnected, address, isAuthenticated, walletAuthAttempted, signMessageAsync, checkAuthStatus, navigate]);
 
   // Reset wallet auth state when disconnected
   useEffect(() => {
@@ -397,11 +451,12 @@ const RegisterPage: React.FC = () => {
             {/* Quick Sign Up */}
             <div className="mb-6">
               <p className="text-sm text-gray-600 text-center mb-4">Choose your preferred sign-up method</p>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 <button
                   type="button"
                   onClick={() => handleSocialLogin('Google')}
-                  className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
+                  className="relative flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl opacity-60 cursor-not-allowed"
+                  disabled
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -409,45 +464,25 @@ const RegisterPage: React.FC = () => {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">Continue with Google</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSocialLogin('Proton Mail')}
-                  className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 32 32" fill="none">
-                    <path d="M16 2C8.3 2 2 8.3 2 16s6.3 14 14 14 14-6.3 14-14S23.7 2 16 2zm0 24c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="#6D4AFF" />
-                    <path d="M16 8c-4.4 0-8 3.6-8 8v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c0-4.4-3.6-8-8-8zm4 12h-8v-4c0-2.2 1.8-4 4-4s4 1.8 4 4v4z" fill="#6D4AFF" />
-                  </svg>
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">Continue with Proton</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSocialLogin('X')}
-                  className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group"
-                >
-                  <svg className="w-5 h-5 text-arctic-600 group-hover:text-arctic-700" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">Continue with X</span>
+                  <span className="text-sm font-semibold text-gray-500">Continue with Google</span>
+                  <span className="absolute -top-2 -right-2 bg-gray-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+                    Coming Soon
+                  </span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleWalletSignup}
                   disabled={walletAuthAttempted && isConnected}
-                  className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-arctic-400 hover:bg-arctic-50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center gap-3 p-3 border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg className="w-5 h-5 text-arctic-600 group-hover:text-arctic-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
                     <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
                     <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
                   </svg>
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-arctic-600">
-                    {walletAuthAttempted && isConnected ? 'Authenticating...' : isConnected ? `Sign up as ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Continue with Wallet'}
+                  <span className="text-sm font-semibold text-gray-700">
+                    {walletAuthAttempted && isConnected ? 'Authenticating...' : isConnected ? `Sign up as ${address?.slice(0, 6)}...${address?.slice(-4)}` : 'Connect Wallet'}
                   </span>
                 </button>
               </div>
@@ -675,7 +710,7 @@ const RegisterPage: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mt-8 text-center"
+            className="mt-8 mb-16 text-center"
           >
             <div className="flex items-center justify-center gap-6 text-sm">
               <div>
