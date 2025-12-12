@@ -32,7 +32,7 @@ export class DonationController {
             const payment = await x402Service.createPayment({
                 amount,
                 currency: currency || 'USD',
-                recipient: process.env.X402_SERVER_WALLET_ADDRESS || '0x0C39f0970CF3118Fd004A3f069E59dabc6714980',
+                recipient: process.env.X402_SERVER_WALLET_ADDRESS || '0x4c48B6d6a5d9Aab0cf8cFC21A0A4F3dEC663E9Cf',
                 donationId: donation.id,
                 metadata: { businessId }
             });

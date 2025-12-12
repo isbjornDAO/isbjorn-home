@@ -6,8 +6,9 @@ import {
   FireIcon,
   GlobeAltIcon,
 } from '@heroicons/react/24/outline';
-import { useFetchWithPayment } from 'thirdweb/react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import CryptoDonationButton from '../components/CryptoDonationButton';
+
 import SocialFeed from '../components/SocialFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_URL } from '@/utils/apiUrl';
@@ -128,176 +129,7 @@ const CharityDetailsPage: React.FC = () => {
   const [donationStatus, setDonationStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [donationError, setDonationError] = useState<string | null>(null);
 
-  // X402 payment hook - only initialize if client is available
-  const x402Hook = thirdwebClient ? useFetchWithPayment(thirdwebClient, {
-    signInRequiredModal: {
-      title: 'Connect Wallet to Donate',
-      description: 'Please connect your wallet to make a crypto donation.',
-      buttonLabel: 'Connect Wallet',
-    },
-    fundWalletOptions: {
-      title: 'Insufficient Funds',
-      description: 'You need more tokens to complete this donation.',
-      buttonLabel: 'Add Funds',
-    },
-  }) : null;
-  const { fetchWithPayment, isPending: isPaymentPending } = x402Hook || { fetchWithPayment: null, isPending: false };
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        // First check if we have static data for this charity
-        const staticData = getCharityData(id || '');
-
-        const res = await fetch(`${API_URL}/public/charities/${id}`);
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.success && data.data) {
-            // Merge API data with static logo data
-            const charityData = {
-              ...data.data,
-              id: id === 'isbjorn' ? 'pbi' : data.data.id,
-              ...(staticData ? {
-                name: staticData.name,
-                description: staticData.description,
-                logoUrl: staticData.logoUrl,
-                heroImage: staticData.heroImage,
-                category: staticData.category,
-                location: staticData.location,
-              } : {})
-            };
-            setCharity(charityData);
-            return;
-          }
-        }
-
-        try {
-          const listRes = await fetch(`${API_URL}/public/charities`);
-          if (listRes.ok) {
-            const listData = await listRes.json();
-            if (listData?.success) {
-              const found = listData.data.find((c: any) => String(c.id) === String(id) || c.slug === id || (id === 'pbi' && (c.id === 'isbjorn' || c.name === 'Isbjorn')) || (id === 'isbjorn' && c.id === 'isbjorn'));
-              if (found) {
-                const charityData = {
-                  ...found,
-                  id: id === 'isbjorn' ? 'pbi' : found.id,
-                  ...(staticData ? {
-                    name: staticData.name,
-                    description: staticData.description,
-                    logoUrl: staticData.logoUrl,
-                    heroImage: staticData.heroImage,
-                    category: staticData.category,
-                    location: staticData.location,
-                  } : {})
-                };
-                setCharity(charityData);
-                return;
-              }
-            }
-          }
-        } catch (listError) {
-          console.log('Could not fetch charity list');
-        }
-
-        // Fallback to static data or generic
-        if (staticData) {
-          setCharity({
-            id: id === 'isbjorn' ? 'pbi' : id,
-            ...staticData
-          });
-        } else {
-          setCharity({
-            id: id || 'unknown',
-            name: (id || 'unknown').charAt(0).toUpperCase() + (id || 'unknown').slice(1).replace(/-/g, ' '),
-            description: 'Thank you for your support in protecting our planet and wildlife.',
-            category: 'Conservation',
-            location: 'Worldwide',
-            logoUrl: 'https://via.placeholder.com/150',
-            heroImage: polarBearMapBg,
-          });
-        }
-      } catch (e) {
-        // Fallback to static data or generic on error
-        const staticData = getCharityData(id || '');
-        if (staticData) {
-          setCharity({
-            id: id === 'isbjorn' ? 'pbi' : id,
-            ...staticData
-          });
-        } else {
-          setCharity({
-            id: id || 'unknown',
-            name: (id || 'unknown').charAt(0).toUpperCase() + (id || 'unknown').slice(1).replace(/-/g, ' '),
-            description: 'Thank you for your support in protecting our planet and wildlife.',
-            category: 'Conservation',
-            location: 'Worldwide',
-            logoUrl: 'https://via.placeholder.com/150',
-            heroImage: polarBearMapBg,
-          });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [id]);
-
-  useEffect(() => {
-    if (user?.email && !receiptEmail) {
-      setReceiptEmail(user.email);
-    }
-  }, [user, receiptEmail]);
-
-  // Handle x402 donation
-  const handleX402Donate = async () => {
-    if (!amount || !receiptEmail) return;
-
-    if (!fetchWithPayment) {
-      // Fallback to regular donate page if thirdweb not configured
-      navigate('/donate');
-      return;
-    }
-
-    setDonationStatus('idle');
-    setDonationError(null);
-
-    try {
-      const response = await fetchWithPayment(`${API_URL}/x402/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: parseFloat(amount),
-          currency: 'USD',
-          charityId: id,
-          email: receiptEmail,
-        }),
-      });
-
-      if (response && (response as any).success) {
-        setDonationStatus('success');
-        setAmount('');
-        // Show success for 3 seconds then navigate to success page
-        setTimeout(() => {
-          navigate('/donation/success', {
-            state: {
-              amount,
-              charityName: charity?.name,
-              donationId: (response as any).donationId
-            }
-          });
-        }, 1500);
-      } else {
-        throw new Error((response as any)?.message || 'Donation failed');
-      }
-    } catch (err: any) {
-      console.error('X402 donation error:', err);
-      setDonationStatus('error');
-      setDonationError(err.message || 'Failed to process donation');
-    }
-  };
+  // Crypto donation component handles the payment logic directly
 
   const moderators = [
     {
@@ -1295,14 +1127,26 @@ const CharityDetailsPage: React.FC = () => {
                 </div>
 
                 {/* Donate Button */}
-                <button
-                  type="button"
-                  onClick={handleX402Donate}
-                  disabled={!amount || !receiptEmail || isPaymentPending}
-                  className="w-full bg-[rgb(3,105,161)] hover:bg-[rgb(2,85,131)] text-white py-3 rounded-lg font-bold text-base shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isPaymentPending ? 'Processing...' : 'Donate now'}
-                </button>
+                <div className="mt-4">
+                  <CryptoDonationButton
+                    amount={amount}
+                    onSuccess={(txHash) => {
+                      setDonationStatus('success');
+                      setAmount('');
+                      setTimeout(() => {
+                        navigate('/donation/success', {
+                          state: {
+                            amount,
+                            charityName: charity?.name,
+                            donationId: txHash
+                          }
+                        });
+                      }, 1500);
+                    }}
+                    disabled={!receiptEmail}
+                    className="w-full"
+                  />
+                </div>
 
                 {/* Status Messages */}
                 {donationStatus === 'success' && (

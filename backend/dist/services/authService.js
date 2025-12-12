@@ -175,6 +175,8 @@ class AuthService {
                 throw new AppError_1.AppError('User not found', 404);
             }
             const allowedUpdates = [
+                'email',
+                'username',
                 'companyName',
                 'taxId',
                 'address',
@@ -183,6 +185,8 @@ class AuthService {
                 'description',
                 'logoUrl',
                 'preferences',
+                'spiritAnimal',
+                'profilePicture',
             ];
             const filteredUpdates = Object.keys(updates)
                 .filter(key => allowedUpdates.includes(key))

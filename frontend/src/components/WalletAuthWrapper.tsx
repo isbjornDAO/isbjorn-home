@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useActiveAccount, useActiveWalletConnectionStatus } from 'thirdweb/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiService } from '@/services/api';
@@ -12,23 +12,31 @@ export const WalletAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
   const activeAccount = useActiveAccount();
   const connectionStatus = useActiveWalletConnectionStatus();
   const { isAuthenticated, checkAuthStatus } = useAuth();
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const lastAuthenticatedAddress = useRef<string | null>(null);
+
+  // Use refs to prevent multiple calls and track state across renders
+  const isAuthenticatingRef = useRef(false);
+  const lastAuthenticatedAddressRef = useRef<string | null>(null);
+  const hasAttemptedRef = useRef(false);
 
   const authenticateWallet = useCallback(async (address: string) => {
-    if (isAuthenticating) return;
-    if (lastAuthenticatedAddress.current === address.toLowerCase()) return;
+    // Prevent multiple simultaneous requests
+    if (isAuthenticatingRef.current) return;
 
-    setIsAuthenticating(true);
+    // Don't re-authenticate the same address
+    const normalizedAddress = address.toLowerCase();
+    if (lastAuthenticatedAddressRef.current === normalizedAddress) return;
+
+    // Only attempt once per session
+    if (hasAttemptedRef.current) return;
+
+    isAuthenticatingRef.current = true;
+    hasAttemptedRef.current = true;
 
     try {
-      // Create a simple message - no signature needed for basic wallet login
       const message = `Sign this message to authenticate with Isbjorn.\n\nWallet: ${address}\nTimestamp: ${new Date().toISOString()}`;
 
       toast.loading('Authenticating wallet...', { id: 'wallet-auth' });
 
-      // For thirdweb, we'll use a simplified auth - just send the address
-      // The backend will create/find the user and return tokens
       const response = await apiService.post<{
         user: any;
         token: string;
@@ -36,7 +44,7 @@ export const WalletAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
       }>('/auth/wallet-login', {
         address,
         message,
-        signature: 'thirdweb-auth', // Placeholder - backend should handle this gracefully
+        signature: 'thirdweb-auth',
       });
 
       // Store token and user data
@@ -45,7 +53,7 @@ export const WalletAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
         localStorage.setItem('refreshToken', response.refreshToken);
       }
 
-      lastAuthenticatedAddress.current = address.toLowerCase();
+      lastAuthenticatedAddressRef.current = normalizedAddress;
 
       // Refresh auth state to update context
       await checkAuthStatus();
@@ -53,21 +61,16 @@ export const WalletAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
       toast.success('Wallet authenticated!', { id: 'wallet-auth' });
     } catch (error: any) {
       console.error('Wallet authentication error:', error);
-      // Don't show error on network failures - wallet is still connected
-      if (error?.response?.status !== 500 && error?.code !== 'ERR_NETWORK') {
-        const errorMsg = error.response?.data?.message || error.message || 'Failed to sync wallet';
-        toast.error(errorMsg, { id: 'wallet-auth' });
-      } else {
-        toast.dismiss('wallet-auth');
-      }
+      // Silently dismiss on errors - don't spam user with errors
+      toast.dismiss('wallet-auth');
     } finally {
-      setIsAuthenticating(false);
+      isAuthenticatingRef.current = false;
     }
-  }, [isAuthenticating, checkAuthStatus]);
+  }, [checkAuthStatus]);
 
-  // Authenticate when wallet connects
+  // Authenticate when wallet connects (only once)
   useEffect(() => {
-    if (connectionStatus === 'connected' && activeAccount?.address && !isAuthenticated) {
+    if (connectionStatus === 'connected' && activeAccount?.address && !isAuthenticated && !hasAttemptedRef.current) {
       authenticateWallet(activeAccount.address);
     }
   }, [connectionStatus, activeAccount?.address, isAuthenticated, authenticateWallet]);
@@ -75,7 +78,8 @@ export const WalletAuthWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
   // Reset when wallet disconnects
   useEffect(() => {
     if (connectionStatus === 'disconnected') {
-      lastAuthenticatedAddress.current = null;
+      lastAuthenticatedAddressRef.current = null;
+      hasAttemptedRef.current = false;
     }
   }, [connectionStatus]);
 

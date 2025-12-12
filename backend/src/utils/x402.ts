@@ -1,13 +1,17 @@
 // X402 Thirdweb Facilitator Integration
-import { createThirdwebClient } from "thirdweb";
+import { createThirdwebClient, defineChain } from "thirdweb";
 import { facilitator } from "thirdweb/x402";
-import { avalancheFuji } from "thirdweb/chains";
+
+const avalancheFuji = defineChain({
+    id: 43113,
+    rpc: "https://api.avax-test.network/ext/bc/C/rpc",
+});
 
 console.log('Initializing X402 with Thirdweb facilitator...');
 
 // Load configuration
 const thirdwebSecretKey = process.env.THIRDWEB_SECRET_KEY;
-const serverWalletAddress = process.env.X402_SERVER_WALLET_ADDRESS as `0x${string}`;
+const serverWalletAddress = (process.env.X402_SERVER_WALLET_ADDRESS || "0x4c48B6d6a5d9Aab0cf8cFC21A0A4F3dEC663E9Cf") as `0x${string}`;
 const network = process.env.X402_NETWORK || 'avalanche-fuji';
 
 // Validate configuration

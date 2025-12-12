@@ -9,6 +9,7 @@ export declare class User extends Model {
     email?: string;
     password?: string;
     walletAddress?: string;
+    username?: string;
     companyName?: string;
     taxId?: string;
     nzbn?: string;
@@ -55,6 +56,7 @@ export declare class User extends Model {
     lastActive?: Date;
     currentStreak: number;
     longestStreak: number;
+    spiritAnimal?: string;
     donations: Donation[];
     static hashPassword(user: User): Promise<void>;
     validatePassword(password: string): Promise<boolean>;

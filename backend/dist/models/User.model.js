@@ -56,7 +56,8 @@ let User = class User extends sequelize_typescript_1.Model {
     email;
     password;
     walletAddress;
-    companyName;
+    username;
+    companyName; // Deprecated, use username
     taxId;
     nzbn;
     role;
@@ -88,6 +89,7 @@ let User = class User extends sequelize_typescript_1.Model {
     lastActive;
     currentStreak;
     longestStreak;
+    spiritAnimal;
     donations;
     static async hashPassword(user) {
         if (user.changed('password') && user.password) {
@@ -141,6 +143,13 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], User.prototype, "walletAddress", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "username", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
@@ -359,6 +368,13 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "longestStreak", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "spiritAnimal", void 0);
+__decorate([
     (0, sequelize_typescript_1.HasMany)(() => Donation_model_1.Donation),
     __metadata("design:type", Array)
 ], User.prototype, "donations", void 0);
@@ -375,6 +391,7 @@ exports.User = User = __decorate([
         timestamps: true,
         indexes: [
             { fields: ['email'] },
+            { fields: ['username'] },
             { fields: ['company_name'] },
             { fields: ['created_at'] },
         ],

@@ -21,3 +21,13 @@ export const getThirdwebClient = () => {
     }
     return thirdwebClient;
 };
+
+// Export chain configuration with custom RPC
+import { defineChain } from "thirdweb";
+
+export const avalancheFuji = defineChain({
+    id: 43113,
+    rpc: "https://api.avax-test.network/ext/bc/C/rpc",
+});
+
+export const CHARITY_WALLET_ADDRESS = "0x4c48B6d6a5d9Aab0cf8cFC21A0A4F3dEC663E9Cf";

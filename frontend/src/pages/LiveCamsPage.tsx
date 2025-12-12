@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { VideoCameraIcon, UserGroupIcon, PaperAirplaneIcon, HeartIcon, GiftIcon } from '@heroicons/react/24/outline';
-import { useFetchWithPayment } from 'thirdweb/react';
+
 import { thirdwebClient } from '@/lib/thirdwebClient';
 import { API_URL } from '@/utils/apiUrl';
+import CryptoDonationButton from '../components/CryptoDonationButton';
 
 interface LiveCam {
   id: string;
@@ -95,20 +96,7 @@ const LiveCamsPage: React.FC = () => {
     }
   ]);
 
-  // X402 payment hook - only initialize if client is available
-  const x402Hook = thirdwebClient ? useFetchWithPayment(thirdwebClient, {
-    signInRequiredModal: {
-      title: 'Connect Wallet to Donate',
-      description: 'Please connect your wallet to support this stream.',
-      buttonLabel: 'Connect Wallet',
-    },
-    fundWalletOptions: {
-      title: 'Insufficient Funds',
-      description: 'You need more tokens to complete this donation.',
-      buttonLabel: 'Add Funds',
-    },
-  }) : null;
-  const { fetchWithPayment, isPending: isPaymentPending } = x402Hook || { fetchWithPayment: null, isPending: false };
+  // Crypto donation component handles the payment logic directly
 
   const otherCams = liveCams.filter(cam => cam.id !== featuredCam.id);
 
@@ -127,63 +115,6 @@ const LiveCamsPage: React.FC = () => {
 
     setChatMessages([...chatMessages, newMessage]);
     setChatMessage('');
-  };
-
-  const handleDonate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!donationAmount || parseFloat(donationAmount) <= 0) return;
-
-    setDonationError(null);
-
-    // If thirdweb is configured, use x402 payment
-    if (fetchWithPayment) {
-      try {
-        const response = await fetchWithPayment(`${API_URL}/x402/create`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            amount: parseFloat(donationAmount),
-            currency: 'USD',
-            streamId: featuredCam.id,
-          }),
-        });
-
-        if (response && (response as any).success) {
-          // Add donation message to chat
-          const donationMessage: ChatMessage = {
-            id: Date.now().toString(),
-            user: 'You',
-            message: 'donated to support this stream',
-            timestamp: new Date(),
-            avatar: '🪧',
-            type: 'donation',
-            amount: parseFloat(donationAmount)
-          };
-          setChatMessages([...chatMessages, donationMessage]);
-          setDonationAmount('');
-        } else {
-          throw new Error((response as any)?.message || 'Donation failed');
-        }
-      } catch (err: any) {
-        console.error('X402 donation error:', err);
-        setDonationError(err.message || 'Failed to process donation');
-      }
-    } else {
-      // Fallback: Add donation message to chat without payment (for demo)
-      const donationMessage: ChatMessage = {
-        id: Date.now().toString(),
-        user: 'You',
-        message: 'donated to support this stream',
-        timestamp: new Date(),
-        avatar: '🪧',
-        type: 'donation',
-        amount: parseFloat(donationAmount)
-      };
-      setChatMessages([...chatMessages, donationMessage]);
-      setDonationAmount('');
-    }
   };
 
   const formatTime = (date: Date) => {
@@ -341,42 +272,56 @@ const LiveCamsPage: React.FC = () => {
               </div>
               <p className="text-xs text-gray-300">Help protect polar bears and their habitat</p>
             </div>
-            <form onSubmit={handleDonate} className="space-y-3">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={donationAmount}
-                    onChange={(e) => setDonationAmount(e.target.value)}
-                    placeholder="25"
-                    className="w-full pl-7 pr-3 py-2 bg-gray-700 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={!donationAmount || parseFloat(donationAmount) <= 0 || isPaymentPending}
-                  className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-600/50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md font-semibold text-sm transition-colors flex items-center gap-2"
-                >
-                  <GiftIcon className="h-4 w-4" />
-                  {isPaymentPending ? '...' : 'Donate'}
-                </button>
-              </div>
-              <div className="flex gap-2">
+
+            <div className="space-y-3">
+              <div className="flex gap-2 bg-gray-700/50 p-1 rounded-lg">
                 {[5, 10, 25, 50].map((amount) => (
                   <button
                     key={amount}
                     type="button"
                     onClick={() => setDonationAmount(amount.toString())}
-                    className="flex-1 bg-gray-700 hover:bg-purple-600 text-gray-300 hover:text-white py-1.5 rounded text-xs font-semibold transition-colors"
+                    className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition-all ${donationAmount === amount.toString()
+                      ? 'bg-purple-600 text-white shadow-lg'
+                      : 'text-gray-300 hover:bg-gray-600 hover:text-white'
+                      }`}
                   >
-                    ${amount}
+                    {amount} AVAX
                   </button>
                 ))}
               </div>
-            </form>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-400 text-sm">AVAX</span>
+                </div>
+                <input
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  value={donationAmount}
+                  onChange={(e) => setDonationAmount(e.target.value)}
+                  placeholder="Custom amount"
+                  className="block w-full pl-14 pr-3 py-2 border border-gray-600 rounded-md leading-5 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                />
+              </div>
+
+              <CryptoDonationButton
+                amount={donationAmount}
+                onSuccess={(txHash) => {
+                  const donationMessage: ChatMessage = {
+                    id: Date.now().toString(),
+                    user: 'You',
+                    message: 'donated to support this stream',
+                    timestamp: new Date(),
+                    avatar: '🪧',
+                    type: 'donation',
+                    amount: parseFloat(donationAmount)
+                  };
+                  setChatMessages([...chatMessages, donationMessage]);
+                  setDonationAmount('');
+                }}
+              />
+            </div>
           </div>
 
           {/* Chat Input - positioned at top for visibility */}

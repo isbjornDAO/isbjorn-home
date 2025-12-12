@@ -124,7 +124,7 @@ async function startServer() {
             await database_1.sequelize.authenticate();
             console.log('✅ Database connection established successfully.');
             // Sync database models (create tables)
-            await database_1.sequelize.sync({ alter: true });
+            await database_1.sequelize.sync({ force: false });
             console.log('✅ Database models synchronized.');
         }
         catch (error) {

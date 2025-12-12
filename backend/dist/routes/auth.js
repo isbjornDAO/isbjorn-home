@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const ethers_1 = require("ethers");
 const authService_1 = require("../services/authService");
 const logger_1 = require("../utils/logger");
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
 router.post('/login', async (req, res, next) => {
     try {
@@ -64,6 +65,31 @@ router.get('/me', async (req, res, next) => {
         const decoded = authService_1.authService.verifyToken(token);
         const user = await authService_1.authService.getCurrentUser(decoded.id);
         res.json(user);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+router.patch('/profile', auth_1.authenticateToken, async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const updates = req.body;
+        const user = await authService_1.authService.updateProfile(userId, updates);
+        res.json(user);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+router.post('/change-password', auth_1.authenticateToken, async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Current password and new password are required' });
+        }
+        await authService_1.authService.changePassword(userId, currentPassword, newPassword);
+        res.json({ message: 'Password changed successfully' });
     }
     catch (error) {
         next(error);

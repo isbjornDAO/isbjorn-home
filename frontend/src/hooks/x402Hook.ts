@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { createThirdwebClient } from 'thirdweb';
 import { settlePayment } from 'thirdweb/x402';
-import { avalancheFuji } from 'thirdweb/chains';
+import { avalancheFuji } from '@/lib/thirdwebClient';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
