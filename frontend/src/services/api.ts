@@ -50,8 +50,10 @@ class ApiService {
         }
 
         const message = this.extractErrorMessage(error);
-        // Don't show toast for validation errors or auth errors (we handle those separately)
-        if (error.response?.status !== 422 && error.response?.status !== 401) {
+        const shouldSkipToast = (error.config as any)?.skipToast;
+
+        // Don't show toast for validation errors, auth errors, or if explicitly skipped
+        if (error.response?.status !== 422 && error.response?.status !== 401 && !shouldSkipToast) {
           toast.error(message);
         }
 
@@ -68,8 +70,8 @@ class ApiService {
     return error.message || 'Network error';
   }
 
-  async get<T>(endpoint: string): Promise<T> {
-    const response = await this.client.get<T>(endpoint);
+  async get<T>(endpoint: string, config?: any): Promise<T> {
+    const response = await this.client.get<T>(endpoint, config);
     return response.data;
   }
 

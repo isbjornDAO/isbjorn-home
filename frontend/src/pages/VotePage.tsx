@@ -170,7 +170,7 @@ const VotePage: React.FC = () => {
     <div className="min-h-screen bg-ice-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-ice-900 mb-1">Decide on the next mission</h1>
           <p className="text-ice-600">Climate mission proposals funded by locked donation nodes</p>
         </div>

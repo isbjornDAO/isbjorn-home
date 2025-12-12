@@ -143,7 +143,7 @@ const CharityDetailsPage: React.FC = () => {
           // api.get automatically handles the /api prefix if configured, or we pass the relative path
           // In api.ts, it likely prepends API_BASE_URL. 
           // Let's assume api.get('/public/charities/' + id) works.
-          const response = await api.get<{ success: boolean; data: any }>(`/public/charities/${id}`);
+          const response = await api.get<{ success: boolean; data: any }>(`/public/charities/${id}`, { skipToast: true });
 
           if (response && response.data) {
             setCharity(response.data);
@@ -1186,20 +1186,25 @@ const CharityDetailsPage: React.FC = () => {
                     amount={amount}
                     onSuccess={(txHash) => {
                       setDonationStatus('success');
+                      setDonationError(null);
                       setAmount('');
-                      setTimeout(() => {
-                        navigate('/donation/success', {
-                          state: {
-                            amount,
-                            charityName: charity?.name,
-                            donationId: txHash
-                          }
-                        });
-                      }, 1500);
+                      // Removed navigation to success page as per user request
                     }}
                     disabled={!receiptEmail}
                     className="w-full"
                   />
+                  {donationStatus === 'success' && (
+                    <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-center animate-fade-in">
+                      <p className="text-sm font-semibold text-green-800">Thank you for your donation!</p>
+                      <p className="text-xs text-green-600 mt-1">Your contribution makes a difference.</p>
+                      <button
+                        onClick={() => setDonationStatus('idle')}
+                        className="mt-2 text-xs text-green-700 underline hover:text-green-900"
+                      >
+                        Donate again
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Status Messages */}
