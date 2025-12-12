@@ -31,8 +31,8 @@ export default defineConfig({
     }
   },
   define: {
-    // Ensure VITE_API_URL is available in production builds
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || ''),
+    // Polyfill global for Web3 libraries
+    global: 'window',
   },
   build: {
     outDir: 'dist',
