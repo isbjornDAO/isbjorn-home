@@ -16,81 +16,6 @@ import {
   LinkIcon,
 } from '@heroicons/react/24/outline';
 
-// Spirit Animals with meaningful traits and emojis
-const SPIRIT_ANIMALS = [
-  {
-    id: 'polar_bear',
-    name: 'Polar Bear',
-    emoji: '🐻‍❄️',
-    trait: 'Compassionate Pioneer',
-    description: 'Bold, generous, and mission-driven. You lead charitable giving with transparency and heart.',
-    color: 'from-blue-50 to-cyan-100'
-  },
-  {
-    id: 'wolf',
-    name: 'Wolf',
-    emoji: '🐺',
-    trait: 'Strategic Collaborator',
-    description: 'Loyal, intelligent, and team-oriented. You thrive through collaboration and community.',
-    color: 'from-gray-50 to-slate-100'
-  },
-  {
-    id: 'owl',
-    name: 'Owl',
-    emoji: '🦉',
-    trait: 'Wise Observer',
-    description: 'Thoughtful, insightful, and patient. You make informed decisions with careful consideration.',
-    color: 'from-purple-50 to-indigo-100'
-  },
-  {
-    id: 'penguin',
-    name: 'Penguin',
-    emoji: '🐧',
-    trait: 'Dedicated Supporter',
-    description: 'Committed, reliable, and nurturing. You stand by your values and support those around you.',
-    color: 'from-orange-50 to-amber-100'
-  },
-  {
-    id: 'fox',
-    name: 'Fox',
-    emoji: '🦊',
-    trait: 'Resourceful Innovator',
-    description: 'Creative, adaptable, and clever. You find innovative solutions to complex challenges.',
-    color: 'from-emerald-50 to-teal-100'
-  },
-  {
-    id: 'whale',
-    name: 'Whale',
-    emoji: '🐋',
-    trait: 'Empathetic Communicator',
-    description: 'Compassionate, expressive, and connected. You build bridges and foster understanding.',
-    color: 'from-sky-50 to-blue-100'
-  },
-  {
-    id: 'eagle',
-    name: 'Eagle',
-    emoji: '🦅',
-    trait: 'Visionary Leader',
-    description: 'Strategic, focused, and powerful. You see the big picture and inspire others to reach new heights.',
-    color: 'from-amber-50 to-yellow-100'
-  },
-  {
-    id: 'elephant',
-    name: 'Elephant',
-    emoji: '🐘',
-    trait: 'Steadfast Guardian',
-    description: 'Strong, loyal, and protective. You never forget and always stand by your community.',
-    color: 'from-stone-50 to-gray-100'
-  },
-  {
-    id: 'dolphin',
-    name: 'Dolphin',
-    emoji: '🐬',
-    trait: 'Joyful Connector',
-    description: 'Playful, intelligent, and social. You bring joy and create meaningful connections.',
-    color: 'from-cyan-50 to-blue-100'
-  }
-];
 
 const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
@@ -99,8 +24,6 @@ const ProfilePage: React.FC = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
   const [activeSection, setActiveSection] = useState<'overview' | 'profile' | 'security' | 'account' | 'wallet' | 'integrations'>('overview');
-  const [showSpiritAnimalModal, setShowSpiritAnimalModal] = useState(false);
-  const [selectedSpiritAnimal, setSelectedSpiritAnimal] = useState(user?.spiritAnimal || null);
   const [profilePicture, setProfilePicture] = useState<string>(user?.profilePicture || '');
   const [uploadingPicture, setUploadingPicture] = useState(false);
 
@@ -139,7 +62,6 @@ const ProfilePage: React.FC = () => {
           country: user.address?.country || 'New Zealand',
         },
       });
-      setSelectedSpiritAnimal(user.spiritAnimal || null);
       setProfilePicture(user.profilePicture || '');
     }
   }, [user]);
@@ -159,17 +81,6 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleSpiritAnimalSelect = async (animalId: string) => {
-    try {
-      setShowSpiritAnimalModal(false);
-      const updatedUser = await authService.updateProfile({ spiritAnimal: animalId });
-      updateUser(updatedUser);
-      setSelectedSpiritAnimal(animalId);
-      toast.success('Spirit animal updated!');
-    } catch (error: any) {
-      toast.error('Failed to update spirit animal');
-    }
-  };
 
   const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -310,7 +221,6 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  const currentAnimal = SPIRIT_ANIMALS.find(a => a.id === selectedSpiritAnimal);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ice-50 via-white to-arctic-50">
@@ -412,8 +322,6 @@ const ProfilePage: React.FC = () => {
                             alt="Profile"
                             className="w-full h-full object-cover"
                           />
-                        ) : currentAnimal ? (
-                          <div className="text-6xl">{currentAnimal.emoji}</div>
                         ) : (
                           <div className="text-6xl">👤</div>
                         )}
@@ -439,43 +347,6 @@ const ProfilePage: React.FC = () => {
                         disabled={uploadingPicture}
                       />
                       {/* Spirit Animal button */}
-                      <div
-                        className="absolute -bottom-2 -left-2"
-                        onMouseEnter={() => setShowSpiritAnimalModal(true)}
-                        onMouseLeave={() => setShowSpiritAnimalModal(false)}
-                      >
-                        <div className="bg-white text-arctic-600 rounded-full p-2 shadow-lg hover:scale-110 transition-transform cursor-pointer">
-                          <SparklesIcon className="w-5 h-5" />
-                        </div>
-
-                        {/* Spirit Animal Picker - appears on hover */}
-                        {showSpiritAnimalModal && (
-                          <div className="absolute bottom-full left-0 mb-2 bg-white rounded-xl shadow-2xl p-3 border-2 border-arctic-200 z-50">
-                            <div className="grid grid-cols-3 gap-2">
-                              {SPIRIT_ANIMALS.map((animal) => (
-                                <button
-                                  key={animal.id}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSpiritAnimalSelect(animal.id);
-                                  }}
-                                  className={`
-                                    w-12 h-12 rounded-lg flex items-center justify-center text-2xl
-                                    transition-all hover:scale-125 hover:shadow-lg
-                                    ${selectedSpiritAnimal === animal.id
-                                      ? 'bg-arctic-100 ring-2 ring-arctic-500'
-                                      : 'hover:bg-ice-50'
-                                    }
-                                  `}
-                                  title={animal.name}
-                                >
-                                  {animal.emoji}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
                     </div>
 
                     {/* User Info & Level */}
@@ -492,11 +363,6 @@ const ProfilePage: React.FC = () => {
                       </div>
                       <p className="text-white/80 mb-4">{effectiveUser.email}</p>
 
-                      {currentAnimal && (
-                        <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 mb-4">
-                          <span className="text-2xl">{currentAnimal.emoji}</span>
-                        </div>
-                      )}
 
                       {/* Level & XP Bar */}
                       <div className="mt-4">
