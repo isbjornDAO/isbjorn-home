@@ -95,7 +95,7 @@ const CharityCard: React.FC<CharityCardProps> = ({
     <motion.div
       className={clsx(
         'card p-6 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group',
-        'border-2 border-transparent hover:border-arctic-200',
+        'border-2 border-transparent hover:border-blue-400',
         className
       )}
       whileHover={{ y: -4 }}
@@ -106,7 +106,7 @@ const CharityCard: React.FC<CharityCardProps> = ({
       {/* Header with logo, name, and verification */}
       <div className="flex items-start space-x-4 mb-4">
         {charity.logoUrl ? (
-          <div className="w-14 h-14 bg-white rounded-xl border border-ice-200 flex items-center justify-center p-2 group-hover:border-arctic-300 transition-colors">
+          <div className="w-14 h-14 bg-white rounded-xl border border-ice-200 flex items-center justify-center p-2 group-hover:border-blue-400 transition-colors">
             <img
               src={charity.logoUrl}
               alt={`${charity.name} logo`}
@@ -130,7 +130,7 @@ const CharityCard: React.FC<CharityCardProps> = ({
             />
           </div>
         ) : (
-          <div className="w-14 h-14 bg-gradient-to-br from-arctic-100 to-ice-200 rounded-xl flex items-center justify-center group-hover:from-arctic-200 group-hover:to-ice-300 transition-colors">
+          <div className="w-14 h-14 bg-gradient-to-br from-arctic-100 to-ice-200 rounded-xl flex items-center justify-center group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
             <img
               src="https://cdn.prod.website-files.com/61b2c2eb638aa348792d99d4/61f5e21264ea04c7d7feb85e_COMMUNITY.png"
               alt="Charity"
@@ -149,7 +149,7 @@ const CharityCard: React.FC<CharityCardProps> = ({
                 <CheckBadgeIcon className="w-6 h-6 text-green-500 flex-shrink-0" />
               )}
             </div>
-            <ArrowRightIcon className="w-5 h-5 text-arctic-400 group-hover:text-arctic-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
+            <ArrowRightIcon className="w-5 h-5 text-arctic-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
           </div>
           
           <div className="flex items-center space-x-2 text-sm text-ice-600 mb-3">
@@ -187,7 +187,7 @@ const CharityCard: React.FC<CharityCardProps> = ({
       </div>
       
       {/* Impact stats */}
-      <div className="grid grid-cols-2 gap-4 p-4 bg-gradient-to-r from-ice-50 to-arctic-50 rounded-xl group-hover:from-ice-100 group-hover:to-arctic-100 transition-colors">
+      <div className="grid grid-cols-2 gap-4 p-4 bg-gradient-to-r from-ice-50 to-arctic-50 rounded-xl group-hover:from-blue-50 group-hover:to-blue-100 transition-colors">
         <div className="text-center">
           <div className="text-xl font-bold text-arctic-700">
             ${charity.totalReceived.toLocaleString()}
@@ -204,10 +204,10 @@ const CharityCard: React.FC<CharityCardProps> = ({
       
       {/* Call to action hint */}
       <div className="mt-4 text-center">
-        <div className="text-sm font-medium text-arctic-600 group-hover:text-arctic-700 transition-colors">
+        <div className="text-sm font-medium text-arctic-600 group-hover:text-blue-700 transition-colors">
           Click to learn more & donate
         </div>
-        <div className="text-xs text-ice-500 group-hover:text-ice-600 transition-colors">
+        <div className="text-xs text-ice-500 group-hover:text-blue-600 transition-colors">
           Choose specific causes to support
         </div>
       </div>

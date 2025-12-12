@@ -2,6 +2,7 @@ import express from 'express';
 import { verifyMessage } from 'ethers';
 import { authService } from '../services/authService';
 import { logger } from '../utils/logger';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -64,6 +65,33 @@ router.get('/me', async (req, res, next) => {
     const decoded = authService.verifyToken(token);
     const user = await authService.getCurrentUser(decoded.id);
     res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/profile', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = (req as any).user.id;
+    const updates = req.body;
+    const user = await authService.updateProfile(userId, updates);
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/change-password', authenticateToken, async (req, res, next) => {
+  try {
+    const userId = (req as any).user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current password and new password are required' });
+    }
+
+    await authService.changePassword(userId, currentPassword, newPassword);
+    res.json({ message: 'Password changed successfully' });
   } catch (error) {
     next(error);
   }

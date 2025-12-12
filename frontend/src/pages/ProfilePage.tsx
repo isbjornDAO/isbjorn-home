@@ -312,11 +312,10 @@ const ProfilePage: React.FC = () => {
               <nav className="space-y-1">
                 <button
                   onClick={() => setActiveSection('overview')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeSection === 'overview'
-                      ? 'bg-arctic-50 text-arctic-700 font-semibold'
-                      : 'text-ice-600 hover:bg-ice-50'
-                  }`}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${activeSection === 'overview'
+                    ? 'bg-arctic-50 text-arctic-700 font-semibold'
+                    : 'text-ice-600 hover:bg-ice-50'
+                    }`}
                 >
                   <UserCircleIcon className="w-5 h-5" />
                   <span>Overview</span>
@@ -324,11 +323,10 @@ const ProfilePage: React.FC = () => {
 
                 <button
                   onClick={() => setActiveSection('profile')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeSection === 'profile'
-                      ? 'bg-arctic-50 text-arctic-700 font-semibold'
-                      : 'text-ice-600 hover:bg-ice-50'
-                  }`}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${activeSection === 'profile'
+                    ? 'bg-arctic-50 text-arctic-700 font-semibold'
+                    : 'text-ice-600 hover:bg-ice-50'
+                    }`}
                 >
                   <Cog6ToothIcon className="w-5 h-5" />
                   <span>Profile Settings</span>
@@ -336,11 +334,10 @@ const ProfilePage: React.FC = () => {
 
                 <button
                   onClick={() => setActiveSection('security')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeSection === 'security'
-                      ? 'bg-arctic-50 text-arctic-700 font-semibold'
-                      : 'text-ice-600 hover:bg-ice-50'
-                  }`}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${activeSection === 'security'
+                    ? 'bg-arctic-50 text-arctic-700 font-semibold'
+                    : 'text-ice-600 hover:bg-ice-50'
+                    }`}
                 >
                   <LockClosedIcon className="w-5 h-5" />
                   <span>Security</span>
@@ -348,11 +345,10 @@ const ProfilePage: React.FC = () => {
 
                 <button
                   onClick={() => setActiveSection('account')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeSection === 'account'
-                      ? 'bg-arctic-50 text-arctic-700 font-semibold'
-                      : 'text-ice-600 hover:bg-ice-50'
-                  }`}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${activeSection === 'account'
+                    ? 'bg-arctic-50 text-arctic-700 font-semibold'
+                    : 'text-ice-600 hover:bg-ice-50'
+                    }`}
                 >
                   <UserCircleIcon className="w-5 h-5" />
                   <span>Account Info</span>
@@ -360,11 +356,10 @@ const ProfilePage: React.FC = () => {
 
                 <button
                   onClick={() => setActiveSection('wallet')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeSection === 'wallet'
-                      ? 'bg-arctic-50 text-arctic-700 font-semibold'
-                      : 'text-ice-600 hover:bg-ice-50'
-                  }`}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${activeSection === 'wallet'
+                    ? 'bg-arctic-50 text-arctic-700 font-semibold'
+                    : 'text-ice-600 hover:bg-ice-50'
+                    }`}
                 >
                   <CreditCardIcon className="w-5 h-5" />
                   <span>Wallet</span>
@@ -372,11 +367,10 @@ const ProfilePage: React.FC = () => {
 
                 <button
                   onClick={() => setActiveSection('integrations')}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeSection === 'integrations'
-                      ? 'bg-arctic-50 text-arctic-700 font-semibold'
-                      : 'text-ice-600 hover:bg-ice-50'
-                  }`}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${activeSection === 'integrations'
+                    ? 'bg-arctic-50 text-arctic-700 font-semibold'
+                    : 'text-ice-600 hover:bg-ice-50'
+                    }`}
                 >
                   <LinkIcon className="w-5 h-5" />
                   <span>Integrations</span>

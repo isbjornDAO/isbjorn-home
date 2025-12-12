@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FunnelIcon,
   MagnifyingGlassIcon,
@@ -23,6 +23,7 @@ import {
   CloudIcon
 } from '@heroicons/react/24/outline';
 import TransactionBoard from '@/components/TransactionBoard';
+import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
 
 // Fix for default marker icons
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -582,12 +583,36 @@ const MapInteractionHandler: React.FC<{ onZoomChange: (zoom: number) => void }> 
   return null;
 };
 
+// Component to center map based on URL parameters or state
+const MapCenterHandler: React.FC<{ lat?: number; lng?: number; zoom?: number; trigger?: number }> = ({ lat, lng, zoom = 6, trigger }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (lat && lng) {
+      map.setView([lat, lng], zoom, { animate: true, duration: 1.5 });
+    }
+  }, [lat, lng, zoom, map, trigger]);
+
+  return null;
+};
+
 
 const MapPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [charityBases, setCharityBases] = useState<CharityBase[]>([]);
   const [flightPaths, setFlightPaths] = useState<FlightPath[]>([]);
+
+  // Get coordinates from URL params if present
+  const urlLat = searchParams.get('lat') ? parseFloat(searchParams.get('lat')!) : undefined;
+  const urlLng = searchParams.get('lng') ? parseFloat(searchParams.get('lng')!) : undefined;
+  const urlZoom = searchParams.get('zoom') ? parseFloat(searchParams.get('zoom')!) : undefined;
+
+  // State for programmatic map centering
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
+  const [centerTrigger, setCenterTrigger] = useState(0);
+
   const [climateZones, setClimateZones] = useState<ClimateZone[]>([]);
   const [missionRegions, setMissionRegions] = useState<MissionRegion[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -610,10 +635,11 @@ const MapPage: React.FC = () => {
   const [newsFeed, setNewsFeed] = useState([
     {
       id: 1,
-      ngo: 'Greenpeace',
-      authorName: 'Dr. Sarah Chen',
-      authorRole: 'Climate Scientist',
-      authorPhoto: 'https://i.pravatar.cc/150?img=5',
+      ngo: 'Isbjorn',
+      ngoSlug: 'isbjorn',
+      authorName: 'Dr. Steven Amstrup',
+      authorRole: 'Chief Scientist',
+      authorPhoto: 'https://www.arcus.org/civicrm/contact/imagefile?photo=steve1_a8d04f7259d817fda6b86ea2ba0977b6.jpg',
       title: 'Arctic Research Breakthrough',
       content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations.',
       timestamp: new Date(Date.now() - 3600000),
@@ -624,7 +650,8 @@ const MapPage: React.FC = () => {
     },
     {
       id: 2,
-      ngo: 'Rainforest Alliance',
+      ngo: 'Amazon Station',
+      ngoSlug: 'amazon-station',
       authorName: 'Marcus Silva',
       authorRole: 'Forest Conservation Lead',
       authorPhoto: 'https://i.pravatar.cc/150?img=12',
@@ -638,7 +665,8 @@ const MapPage: React.FC = () => {
     },
     {
       id: 3,
-      ngo: 'Ocean Conservancy',
+      ngo: 'WWF UK',
+      ngoSlug: 'wwf-uk',
       authorName: 'Emily Rodriguez',
       authorRole: 'Marine Biologist',
       authorPhoto: 'https://i.pravatar.cc/150?img=9',
@@ -652,7 +680,8 @@ const MapPage: React.FC = () => {
     },
     {
       id: 4,
-      ngo: 'World Wide Fund for Nature',
+      ngo: 'WWF Japan',
+      ngoSlug: 'wwf-japan',
       authorName: 'James Anderson',
       authorRole: 'Wildlife Conservation Director',
       authorPhoto: 'https://i.pravatar.cc/150?img=15',
@@ -981,6 +1010,14 @@ const MapPage: React.FC = () => {
         properties: { region: 'Amazon', established: 2014 },
         regionalClimateData: { avgTemperature: 26.8, temperatureTrend: +1.6, airQualityIndex: 45, forestCoverage: 78, waterAvailability: 88, carbonFootprint: 8000, renewableEnergy: 72 }
       },
+      {
+        id: 'f3', name: 'Svalbard Polar Research', location: { lat: 78.22, lng: 15.65 }, type: 'field',
+        activeProjects: 2, category: 'Climate', fundingReceived: 180000, lastActivity: new Date(), impact: 542,
+        properties: { region: 'Arctic', established: 2019 },
+        pulseIntensity: 2.5,
+        recentActivity: true,
+        regionalClimateData: { avgTemperature: -6.2, temperatureTrend: +4.1, airQualityIndex: 15, forestCoverage: 0, waterAvailability: 98, carbonFootprint: 2500, renewableEnergy: 85 }
+      },
     ];
 
     // Flight paths: from headquarters (homes) to missions (pins)
@@ -992,6 +1029,7 @@ const MapPage: React.FC = () => {
       // From WWF UK (London) to missions
       { id: 'fp3', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF UK', toName: 'African Regional', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
       { id: 'fp4', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 25.2048, lng: 55.2708 }, fromName: 'WWF UK', toName: 'Middle East', amount: 210000, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
+      { id: 'fp7', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 78.22, lng: 15.65 }, fromName: 'WWF UK', toName: 'Svalbard Polar Research', amount: 180000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1200000), speed: 1.3, intensity: 1.8 },
 
       // From WWF Japan (Tokyo) to missions
       { id: 'fp5', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -3.4653, lng: -62.2159 }, fromName: 'WWF Japan', toName: 'Amazon Station', amount: 120000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
@@ -1200,17 +1238,18 @@ const MapPage: React.FC = () => {
             <div className="flex items-center gap-2 flex-1 overflow-hidden">
               {[
                 { id: '1', name: 'Isbjorn', category: 'Climate', funding: 2500000, projects: 45, region: 'Global', slug: 'isbjorn' },
-                { id: '2', name: 'Greenpeace', category: 'Conservation', funding: 1800000, projects: 38, region: 'Global', slug: 'greenpeace' },
-                { id: '3', name: 'WWF', category: 'Wildlife', funding: 3200000, projects: 52, region: 'Global', slug: 'wwf' },
-                { id: '4', name: 'Ocean Conservancy', category: 'Water', funding: 950000, projects: 28, region: 'Pacific', slug: 'ocean-conservancy' },
-                { id: '5', name: 'Rainforest Alliance', category: 'Forest', funding: 1200000, projects: 31, region: 'Amazon', slug: 'rainforest-alliance' },
-                { id: '6', name: 'Sierra Club', category: 'Climate', funding: 780000, projects: 22, region: 'Americas', slug: 'sierra-club' },
-                { id: '7', name: 'Nature Conservancy', category: 'Conservation', funding: 2100000, projects: 41, region: 'Global', slug: 'nature-conservancy' },
-                { id: '8', name: 'Conservation Intl', category: 'Climate', funding: 1450000, projects: 35, region: 'Global', slug: 'conservation-international' }
+                { id: '2', name: 'NRDC', category: 'Climate', funding: 2500000, projects: 45, region: 'Americas', slug: 'nrdc' },
+                { id: '3', name: 'WWF UK', category: 'Conservation', funding: 1800000, projects: 38, region: 'Europe', slug: 'wwf-uk' },
+                { id: '4', name: 'WWF Japan', category: 'Climate', funding: 3200000, projects: 52, region: 'Asia', slug: 'wwf-japan' },
+                { id: '5', name: 'African Regional', category: 'Water', funding: 950000, projects: 28, region: 'Africa', slug: 'african-regional' },
+                { id: '6', name: 'South America', category: 'Forest', funding: 1200000, projects: 31, region: 'South America', slug: 'south-america' },
+                { id: '7', name: 'Middle East', category: 'Climate', funding: 780000, projects: 22, region: 'Middle East', slug: 'middle-east' },
+                { id: '8', name: 'Arctic Research', category: 'Climate', funding: 450000, projects: 8, region: 'Arctic', slug: 'arctic-research' },
+                { id: '9', name: 'Amazon Station', category: 'Forest', funding: 620000, projects: 12, region: 'Amazon', slug: 'amazon-station' }
               ].map((charity, index) => (
                 <button
                   key={charity.id}
-                  onClick={() => navigate('/donate')}
+                  onClick={() => navigate(`/charity/${charity.slug}`)}
                   className="group relative flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200 hover:border-blue-400 bg-white hover:bg-blue-50 transition-all cursor-pointer flex-shrink-0"
                 >
                   <span className="text-xs font-bold text-gray-500">#{index + 1}</span>
@@ -1325,6 +1364,12 @@ const MapPage: React.FC = () => {
             />
 
             <MapInteractionHandler onZoomChange={setCurrentZoom} />
+            <MapCenterHandler
+              lat={mapCenter?.lat || urlLat}
+              lng={mapCenter?.lng || urlLng}
+              zoom={mapCenter?.zoom || urlZoom}
+              trigger={centerTrigger}
+            />
             <ZoomControls />
 
             {/* Blue Animated Lines - Donations from headquarters to missions */}
@@ -1361,9 +1406,6 @@ const MapPage: React.FC = () => {
                         <div className="mb-3 pb-3 border-b border-blue-100">
                           <div className="flex items-center justify-between mb-1">
                             <h3 className="text-base font-bold text-gray-900">{base.name}</h3>
-                            {base.recentActivity && (
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">LIVE</span>
-                            )}
                           </div>
                           <div className="text-xs text-gray-500 flex items-center gap-2">
                             <span className="capitalize">{base.type}</span>
@@ -1703,8 +1745,85 @@ const MapPage: React.FC = () => {
 
         {/* Right Side Panel - Timeline */}
         <div className="w-96 flex flex-col gap-3" style={{ height: '100%' }}>
+          {/* Top Mission Card */}
+          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/charity/isbjorn')}>
+            <div className="flex items-start gap-2">
+              {/* Isbjorn Logo */}
+              <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+                <img src={isbjornLogo} alt="Isbjorn" className="w-full h-full object-cover" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-bold text-gray-900">Isbjorn Foundation</span>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'rgb(3, 105, 161)' }}>
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Conservation Team
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs font-semibold text-red-600">LIVE</span>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h4 className="font-bold text-sm text-gray-800 mb-1">
+                  Polar Bear Conservation in Svalbard
+                </h4>
+
+                {/* Content */}
+                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                  Real-time monitoring in Svalbard, Norway. Tracking ice coverage and wildlife patterns.
+                </p>
+
+                {/* Mini Map */}
+                <div
+                  className="relative w-full h-24 bg-gray-100 rounded-lg overflow-hidden mb-2 border border-gray-200 cursor-pointer hover:border-[rgb(3,105,161)] transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMapCenter({ lat: 78.22, lng: 15.65, zoom: 6 });
+                    setCenterTrigger(prev => prev + 1);
+                  }}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center bg-[rgb(3,105,161)]/10">
+                    <div className="text-center">
+                      <svg className="w-8 h-8 mx-auto mb-1 text-[rgb(3,105,161)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                      </svg>
+                      <p className="text-xs font-semibold text-[rgb(3,105,161)]">View on Map</p>
+                      <p className="text-xs text-gray-500">Svalbard, Norway</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category and Actions */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: 'rgb(3, 105, 161)' }}>
+                    Top Mission
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); navigate('/live'); }}
+                      className="flex items-center gap-0.5 px-2 py-1 rounded text-xs font-semibold transition-all bg-[rgb(3,105,161)] text-white hover:bg-[rgb(2,85,131)]"
+                    >
+                      Watch Live
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Timeline */}
-          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-3 overflow-hidden flex flex-col" style={{ height: '100%' }}>
+          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-3 overflow-hidden flex flex-col" style={{ height: 'calc(100% - 230px)' }}>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: 'rgb(3, 105, 161)' }}>
                 <SignalIcon className="w-5 h-5" />
@@ -1716,7 +1835,7 @@ const MapPage: React.FC = () => {
                 <div
                   key={news.id}
                   className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-2 hover:shadow-md transition-all cursor-pointer"
-                  onClick={() => navigate('/donate')}
+                  onClick={() => navigate(`/charity/${news.ngoSlug}`)}
                 >
                   <div className="flex items-start gap-2">
                     {/* Author Profile Picture */}

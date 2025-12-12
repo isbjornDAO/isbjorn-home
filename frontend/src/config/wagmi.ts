@@ -4,17 +4,20 @@ import {
   rainbowWallet,
   walletConnectWallet,
   coreWallet,
+  rabbyWallet,
+  metaMaskWallet,
+  injectedWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 
 const wallets = [
   {
     groupName: 'Recommended',
-    wallets: [coreWallet],
+    wallets: [coreWallet, rabbyWallet, metaMaskWallet],
   },
   {
     groupName: 'Other Wallets',
-    wallets: [rainbowWallet, walletConnectWallet],
+    wallets: [rainbowWallet, walletConnectWallet, injectedWallet],
   },
 ];
 

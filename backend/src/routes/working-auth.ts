@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { verifyMessage } from 'ethers';
 import { User } from '../models/User.model';
 import { logger } from '../utils/logger';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { email, password, companyName } = req.body;
-    
+
     if (!email || !password || !companyName) {
       return res.status(400).json({
         success: false,
@@ -74,7 +75,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -251,6 +252,160 @@ router.get('/me', async (req, res) => {
   } catch (error) {
     logger.error('Get current user error:', error);
     res.status(401).json({ success: false, message: 'Invalid token' });
+  }
+});
+
+// Update user profile
+router.patch('/profile', authenticateToken, async (req, res) => {
+  try {
+    const userId = (req as any).user.id;
+    const updates = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Filter allowed updates
+    const allowedFields = ['email', 'companyName', 'phone', 'website', 'description', 'logoUrl', 'preferences', 'taxId', 'address'];
+    const filteredUpdates: any = {};
+
+    for (const key of allowedFields) {
+      if (updates[key] !== undefined) {
+        filteredUpdates[key] = updates[key];
+      }
+    }
+
+    await user.update(filteredUpdates);
+    logger.info(`User profile updated: ${userId}`);
+
+    res.json({
+      id: user.dataValues.id,
+      email: user.dataValues.email,
+      companyName: user.dataValues.companyName,
+      phone: user.dataValues.phone,
+      website: user.dataValues.website,
+      description: user.dataValues.description,
+      logoUrl: user.dataValues.logoUrl,
+      role: user.dataValues.role,
+      walletAddress: user.dataValues.walletAddress,
+      preferences: user.dataValues.preferences
+    });
+  } catch (error) {
+    logger.error('Profile update error:', error);
+    res.status(500).json({
+      success: false,
+      message: `Profile update failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
+  }
+});
+
+// Change password
+router.post('/change-password', authenticateToken, async (req, res) => {
+  try {
+    const userId = (req as any).user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password and new password are required'
+      });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Validate current password
+    const isValid = await user.validatePassword(currentPassword);
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Update password (will be hashed by BeforeUpdate hook)
+    await user.update({ password: newPassword });
+    logger.info(`Password changed for user: ${userId}`);
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (error) {
+    logger.error('Password change error:', error);
+    res.status(500).json({
+      success: false,
+      message: `Password change failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
+  }
+});
+
+// Refresh access token
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refresh token is required'
+      });
+    }
+
+    // Verify the refresh token
+    let decoded: any;
+    try {
+      decoded = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret'
+      );
+    } catch (verifyError: any) {
+      logger.warn('Refresh token verification failed:', verifyError.message);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired refresh token'
+      });
+    }
+
+    // Check if user still exists and is active
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (!user.dataValues.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account is deactivated'
+      });
+    }
+
+    // Generate new access token
+    const token = jwt.sign(
+      { id: user.dataValues.id, email: user.dataValues.email, role: user.dataValues.role },
+      process.env.JWT_SECRET || 'dev-secret-key-change-in-production',
+      { expiresIn: '7d' }
+    );
+
+    logger.info(`Token refreshed for user: ${user.dataValues.id}`);
+
+    res.json({
+      success: true,
+      token
+    });
+  } catch (error) {
+    logger.error('Token refresh error:', error);
+    res.status(500).json({
+      success: false,
+      message: `Token refresh failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    });
   }
 });
 

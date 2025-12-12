@@ -9547,3 +9547,427 @@
 {"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:09:00"}
 {"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:09:00"}
 {"duration":"7ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:09:00","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"duration":"35ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:09:54","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:09:54"}
+{"duration":"8ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:09:54","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:10:49","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:10:49"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:10:49","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"1ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":404,"timestamp":"2025-12-12 11:10:58","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:11:52","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:11:52"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:11:52","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 11:12:48"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 11:12:49"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 11:12:49"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 11:12:50"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 11:12:50"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 11:12:50"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 11:12:50"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 11:12:50"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"duration":"7ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:14:10","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:14:10"}
+{"duration":"11ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:14:10","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"2ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":404,"timestamp":"2025-12-12 11:14:15","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:16:52","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:16:52"}
+{"duration":"3ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:16:52","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 11:17:32"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 11:17:33"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"error","message":"Failed to initialize blockchain service: Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 11:17:33"}
+{"level":"warn","message":"Blockchain initialization failed - running without blockchain features Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 11:17:33"}
+{"level":"info","message":"Job processing initialized","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-12 11:17:33"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 11:17:41","url":"/health","userAgent":"curl/8.12.1"}
+{"duration":"21ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 11:18:26","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"22ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 11:18:26","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"duration":"7ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:24:20","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 11:24:20"}
+{"duration":"8ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 11:24:20","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"1ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":404,"timestamp":"2025-12-12 11:24:25","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"1ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":404,"timestamp":"2025-12-12 11:24:26","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"1ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":404,"timestamp":"2025-12-12 11:24:48","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 11:25:26"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 11:25:26"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 11:25:28"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 11:25:28"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"error","message":"Failed to initialize blockchain service: Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 11:25:28"}
+{"level":"warn","message":"Blockchain initialization failed - running without blockchain features Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"Job processing initialized","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-12 11:25:28"}
+{"duration":"30ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 12:44:51","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 12:44:51","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"duration":"8ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 12:45:35","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 12:45:35"}
+{"duration":"7ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 12:45:35","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 12:45:40"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 12:45:40"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:45:40"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:45:40"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 12:45:40"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 12:45:40","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"duration":"81ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 12:50:06","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 12:50:06","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 12:50:06","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 12:50:06"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 12:50:06","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 12:50:16"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 12:50:16"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:16"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:16"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 12:50:16"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 12:50:16","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"duration":"13ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 12:50:18","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 12:50:18","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 12:50:18","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 12:50:18"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 12:50:18","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 12:51:08"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 12:51:44"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 12:51:47"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 12:51:47"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 12:51:47"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 12:51:47"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 12:51:49"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 12:51:49"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-12 12:51:49"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-12 12:51:49"}
+{"level":"error","message":"Failed to initialize blockchain service: Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 12:51:49"}
+{"level":"warn","message":"Blockchain initialization failed - running without blockchain features Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 12:51:49"}
+{"level":"info","message":"Job processing initialized","service":"isbjorn-api","timestamp":"2025-12-12 12:51:49"}
+{"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-12-12 12:51:49"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-12 12:51:49"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-12 12:51:49"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"duration":"19ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:04:01","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:04:01"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:04:01","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 13:04:14"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:04:16"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 13:04:16"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:04:16"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:04:16"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 13:04:16"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 13:04:17"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 13:04:17"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 13:17:21","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 13:17:21","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"duration":"7ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:24:32","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:24:32"}
+{"duration":"8ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:24:32","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:24:38"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:24:38"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:38"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:38"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:24:38"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:24:38","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"duration":"67ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 13:24:43","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 13:24:43","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:24:43","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:24:43"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:24:43","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:24:48"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:24:48"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:48"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:48"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:24:48"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:24:48","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"duration":"10ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 13:24:52","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 13:24:52","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"duration":"3ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:24:52","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:24:52"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:24:52","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 13:25:49"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 13:25:49"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 13:25:51"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"error","message":"Failed to initialize blockchain service: Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 13:25:51"}
+{"level":"warn","message":"Blockchain initialization failed - running without blockchain features Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"Job processing initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 13:25:51"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 13:25:51"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"duration":"80ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 13:36:10","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 13:36:10","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"duration":"8ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:36:10","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:36:10"}
+{"duration":"7ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:36:10","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:36:17"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:36:17"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:36:17"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:36:17"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:36:17"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:36:17","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 13:37:21"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:37:22"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 13:37:23"}
+{"level":"warn","message":"Redis not available; continuing without cache","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"Redis connection established","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"error","message":"Failed to initialize blockchain service: Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 13:37:23"}
+{"level":"warn","message":"Blockchain initialization failed - running without blockchain features Contract addresses are required","service":"isbjorn-api","stack":"Error: Contract addresses are required\n    at new BlockchainService (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:40:13)\n    at initializeBlockchain (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\integrations\\blockchain.ts:348:25)\n    at startServer (C:\\Users\\GGPC\\Documents\\GitHub\\isbjorn-home\\backend\\src\\server.ts:150:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"Job processing initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"Background jobs initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"Server running on port 5000 in development mode","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"API Documentation: http://localhost:5000/api-docs","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"⚠️ Avalanche L1 service disabled - missing configuration","service":"isbjorn-api","timestamp":"2025-12-12 13:37:21"}
+{"level":"info","message":"✅ Email receipt service initialized","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"S3 Service initialized: region=ap-southeast-2, bucket=isbjorn-receipts-dev","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"warn","message":"Xero credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"warn","message":"MYOB credentials not configured - integration disabled","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"warn","message":"IRD API key not configured - using mock compliance data for development","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"Using REDIS_URL for connection","service":"isbjorn-api","timestamp":"2025-12-12 13:37:23"}
+{"code":"ECONNREFUSED","level":"error","message":"Redis connection error:","service":"isbjorn-api","stack":"AggregateError [ECONNREFUSED]: \n    at internalConnectMultiple (node:net:1122:18)\n    at afterConnectMultiple (node:net:1689:7)","timestamp":"2025-12-12 13:37:23"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"duration":"83ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 13:42:40","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 13:42:40","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:42:40","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:42:40"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:42:40","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 13:42:56"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 13:42:56"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:42:56"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 13:42:56"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 13:42:56"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:42:56","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 13:47:07","url":"/api/auth/login","userAgent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-NZ) WindowsPowerShell/5.1.26100.7462"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"duration":"11ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 14:10:40","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 14:10:40","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 14:10:40","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 14:10:40"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 14:10:40","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 14:10:47"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 14:10:47"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:10:47"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:10:47"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 14:10:47"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 14:10:47","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"duration":"12ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 14:24:10","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"6ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 14:24:10","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 14:24:10","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 14:24:10"}
+{"duration":"7ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 14:24:10","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 14:24:16"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 14:24:16"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:24:16"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 14:24:16"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 14:24:16"}
+{"duration":"4ms","ip":"::1","level":"info","message":"Request completed","method":"PATCH","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 14:24:16","url":"/api/auth/profile","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"Wallet user logged in: 0x0c39f0970cf3118fd004a3f069e59dabc6714980","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"duration":"21ms","ip":"::1","level":"info","message":"Request completed","method":"POST","service":"isbjorn-api","statusCode":200,"timestamp":"2025-12-12 17:25:02","url":"/api/auth/wallet-login","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":304,"timestamp":"2025-12-12 17:25:02","url":"/api/auth/me","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"duration":"8ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 17:25:02","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
+{"level":"info","message":"[Auth] Verifying token: eyJhbGciOi... using JWT_SECRET (first 10 chars): dev_secret...","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"level":"info","message":"[Auth] Token verified successfully. Decoded ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb, Email: null","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"level":"info","message":"Verifying token for user ID: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"level":"info","message":"User found: 1e81a1a4-0048-49da-938c-b8a85ba7bedb","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"level":"warn","message":"User not found or inactive","service":"isbjorn-api","timestamp":"2025-12-12 17:25:02"}
+{"duration":"5ms","ip":"::1","level":"info","message":"Request completed","method":"GET","service":"isbjorn-api","statusCode":401,"timestamp":"2025-12-12 17:25:02","url":"/api/user/stats","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"}
