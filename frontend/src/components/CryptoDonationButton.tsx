@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { TransactionButton, useActiveAccount } from "thirdweb/react";
-import { prepareTransaction, toWei } from "thirdweb";
+import { prepareContractCall, getContract } from "thirdweb";
 import { thirdwebClient, CHARITY_WALLET_ADDRESS, avalancheFuji } from '@/lib/thirdwebClient';
 import { GiftIcon, CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from './LoadingSpinner';
+import { parseUnits } from "ethers";
+
+// USDC Address on Avalanche Fuji Testnet (Circle Native)
+const USDC_TOKEN_ADDRESS = "0x5425890298aed601595a70ab815c96711a31bc65";
 
 interface CryptoDonationButtonProps {
-    amount: string; // Amount in major units (e.g. "5" for 5 AVAX)
+    amount: string; // Amount in major units (e.g. "5" for 5 USDC)
     label?: string;
     onSuccess?: (txHash: string) => void;
     onError?: (error: Error) => void;
@@ -29,15 +33,25 @@ const CryptoDonationButton: React.FC<CryptoDonationButtonProps> = ({
     const isValidAmount = amount && !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
 
     // Prepare the simplified transaction
-    // Sends native currency (AVAX on Fuji)
+    // Sends USDC (ERC-20) on Fuji
     const prepareDonation = () => {
         if (!amount || !isValidAmount) throw new Error("Invalid donation amount");
 
-        return prepareTransaction({
-            to: CHARITY_WALLET_ADDRESS,
-            chain: avalancheFuji,
+        // Contract definition for USDC
+        const contract = getContract({
             client: thirdwebClient!,
-            value: toWei(amount), // Convert to wei (18 decimals for AVAX)
+            chain: avalancheFuji,
+            address: USDC_TOKEN_ADDRESS,
+        });
+
+        // Determine decimal precision (USDC is 6 decimals)
+        const amountInUnits = parseUnits(amount, 6);
+
+        // ERC-20 Transfer
+        return prepareContractCall({
+            contract,
+            method: "function transfer(address to, uint256 value)",
+            params: [CHARITY_WALLET_ADDRESS, amountInUnits],
         });
     };
 
@@ -96,7 +110,7 @@ const CryptoDonationButton: React.FC<CryptoDonationButtonProps> = ({
                         <>
                             <GiftIcon className="h-5 w-5" />
                             <span>
-                                {account ? `${label} ${amount ? `${amount} AVAX` : ''}` : 'Connect Wallet'}
+                                {account ? `${label} ${amount ? `${amount} USDC` : ''}` : 'Connect Wallet'}
                             </span>
                         </>
                     )}

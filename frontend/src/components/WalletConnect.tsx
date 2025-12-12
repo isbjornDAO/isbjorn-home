@@ -1,5 +1,4 @@
-import React from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import bearGif from '../assets/bearrr.gif';
 
 export const WalletConnect: React.FC = () => {
   return (
@@ -36,18 +35,21 @@ export const WalletConnect: React.FC = () => {
             {(() => {
               if (!connected) {
                 return (
-                  <button
-                    onClick={openConnectModal}
-                    type="button"
-                    className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-arctic-600 rounded-lg hover:bg-arctic-700 transition-colors w-full justify-center"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M19 7H5C3.89543 7 3 7.89543 3 9V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V9C21 7.89543 20.1046 7 19 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M16 7V5C16 3.89543 15.1046 3 14 3H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M16 14H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    Connect Wallet
-                  </button>
+                  <div className="flex flex-col items-center gap-2 w-full">
+                    <img src={bearGif} alt="Isbjorn Bear" className="w-16 h-16 object-contain" />
+                    <button
+                      onClick={openConnectModal}
+                      type="button"
+                      className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-arctic-600 rounded-lg hover:bg-arctic-700 transition-colors w-full justify-center"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 7H5C3.89543 7 3 7.89543 3 9V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V9C21 7.89543 20.1046 7 19 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M16 7V5C16 3.89543 15.1046 3 14 3H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M16 14H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      Connect Wallet
+                    </button>
+                  </div>
                 );
               }
 

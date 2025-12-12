@@ -285,14 +285,14 @@ const LiveCamsPage: React.FC = () => {
                       : 'text-gray-300 hover:bg-gray-600 hover:text-white'
                       }`}
                   >
-                    {amount} AVAX
+                    {amount} USDC
                   </button>
                 ))}
               </div>
 
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400 text-sm">AVAX</span>
+                  <span className="text-gray-400 text-sm">USDC</span>
                 </div>
                 <input
                   type="number"

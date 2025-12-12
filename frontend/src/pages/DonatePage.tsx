@@ -63,6 +63,7 @@ const DonationForm: React.FC = () => {
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
 
   // Top Climate-Focused Charities
+  // Top Climate-Focused Charities
   const famousNGOs = [
     {
       id: 'pbi',
@@ -74,8 +75,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.ctfassets.net/i04syw39vv9p/nirpXYfzlXen2Hk3rbfqB/3d572604afeb59fe9c634e9fe1178fd7/social-share.jpg',
       icon: pbiLogo,
       verified: true,
-      totalReceived: 58000,
-      donationCount: 7200,
+      totalReceived: 15420,
+      donationCount: 842,
       followerCount: 42000,
       trending: true,
       followerIncrease: 142
@@ -90,8 +91,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=800',
       icon: wwfLogo,
       verified: true,
-      totalReceived: 45000,
-      donationCount: 5100,
+      totalReceived: 12500,
+      donationCount: 624,
       followerCount: 157000,
       trending: true,
       followerIncrease: 98
@@ -106,8 +107,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=800',
       icon: wwfLogo,
       verified: true,
-      totalReceived: 38000,
-      donationCount: 4500,
+      totalReceived: 8900,
+      donationCount: 450,
       followerCount: 890,
       trending: true,
       followerIncrease: 76
@@ -122,8 +123,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800',
       icon: greenpeaceLogo,
       verified: true,
-      totalReceived: 52000,
-      donationCount: 6400,
+      totalReceived: 14100,
+      donationCount: 780,
       followerCount: 35000,
       trending: true,
       followerIncrease: 128
@@ -138,8 +139,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
       icon: oceanConservancyLogo,
       verified: true,
-      totalReceived: 42000,
-      donationCount: 5200,
+      totalReceived: 11200,
+      donationCount: 590,
       followerCount: 28000,
       trending: true,
       followerIncrease: 95
@@ -154,8 +155,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.unsplash.com/photo-1549366021-9f761d450615?w=800',
       icon: natureConservancyLogo,
       verified: true,
-      totalReceived: 32000,
-      donationCount: 3200,
+      totalReceived: 9500,
+      donationCount: 340,
       followerCount: 5600,
       trending: false,
       followerIncrease: 45
@@ -170,8 +171,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
       icon: rainforestLogo,
       verified: true,
-      totalReceived: 28000,
-      donationCount: 2800,
+      totalReceived: 8200,
+      donationCount: 290,
       followerCount: 1200,
       trending: true,
       followerIncrease: 52
@@ -186,8 +187,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=800',
       icon: conservationIntlLogo,
       verified: true,
-      totalReceived: 24000,
-      donationCount: 2100,
+      totalReceived: 7800,
+      donationCount: 210,
       followerCount: 32000,
       trending: false,
       followerIncrease: 32
@@ -202,8 +203,8 @@ const DonationForm: React.FC = () => {
       charityPhoto: 'https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=800',
       icon: sierraClubLogo,
       verified: true,
-      totalReceived: 21000,
-      donationCount: 1600,
+      totalReceived: 6500,
+      donationCount: 180,
       followerCount: 14000,
       trending: true,
       followerIncrease: 28
