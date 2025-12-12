@@ -1,4 +1,12 @@
 import React from 'react';
+import { Buffer } from 'buffer';
+
+// Polyfill Buffer and process for Web3
+globalThis.Buffer = Buffer;
+globalThis.process = {
+  env: { NODE_ENV: import.meta.env.MODE },
+  version: '',
+} as any;
 
 console.log('🚀 App starting... React version:', React.version);
 

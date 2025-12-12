@@ -19,7 +19,9 @@
     rel="stylesheet">
   <title>Isbjorn</title>
   <script>
-    window.global = window;
+    if (typeof global === 'undefined') {
+      window.global = window;
+    }
   </script>
 </head>
 
