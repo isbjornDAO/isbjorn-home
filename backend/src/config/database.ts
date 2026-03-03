@@ -13,6 +13,13 @@ import { Collectable } from '../models/Collectable.model';
 import { UserCollectable } from '../models/UserCollectable.model';
 import { Reward } from '../models/Reward.model';
 import { UserReward } from '../models/UserReward.model';
+import { PolarBear } from '../models/PolarBear.model';
+import { ClimateZone } from '../models/ClimateZone.model';
+import { ResearchStation } from '../models/ResearchStation.model';
+import { Mission } from '../models/Mission.model';
+import { SeaIce } from '../models/SeaIce.model';
+import { Permafrost } from '../models/Permafrost.model';
+import { Glacier } from '../models/Glacier.model';
 
 dotenv.config();
 
@@ -32,6 +39,13 @@ const models = [
   UserCollectable,
   Reward,
   UserReward,
+  PolarBear,
+  ClimateZone,
+  ResearchStation,
+  Mission,
+  SeaIce,
+  Permafrost,
+  Glacier,
 ];
 
 function createSequelizeInstance(): Sequelize {

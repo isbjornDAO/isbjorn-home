@@ -1,148 +1,236 @@
-# 🐻‍❄️ Isbjorn — NZ Business Donations, Done Right
+# 🐻‍❄️ Isbjørn — Conservation Donations, Powered by Community
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Stripe](https://img.shields.io/badge/Stripe-635BFF?logo=stripe&logoColor=white)](https://stripe.com/)
+[![Avalanche](https://img.shields.io/badge/Avalanche-E84142?logo=avalanche&logoColor=white)](https://www.avax.network/)
 
-Isbjorn makes it simple for NZ businesses to donate to verified charities and receive IRD‑compliant tax receipts instantly. The donor experience is “just pay with card,” while the platform handles IRD rules, company verification, receipts, and optional blockchain transparency.
+Isbjørn is a global donation platform where **your contributions become votes**. Donate to verified conservation charities, earn **Donation Coins**, stake them to vote on fund allocation, and earn **$IGGY** rewards for backing impactful organizations.
 
-### What’s included
+---
 
-- **Business‑first UX**: Zero crypto for donors; email + password signup.
-- **Stripe**: Familiar card payments; instant confirmation and receipts (dev mode supported).
-- **NZ readiness**: Company auto‑lookup (mock in dev) and IRD‑compliant PDF receipts.
-- **Streamlined flow**: A 2‑minute donation path with minimal fields.
-- **Mobile responsive**: Works great on phones.
-- **Optional Avalanche L1**: Record donations on chain when configured.
-
-### How it’s built (high level)
+## 🎯 How It Works
 
 ```
-React (Vite)  →  Express API  →  Stripe, Email, DB
-                        ↘︎  (optional) Avalanche L1
+Donate → Earn Donation Coins → Stake → Vote → Charities Get Funded → 
+NGOs Report Impact → You Earn $IGGY Rewards → Repeat 🔥
 ```
 
-## 🚀 Quick start (local)
+### The Flywheel
 
-The fastest way to see it working end‑to‑end (with safe dev defaults):
+| Step | What Happens |
+|------|--------------|
+| 1. **Donate** | Any amount, any currency (fiat or crypto) |
+| 2. **Earn Coins** | $1 = 1 Donation Coin |
+| 3. **Stake** | Activate coins to gain voting power |
+| 4. **Vote** | Direct Conservation Funds to verified NGOs |
+| 5. **Impact** | NGOs receive funds, report climate metrics |
+| 6. **Rewards** | Voters earn $IGGY proportional to impact |
+
+---
+
+## 🪙 Donation Coins & $IGGY
+
+### Donation Coins
+- **1 coin = 1 vote** — Direct where Conservation Funds go
+- **Stake to vote** — Activated coins can vote, inactive can transfer
+- **Earn by donating** — Every $1 donated = 1 Donation Coin
+- **ERC-1155 token** — Tradeable on secondary markets
+
+### $IGGY Token
+- **Reward token** — Earned by staking and voting
+- **Governance** — Propose new charities, vote on parameters
+- **Conservation Fund** — 25% of supply distributed over 4 years
+
+### Epochs
+- **Monthly cycles** — Votes tallied, funds distributed
+- **24-hour lock** — No changes in final day before distribution
+- **Loyalty bonus** — Up to 2x rewards for consistent voters
+
+---
+
+## 💰 Conservation Fund Distribution
+
+| Recipient | Share | Purpose |
+|-----------|-------|---------|
+| **Verified Charities** | 70% | Direct conservation impact |
+| **Voter Rewards** | 20% | $IGGY to active stakers |
+| **Platform** | 10% | Operations & development |
+
+**Anti-gaming**: Max 15% per charity per epoch.
+
+---
+
+## 👥 Who Can Participate
+
+| Feature | Individuals | Businesses |
+|---------|-------------|------------|
+| Donate | ✅ | ✅ |
+| Earn Donation Coins | ✅ | ✅ |
+| Vote on fund allocation | ✅ | ✅ |
+| Earn $IGGY rewards | ✅ | ✅ |
+| Tax receipts | On request | Automatic |
+| Corporate dashboard | — | ✅ |
+| Minimum donation | $1 | $100 |
+
+---
+
+## 🏗️ Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Frontend (React + Vite)                   │
+│  • Wallet connection (Thirdweb)                              │
+│  • Donation Coins UI (stake/vote/claim)                      │
+│  • Live polar bear tracking map                              │
+└─────────────────────────┬────────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────────┐
+│                  Backend (Express + TypeScript)              │
+│  • Donation processing (Stripe + X402 crypto)                │
+│  • $IGGY reward calculations                                 │
+│  • Epoch management                                          │
+└────────────┬──────────────────────────────┬──────────────────┘
+             │                              │
+             ▼                              ▼
+┌────────────────────────┐      ┌──────────────────────────────┐
+│    Avalanche L1        │      │        Smart Contracts       │
+│  (Iggy Chain)          │      │  • DonationCoin.sol          │
+│  On-chain transparency │      │  • DonationTracker.sol       │
+└────────────────────────┘      │  • ProjectDistribution.sol   │
+                                └──────────────────────────────┘
+```
+
+---
+
+## 🚀 Quick Start
 
 ```bash
+# Clone and install
+git clone https://github.com/isbjornDAO/isbjorn-home.git
+cd isbjorn-home
+npm install
+
+# Start development
 ./run-platform.sh
 ```
 
-Then open:
+- **Frontend**: http://localhost:3005
+- **API**: http://localhost:5000
+- **API Docs**: http://localhost:5000/api-docs
 
-- Frontend (Vite): http://localhost:3005 (port may vary)
-- API: http://localhost:5000
-- API Docs (dev): http://localhost:5000/api-docs
+---
 
-Notes
-- Stripe runs in dev/simulated mode unless you add real keys.
-- Company lookup uses mock data in dev (no external API key required).
-- SQLite is used by default for local DB; Postgres/Redis are optional.
+## 📱 Key Features
 
-## 💰 Donation flow (2 minutes)
+### For Donors
+- **Donor Tab** — Stake, vote, claim rewards
+- **Impact Dashboard** — Track your conservation contribution
+- **Live Map** — Real GPS tracking of polar bears
+- **NFT Collectibles** — Epoch badges, top donor awards
 
-1. Select a charity
-2. Enter NZ company number (auto‑populate in dev)
-3. Enter amount and card details
-4. Done — instant IRD‑compliant receipt via email
+### For Charities
+- **Verified Status** — Eligible for Conservation Fund votes
+- **Impact Reporting** — Submit climate metrics
+- **Transparent Funding** — On-chain fund distribution
 
-Behind the scenes (optional): when configured, donations can be recorded to Avalanche L1 for transparency.
+### For Everyone
+- **Live Cams** — Wildlife camera streams
+- **Voting** — Community-directed fund allocation
+- **Shop** — Conservation merchandise (coming soon)
 
-## 🔑 Config
+---
+
+## 🔧 Configuration
 
 ```bash
-# Backend (dev defaults work out of the box)
-JWT_SECRET=dev-secret
-JWT_REFRESH_SECRET=dev-refresh
-STRIPE_SECRET_KEY=sk_test_mock_key   # dev-only; set real key in prod
-STRIPE_WEBHOOK_SECRET=whsec_mock     # set real webhook secret in prod
-SENDGRID_API_KEY=                    # optional in dev
+# Required
+JWT_SECRET=your_secret
+DATABASE_URL=postgresql://...
 
-# Optional Avalanche
-AVALANCHE_RPC_URL=https://api.avax-test.network/ext/bc/C/rpc
+# Payments
+STRIPE_SECRET_KEY=sk_...
+X402_API_KEY=x402_...
+
+# Blockchain
+AVALANCHE_RPC_URL=https://api.avax.network/ext/bc/C/rpc
 AVALANCHE_PRIVATE_KEY=0x...
-DONATION_TRACKER_ADDRESS=0x...
-PROJECT_DISTRIBUTION_ADDRESS=0x...
+DONATION_COIN_ADDRESS=0x...
 ```
 
-## 🔧 Smart contracts (optional)
+---
 
-- `DonationTracker.sol`: record donations on chain
-- `ProjectDistribution.sol`: track distributions to projects
-- `AdminMultiSig.sol`: operational safety controls
+## 📊 API Reference
 
-## 📊 API quick reference
-
-Authentication
+### Authentication
 ```http
 POST /api/auth/register
 POST /api/auth/login
 GET  /api/auth/me
 ```
 
-Streamlined donations
+### Donations
 ```http
-GET  /api/companies/:companyNumber/auto-populate
-GET  /api/charities/verified-dropdown
 POST /api/donations/streamlined
+GET  /api/donations/history
 ```
 
-Public
+### Donation Coins
+```http
+GET  /api/coins/balance
+POST /api/coins/stake
+POST /api/coins/unstake
+POST /api/coins/vote
+GET  /api/coins/rewards
+POST /api/coins/claim
+```
+
+### Charities
 ```http
 GET  /api/public/charities
+GET  /api/charities/:id/impact
 ```
 
-Full docs in dev at `/api-docs`.
+Full docs at `/api-docs` when running locally.
 
-## 🧪 Testing (coming online)
+---
 
-Project scaffolding includes scripts for unit and component tests. We’ll expand coverage as features solidify.
+## 🔐 Security
 
-## 🔒 Security
+- Rate limiting on all endpoints
+- JWT authentication with refresh tokens
+- Webhook signature verification (Stripe, X402)
+- Parameterized queries (Sequelize ORM)
+- HTTPS enforced in production
 
-- Input validation & rate limiting on API routes
-- Parameterized queries via Sequelize
-- Strict CSP with Stripe allowances
-- HTTPS recommended for any public deployment
-
-## 📈 Monitoring
-
-- Health: `/health` on the API
-- Logs: `backend.log`, `frontend.log` in repo root when using `run-platform.sh`
+---
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
+2. Create feature branch (`git checkout -b feature/amazing`)
 3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
+4. Push to branch (`git push origin feature/amazing`)
 5. Open Pull Request
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
-## 📝 License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- Email: support@isbjorn.co.nz
-- Issues: please open a GitHub issue in this repository
-
-## 🙏 Acknowledgments
-
-- **Avalanche Foundation**: For blockchain infrastructure
-- **The Giving Block**: Inspiration for crypto-nonprofit bridges
-- **Polar Bears International**: Conservation expertise and guidance
-- **Stripe**: Payment processing excellence
-- **Open Source Community**: The amazing tools that make this possible
 
 ---
 
-Built with ❄️ in New Zealand for Arctic conservation worldwide.
+## 📝 License
 
-**Make an NZ business donation in under 2 minutes.** 🚀
+MIT License — see [LICENSE](LICENSE)
+
+---
+
+## 🙏 Acknowledgments
+
+- **Avalanche Foundation** — Blockchain infrastructure
+- **Polar Bears International** — Conservation expertise
+- **The Blaze Team** — Tokenomics inspiration
+- **Open Source Community** — Amazing tools
+
+---
+
+**Built with ❄️ for conservation worldwide.**
+
+**Donate. Stake. Vote. Earn. Protect.** 🐻‍❄️

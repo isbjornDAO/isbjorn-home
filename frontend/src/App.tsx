@@ -28,6 +28,7 @@ const DonationForm = lazy(() => import('@/components/DonationForm'));
 const MapPage = lazy(() => import('@/pages/MapPage'));
 const LiveCamsPage = lazy(() => import('@/pages/LiveCamsPage'));
 const VotePage = lazy(() => import('@/pages/VotePage'));
+const TestSvalbardPage = lazy(() => import('@/pages/TestSvalbardPage'));
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
                   <Route path="/map" element={<MapPage />} />
                   <Route path="/live" element={<LiveCamsPage />} />
                   <Route path="/vote" element={<VotePage />} />
+                  <Route path="/test-svalbard" element={<TestSvalbardPage />} />
                   {/* Legacy redirect */}
                   <Route path="/node" element={<Navigate to="/vote" replace />} />
 

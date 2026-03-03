@@ -117,10 +117,13 @@ const getCharityData = (charityId: string) => {
   return CHARITY_DATA[normalizedId] || CHARITY_DATA[charityId] || null;
 };
 
+import { useActiveAccount } from 'thirdweb/react';
+
 const CharityDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const activeAccount = useActiveAccount();
 
   const [charity, setCharity] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -130,6 +133,53 @@ const CharityDetailsPage: React.FC = () => {
   const [receiptEmail, setReceiptEmail] = useState('');
   const [donationStatus, setDonationStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [donationError, setDonationError] = useState<string | null>(null);
+  const currentDonationId = React.useRef<string | null>(null);
+
+  const handleBeforeDonation = async () => {
+    try {
+      setDonationError(null);
+      const response = await api.post<{ success: boolean; donationId: string }>('/x402/create', {
+        amount: parseFloat(amount),
+        currency: 'USD', // Fixed to USD for now as per button
+        businessId: user?.id, // Optional linkage
+      });
+
+      if (response && response.donationId) {
+        currentDonationId.current = response.donationId;
+      } else {
+        throw new Error('Failed to create donation record');
+      }
+    } catch (err: any) {
+      console.error('Donation setup failed:', err);
+      setDonationError('Failed to initialize donation. Please try again.');
+      throw err; // Re-throw to stop transaction
+    }
+  };
+
+  const handleDonationSuccess = async (txHash: string) => {
+    try {
+      if (!currentDonationId.current) {
+        console.warn('No donation ID found for settlement');
+        return;
+      }
+
+      await api.post('/x402/settle', {
+        donationId: currentDonationId.current,
+        transactionHash: txHash
+      });
+
+      setDonationStatus('success');
+      setDonationError(null);
+      setAmount('');
+      currentDonationId.current = null;
+    } catch (err) {
+      console.error('Settlement failed:', err);
+      // We still show success for the transaction, but maybe warn about receipt
+      setDonationStatus('success');
+      setDonationError('Donation sent but receipt generation failed. Please contact support.');
+    }
+  };
+
 
   useEffect(() => {
     const fetchCharityData = async () => {
@@ -173,8 +223,8 @@ const CharityDetailsPage: React.FC = () => {
             location: localData.location,
             // Add defaults for missing fields
             website: '#',
-            subscribers: 0,
-            totalDonated: 0
+            subscribers: 42000, // Matched PBI stat
+            totalDonated: 154200 // Matched PBI stat
           });
         }
       } finally {
@@ -204,13 +254,14 @@ const CharityDetailsPage: React.FC = () => {
     },
   ];
 
+  // Updated stats
   const thoughtLeaders = [
     {
       id: 1,
       name: 'Sarah Johnson',
       role: 'Top Contributor',
       avatar: 'https://i.pravatar.cc/150?img=5',
-      totalDonated: 15420,
+      totalDonated: 45200,
       posts: 127,
       percentageChange: 12.5,
     },
@@ -219,7 +270,7 @@ const CharityDetailsPage: React.FC = () => {
       name: 'Michael Chen',
       role: 'Top Contributor',
       avatar: 'https://i.pravatar.cc/150?img=12',
-      totalDonated: 12850,
+      totalDonated: 28500,
       posts: 98,
       percentageChange: 8.3,
     },
@@ -228,7 +279,7 @@ const CharityDetailsPage: React.FC = () => {
       name: 'Emma Williams',
       role: 'Top Contributor',
       avatar: 'https://i.pravatar.cc/150?img=9',
-      totalDonated: 11200,
+      totalDonated: 21200,
       posts: 85,
       percentageChange: -3.2,
     },
@@ -1184,11 +1235,11 @@ const CharityDetailsPage: React.FC = () => {
                 <div className="mt-4">
                   <CryptoDonationButton
                     amount={amount}
-                    onSuccess={(txHash) => {
-                      setDonationStatus('success');
-                      setDonationError(null);
-                      setAmount('');
-                      // Removed navigation to success page as per user request
+                    onBeforeTransaction={handleBeforeDonation}
+                    onSuccess={handleDonationSuccess}
+                    onError={(err) => {
+                      setDonationStatus('error');
+                      setDonationError(err.message || 'Donation failed');
                     }}
                     disabled={!receiptEmail}
                     className="w-full"

@@ -14,6 +14,7 @@ interface CryptoDonationButtonProps {
     label?: string;
     onSuccess?: (txHash: string) => void;
     onError?: (error: Error) => void;
+    onBeforeTransaction?: () => Promise<void>;
     disabled?: boolean;
     className?: string;
 }
@@ -23,19 +24,24 @@ const CryptoDonationButton: React.FC<CryptoDonationButtonProps> = ({
     label = "Donate",
     onSuccess,
     onError,
+    onBeforeTransaction,
     disabled = false,
     className = ""
 }) => {
     const account = useActiveAccount();
-    const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+    const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error' | 'insufficient_funds'>('idle');
 
     // If amount is invalid or empty, disable
     const isValidAmount = amount && !isNaN(parseFloat(amount)) && parseFloat(amount) > 0;
 
     // Prepare the simplified transaction
     // Sends USDC (ERC-20) on Fuji
-    const prepareDonation = () => {
+    const prepareDonation = async () => {
         if (!amount || !isValidAmount) throw new Error("Invalid donation amount");
+
+        if (onBeforeTransaction) {
+            await onBeforeTransaction();
+        }
 
         // Contract definition for USDC
         const contract = getContract({
@@ -72,7 +78,18 @@ const CryptoDonationButton: React.FC<CryptoDonationButtonProps> = ({
                 }}
                 onError={(error) => {
                     console.error("Donation failed:", error);
-                    setStatus('error');
+
+                    // Check for insufficient funds
+                    const errorMessage = error.message.toLowerCase();
+                    if (errorMessage.includes("insufficient funds") ||
+                        errorMessage.includes("exceeds balance") ||
+                        // specific code for insufficient funds often hides in nested details
+                        JSON.stringify(error).toLowerCase().includes("insufficient funds")) {
+                        setStatus('insufficient_funds');
+                    } else {
+                        setStatus('error');
+                    }
+
                     if (onError) onError(error);
                 }}
                 disabled={disabled || !isValidAmount}
@@ -105,6 +122,11 @@ const CryptoDonationButton: React.FC<CryptoDonationButtonProps> = ({
                         <>
                             <ExclamationCircleIcon className="h-5 w-5" />
                             <span>Failed</span>
+                        </>
+                    ) : status === 'insufficient_funds' ? (
+                        <>
+                            <ExclamationCircleIcon className="h-5 w-5" />
+                            <span>Insufficient Funds</span>
                         </>
                     ) : (
                         <>

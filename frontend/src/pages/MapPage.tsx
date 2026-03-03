@@ -25,6 +25,8 @@ import {
 import TransactionBoard from '@/components/TransactionBoard';
 import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
 import { getPolarBearData, type PolarBearData } from '@/services/polarBearService';
+import mapDataService from '@/services/mapDataService';
+import ArcticDataPanel from '@/components/map/ArcticDataPanel';
 
 // Fix for default marker icons
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -369,11 +371,10 @@ const LiveDataIndicator: React.FC<{ status: DataStreamStatus; updateCount: numbe
           opacity: status === 'connected' ? [1, 0.6, 1] : 0.5
         }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        className={`w-2.5 h-2.5 rounded-full shadow-lg ${
-          status === 'connected' ? 'bg-green-500 shadow-green-500/50' :
+        className={`w-2.5 h-2.5 rounded-full shadow-lg ${status === 'connected' ? 'bg-green-500 shadow-green-500/50' :
           status === 'connecting' ? 'bg-yellow-500 shadow-yellow-500/50' :
-          'bg-red-500 shadow-red-500/50'
-        }`}
+            'bg-red-500 shadow-red-500/50'
+          }`}
       />
     </motion.div>
   );
@@ -431,12 +432,84 @@ const KeyboardShortcuts: React.FC<{ show: boolean; onClose: () => void }> = ({ s
   );
 };
 
-// Clean Zoom Controls
+// Arctic Circle Overlay - Clickable region that zooms to Arctic
+const ArcticCircleOverlay: React.FC<{ onArcticClick?: () => void }> = ({ onArcticClick }) => {
+  const map = useMap();
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Memoize Arctic bounds to avoid recalculating on every render
+  const arcticBounds = useMemo(() => {
+    const bounds: LatLngExpression[] = [];
+    // Arctic Circle is at 66.5°N latitude - create polygon covering Arctic region
+    for (let lng = -180; lng <= 180; lng += 10) {
+      bounds.push([66.5, lng]);
+    }
+    // Close the polygon at the north pole
+    for (let lng = 180; lng >= -180; lng -= 10) {
+      bounds.push([90, lng]);
+    }
+    return bounds;
+  }, []);
+
+  const handleClick = useCallback(() => {
+    // Zoom to Arctic center (Svalbard area)
+    map.setView([78, 10], 4, { animate: true, duration: 1.5 });
+    onArcticClick?.();
+  }, [map, onArcticClick]);
+
+  return (
+    <Polygon
+      positions={arcticBounds}
+      pathOptions={{
+        color: isHovered ? '#0ea5e9' : '#0369a1',
+        fillColor: isHovered ? '#0ea5e9' : '#7dd3fc',
+        fillOpacity: isHovered ? 0.3 : 0.15,
+        weight: isHovered ? 3 : 2,
+        dashArray: '10, 5',
+      }}
+      eventHandlers={{
+        mouseover: () => setIsHovered(true),
+        mouseout: () => setIsHovered(false),
+        click: handleClick,
+      }}
+    >
+      <Popup>
+        <div className="text-center p-2">
+          <div className="text-2xl mb-1">🐻‍❄️ 🧊</div>
+          <h3 className="font-bold text-gray-900">Arctic Research Zone</h3>
+          <p className="text-sm text-gray-600 mb-2">Click to explore Arctic climate data</p>
+          <button
+            onClick={handleClick}
+            className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Zoom to Arctic
+          </button>
+        </div>
+      </Popup>
+    </Polygon>
+  );
+};
+
+// Clean Zoom Controls with Arctic Focus
 const ZoomControls: React.FC = () => {
   const map = useMap();
 
+  const zoomToArctic = () => {
+    map.setView([78, 10], 4, { animate: true, duration: 1.5 });
+  };
+
   return (
     <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-2">
+      {/* Arctic Focus Button */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={zoomToArctic}
+        className="bg-gradient-to-br from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 border border-blue-300 rounded-lg p-2.5 shadow-md transition-all"
+        title="Focus on Arctic"
+      >
+        <span className="text-lg">🐻‍❄️</span>
+      </motion.button>
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -522,18 +595,16 @@ const InteractiveMissionRegion: React.FC<{
       <Popup maxWidth={350}>
         <div className="text-sm w-72 bg-white">
           {/* Header */}
-          <div className={`-m-3 mb-3 p-4 rounded-t-lg ${
-            region.status === 'active' ? 'bg-gradient-to-r from-green-600 to-teal-600' :
+          <div className={`-m-3 mb-3 p-4 rounded-t-lg ${region.status === 'active' ? 'bg-gradient-to-r from-green-600 to-teal-600' :
             region.status === 'planned' ? 'bg-gradient-to-r from-blue-600 to-indigo-600' :
-            'bg-gradient-to-r from-gray-600 to-gray-700'
-          }`}>
+              'bg-gradient-to-r from-gray-600 to-gray-700'
+            }`}>
             <div className="flex items-center justify-between text-white">
               <h3 className="text-base font-bold">{region.name}</h3>
-              <span className={`text-xs px-2 py-1 rounded-full font-bold ${
-                region.status === 'active' ? 'bg-green-400 text-green-900' :
+              <span className={`text-xs px-2 py-1 rounded-full font-bold ${region.status === 'active' ? 'bg-green-400 text-green-900' :
                 region.status === 'planned' ? 'bg-blue-400 text-blue-900' :
-                'bg-gray-400 text-gray-900'
-              }`}>
+                  'bg-gray-400 text-gray-900'
+                }`}>
                 {region.status.toUpperCase()}
               </span>
             </div>
@@ -550,11 +621,10 @@ const InteractiveMissionRegion: React.FC<{
             </div>
             <div className="bg-purple-50 rounded-lg p-2 text-center">
               <div className="text-xs text-gray-500 mb-1">Priority</div>
-              <div className={`text-sm font-bold ${
-                region.priority === 'critical' ? 'text-red-600' :
+              <div className={`text-sm font-bold ${region.priority === 'critical' ? 'text-red-600' :
                 region.priority === 'high' ? 'text-orange-600' :
-                region.priority === 'medium' ? 'text-yellow-600' : 'text-blue-600'
-              }`}>
+                  region.priority === 'medium' ? 'text-yellow-600' : 'text-blue-600'
+                }`}>
                 {region.priority.toUpperCase()}
               </div>
             </div>
@@ -639,7 +709,7 @@ const MapPage: React.FC = () => {
 
   const [climateZones, setClimateZones] = useState<ClimateZone[]>([]);
   const [missionRegions, setMissionRegions] = useState<MissionRegion[]>([]);
-  const [polarBears, setPolarBears] = useState<PolarBearData[]>([]);
+  const [polarBears, setPolarBears] = useState<PolarBearTracking[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedBase, setSelectedBase] = useState<CharityBase | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<MissionRegion | null>(null);
@@ -655,6 +725,7 @@ const MapPage: React.FC = () => {
   const [updateCount, setUpdateCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<'map' | 'transactions'>('map');
+  const [showArcticPanel, setShowArcticPanel] = useState(false);
 
   // News feed state - people from organizations
   const [newsFeed, setNewsFeed] = useState([
@@ -1005,216 +1076,105 @@ const MapPage: React.FC = () => {
     }, 1000);
   }, []);
 
-  const loadMockData = () => {
-    // Load real polar bear tracking data from USGS
-    const polarBearData = getPolarBearData();
-    setPolarBears(polarBearData);
-    console.log(`Loaded ${polarBearData.length} polar bears from USGS tracking data`);
+  const loadMockData = async () => {
+    console.log('🔄 Loading Arctic map data...');
+    try {
+      // Load real Arctic data from API
+      const arcticData = await mapDataService.getAllMapData();
+      console.log('📡 Raw Arctic data received:', arcticData);
 
-    const mockBases: CharityBase[] = [
-      {
-        id: 'hq1', name: 'NRDC Headquarters', location: { lat: 40.7128, lng: -74.0060 }, type: 'headquarters',
-        activeProjects: 45, category: 'Climate', fundingReceived: 58000, lastActivity: new Date(), impact: 8247,
-        properties: { region: 'Americas', established: 2010 },
-        regionalClimateData: { avgTemperature: 12.5, temperatureTrend: +1.2, airQualityIndex: 85, forestCoverage: 24, waterAvailability: 78, carbonFootprint: 45000, renewableEnergy: 32 }
-      },
-      {
-        id: 'hq2', name: 'WWF UK', location: { lat: 51.5074, lng: -0.1278 }, type: 'headquarters',
-        activeProjects: 38, category: 'Conservation', fundingReceived: 45000, lastActivity: new Date(), impact: 6892,
-        properties: { region: 'Europe', established: 2012 },
-        regionalClimateData: { avgTemperature: 10.8, temperatureTrend: +0.9, airQualityIndex: 72, forestCoverage: 38, waterAvailability: 85, carbonFootprint: 38000, renewableEnergy: 48 }
-      },
-      {
-        id: 'hq3', name: 'WWF Japan', location: { lat: 35.6762, lng: 139.6503 }, type: 'headquarters',
-        activeProjects: 52, category: 'Climate', fundingReceived: 60000, lastActivity: new Date(), impact: 9563,
-        properties: { region: 'Asia', established: 2008 },
-        regionalClimateData: { avgTemperature: 16.3, temperatureTrend: +1.5, airQualityIndex: 145, forestCoverage: 31, waterAvailability: 68, carbonFootprint: 52000, renewableEnergy: 28 }
-      },
-      {
-        id: 'r1', name: 'African Regional', location: { lat: -1.2921, lng: 36.8219 }, type: 'regional',
-        activeProjects: 28, category: 'Water', fundingReceived: 32000, lastActivity: new Date(), impact: 4534,
-        properties: { region: 'Africa', established: 2015 },
-        regionalClimateData: { avgTemperature: 24.5, temperatureTrend: +1.8, airQualityIndex: 95, forestCoverage: 42, waterAvailability: 45, carbonFootprint: 12000, renewableEnergy: 18 }
-      },
-      {
-        id: 'r2', name: 'South America', location: { lat: -23.5505, lng: -46.6333 }, type: 'regional',
-        activeProjects: 31, category: 'Forest', fundingReceived: 38000, lastActivity: new Date(), impact: 5678,
-        properties: { region: 'South America', established: 2013 },
-        regionalClimateData: { avgTemperature: 19.5, temperatureTrend: +1.3, airQualityIndex: 105, forestCoverage: 58, waterAvailability: 72, carbonFootprint: 28000, renewableEnergy: 42 }
-      },
-      {
-        id: 'r3', name: 'Middle East', location: { lat: 25.2048, lng: 55.2708 }, type: 'regional',
-        activeProjects: 22, category: 'Climate', fundingReceived: 28000, lastActivity: new Date(), impact: 3423,
-        properties: { region: 'Middle East', established: 2016 },
-        regionalClimateData: { avgTemperature: 28.2, temperatureTrend: +2.1, airQualityIndex: 165, forestCoverage: 8, waterAvailability: 22, carbonFootprint: 68000, renewableEnergy: 15 }
-      },
-      {
-        id: 'f1', name: 'Arctic Research', location: { lat: 64.1466, lng: -21.9426 }, type: 'field',
-        activeProjects: 8, category: 'Climate', fundingReceived: 22000, lastActivity: new Date(), impact: 2289,
-        properties: { region: 'Arctic', established: 2018 },
-        regionalClimateData: { avgTemperature: -2.5, temperatureTrend: +3.2, airQualityIndex: 25, forestCoverage: 12, waterAvailability: 95, carbonFootprint: 5000, renewableEnergy: 65 }
-      },
-      {
-        id: 'f2', name: 'Amazon Station', location: { lat: -3.4653, lng: -62.2159 }, type: 'field',
-        activeProjects: 12, category: 'Forest', fundingReceived: 25000, lastActivity: new Date(), impact: 3371,
-        properties: { region: 'Amazon', established: 2014 },
-        regionalClimateData: { avgTemperature: 26.8, temperatureTrend: +1.6, airQualityIndex: 45, forestCoverage: 78, waterAvailability: 88, carbonFootprint: 8000, renewableEnergy: 72 }
-      },
-      {
-        id: 'f3', name: 'Svalbard Polar Research', location: { lat: 78.22, lng: 15.65 }, type: 'field',
-        activeProjects: 2, category: 'Climate', fundingReceived: 20000, lastActivity: new Date(), impact: 2542,
-        properties: { region: 'Arctic', established: 2019 },
-        pulseIntensity: 2.5,
-        recentActivity: true,
-        regionalClimateData: { avgTemperature: -6.2, temperatureTrend: +4.1, airQualityIndex: 15, forestCoverage: 0, waterAvailability: 98, carbonFootprint: 2500, renewableEnergy: 85 }
-      },
-    ];
+      // Transform polar bears to map format
+      const polarBearData: PolarBearTracking[] = arcticData.polarBears.map(bear => ({
+        id: bear.id,
+        name: bear.name,
+        sex: bear.sex,
+        age: bear.age,
+        currentLocation: { lat: bear.currentLatitude, lng: bear.currentLongitude },
+        lastUpdated: new Date(bear.lastUpdated),
+        status: bear.status,
+        trackingHistory: bear.trackingHistory.map(h => ({
+          lat: h.lat,
+          lng: h.lng,
+          timestamp: new Date(h.timestamp),
+          speed: h.speed
+        })),
+        healthStatus: bear.healthStatus,
+        weight: bear.weight,
+        tagId: bear.tagId,
+        region: bear.region,
+        seaIceCondition: bear.seaIceCondition,
+        huntingSuccess: bear.huntingSuccess,
+        distanceTraveled: bear.distanceTraveled
+      }));
 
-    // Flight paths: from headquarters (homes) to missions (pins)
-    const mockPaths: FlightPath[] = [
-      // From NRDC Headquarters (NY) to missions
-      { id: 'fp1', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: -23.5505, lng: -46.6333 }, fromName: 'NRDC Headquarters', toName: 'South America', amount: 8500, type: 'funding', active: true, timestamp: new Date(Date.now() - 3600000), speed: 1.2 },
-      { id: 'fp2', from: { lat: 40.7128, lng: -74.0060 }, to: { lat: 64.1466, lng: -21.9426 }, fromName: 'NRDC Headquarters', toName: 'Arctic Research', amount: 12000, type: 'funding', active: true, timestamp: new Date(Date.now() - 5400000), speed: 0.8 },
+      setPolarBears(polarBearData);
+      console.log(`✅ Loaded ${polarBearData.length} polar bears from Arctic API`);
 
-      // From WWF UK (London) to missions
-      { id: 'fp3', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF UK', toName: 'African Regional', amount: 6500, type: 'funding', active: true, timestamp: new Date(Date.now() - 7200000), speed: 0.9 },
-      { id: 'fp4', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 25.2048, lng: 55.2708 }, fromName: 'WWF UK', toName: 'Middle East', amount: 7500, type: 'funding', active: true, timestamp: new Date(), speed: 1.0 },
-      { id: 'fp7', from: { lat: 51.5074, lng: -0.1278 }, to: { lat: 78.22, lng: 15.65 }, fromName: 'WWF UK', toName: 'Svalbard Polar Research', amount: 6500, type: 'funding', active: true, timestamp: new Date(Date.now() - 1200000), speed: 1.3, intensity: 1.8 },
+      // Transform research stations to charity base format
+      const arcticBases: CharityBase[] = arcticData.researchStations.map(station => ({
+        id: station.id,
+        name: station.name,
+        location: { lat: station.latitude, lng: station.longitude },
+        type: station.type,
+        activeProjects: station.activeProjects,
+        category: station.category,
+        fundingReceived: station.fundingReceived,
+        lastActivity: new Date(station.lastActivity),
+        impact: station.impact,
+        properties: station.properties,
+        pulseIntensity: station.pulseIntensity,
+        recentActivity: station.recentActivity,
+        regionalClimateData: {
+          avgTemperature: station.avgTemperature,
+          temperatureTrend: station.temperatureTrend,
+          airQualityIndex: station.airQualityIndex,
+          forestCoverage: station.forestCoverage,
+          waterAvailability: station.waterAvailability,
+          carbonFootprint: station.carbonFootprint,
+          renewableEnergy: station.renewableEnergy
+        }
+      }));
 
-      // From WWF Japan (Tokyo) to missions
-      { id: 'fp5', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -3.4653, lng: -62.2159 }, fromName: 'WWF Japan', toName: 'Amazon Station', amount: 5000, type: 'funding', active: true, timestamp: new Date(Date.now() - 1800000), speed: 1.5 },
-      { id: 'fp6', from: { lat: 35.6762, lng: 139.6503 }, to: { lat: -1.2921, lng: 36.8219 }, fromName: 'WWF Japan', toName: 'African Regional', amount: 5500, type: 'funding', active: true, timestamp: new Date(Date.now() - 2400000), speed: 1.1 },
-    ];
+      // Transform climate zones
+      const arcticZones: ClimateZone[] = arcticData.climateZones.map(zone => ({
+        id: zone.id,
+        location: { lat: zone.latitude, lng: zone.longitude },
+        name: zone.name,
+        severity: zone.severity,
+        type: zone.type as any,
+        radius: zone.radius,
+        affectedPopulation: zone.affectedPopulation,
+        trend: zone.trend,
+        temperatureChange: zone.temperatureChange,
+        co2Level: zone.co2Level,
+        seaLevelRise: zone.seaLevelRise,
+        biodiversityLoss: zone.biodiversityLoss,
+        deforestationRate: zone.deforestationRate,
+        waterStress: zone.waterStress,
+        lastUpdated: new Date(zone.lastUpdated),
+        polygonBounds: zone.polygonBounds
+      }));
 
-    const mockZones: ClimateZone[] = [
-      {
-        id: 'cz1', location: { lat: -3.4653, lng: -62.2159 }, name: 'Amazon Deforestation Crisis', severity: 'critical',
-        type: 'deforestation', radius: 400000, affectedPopulation: 2500000, trend: 'worsening',
-        temperatureChange: +1.8, co2Level: 425, seaLevelRise: 0, biodiversityLoss: 32, deforestationRate: 7900, waterStress: 28, lastUpdated: new Date(),
-        polygonBounds: [
-          [-5, -73], [-1, -73], [2, -70], [2, -60], [0, -50], [-10, -50], [-15, -60], [-10, -70], [-5, -73]
-        ]
-      },
-      {
-        id: 'cz2', location: { lat: 23.8859, lng: 45.0792 }, name: 'Sahara Expansion', severity: 'high',
-        type: 'drought', radius: 600000, affectedPopulation: 1800000, trend: 'worsening',
-        temperatureChange: +2.3, co2Level: 418, seaLevelRise: 0, biodiversityLoss: 45, deforestationRate: 0, waterStress: 78, lastUpdated: new Date(),
-        polygonBounds: [
-          [30, 20], [32, 35], [30, 50], [25, 55], [20, 50], [15, 45], [12, 30], [15, 15], [20, 10], [28, 15], [30, 20]
-        ]
-      },
-      {
-        id: 'cz3', location: { lat: 28.6139, lng: 77.2090 }, name: 'Delhi Air Pollution', severity: 'critical',
-        type: 'pollution', radius: 200000, affectedPopulation: 20000000, trend: 'worsening',
-        temperatureChange: +1.5, co2Level: 445, seaLevelRise: 0, biodiversityLoss: 18, deforestationRate: 450, waterStress: 52, lastUpdated: new Date(),
-        polygonBounds: [
-          [29.5, 76], [29.5, 78.5], [28, 79], [27, 78.5], [27, 76], [28, 75.5], [29.5, 76]
-        ]
-      },
-      {
-        id: 'cz4', location: { lat: 64.1466, lng: -21.9426 }, name: 'Arctic Ice Melt', severity: 'critical',
-        type: 'temperature', radius: 500000, affectedPopulation: 150000, trend: 'worsening',
-        temperatureChange: +3.8, co2Level: 422, seaLevelRise: 3.4, biodiversityLoss: 28, deforestationRate: 0, waterStress: 15, lastUpdated: new Date(),
-        polygonBounds: [
-          [80, -180], [80, -90], [75, -50], [70, -20], [70, 0], [75, 30], [80, 60], [80, 90], [80, 120], [75, 150], [70, 180], [65, 170], [60, 140], [55, 100], [55, 50], [60, 0], [65, -40], [70, -80], [75, -120], [80, -180]
-        ]
-      },
-      {
-        id: 'cz5', location: { lat: 6.5244, lng: 3.3792 }, name: 'Lagos Coastal Flooding', severity: 'high',
-        type: 'flooding', radius: 150000, affectedPopulation: 5000000, trend: 'worsening',
-        temperatureChange: +1.2, co2Level: 415, seaLevelRise: 2.8, biodiversityLoss: 22, deforestationRate: 1200, waterStress: 45, lastUpdated: new Date(),
-        polygonBounds: [
-          [7, 2.5], [7, 4.5], [6.2, 5], [5.8, 4.5], [5.8, 2.5], [6.2, 2], [7, 2.5]
-        ]
-      },
-    ];
+      setCharityBases(arcticBases);
+      setClimateZones(arcticZones);
+      console.log(`✅ Loaded ${arcticBases.length} research stations`, arcticBases);
+      console.log(`✅ Loaded ${arcticZones.length} climate zones`, arcticZones);
+      console.log(`🐻‍❄️ State updated - polarBears:`, polarBearData.length, 'charityBases:', arcticBases.length);
 
-    const mockMissionRegions: MissionRegion[] = [
-      {
-        id: 'mr1',
-        name: 'North Island New Zealand - Coastal Restoration',
-        description: 'Protecting coastal ecosystems and marine biodiversity around North Island',
-        status: 'active',
-        fundingGoal: 50000,
-        fundingReceived: 34000,
-        startDate: new Date('2024-01-15'),
-        projectCount: 8,
-        priority: 'high',
-        polygonBounds: [
-          [-34.4, 172.8], [-35.0, 174.3], [-37.5, 175.5], [-39.0, 174.8],
-          [-41.0, 174.5], [-41.3, 175.0], [-40.9, 176.2], [-39.5, 177.8],
-          [-38.0, 178.2], [-37.0, 178.0], [-36.0, 175.5], [-34.4, 172.8]
-        ]
-      },
-      {
-        id: 'mr2',
-        name: 'Great Barrier Reef Protection',
-        description: 'Coral restoration and water quality improvement initiative',
-        status: 'active',
-        fundingGoal: 60000,
-        fundingReceived: 48000,
-        startDate: new Date('2023-09-01'),
-        projectCount: 12,
-        priority: 'critical',
-        polygonBounds: [
-          [-10, 142], [-12, 143], [-14, 144.5], [-16, 146], [-18, 147],
-          [-20, 148.5], [-22, 149.5], [-24, 153], [-24, 154],
-          [-22, 153], [-20, 152], [-18, 150.5], [-16, 149],
-          [-14, 147.5], [-12, 146], [-10, 144], [-10, 142]
-        ]
-      },
-      {
-        id: 'mr3',
-        name: 'Amazon River Basin',
-        description: 'Indigenous community support and forest conservation',
-        status: 'active',
-        fundingGoal: 60000,
-        fundingReceived: 52000,
-        startDate: new Date('2023-06-20'),
-        projectCount: 15,
-        priority: 'critical',
-        polygonBounds: [
-          [-5, -73], [-1, -73], [2, -70], [2, -60], [0, -50],
-          [-5, -48], [-10, -50], [-15, -60], [-10, -70], [-5, -73]
-        ]
-      },
-      {
-        id: 'mr4',
-        name: 'Mediterranean Sea Initiative',
-        description: 'Marine plastic cleanup and sustainable fishing practices',
-        status: 'active',
-        fundingGoal: 55000,
-        fundingReceived: 38000,
-        startDate: new Date('2024-03-10'),
-        projectCount: 10,
-        priority: 'high',
-        polygonBounds: [
-          [30, -6], [36, -5.5], [38, 0], [40, 5], [42, 10],
-          [43, 15], [42, 20], [40, 25], [38, 30], [36, 35],
-          [32, 36], [30, 33], [30, 25], [31, 15], [30, 0], [30, -6]
-        ]
-      },
-      {
-        id: 'mr5',
-        name: 'Serengeti Conservation Zone',
-        description: 'Wildlife protection and anti-poaching operations',
-        status: 'planned',
-        fundingGoal: 45000,
-        fundingReceived: 22000,
-        startDate: new Date('2024-06-01'),
-        projectCount: 6,
-        priority: 'medium',
-        polygonBounds: [
-          [-1, 34], [-1.5, 35], [-2, 35.5], [-3, 35.5], [-3.5, 35],
-          [-3.5, 34.5], [-3, 34], [-2, 33.5], [-1, 34]
-        ]
-      },
-    ];
+    } catch (error) {
+      console.error('Failed to load Arctic data:', error);
+      // Fallback: keep empty arrays or use minimal mock data if needed
+    }
 
-    setCharityBases(mockBases);
-    setFlightPaths(mockPaths);
-    setClimateZones(mockZones);
-    setMissionRegions(mockMissionRegions);
+    // NOTE: Mock data removed - now using real Arctic data from API
+    // All mock bases, paths, zones, and mission regions have been replaced with live Arctic data
+
+    // NOTE: Using real Arctic data from API instead of mock data
+    // Keeping mock data as fallback in the function but not setting it
+    // setCharityBases(mockBases);
+    // setFlightPaths(mockPaths);
+    // setClimateZones(mockZones);
+    // setMissionRegions(mockMissionRegions);
   };
 
   const toggleLayer = (layerId: string) => {
@@ -1349,11 +1309,10 @@ const MapPage: React.FC = () => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             onClick={() => setViewMode(viewMode === 'map' ? 'transactions' : 'map')}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
-              viewMode === 'transactions'
-                ? 'bg-gray-900 text-white shadow-lg'
-                : 'bg-white border border-blue-200 hover:bg-blue-50 text-gray-700'
-            }`}
+            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${viewMode === 'transactions'
+              ? 'bg-gray-900 text-white shadow-lg'
+              : 'bg-white border border-blue-200 hover:bg-blue-50 text-gray-700'
+              }`}
           >
             {viewMode === 'map' ? <RectangleStackIcon className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
             <span className="text-sm font-semibold">{viewMode === 'map' ? 'Transaction Board' : 'Map View'}</span>
@@ -1363,11 +1322,10 @@ const MapPage: React.FC = () => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             onClick={() => setShowFilterPanel(!showFilterPanel)}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
-              showFilterPanel
-                ? 'text-white shadow-lg'
-                : 'bg-white border border-blue-200 hover:bg-blue-50'
-            }`}
+            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${showFilterPanel
+              ? 'text-white shadow-lg'
+              : 'bg-white border border-blue-200 hover:bg-blue-50'
+              }`}
             style={showFilterPanel ? { backgroundColor: 'rgb(3, 105, 161)' } : { color: 'rgb(3, 105, 161)' }}
           >
             <FunnelIcon className="w-5 h-5" />
@@ -1397,102 +1355,105 @@ const MapPage: React.FC = () => {
               <TransactionBoard />
             </div>
           ) : (
-          <MapContainer
-            center={[10, 170]}
-            zoom={3}
-            minZoom={2}
-            maxZoom={18}
-            style={{ height: '100%', width: '100%' }}
-            zoomControl={false}
-            className="bg-blue-50"
-            maxBounds={[[-85, -180], [85, 180]]}
-            maxBoundsViscosity={1.0}
-          >
-            <TileLayer
-              attribution='&copy; OpenStreetMap'
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            />
+            <MapContainer
+              center={[72, -20]}
+              zoom={3}
+              minZoom={2}
+              maxZoom={18}
+              style={{ height: '100%', width: '100%' }}
+              zoomControl={false}
+              className="bg-blue-50"
+              maxBounds={[[-85, -180], [85, 180]]}
+              maxBoundsViscosity={1.0}
+            >
+              <TileLayer
+                attribution='&copy; OpenStreetMap'
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              />
 
-            <MapInteractionHandler onZoomChange={setCurrentZoom} />
-            <MapCenterHandler
-              lat={mapCenter?.lat || urlLat}
-              lng={mapCenter?.lng || urlLng}
-              zoom={mapCenter?.zoom || urlZoom}
-              trigger={centerTrigger}
-            />
-            <ZoomControls />
+              <MapInteractionHandler onZoomChange={setCurrentZoom} />
+              <MapCenterHandler
+                lat={mapCenter?.lat || urlLat}
+                lng={mapCenter?.lng || urlLng}
+                zoom={mapCenter?.zoom || urlZoom}
+                trigger={centerTrigger}
+              />
+              <ZoomControls />
 
-            {/* Blue Animated Lines - Donations from headquarters to missions */}
-            {filteredPaths.map(path => {
-              const layer = getLayerByType(path.type);
-              if (!layer) return null;
-              return (
-                <AnimatedFlightPath
-                  key={path.id}
-                  path={path}
-                  style={layer}
-                  currentTime={currentTime}
-                  interpolation={interpolationMode}
-                />
-              );
-            })}
+              {/* Arctic Circle Overlay - Clickable region */}
+              <ArcticCircleOverlay onArcticClick={() => setShowArcticPanel(true)} />
 
-            {/* Charity Bases - simple blue pins */}
-            {getLayerByType('charities')?.visible && filteredBases.map(base => {
-              const layer = getLayerByType('charities')!;
-              return (
-                <Marker
-                  key={base.id}
-                  position={[base.location.lat, base.location.lng]}
-                  icon={createPropertyBasedIcon(base, layer.colorMode, layer.color, categoryColorMap, false)}
-                  eventHandlers={{
-                    click: () => setSelectedBase(base)
-                  }}
-                >
-                  {layer.showTooltips && (
-                    <Popup maxWidth={280} autoPan={true} autoPanPadding={[50, 50]} className="custom-popup">
-                      <div className="text-sm w-64 bg-white p-4 rounded-lg">
-                        {/* Header */}
-                        <div className="mb-3 pb-3 border-b border-blue-100">
-                          <div className="flex items-center justify-between mb-1">
-                            <h3 className="text-base font-bold text-gray-900">{base.name}</h3>
-                          </div>
-                          <div className="text-xs text-gray-500 flex items-center gap-2">
-                            <span className="capitalize">{base.type}</span>
-                            <span>•</span>
-                            <span>{base.category}</span>
-                          </div>
-                        </div>
+              {/* Blue Animated Lines - Donations from headquarters to missions */}
+              {filteredPaths.map(path => {
+                const layer = getLayerByType(path.type);
+                if (!layer) return null;
+                return (
+                  <AnimatedFlightPath
+                    key={path.id}
+                    path={path}
+                    style={layer}
+                    currentTime={currentTime}
+                    interpolation={interpolationMode}
+                  />
+                );
+              })}
 
-                        {/* Key Stats */}
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="text-center">
-                            <div className="text-xs text-gray-500 mb-0.5">Projects</div>
-                            <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{base.activeProjects}</div>
-                          </div>
-                          <div className="text-center border-x border-blue-100">
-                            <div className="text-xs text-gray-500 mb-0.5">Funding</div>
-                            <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>
-                              ${base.fundingReceived >= 1000000
-                                ? (base.fundingReceived / 1000000).toFixed(1) + 'M'
-                                : (base.fundingReceived / 1000).toFixed(0) + 'K'}
+              {/* Charity Bases - simple blue pins */}
+              {getLayerByType('charities')?.visible && filteredBases.map(base => {
+                const layer = getLayerByType('charities')!;
+                return (
+                  <Marker
+                    key={base.id}
+                    position={[base.location.lat, base.location.lng]}
+                    icon={createPropertyBasedIcon(base, layer.colorMode, layer.color, categoryColorMap, false)}
+                    eventHandlers={{
+                      click: () => setSelectedBase(base)
+                    }}
+                  >
+                    {layer.showTooltips && (
+                      <Popup maxWidth={280} autoPan={true} autoPanPadding={[50, 50]} className="custom-popup">
+                        <div className="text-sm w-64 bg-white p-4 rounded-lg">
+                          {/* Header */}
+                          <div className="mb-3 pb-3 border-b border-blue-100">
+                            <div className="flex items-center justify-between mb-1">
+                              <h3 className="text-base font-bold text-gray-900">{base.name}</h3>
+                            </div>
+                            <div className="text-xs text-gray-500 flex items-center gap-2">
+                              <span className="capitalize">{base.type}</span>
+                              <span>•</span>
+                              <span>{base.category}</span>
                             </div>
                           </div>
-                          <div className="text-center">
-                            <div className="text-xs text-gray-500 mb-0.5">Contributions</div>
-                            <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{base.impact}</div>
+
+                          {/* Key Stats */}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="text-center">
+                              <div className="text-xs text-gray-500 mb-0.5">Projects</div>
+                              <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{base.activeProjects}</div>
+                            </div>
+                            <div className="text-center border-x border-blue-100">
+                              <div className="text-xs text-gray-500 mb-0.5">Funding</div>
+                              <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>
+                                ${base.fundingReceived >= 1000000
+                                  ? (base.fundingReceived / 1000000).toFixed(1) + 'M'
+                                  : (base.fundingReceived / 1000).toFixed(0) + 'K'}
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-xs text-gray-500 mb-0.5">Contributions</div>
+                              <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{base.impact}</div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Popup>
-                  )}
-                </Marker>
-              );
-            })}
+                      </Popup>
+                    )}
+                  </Marker>
+                );
+              })}
 
-            {/* Polar Bear Tracking - REAL DATA from USGS + Churchill */}
-            {getLayerByType('polarbears')?.visible && polarBears.map((bear) => {
-              const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="36" height="36">
+              {/* Polar Bear Tracking - REAL DATA from USGS + Churchill */}
+              {getLayerByType('polarbears')?.visible && polarBears.map((bear) => {
+                const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="36" height="36">
                 <defs>
                   <filter id="shadow">
                     <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/>
@@ -1534,77 +1495,83 @@ const MapPage: React.FC = () => {
                 <circle cx="52" cy="12" r="8" fill="#0369a1" stroke="#ffffff" stroke-width="2"/>
                 <path d="M 52 8 L 52 16 M 48 12 L 56 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
               </svg>`;
-              const polarBearIcon = new Icon({
-                iconUrl: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgIcon),
-                iconSize: [36, 36],
-                iconAnchor: [18, 54],
-                popupAnchor: [0, -54],
-              });
+                const polarBearIcon = new Icon({
+                  iconUrl: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgIcon),
+                  iconSize: [36, 36],
+                  iconAnchor: [18, 54],
+                  popupAnchor: [0, -54],
+                });
 
-              return (
-                <React.Fragment key={bear.id}>
-                  {/* Polar bear current location */}
-                  <Marker
-                    position={[bear.currentLocation.lat, bear.currentLocation.lng]}
-                    icon={polarBearIcon}
-                  >
-                    <Popup maxWidth={280} className="custom-popup">
-                      <div className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl">
-                        {/* Bear emoji header */}
-                        <div className="text-center mb-4">
-                          <div className="text-5xl mb-2">🐻‍❄️</div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-1">{bear.name}</h3>
-                          <div className="inline-block px-3 py-1 bg-blue-100 rounded-full">
-                            <span className="text-xs font-semibold text-blue-700">📍 {bear.region}</span>
-                          </div>
-                        </div>
-
-                        {/* Simple stats */}
-                        <div className="bg-white rounded-lg p-4 shadow-sm space-y-3 mb-3">
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">📅</span>
-                            <div>
-                              <div className="text-xs text-gray-500">Last Seen</div>
-                              <div className="text-sm font-semibold text-gray-900">{bear.lastUpdated.split(' ')[0]}</div>
+                return (
+                  <React.Fragment key={bear.id}>
+                    {/* Polar bear current location */}
+                    <Marker
+                      position={[bear.currentLocation.lat, bear.currentLocation.lng]}
+                      icon={polarBearIcon}
+                    >
+                      <Popup maxWidth={280} className="custom-popup">
+                        <div className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl">
+                          {/* Bear emoji header */}
+                          <div className="text-center mb-4">
+                            <div className="text-5xl mb-2">🐻‍❄️</div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-1">{bear.name}</h3>
+                            <div className="inline-block px-3 py-1 bg-blue-100 rounded-full">
+                              <span className="text-xs font-semibold text-blue-700">📍 {bear.region}</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">🗺️</span>
-                            <div>
-                              <div className="text-xs text-gray-500">Tracked Locations</div>
-                              <div className="text-sm font-semibold" style={{ color: 'rgb(3, 105, 161)' }}>
-                                {bear.trackingHistory.length} GPS points
+
+                          {/* Simple stats */}
+                          <div className="bg-white rounded-lg p-4 shadow-sm space-y-3 mb-3">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">📅</span>
+                              <div>
+                                <div className="text-xs text-gray-500">Last Seen</div>
+                                <div className="text-sm font-semibold text-gray-900">{new Date(bear.lastUpdated).toLocaleDateString()}</div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">🗺️</span>
+                              <div>
+                                <div className="text-xs text-gray-500">Tracked Locations</div>
+                                <div className="text-sm font-semibold" style={{ color: 'rgb(3, 105, 161)' }}>
+                                  {bear.trackingHistory.length} GPS points
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Friendly note */}
-                        <div className="text-center text-xs text-gray-600 bg-blue-50 rounded-lg p-2">
-                          <span className="font-semibold">🛰️ Real GPS Tracking Data</span>
-                          <div className="text-[10px] mt-1">USGS & Polar Bears International</div>
+                          {/* Friendly note */}
+                          <div className="text-center text-xs text-gray-600 bg-blue-50 rounded-lg p-2">
+                            <span className="font-semibold">🛰️ Real GPS Tracking Data</span>
+                            <div className="text-[10px] mt-1">USGS & Polar Bears International</div>
+                          </div>
                         </div>
-                      </div>
-                    </Popup>
-                  </Marker>
+                      </Popup>
+                    </Marker>
 
-                  {/* Tracking path - subtle */}
-                  {bear.trackingHistory.length > 1 && (
-                    <Polyline
-                      positions={bear.trackingHistory.map(point => [point.lat, point.lng])}
-                      pathOptions={{
-                        color: '#0369a1',
-                        weight: 1,
-                        opacity: 0.3,
-                        dashArray: '3, 3'
-                      }}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </MapContainer>
+                    {/* Tracking path - subtle */}
+                    {bear.trackingHistory.length > 1 && (
+                      <Polyline
+                        positions={bear.trackingHistory.map(point => [point.lat, point.lng])}
+                        pathOptions={{
+                          color: '#0369a1',
+                          weight: 1,
+                          opacity: 0.3,
+                          dashArray: '3, 3'
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </MapContainer>
           )}
+
+          {/* Arctic Data Panel - Shows climate metrics when Arctic is focused */}
+          <ArcticDataPanel
+            isOpen={showArcticPanel}
+            onClose={() => setShowArcticPanel(false)}
+          />
         </div>
 
         {/* Impact Stats Panel - Charity Focused */}
@@ -1623,7 +1590,7 @@ const MapPage: React.FC = () => {
                   <h3 className="font-bold text-gray-800">Impact Overview</h3>
                 </div>
                 <button
-                  onClick={() => {}}
+                  onClick={() => { }}
                   className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
                 >
                   <XMarkIcon className="w-5 h-5" />
@@ -2053,11 +2020,10 @@ const MapPage: React.FC = () => {
                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleVote(news.id, 'up')}
-                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition-all ${
-                              news.userVote === 'up'
-                                ? 'bg-green-100 text-green-700'
-                                : 'hover:bg-gray-100 text-gray-500'
-                            }`}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition-all ${news.userVote === 'up'
+                              ? 'bg-green-100 text-green-700'
+                              : 'hover:bg-gray-100 text-gray-500'
+                              }`}
                           >
                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
@@ -2066,11 +2032,10 @@ const MapPage: React.FC = () => {
                           </button>
                           <button
                             onClick={() => handleVote(news.id, 'down')}
-                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition-all ${
-                              news.userVote === 'down'
-                                ? 'bg-red-100 text-red-700'
-                                : 'hover:bg-gray-100 text-gray-500'
-                            }`}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition-all ${news.userVote === 'down'
+                              ? 'bg-red-100 text-red-700'
+                              : 'hover:bg-gray-100 text-gray-500'
+                              }`}
                           >
                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
@@ -2105,3 +2070,4 @@ const MapPage: React.FC = () => {
 };
 
 export default MapPage;
+

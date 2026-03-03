@@ -19,6 +19,10 @@ const Collectable_model_1 = require("../models/Collectable.model");
 const UserCollectable_model_1 = require("../models/UserCollectable.model");
 const Reward_model_1 = require("../models/Reward.model");
 const UserReward_model_1 = require("../models/UserReward.model");
+const PolarBear_model_1 = require("../models/PolarBear.model");
+const ClimateZone_model_1 = require("../models/ClimateZone.model");
+const ResearchStation_model_1 = require("../models/ResearchStation.model");
+const Mission_model_1 = require("../models/Mission.model");
 dotenv_1.default.config();
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -35,6 +39,10 @@ const models = [
     UserCollectable_model_1.UserCollectable,
     Reward_model_1.Reward,
     UserReward_model_1.UserReward,
+    PolarBear_model_1.PolarBear,
+    ClimateZone_model_1.ClimateZone,
+    ResearchStation_model_1.ResearchStation,
+    Mission_model_1.Mission,
 ];
 function createSequelizeInstance() {
     // If DATABASE_URL is provided (Railway), use it directly
