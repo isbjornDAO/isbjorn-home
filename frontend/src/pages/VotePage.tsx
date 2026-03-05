@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { apiService } from '@/services/api';
 import {
   ServerIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ClockIcon,
-  ArrowTrendingUpIcon,
   BanknotesIcon,
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
-import NetworkMap from '@/components/NetworkMap';
-import image0 from '@/assets/image0.jpg';
-
 // Local logo imports
 import pbiLogo from '@/assets/logos/pbi.jpg';
 import wwfLogo from '@/assets/logos/wwf.jpg';
@@ -173,15 +165,6 @@ const VotePage: React.FC = () => {
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-ice-900 mb-1">Decide on the next mission</h1>
           <p className="text-ice-600">Climate mission proposals funded by locked donation nodes</p>
-        </div>
-
-        {/* ADDED IMAGE */}
-        <div className="w-full max-w-2xl mx-auto mb-12 overflow-hidden rounded-lg border-2 border-white/10 shadow-2xl">
-          <img
-            src={image0}
-            alt="Fight Club Context"
-            className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
-          />
         </div>
 
         {/* Node Stats */}

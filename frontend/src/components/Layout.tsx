@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConnectButton, useActiveAccount, useActiveWallet, useDisconnect } from 'thirdweb/react';
@@ -14,7 +14,9 @@ import {
   ArrowRightOnRectangleIcon,
   MapIcon,
   VideoCameraIcon,
-  CheckBadgeIcon
+  CheckBadgeIcon,
+  Bars3Icon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 // Wallet options for thirdweb ConnectButton
@@ -39,6 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const activeAccount = useActiveAccount();
   const activeWallet = useActiveWallet();
   const { disconnect } = useDisconnect();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigation = [
     { name: 'Home', href: '/', icon: HomeIcon },
@@ -63,8 +66,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-ice-50 to-white">
-      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-lg border-b border-white/20 shadow-sm">
-        <nav className="w-full px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-ice-200/50 shadow-sm">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <Link to="/" className="flex items-center">
@@ -130,7 +133,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="hidden sm:flex items-center space-x-3">
                   {/* Thirdweb Connect Button */}
                   {thirdwebClient && (
                     <ConnectButton
@@ -150,9 +153,70 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   )}
                 </div>
               )}
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg text-ice-600 hover:bg-ice-50 transition-colors"
+              >
+                {mobileMenuOpen ? (
+                  <XMarkIcon className="w-6 h-6" />
+                ) : (
+                  <Bars3Icon className="w-6 h-6" />
+                )}
+              </button>
             </div>
           </div>
         </nav>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-ice-100 bg-white/95 backdrop-blur-xl">
+            <div className="px-4 py-3 space-y-1">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`
+                      flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium
+                      transition-all duration-200
+                      ${isActive(item.href)
+                        ? 'bg-arctic-50 text-arctic-700'
+                        : 'text-ice-600 hover:bg-ice-50 hover:text-ice-900'
+                      }
+                    `}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+
+              {/* Wallet connect in mobile menu */}
+              {!isConnected && thirdwebClient && (
+                <div className="pt-3 border-t border-ice-100">
+                  <ConnectButton
+                    client={thirdwebClient}
+                    wallets={wallets}
+                    theme="light"
+                    connectButton={{
+                      label: "Connect Wallet",
+                      className: "!w-full !bg-gradient-to-r !from-arctic-500 !to-polar-500 !text-white !text-sm !px-4 !py-3 !rounded-lg !font-medium hover:!from-arctic-600 hover:!to-polar-600 !transition-all !duration-200 !shadow-sm",
+                    }}
+                    connectModal={{
+                      title: "Sign in to Isbjorn",
+                      size: "compact",
+                      showThirdwebBranding: false,
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">

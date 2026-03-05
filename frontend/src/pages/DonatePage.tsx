@@ -321,7 +321,7 @@ const DonationForm: React.FC = () => {
         )}
 
         {!loading && (
-          <div className="grid grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {charities.map((charity) => {
               const isFollowing = followingIds.has(charity.id);
 
@@ -356,18 +356,18 @@ const DonationForm: React.FC = () => {
                               e.currentTarget.style.display = 'none';
                               const parent = e.currentTarget.parentElement;
                               if (parent) {
-                                parent.innerHTML = `<span class="text-sm font-bold" style="color: #3b82f6">${charity.name.charAt(0)}</span>`;
+                                parent.innerHTML = `<span class="text-sm font-bold text-arctic-600">${charity.name.charAt(0)}</span>`;
                               }
                             }}
                           />
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-base font-bold mb-0.5 truncate" style={{ color: '#3b82f6' }}>
+                          <h3 className="text-base font-bold mb-0.5 truncate text-arctic-700">
                             {charity.name}
                           </h3>
-                          <div className="flex items-center text-xs text-gray-600">
-                            <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5" style={{ backgroundColor: '#3b82f6' }}></span>
+                          <div className="flex items-center text-xs text-ice-500">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 bg-arctic-500"></span>
                             <span className="truncate">{charity.category}</span>
                           </div>
                         </div>
@@ -377,10 +377,9 @@ const DonationForm: React.FC = () => {
                       <button
                         onClick={(e) => handleFollowToggle(charity.id, e)}
                         className={`follow-button flex-shrink-0 ml-2 p-1.5 rounded-full transition-all ${isFollowing
-                          ? 'text-white shadow-md'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? 'bg-arctic-600 text-white shadow-md'
+                          : 'bg-ice-100 text-ice-500 hover:bg-ice-200'
                           }`}
-                        style={isFollowing ? { backgroundColor: '#3b82f6' } : {}}
                         title={isFollowing ? 'Following' : 'Follow for updates'}
                       >
                         {isFollowing ? (
