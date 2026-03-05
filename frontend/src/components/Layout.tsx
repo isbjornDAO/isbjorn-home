@@ -66,8 +66,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-ice-50 to-white">
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-ice-200/50 shadow-sm">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl shadow-sm">
+        {/* Aurora shimmer border */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-arctic-400/40 to-transparent animate-nav-shimmer" style={{ backgroundSize: '200% 100%' }} />
+
+        <nav className="px-4 sm:px-6 lg:px-10">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <Link to="/" className="flex items-center">
@@ -98,16 +101,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Persistent Donate CTA */}
+              <Link
+                to="/donate"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-arctic-600 text-white text-sm font-semibold rounded-lg hover:bg-arctic-700 transition-all duration-200 shadow-sm"
+              >
+                <HeartIcon className="w-4 h-4" />
+                Donate
+              </Link>
+
               {isConnected ? (
-                <div className="flex items-center space-x-1 sm:space-x-3">
-                  {/* Profile link */}
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  {/* Profile link with XP badge */}
                   <Link
                     to="/profile"
-                    className="flex items-center space-x-2 px-2 sm:px-4 py-2 rounded-lg text-sm font-medium text-ice-700 hover:bg-ice-50 transition-colors"
+                    className="flex items-center space-x-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium text-ice-700 hover:bg-ice-50 transition-colors"
                   >
-                    <UserCircleIcon className="w-5 h-5" />
-                    <span className="hidden sm:inline">
+                    <div className="relative">
+                      <UserCircleIcon className="w-5 h-5" />
+                      <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white" />
+                    </div>
+                    <span className="hidden sm:inline truncate max-w-[120px]">
                       {user?.username || user?.email || (activeAccount?.address ? `${activeAccount.address.slice(0, 6)}...${activeAccount.address.slice(-4)}` : 'Profile')}
                     </span>
                   </Link>
@@ -134,15 +149,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               ) : (
                 <div className="hidden sm:flex items-center space-x-3">
-                  {/* Thirdweb Connect Button */}
                   {thirdwebClient && (
                     <ConnectButton
                       client={thirdwebClient}
                       wallets={wallets}
                       theme="light"
                       connectButton={{
-                        label: "Connect Wallet",
-                        className: "!bg-gradient-to-r !from-arctic-500 !to-polar-500 !text-white !text-sm !px-4 !py-2 !rounded-lg !font-medium hover:!from-arctic-600 hover:!to-polar-600 !transition-all !duration-200 !shadow-sm",
+                        label: "Sign In",
+                        className: "!bg-ice-100 !text-ice-700 !text-sm !px-4 !py-2 !rounded-lg !font-medium hover:!bg-ice-200 !transition-all !duration-200",
                       }}
                       connectModal={{
                         title: "Sign in to Isbjorn",
