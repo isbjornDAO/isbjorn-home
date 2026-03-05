@@ -4,6 +4,16 @@ import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import arcticPoster from '@/assets/arctic-video-poster.jpg.jpg.png';
 
+// Charity logos
+import pbiLogo from '@/assets/logos/pbi.jpg';
+import wwfLogo from '@/assets/logos/wwf.jpg';
+import greenpeaceLogo from '@/assets/logos/greenpeace.jpg';
+import oceanConservancyLogo from '@/assets/logos/ocean-conservancy.jpg';
+import natureConservancyLogo from '@/assets/logos/nature-conservancy.jpg';
+import conservationIntlLogo from '@/assets/logos/conservation-intl.jpg';
+import sierraClubLogo from '@/assets/logos/sierra-club.jpg';
+import rainforestLogo from '@/assets/logos/rainforest.jpg';
+
 // Snowflake component for arctic animation
 const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
   const randomX = Math.random() * 100;
@@ -32,10 +42,8 @@ const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
   );
 };
 
-// Words array outside component to prevent recreating
 const TYPING_WORDS = ['polar bears', 'world', 'arctic foxes', 'penguins', 'seals', 'whales', 'walruses', 'caribou', 'snowy owls'];
 
-// Typing animation component
 const TypingText: React.FC = () => {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentText, setCurrentText] = useState('polar bears');
@@ -85,16 +93,15 @@ const TypingText: React.FC = () => {
   );
 };
 
-// Fade-in section wrapper
 const FadeSection: React.FC<{ children: React.ReactNode; className?: string; delay?: number }> = ({ children, className = '', delay = 0 }) => {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: 'easeOut' }}
+      transition={{ duration: 0.6, delay, ease: 'easeOut' }}
       className={className}
     >
       {children}
@@ -102,19 +109,27 @@ const FadeSection: React.FC<{ children: React.ReactNode; className?: string; del
   );
 };
 
+const CHARITIES = [
+  { id: 'pbi', name: 'Polar Bears International', logo: pbiLogo, category: 'Climate', raised: '$154k' },
+  { id: 'wwf-uk', name: 'WWF', logo: wwfLogo, category: 'Conservation', raised: '$185k' },
+  { id: 'greenpeace', name: 'Greenpeace', logo: greenpeaceLogo, category: 'Environment', raised: '$141k' },
+  { id: 'ocean-conservancy', name: 'Ocean Conservancy', logo: oceanConservancyLogo, category: 'Ocean', raised: '$98k' },
+  { id: 'the-nature-conservancy', name: 'The Nature Conservancy', logo: natureConservancyLogo, category: 'Conservation', raised: '$85k' },
+  { id: 'conservation-intl', name: 'Conservation Intl', logo: conservationIntlLogo, category: 'Conservation', raised: '$115k' },
+  { id: 'sierra-club', name: 'Sierra Club', logo: sierraClubLogo, category: 'Environment', raised: '$68k' },
+  { id: 'rainforest-alliance', name: 'Rainforest Alliance', logo: rainforestLogo, category: 'Forest', raised: '$72k' },
+];
+
 const HomePage: React.FC = () => {
   const [videoLoaded, setVideoLoaded] = useState(false);
 
   return (
     <div className="relative">
-      {/* Background Video Section */}
+      {/* ─── HERO ─── */}
       <div className="relative w-full h-[calc(100vh-4rem)] overflow-hidden">
-        {/* Video Background Container with Poster Image */}
         <div
           className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url(${arcticPoster})`
-          }}
+          style={{ backgroundImage: `url(${arcticPoster})` }}
         >
           <iframe
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none transition-opacity duration-1000"
@@ -130,35 +145,26 @@ const HomePage: React.FC = () => {
             title="Polar Bears Video Background"
             frameBorder="0"
             allow="autoplay; encrypted-media"
-            onLoad={() => {
-              setTimeout(() => setVideoLoaded(true), 1500);
-            }}
+            onLoad={() => setTimeout(() => setVideoLoaded(true), 1500)}
           />
           <div className="absolute inset-0 pointer-events-none z-[5]"></div>
         </div>
 
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60 z-10"></div>
 
-        {/* Arctic Snowfall Animation */}
         <div className="absolute inset-0 pointer-events-none z-20">
           {Array.from({ length: 20 }).map((_, i) => (
             <Snowflake key={i} delay={i * 0.4} />
           ))}
         </div>
 
-        {/* Hero Content Over Video */}
         <div className="relative z-30 h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
           <motion.h1
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.4 }}
             className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-black tracking-tight text-center mb-1"
-            style={{
-              paddingBottom: '0.2em',
-              paddingTop: '0.1em',
-              lineHeight: '1.3'
-            }}
+            style={{ paddingBottom: '0.2em', paddingTop: '0.1em', lineHeight: '1.3' }}
           >
             <span
               className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent animate-gradient inline-block"
@@ -181,117 +187,127 @@ const HomePage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="text-xl sm:text-2xl md:text-3xl font-light tracking-wide text-white text-center mb-12 sm:mb-16 max-w-3xl"
-            style={{
-              textShadow: '0 4px 20px rgba(0, 0, 0, 0.8), 0 2px 10px rgba(0, 0, 0, 0.6)'
-            }}
+            className="text-lg sm:text-xl md:text-2xl font-light text-white/90 text-center mb-10 sm:mb-14 max-w-2xl"
+            style={{ textShadow: '0 2px 16px rgba(0, 0, 0, 0.7)' }}
           >
-            Transparent donations. Blockchain accountability. You decide where the money goes.
+            Donate to verified conservation charities. Track every dollar on-chain. Vote on where the money goes.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-3"
           >
             <Link
               to="/donate"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-arctic-700 font-bold text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-arctic-700 font-bold rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
             >
               Start Donating
             </Link>
             <Link
-              to="/map"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/60 hover:bg-white/20 text-white font-bold text-lg rounded-full transition-all duration-300"
+              to="/live"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/10 backdrop-blur-md border border-white/40 hover:bg-white/20 text-white font-semibold rounded-full transition-all duration-300"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-              Explore the Map
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              Watch Live Cams
             </Link>
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30"
-          animate={{ y: [0, 8, 0] }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30"
+          animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <svg className="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
         </motion.div>
       </div>
 
-      {/* === BELOW THE FOLD === */}
-
-      {/* How It Works */}
-      <section className="py-20 sm:py-28 bg-white">
+      {/* ─── LIVE CAM TEASER ─── */}
+      <section className="py-16 sm:py-20 bg-ice-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeSection>
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-display font-bold text-ice-900 mb-4">
-                How Isbjorn works
-              </h2>
-              <p className="text-lg text-ice-500 max-w-2xl mx-auto">
-                Every donation is tracked on-chain. You choose which charities receive funding through direct governance.
-              </p>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+              {/* Video embed */}
+              <div className="lg:col-span-3 relative rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                  <iframe
+                    src="https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&fs=0"
+                    title="Polar Bear Cam"
+                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope"
+                  />
+                  {/* Block YouTube UI */}
+                  <div className="absolute top-0 right-0 w-20 h-14 bg-ice-950 opacity-0 pointer-events-auto z-10"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-ice-950/90 to-transparent pointer-events-auto z-10"></div>
+                </div>
+                {/* Live badge overlay */}
+                <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-white text-xs font-bold tracking-wide">LIVE</span>
+                </div>
+              </div>
+
+              {/* Text */}
+              <div className="lg:col-span-2">
+                <div className="text-xs font-bold text-arctic-400 tracking-widest uppercase mb-3">Hudson Bay, Canada</div>
+                <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-4">
+                  Polar bears.<br />Right now.
+                </h2>
+                <p className="text-ice-400 mb-6 leading-relaxed">
+                  Watch wild polar bears on the shores of Hudson Bay through live cameras operated by Polar Bears International. The best viewing is October through November when bears gather along the coast.
+                </p>
+                <Link
+                  to="/live"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 text-white font-semibold rounded-lg hover:bg-white/15 transition-all duration-200"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                  Open All Cameras
+                </Link>
+              </div>
             </div>
           </FadeSection>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-6">
+      {/* ─── HOW IT WORKS ─── */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeSection>
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-ice-900 text-center mb-4">
+              How it works
+            </h2>
+            <p className="text-ice-500 text-center max-w-lg mx-auto mb-14">
+              Donate. Earn voting power. Decide where the money goes. Track it all on-chain.
+            </p>
+          </FadeSection>
+
+          {/* Steps — horizontal on desktop, vertical on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-0 md:gap-0 relative">
+            {/* Connecting line (desktop only) */}
+            <div className="hidden md:block absolute top-7 left-[12.5%] right-[12.5%] h-px bg-ice-200 z-0"></div>
+
             {[
-              {
-                step: '01',
-                title: 'Donate',
-                desc: 'Send fiat or crypto to verified climate charities. Every transaction is recorded on the Avalanche blockchain.',
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                  </svg>
-                )
-              },
-              {
-                step: '02',
-                title: 'Earn Coins',
-                desc: 'Each donation earns you Donation Coins proportional to your contribution. These coins give you voting power.',
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
-                  </svg>
-                )
-              },
-              {
-                step: '03',
-                title: 'Vote',
-                desc: 'Stake your coins and vote on proposals from verified nonprofits. You decide where conservation funding goes.',
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-                  </svg>
-                )
-              },
-              {
-                step: '04',
-                title: 'Track Impact',
-                desc: 'Follow your donations on-chain from wallet to charity. See real conservation outcomes in real time.',
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
-                  </svg>
-                )
-              }
-            ].map((item, i) => (
-              <FadeSection key={item.step} delay={i * 0.1}>
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-arctic-50 text-arctic-600 mb-5">
-                    {item.icon}
+              { n: '1', title: 'Donate', desc: 'Fiat or crypto to verified charities', color: 'bg-arctic-500' },
+              { n: '2', title: 'Earn', desc: 'Get Donation Coins for voting power', color: 'bg-polar-500' },
+              { n: '3', title: 'Vote', desc: 'Choose which nonprofits get funded', color: 'bg-arctic-600' },
+              { n: '4', title: 'Track', desc: 'Follow your impact on the blockchain', color: 'bg-arctic-800' },
+            ].map((step, i) => (
+              <FadeSection key={step.n} delay={i * 0.08}>
+                <div className="flex md:flex-col items-center md:items-center gap-4 md:gap-0 py-4 md:py-0">
+                  <div className={`relative z-10 w-14 h-14 ${step.color} rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg flex-shrink-0`}>
+                    {step.n}
                   </div>
-                  <div className="text-xs font-bold text-arctic-400 tracking-widest uppercase mb-2">{item.step}</div>
-                  <h3 className="text-xl font-bold text-ice-900 mb-2">{item.title}</h3>
-                  <p className="text-sm text-ice-500 leading-relaxed">{item.desc}</p>
+                  <div className="md:mt-4 md:text-center">
+                    <h3 className="font-bold text-ice-900 text-lg">{step.title}</h3>
+                    <p className="text-sm text-ice-500 mt-0.5">{step.desc}</p>
+                  </div>
                 </div>
               </FadeSection>
             ))}
@@ -299,118 +315,63 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Trust & Transparency */}
-      <section className="py-20 sm:py-28 bg-ice-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <FadeSection>
-              <div>
-                <h2 className="text-3xl sm:text-4xl font-display font-bold text-ice-900 mb-6">
-                  Built for trust,<br />not just transactions
-                </h2>
-                <p className="text-lg text-ice-500 mb-8 leading-relaxed">
-                  Traditional charity platforms take your money and hope for the best. Isbjorn records every donation on the Avalanche blockchain, lets donors vote on fund allocation, and distributes revenue transparently through smart contracts.
-                </p>
-                <div className="space-y-4">
-                  {[
-                    { label: 'On-chain receipts', desc: 'Every donation generates a verifiable blockchain transaction' },
-                    { label: 'DAO governance', desc: 'Donors vote on which nonprofits receive funding each epoch' },
-                    { label: 'Smart contract distribution', desc: '70% to charities, 20% to voters, 10% to platform operations' },
-                  ].map((item) => (
-                    <div key={item.label} className="flex gap-4">
-                      <div className="flex-shrink-0 mt-1">
-                        <div className="w-5 h-5 rounded-full bg-arctic-500 flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-ice-900">{item.label}</h4>
-                        <p className="text-sm text-ice-500">{item.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </FadeSection>
-
-            <FadeSection delay={0.2}>
-              <div className="bg-white rounded-2xl shadow-lg border border-ice-200 p-6 sm:p-8">
-                <div className="text-sm font-semibold text-ice-400 uppercase tracking-wider mb-6">Platform Overview</div>
-                <div className="grid grid-cols-2 gap-6">
-                  {[
-                    { value: '9', label: 'Verified Charities' },
-                    { value: '$102k', label: 'Total Revenue' },
-                    { value: '8', label: 'Validator Nodes' },
-                    { value: '24.5k', label: 'Transactions' },
-                  ].map((stat) => (
-                    <div key={stat.label}>
-                      <div className="text-3xl font-bold text-ice-900 mb-1">{stat.value}</div>
-                      <div className="text-sm text-ice-500">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-8 pt-6 border-t border-ice-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-ice-900">NZ Registered Charity</div>
-                      <div className="text-xs text-ice-500">Avalanche L1 Subnet</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </FadeSection>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Charities Preview */}
-      <section className="py-20 sm:py-28 bg-white">
+      {/* ─── CHARITIES ─── */}
+      <section className="py-16 sm:py-20 bg-ice-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeSection>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-display font-bold text-ice-900 mb-4">
-                Verified charities on the platform
-              </h2>
-              <p className="text-lg text-ice-500">
-                Every organization is vetted and verified before receiving any donations.
-              </p>
-            </div>
-          </FadeSection>
-
-          <FadeSection delay={0.1}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-              {[
-                'Polar Bears International',
-                'WWF',
-                'Greenpeace',
-                'Ocean Conservancy',
-                'The Nature Conservancy',
-              ].map((name) => (
-                <div
-                  key={name}
-                  className="bg-ice-50 rounded-xl p-5 text-center border border-ice-100 hover:border-arctic-200 hover:shadow-md transition-all duration-200"
-                >
-                  <div className="w-10 h-10 rounded-full bg-arctic-100 flex items-center justify-center mx-auto mb-3">
-                    <span className="text-sm font-bold text-arctic-600">{name.charAt(0)}</span>
-                  </div>
-                  <div className="text-sm font-semibold text-ice-800 leading-tight">{name}</div>
-                </div>
-              ))}
-            </div>
-          </FadeSection>
-
-          <FadeSection delay={0.2}>
-            <div className="text-center mt-10">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-display font-bold text-ice-900 mb-2">
+                  Verified charities
+                </h2>
+                <p className="text-ice-500">Every organization is vetted before receiving donations.</p>
+              </div>
               <Link
                 to="/donate"
-                className="inline-flex items-center gap-2 text-arctic-600 font-semibold hover:text-arctic-700 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 text-sm text-arctic-600 font-semibold hover:text-arctic-700 transition-colors"
+              >
+                View all
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+            </div>
+          </FadeSection>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {CHARITIES.map((charity, i) => (
+              <FadeSection key={charity.id} delay={i * 0.04}>
+                <Link
+                  to={`/charity/${charity.id}`}
+                  className="group bg-white rounded-xl p-4 border border-ice-100 hover:border-arctic-200 hover:shadow-lg transition-all duration-200 block"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <img
+                      src={charity.logo}
+                      alt={charity.name}
+                      className="w-10 h-10 rounded-full object-cover border border-ice-100 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-ice-900 truncate group-hover:text-arctic-700 transition-colors">
+                        {charity.name}
+                      </div>
+                      <div className="text-xs text-ice-400">{charity.category}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-ice-400">Raised</span>
+                    <span className="text-sm font-bold text-arctic-700">{charity.raised}</span>
+                  </div>
+                </Link>
+              </FadeSection>
+            ))}
+          </div>
+
+          <FadeSection delay={0.3}>
+            <div className="text-center mt-8 sm:hidden">
+              <Link
+                to="/donate"
+                className="inline-flex items-center gap-1.5 text-sm text-arctic-600 font-semibold hover:text-arctic-700 transition-colors"
               >
                 View all charities
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,30 +383,141 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 sm:py-28 bg-gradient-to-br from-arctic-700 via-arctic-800 to-ice-900">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* ─── EXPLORE THE PLATFORM ─── */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeSection>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-6">
-              Conservation shouldn't be a black box
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-ice-900 text-center mb-4">
+              Explore the platform
             </h2>
-            <p className="text-lg text-arctic-200 mb-10 max-w-2xl mx-auto">
-              Join a community of donors who don't just give money — they govern it. Track every dollar from your wallet to the field.
+            <p className="text-ice-500 text-center max-w-lg mx-auto mb-12">
+              Everything you need to donate, track, and govern — all in one place.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          </FadeSection>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FadeSection delay={0.05}>
               <Link
                 to="/donate"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-arctic-700 font-bold text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+                className="group relative overflow-hidden rounded-xl border border-ice-100 bg-gradient-to-br from-arctic-50 to-white p-6 hover:shadow-lg hover:border-arctic-200 transition-all duration-300 block"
               >
-                Make Your First Donation
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-arctic-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-arctic-200 transition-colors">
+                    <svg className="w-6 h-6 text-arctic-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-ice-900 text-lg mb-1 group-hover:text-arctic-700 transition-colors">Donate</h3>
+                    <p className="text-sm text-ice-500 leading-relaxed">
+                      Choose from verified conservation charities. Pay with card or crypto. Every dollar tracked on-chain.
+                    </p>
+                  </div>
+                </div>
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-5 h-5 text-arctic-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </div>
               </Link>
+            </FadeSection>
+
+            <FadeSection delay={0.1}>
+              <Link
+                to="/vote"
+                className="group relative overflow-hidden rounded-xl border border-ice-100 bg-gradient-to-br from-polar-50 to-white p-6 hover:shadow-lg hover:border-polar-200 transition-all duration-300 block"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-polar-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-polar-200 transition-colors">
+                    <svg className="w-6 h-6 text-polar-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-ice-900 text-lg mb-1 group-hover:text-polar-700 transition-colors">Vote</h3>
+                    <p className="text-sm text-ice-500 leading-relaxed">
+                      Donors govern the treasury. Propose missions, vote on funding, and steer where resources go.
+                    </p>
+                  </div>
+                </div>
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-5 h-5 text-polar-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </div>
+              </Link>
+            </FadeSection>
+
+            <FadeSection delay={0.15}>
               <Link
                 to="/live"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border-2 border-white/30 text-white font-bold text-lg rounded-full transition-all duration-300 hover:bg-white/20"
+                className="group relative overflow-hidden rounded-xl border border-ice-100 bg-gradient-to-br from-ice-50 to-white p-6 hover:shadow-lg hover:border-ice-300 transition-all duration-300 block"
               >
-                Watch Live Cams
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-100 transition-colors">
+                    <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-ice-900 text-lg mb-1 group-hover:text-ice-700 transition-colors">Live Cams</h3>
+                    <p className="text-sm text-ice-500 leading-relaxed">
+                      Watch polar bears, arctic foxes, and marine life in real-time through partner wildlife cameras.
+                    </p>
+                  </div>
+                </div>
+                <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-bold text-red-500">LIVE</span>
+                </div>
               </Link>
-            </div>
+            </FadeSection>
+
+            <FadeSection delay={0.2}>
+              <Link
+                to="/map"
+                className="group relative overflow-hidden rounded-xl border border-ice-100 bg-gradient-to-br from-green-50 to-white p-6 hover:shadow-lg hover:border-green-200 transition-all duration-300 block"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-ice-900 text-lg mb-1 group-hover:text-green-700 transition-colors">Climate Map</h3>
+                    <p className="text-sm text-ice-500 leading-relaxed">
+                      Explore real-time climate data. See where donations are making an impact around the world.
+                    </p>
+                  </div>
+                </div>
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </div>
+              </Link>
+            </FadeSection>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CTA ─── */}
+      <section className="py-16 sm:py-20 bg-ice-900">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <FadeSection>
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-4">
+              Ready to make a difference?
+            </h2>
+            <p className="text-ice-400 mb-8 max-w-xl mx-auto">
+              Pick a charity, make a donation, and watch your impact unfold on-chain. It takes less than a minute.
+            </p>
+            <Link
+              to="/donate"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-ice-900 font-bold text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+            >
+              Choose a Charity
+            </Link>
           </FadeSection>
         </div>
       </section>

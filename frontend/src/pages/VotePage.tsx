@@ -5,6 +5,7 @@ import {
   ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/contexts/AuthContext';
+import image0 from '@/assets/image0.jpg';
 // Local logo imports
 import pbiLogo from '@/assets/logos/pbi.jpg';
 import wwfLogo from '@/assets/logos/wwf.jpg';
@@ -165,6 +166,15 @@ const VotePage: React.FC = () => {
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-ice-900 mb-1">Decide on the next mission</h1>
           <p className="text-ice-600">Climate mission proposals funded by locked donation nodes</p>
+        </div>
+
+        {/* Governance Flow Illustration */}
+        <div className="w-full max-w-2xl mx-auto mb-10 overflow-hidden rounded-xl border border-ice-200 shadow-lg">
+          <img
+            src={image0}
+            alt="Governance flow: Discussion, Proposals, Voting, Execution, Review"
+            className="w-full h-auto object-cover"
+          />
         </div>
 
         {/* Node Stats */}
