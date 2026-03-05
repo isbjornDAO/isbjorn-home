@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
+import { useAuth } from '@/contexts/AuthContext';
+import { useActiveAccount } from 'thirdweb/react';
 import arcticPoster from '@/assets/arctic-video-poster.jpg.jpg.png';
 
 // Charity logos
@@ -14,28 +16,61 @@ import conservationIntlLogo from '@/assets/logos/conservation-intl.jpg';
 import sierraClubLogo from '@/assets/logos/sierra-club.jpg';
 import rainforestLogo from '@/assets/logos/rainforest.jpg';
 
-// Snowflake component for arctic animation
+// ─── MOCK DATA ───
+
+const MOCK_TRENDING = [
+  { id: 'pbi', name: 'Polar Bears International', logo: pbiLogo, category: 'Climate', sparkline: [12, 15, 13, 18, 22, 19, 25, 28, 24, 30, 27, 35], followers: 2847, weeklyChange: 23, raised: '$154,200' },
+  { id: 'wwf-uk', name: 'WWF', logo: wwfLogo, category: 'Conservation', sparkline: [20, 22, 21, 24, 23, 26, 28, 27, 30, 29, 32, 34], followers: 4102, weeklyChange: 12, raised: '$185,400' },
+  { id: 'greenpeace', name: 'Greenpeace', logo: greenpeaceLogo, category: 'Environment', sparkline: [8, 10, 12, 11, 15, 18, 17, 20, 22, 24, 23, 28], followers: 3291, weeklyChange: 18, raised: '$141,800' },
+  { id: 'ocean-conservancy', name: 'Ocean Conservancy', logo: oceanConservancyLogo, category: 'Ocean', sparkline: [5, 8, 7, 12, 15, 14, 20, 22, 25, 28, 30, 35], followers: 1856, weeklyChange: 31, raised: '$98,500' },
+  { id: 'the-nature-conservancy', name: 'The Nature Conservancy', logo: natureConservancyLogo, category: 'Conservation', sparkline: [18, 19, 20, 19, 21, 22, 23, 22, 24, 25, 26, 27], followers: 2134, weeklyChange: 8, raised: '$85,200' },
+  { id: 'conservation-intl', name: 'Conservation Intl', logo: conservationIntlLogo, category: 'Conservation', sparkline: [10, 12, 14, 13, 16, 18, 20, 19, 22, 24, 26, 28], followers: 1678, weeklyChange: 15, raised: '$115,600' },
+];
+
+const MOCK_ACTIVITY = [
+  { id: 1, type: 'donation' as const, user: 'arctic_whale', detail: 'donated $250 to Polar Bears International', time: '2m ago' },
+  { id: 2, type: 'vote' as const, user: 'icekeeper', detail: 'voted on "Fund Arctic Research Station"', time: '5m ago' },
+  { id: 3, type: 'donation' as const, user: 'snow_leopard', detail: 'donated $1,000 to WWF', time: '8m ago' },
+  { id: 4, type: 'follow' as const, user: 'northern_lights', detail: 'started following Ocean Conservancy', time: '12m ago' },
+  { id: 5, type: 'donation' as const, user: 'tundra_fox', detail: 'donated $75 to Greenpeace', time: '15m ago' },
+  { id: 6, type: 'proposal' as const, user: 'glacier_guard', detail: 'created "Expand Svalbard Monitoring"', time: '22m ago' },
+  { id: 7, type: 'donation' as const, user: 'polar_dawn', detail: 'donated $500 to Nature Conservancy', time: '28m ago' },
+  { id: 8, type: 'vote' as const, user: 'frost_byte', detail: 'voted on "Q1 2026 Allocations"', time: '34m ago' },
+];
+
+const MOCK_MISSIONS = [
+  { id: 'm1', name: 'Arctic Research Station Expansion', charity: 'Polar Bears International', charityLogo: pbiLogo, fundingGoal: 50000, fundingReceived: 34200, status: 'active' as const },
+  { id: 'm2', name: 'Marine Conservation Svalbard', charity: 'WWF', charityLogo: wwfLogo, fundingGoal: 75000, fundingReceived: 52100, status: 'voting' as const },
+  { id: 'm3', name: 'Rainforest Protection Initiative', charity: 'Greenpeace', charityLogo: greenpeaceLogo, fundingGoal: 40000, fundingReceived: 40000, status: 'funded' as const },
+];
+
+const MOCK_PROPOSALS = [
+  { id: 'p1', title: 'Fund Marine Conservation Project', proposer: 'WWF', votesFor: 450, votesAgainst: 120, votingEnds: '2d 14h', status: 'active' as const },
+  { id: 'p2', title: 'Expand Arctic Research Stations', proposer: 'NRDC', votesFor: 380, votesAgainst: 90, votingEnds: '4d 8h', status: 'active' as const },
+  { id: 'p3', title: 'Rainforest Protection Initiative', proposer: 'Greenpeace', votesFor: 520, votesAgainst: 80, votingEnds: 'Ended', status: 'passed' as const },
+];
+
+const MOCK_LEADERBOARD = [
+  { rank: 1, name: 'GlacierGuard', initials: 'GG', total: '$12,450', donations: 47 },
+  { rank: 2, name: 'ArcticPhoenix', initials: 'AP', total: '$9,820', donations: 34 },
+  { rank: 3, name: 'NorthernStar', initials: 'NS', total: '$8,340', donations: 62 },
+  { rank: 4, name: 'IcebergAlpha', initials: 'IA', total: '$6,190', donations: 28 },
+  { rank: 5, name: 'PolarVortex', initials: 'PV', total: '$4,750', donations: 19 },
+];
+
+// ─── HELPER COMPONENTS ───
+
 const Snowflake: React.FC<{ delay: number }> = ({ delay }) => {
   const randomX = Math.random() * 100;
-  const randomDuration = 8 + Math.random() * 4;
-
+  const randomDuration = 10 + Math.random() * 6;
   return (
     <motion.div
-      className="absolute text-blue-200 opacity-40"
+      className="absolute text-blue-200 opacity-30"
       style={{ left: `${randomX}%`, top: '-20px' }}
-      animate={{
-        y: ['0vh', '110vh'],
-        x: [0, Math.sin(delay) * 50, 0],
-        rotate: [0, 360]
-      }}
-      transition={{
-        duration: randomDuration,
-        repeat: Infinity,
-        delay: delay,
-        ease: 'linear'
-      }}
+      animate={{ y: ['0vh', '110vh'], x: [0, Math.sin(delay) * 30, 0], rotate: [0, 360] }}
+      transition={{ duration: randomDuration, repeat: Infinity, delay, ease: 'linear' }}
     >
-      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+      <svg className="w-2 h-2" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2L10 10L2 12L10 14L12 22L14 14L22 12L14 10L12 2Z" />
       </svg>
     </motion.div>
@@ -52,475 +87,465 @@ const TypingText: React.FC = () => {
 
   useEffect(() => {
     const currentWord = TYPING_WORDS[currentWordIndex];
-
     if (isPaused) {
       const pauseDuration = currentWordIndex === 0 && currentText === 'polar bears' ? 3000 : 2000;
-      const pauseTimeout = setTimeout(() => {
-        setIsPaused(false);
-        setIsDeleting(true);
-      }, pauseDuration);
-      return () => clearTimeout(pauseTimeout);
+      const t = setTimeout(() => { setIsPaused(false); setIsDeleting(true); }, pauseDuration);
+      return () => clearTimeout(t);
     }
-
-    if (!isDeleting && currentText === currentWord) {
-      setIsPaused(true);
-      return;
-    }
-
-    const typingSpeed = isDeleting ? 50 : 100;
-
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setCurrentText(currentWord.slice(0, currentText.length + 1));
-      } else {
-        if (currentText.length > 0) {
-          setCurrentText(currentText.slice(0, -1));
-        } else {
-          setIsDeleting(false);
-          setCurrentWordIndex((prev) => (prev + 1) % TYPING_WORDS.length);
-        }
-      }
-    }, typingSpeed);
-
-    return () => clearTimeout(timeout);
+    if (!isDeleting && currentText === currentWord) { setIsPaused(true); return; }
+    const speed = isDeleting ? 50 : 100;
+    const t = setTimeout(() => {
+      if (!isDeleting) { setCurrentText(currentWord.slice(0, currentText.length + 1)); }
+      else if (currentText.length > 0) { setCurrentText(currentText.slice(0, -1)); }
+      else { setIsDeleting(false); setCurrentWordIndex((p) => (p + 1) % TYPING_WORDS.length); }
+    }, speed);
+    return () => clearTimeout(t);
   }, [currentText, isDeleting, isPaused, currentWordIndex]);
 
-  return (
-    <span className="inline-block">
-      {currentText}
-      <span className="animate-pulse">|</span>
-    </span>
-  );
+  return <span className="inline-block">{currentText}<span className="animate-pulse">|</span></span>;
 };
 
-const FadeSection: React.FC<{ children: React.ReactNode; className?: string; delay?: number }> = ({ children, className = '', delay = 0 }) => {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
-
+const FadeIn: React.FC<{ children: React.ReactNode; className?: string; delay?: number }> = ({ children, className = '', delay = 0 }) => {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.05 });
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: 'easeOut' }}
-      className={className}
-    >
+    <motion.div ref={ref} initial={{ opacity: 0, y: 16 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay, ease: 'easeOut' }} className={className}>
       {children}
     </motion.div>
   );
 };
 
-const CHARITIES = [
-  { id: 'pbi', name: 'Polar Bears International', logo: pbiLogo, category: 'Climate', raised: '$154k' },
-  { id: 'wwf-uk', name: 'WWF', logo: wwfLogo, category: 'Conservation', raised: '$185k' },
-  { id: 'greenpeace', name: 'Greenpeace', logo: greenpeaceLogo, category: 'Environment', raised: '$141k' },
-  { id: 'ocean-conservancy', name: 'Ocean Conservancy', logo: oceanConservancyLogo, category: 'Ocean', raised: '$98k' },
-  { id: 'the-nature-conservancy', name: 'The Nature Conservancy', logo: natureConservancyLogo, category: 'Conservation', raised: '$85k' },
-  { id: 'conservation-intl', name: 'Conservation Intl', logo: conservationIntlLogo, category: 'Conservation', raised: '$115k' },
-  { id: 'sierra-club', name: 'Sierra Club', logo: sierraClubLogo, category: 'Environment', raised: '$68k' },
-  { id: 'rainforest-alliance', name: 'Rainforest Alliance', logo: rainforestLogo, category: 'Forest', raised: '$72k' },
-];
+// SVG sparkline
+const Sparkline: React.FC<{ data: number[]; color?: string; className?: string }> = ({ data, color = '#0ea5e9', className = '' }) => {
+  const w = 72, h = 24;
+  const max = Math.max(...data), min = Math.min(...data), range = max - min || 1;
+  const pts = data.map((v, i) => ({ x: (i / (data.length - 1)) * w, y: h - ((v - min) / range) * (h - 4) - 2 }));
+  const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const fillD = `${d} L${w},${h} L0,${h} Z`;
+  return (
+    <svg width={w} height={h} className={className} viewBox={`0 0 ${w} ${h}`}>
+      <defs><linearGradient id={`sg-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={0.15} /><stop offset="100%" stopColor={color} stopOpacity={0} /></linearGradient></defs>
+      <path d={fillD} fill={`url(#sg-${color.replace('#', '')})`} />
+      <path d={d} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+};
+
+// Animated counter
+const Counter: React.FC<{ end: number; prefix?: string; suffix?: string }> = ({ end, prefix = '', suffix = '' }) => {
+  const [count, setCount] = useState(0);
+  const [ref, inView] = useInView({ triggerOnce: true });
+  useEffect(() => {
+    if (!inView) return;
+    let frame = 0;
+    const frames = 50;
+    const inc = end / frames;
+    const timer = setInterval(() => {
+      frame++;
+      if (frame >= frames) { setCount(end); clearInterval(timer); }
+      else { setCount(Math.floor(inc * frame)); }
+    }, 30);
+    return () => clearInterval(timer);
+  }, [inView, end]);
+  const fmt = count >= 1000000 ? `${(count / 1000000).toFixed(1)}M` : count >= 1000 ? `${(count / 1000).toFixed(1)}K` : count.toLocaleString();
+  return <span ref={ref}>{prefix}{fmt}{suffix}</span>;
+};
+
+// Activity type config
+const activityConfig = {
+  donation: { color: 'text-green-500', bg: 'bg-green-50', icon: '💚' },
+  vote: { color: 'text-arctic-500', bg: 'bg-arctic-50', icon: '🗳️' },
+  proposal: { color: 'text-purple-500', bg: 'bg-purple-50', icon: '📝' },
+  follow: { color: 'text-pink-500', bg: 'bg-pink-50', icon: '⭐' },
+};
+
+// Rank badge colors
+const rankColors = ['', 'from-yellow-400 to-amber-500', 'from-gray-300 to-gray-400', 'from-amber-600 to-amber-700'];
+
+// ─── MAIN COMPONENT ───
 
 const HomePage: React.FC = () => {
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const activeAccount = useActiveAccount();
+  const isConnected = isAuthenticated || !!activeAccount;
+  const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
+
+  const toggleFollow = (id: string) => {
+    setFollowedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
 
   return (
-    <div className="relative">
-      {/* ─── HERO ─── */}
-      <div className="relative w-full h-[calc(100vh-4rem)] overflow-hidden">
-        <div
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${arcticPoster})` }}
-        >
+    <div className="relative bg-ice-50 min-h-screen">
+
+      {/* ─── COMPACT HERO ─── */}
+      <div className="relative w-full overflow-hidden" style={{ height: 'min(42vh, 420px)' }}>
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${arcticPoster})` }}>
           <iframe
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none transition-opacity duration-1000"
-            style={{
-              minWidth: '100%',
-              minHeight: '100%',
-              width: '1920px',
-              height: '1080px',
-              objectFit: 'cover',
-              opacity: videoLoaded ? 1 : 0
-            }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-1000"
+            style={{ minWidth: '100%', minHeight: '100%', width: '1920px', height: '1080px', objectFit: 'cover', opacity: videoLoaded ? 1 : 0 }}
             src="https://www.youtube.com/embed/64ZaC04ppLQ?autoplay=1&mute=1&loop=1&playlist=64ZaC04ppLQ&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&iv_load_policy=3&disablekb=1&fs=0&origin=https://isbjorn.io"
             title="Polar Bears Video Background"
             frameBorder="0"
             allow="autoplay; encrypted-media"
             onLoad={() => setTimeout(() => setVideoLoaded(true), 1500)}
           />
-          <div className="absolute inset-0 pointer-events-none z-[5]"></div>
         </div>
-
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60 z-10"></div>
-
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-ice-50 z-10" />
         <div className="absolute inset-0 pointer-events-none z-20">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <Snowflake key={i} delay={i * 0.4} />
-          ))}
+          {Array.from({ length: 10 }).map((_, i) => <Snowflake key={i} delay={i * 0.6} />)}
         </div>
 
-        <div className="relative z-30 h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="relative z-30 h-full flex flex-col items-center justify-center px-4">
           <motion.h1
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-black tracking-tight text-center mb-1"
-            style={{ paddingBottom: '0.2em', paddingTop: '0.1em', lineHeight: '1.3' }}
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tight text-center mb-2"
           >
-            <span
-              className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent animate-gradient inline-block"
-              style={{
-                backgroundSize: '200% 100%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                paintOrder: 'stroke fill',
-                WebkitTextStroke: '0.5px rgba(255, 255, 255, 0.3)',
-                filter: 'drop-shadow(0 4px 20px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.3))',
-                display: 'inline-block',
-                overflow: 'visible'
-              }}
-            >
-              It's time to save the <TypingText />
-            </span>
+            <span className="text-white drop-shadow-lg">It's time to save the <TypingText /></span>
           </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="text-lg sm:text-xl md:text-2xl font-light text-white/90 text-center mb-10 sm:mb-14 max-w-2xl"
-            style={{ textShadow: '0 2px 16px rgba(0, 0, 0, 0.7)' }}
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.6 }}
+            className="text-sm sm:text-base text-white/80 text-center mb-5 max-w-lg"
+            style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
           >
-            Donate to verified conservation charities. Track every dollar on-chain. Vote on where the money goes.
+            Donate. Track on-chain. Vote on where the money goes.
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="flex flex-col sm:flex-row gap-3"
-          >
-            <Link
-              to="/donate"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-arctic-700 font-bold rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-            >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.5 }} className="flex gap-3">
+            <Link to="/donate" className="px-5 py-2.5 bg-white text-arctic-700 font-bold text-sm rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
               Start Donating
             </Link>
-            <Link
-              to="/live"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/10 backdrop-blur-md border border-white/40 hover:bg-white/20 text-white font-semibold rounded-full transition-all duration-300"
-            >
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              Watch Live Cams
+            <Link to="/live" className="flex items-center gap-2 px-5 py-2.5 bg-white/15 backdrop-blur-md border border-white/30 text-white font-semibold text-sm rounded-full hover:bg-white/25 transition-all duration-300">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              Watch Live
             </Link>
           </motion.div>
         </div>
-
-        <motion.div
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30"
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </motion.div>
       </div>
 
-      {/* ─── LIVE CAM TEASER ─── */}
-      <section className="py-16 sm:py-20 bg-ice-950">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeSection>
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-              {/* Video embed */}
-              <div className="lg:col-span-3 relative rounded-xl overflow-hidden shadow-2xl border border-white/10">
-                <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-                  <iframe
-                    src="https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&fs=0"
-                    title="Polar Bear Cam"
-                    className="absolute inset-0 w-full h-full pointer-events-none"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope"
-                  />
-                  {/* Block YouTube UI */}
-                  <div className="absolute top-0 right-0 w-20 h-14 bg-ice-950 opacity-0 pointer-events-auto z-10"></div>
-                  <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-ice-950/90 to-transparent pointer-events-auto z-10"></div>
+      {/* ─── STATS BAR ─── */}
+      <div className="relative -mt-6 z-40 px-4 sm:px-6 lg:px-10">
+        <FadeIn>
+          <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg border border-ice-100 px-6 py-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              {[
+                { label: 'Total Donated', value: 1247000, prefix: '$' },
+                { label: 'Active Donors', value: 8432 },
+                { label: 'Charities Funded', value: 12 },
+                { label: 'Votes Cast', value: 24500 },
+              ].map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div className="text-xl sm:text-2xl font-black text-ice-900">
+                    <Counter end={stat.value} prefix={stat.prefix || ''} />
+                  </div>
+                  <div className="text-xs text-ice-400 font-medium mt-0.5">{stat.label}</div>
                 </div>
-                {/* Live badge overlay */}
-                <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-white text-xs font-bold tracking-wide">LIVE</span>
-                </div>
-              </div>
-
-              {/* Text */}
-              <div className="lg:col-span-2">
-                <div className="text-xs font-bold text-arctic-400 tracking-widest uppercase mb-3">Hudson Bay, Canada</div>
-                <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-4">
-                  Polar bears.<br />Right now.
-                </h2>
-                <p className="text-ice-400 mb-6 leading-relaxed">
-                  Watch wild polar bears on the shores of Hudson Bay through live cameras operated by Polar Bears International. The best viewing is October through November when bears gather along the coast.
-                </p>
-                <Link
-                  to="/live"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 border border-white/20 text-white font-semibold rounded-lg hover:bg-white/15 transition-all duration-200"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
-                  Open All Cameras
-                </Link>
-              </div>
+              ))}
             </div>
-          </FadeSection>
-        </div>
-      </section>
-
-      {/* ─── HOW IT WORKS ─── */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeSection>
-            <h2 className="text-2xl sm:text-3xl font-display font-bold text-ice-900 text-center mb-4">
-              How it works
-            </h2>
-            <p className="text-ice-500 text-center max-w-lg mx-auto mb-14">
-              Donate. Earn voting power. Decide where the money goes. Track it all on-chain.
-            </p>
-          </FadeSection>
-
-          {/* Steps — horizontal on desktop, vertical on mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-0 md:gap-0 relative">
-            {/* Connecting line (desktop only) */}
-            <div className="hidden md:block absolute top-7 left-[12.5%] right-[12.5%] h-px bg-ice-200 z-0"></div>
-
-            {[
-              { n: '1', title: 'Donate', desc: 'Fiat or crypto to verified charities', color: 'bg-arctic-500' },
-              { n: '2', title: 'Earn', desc: 'Get Donation Coins for voting power', color: 'bg-polar-500' },
-              { n: '3', title: 'Vote', desc: 'Choose which nonprofits get funded', color: 'bg-arctic-600' },
-              { n: '4', title: 'Track', desc: 'Follow your impact on the blockchain', color: 'bg-arctic-800' },
-            ].map((step, i) => (
-              <FadeSection key={step.n} delay={i * 0.08}>
-                <div className="flex md:flex-col items-center md:items-center gap-4 md:gap-0 py-4 md:py-0">
-                  <div className={`relative z-10 w-14 h-14 ${step.color} rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg flex-shrink-0`}>
-                    {step.n}
-                  </div>
-                  <div className="md:mt-4 md:text-center">
-                    <h3 className="font-bold text-ice-900 text-lg">{step.title}</h3>
-                    <p className="text-sm text-ice-500 mt-0.5">{step.desc}</p>
-                  </div>
-                </div>
-              </FadeSection>
-            ))}
           </div>
-        </div>
-      </section>
+        </FadeIn>
+      </div>
 
-      {/* ─── CHARITIES ─── */}
-      <section className="py-16 sm:py-20 bg-ice-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeSection>
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-display font-bold text-ice-900 mb-2">
-                  Verified charities
+      {/* ─── DASHBOARD GRID ─── */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-8 space-y-4">
+
+        {/* Row 1: Trending (2 cols) + Live Cam (1 col) + Missions (1 col) */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+          {/* Trending Charities — spans 2 cols */}
+          <FadeIn className="lg:col-span-2" delay={0.05}>
+            <div className="bg-white rounded-2xl border border-ice-100 shadow-sm p-5 h-full animate-aurora">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-bold text-ice-900 flex items-center gap-2">
+                  <span className="text-lg">🔥</span> Trending Charities
                 </h2>
-                <p className="text-ice-500">Every organization is vetted before receiving donations.</p>
+                <Link to="/donate" className="text-xs text-arctic-600 font-semibold hover:text-arctic-700 transition-colors">View all →</Link>
               </div>
-              <Link
-                to="/donate"
-                className="hidden sm:inline-flex items-center gap-1.5 text-sm text-arctic-600 font-semibold hover:text-arctic-700 transition-colors"
-              >
-                View all
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-            </div>
-          </FadeSection>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {CHARITIES.map((charity, i) => (
-              <FadeSection key={charity.id} delay={i * 0.04}>
-                <Link
-                  to={`/charity/${charity.id}`}
-                  className="group bg-white rounded-xl p-4 border border-ice-100 hover:border-arctic-200 hover:shadow-lg transition-all duration-200 block"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <img
-                      src={charity.logo}
-                      alt={charity.name}
-                      className="w-10 h-10 rounded-full object-cover border border-ice-100 flex-shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold text-ice-900 truncate group-hover:text-arctic-700 transition-colors">
-                        {charity.name}
-                      </div>
-                      <div className="text-xs text-ice-400">{charity.category}</div>
+              <div className="space-y-0">
+                {MOCK_TRENDING.map((c, i) => (
+                  <Link key={c.id} to={`/charity/${c.id}`}
+                    className="flex items-center gap-3 py-2.5 px-2 -mx-2 rounded-lg hover:bg-ice-50 transition-colors group cursor-pointer"
+                  >
+                    <span className="text-xs font-bold text-ice-300 w-4 text-right">{i + 1}</span>
+                    <img src={c.logo} alt={c.name} className="w-8 h-8 rounded-full object-cover border border-ice-100 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-ice-900 truncate group-hover:text-arctic-700 transition-colors">{c.name}</div>
+                      <div className="text-xs text-ice-400">{c.category}</div>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-ice-400">Raised</span>
-                    <span className="text-sm font-bold text-arctic-700">{charity.raised}</span>
-                  </div>
-                </Link>
-              </FadeSection>
-            ))}
-          </div>
-
-          <FadeSection delay={0.3}>
-            <div className="text-center mt-8 sm:hidden">
-              <Link
-                to="/donate"
-                className="inline-flex items-center gap-1.5 text-sm text-arctic-600 font-semibold hover:text-arctic-700 transition-colors"
-              >
-                View all charities
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
+                    <Sparkline data={c.sparkline} color={c.weeklyChange > 20 ? '#22c55e' : '#0ea5e9'} className="hidden sm:block flex-shrink-0" />
+                    <div className="text-right flex-shrink-0 hidden sm:block">
+                      <div className="text-xs font-bold text-green-600">+{c.weeklyChange}%</div>
+                      <div className="text-xs text-ice-400">{c.followers.toLocaleString()}</div>
+                    </div>
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFollow(c.id); }}
+                      className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 ${followedIds.has(c.id) ? 'bg-arctic-100 text-arctic-700' : 'bg-ice-100 text-ice-500 hover:bg-arctic-50 hover:text-arctic-600'}`}
+                    >
+                      {followedIds.has(c.id) ? 'Following' : 'Follow'}
+                    </button>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </FadeSection>
-        </div>
-      </section>
+          </FadeIn>
 
-      {/* ─── EXPLORE THE PLATFORM ─── */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeSection>
-            <h2 className="text-2xl sm:text-3xl font-display font-bold text-ice-900 text-center mb-4">
-              Explore the platform
-            </h2>
-            <p className="text-ice-500 text-center max-w-lg mx-auto mb-12">
-              Everything you need to donate, track, and govern — all in one place.
-            </p>
-          </FadeSection>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FadeSection delay={0.05}>
-              <Link
-                to="/donate"
-                className="group relative overflow-hidden rounded-xl border border-ice-100 bg-gradient-to-br from-arctic-50 to-white p-6 hover:shadow-lg hover:border-arctic-200 transition-all duration-300 block"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-arctic-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-arctic-200 transition-colors">
-                    <svg className="w-6 h-6 text-arctic-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-ice-900 text-lg mb-1 group-hover:text-arctic-700 transition-colors">Donate</h3>
-                    <p className="text-sm text-ice-500 leading-relaxed">
-                      Choose from verified conservation charities. Pay with card or crypto. Every dollar tracked on-chain.
-                    </p>
-                  </div>
+          {/* Live Cam Preview */}
+          <FadeIn className="lg:col-span-1" delay={0.1}>
+            <Link to="/live" className="block bg-ice-950 rounded-2xl border border-white/10 shadow-sm overflow-hidden h-full group">
+              <div className="relative w-full animate-breathe" style={{ paddingTop: '75%' }}>
+                <iframe
+                  src="https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1&fs=0"
+                  title="Polar Bear Cam"
+                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  frameBorder="0"
+                  allow="accelerometer; encrypted-media"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ice-950/80 via-transparent to-transparent z-10" />
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full">
+                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                  <span className="text-white text-[10px] font-bold tracking-wide">LIVE</span>
                 </div>
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg className="w-5 h-5 text-arctic-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
+              </div>
+              <div className="p-4">
+                <div className="text-xs font-bold text-arctic-400 tracking-widest uppercase mb-1">Hudson Bay</div>
+                <div className="text-white font-bold text-sm mb-1 group-hover:text-arctic-300 transition-colors">Polar Bears — Right Now</div>
+                <div className="flex items-center gap-1.5 text-ice-500 text-xs">
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+                  1,247 watching
                 </div>
-              </Link>
-            </FadeSection>
-
-            <FadeSection delay={0.1}>
-              <Link
-                to="/vote"
-                className="group relative overflow-hidden rounded-xl border border-ice-100 bg-gradient-to-br from-polar-50 to-white p-6 hover:shadow-lg hover:border-polar-200 transition-all duration-300 block"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-polar-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-polar-200 transition-colors">
-                    <svg className="w-6 h-6 text-polar-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-ice-900 text-lg mb-1 group-hover:text-polar-700 transition-colors">Vote</h3>
-                    <p className="text-sm text-ice-500 leading-relaxed">
-                      Donors govern the treasury. Propose missions, vote on funding, and steer where resources go.
-                    </p>
-                  </div>
-                </div>
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg className="w-5 h-5 text-polar-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </div>
-              </Link>
-            </FadeSection>
-
-            <FadeSection delay={0.15}>
-              <Link
-                to="/live"
-                className="group relative overflow-hidden rounded-xl border border-ice-100 bg-gradient-to-br from-ice-50 to-white p-6 hover:shadow-lg hover:border-ice-300 transition-all duration-300 block"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-red-100 transition-colors">
-                    <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-ice-900 text-lg mb-1 group-hover:text-ice-700 transition-colors">Live Cams</h3>
-                    <p className="text-sm text-ice-500 leading-relaxed">
-                      Watch polar bears, arctic foxes, and marine life in real-time through partner wildlife cameras.
-                    </p>
-                  </div>
-                </div>
-                <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs font-bold text-red-500">LIVE</span>
-                </div>
-              </Link>
-            </FadeSection>
-
-            <FadeSection delay={0.2}>
-              <Link
-                to="/map"
-                className="group relative overflow-hidden rounded-xl border border-ice-100 bg-gradient-to-br from-green-50 to-white p-6 hover:shadow-lg hover:border-green-200 transition-all duration-300 block"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-ice-900 text-lg mb-1 group-hover:text-green-700 transition-colors">Climate Map</h3>
-                    <p className="text-sm text-ice-500 leading-relaxed">
-                      Explore real-time climate data. See where donations are making an impact around the world.
-                    </p>
-                  </div>
-                </div>
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </div>
-              </Link>
-            </FadeSection>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── CTA ─── */}
-      <section className="py-16 sm:py-20 bg-ice-900">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <FadeSection>
-            <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-4">
-              Ready to make a difference?
-            </h2>
-            <p className="text-ice-400 mb-8 max-w-xl mx-auto">
-              Pick a charity, make a donation, and watch your impact unfold on-chain. It takes less than a minute.
-            </p>
-            <Link
-              to="/donate"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-ice-900 font-bold text-lg rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-            >
-              Choose a Charity
+              </div>
             </Link>
-          </FadeSection>
+          </FadeIn>
+
+          {/* Active Missions */}
+          <FadeIn className="lg:col-span-1" delay={0.15}>
+            <div className="bg-white rounded-2xl border border-ice-100 shadow-sm p-5 h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-bold text-ice-900 flex items-center gap-2">
+                  <span className="text-lg">🎯</span> Active Missions
+                </h2>
+                <Link to="/map" className="text-xs text-arctic-600 font-semibold hover:text-arctic-700 transition-colors">Map →</Link>
+              </div>
+              <div className="space-y-3">
+                {MOCK_MISSIONS.map((m) => {
+                  const pct = Math.min(100, Math.round((m.fundingReceived / m.fundingGoal) * 100));
+                  const statusColors = { active: 'bg-green-100 text-green-700', voting: 'bg-arctic-100 text-arctic-700', funded: 'bg-purple-100 text-purple-700' };
+                  return (
+                    <Link key={m.id} to="/vote" className="block p-3 rounded-xl border border-ice-100 hover:border-arctic-200 hover:shadow-sm transition-all group">
+                      <div className="flex items-center gap-2 mb-2">
+                        <img src={m.charityLogo} alt={m.charity} className="w-6 h-6 rounded-full object-cover border border-ice-100" />
+                        <span className="text-xs font-semibold text-ice-900 truncate flex-1 group-hover:text-arctic-700 transition-colors">{m.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <div className="flex-1 h-1.5 bg-ice-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-arctic-400 to-arctic-600 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-xs font-bold text-ice-500">{pct}%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-ice-400">${(m.fundingReceived / 1000).toFixed(1)}k / ${(m.fundingGoal / 1000).toFixed(0)}k</span>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${statusColors[m.status]}`}>{m.status}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </FadeIn>
         </div>
-      </section>
+
+        {/* Row 2: Activity Feed (1 col) + Map Snapshot (2 cols) + Voting (1 col) */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+          {/* Activity Feed */}
+          <FadeIn className="lg:col-span-1" delay={0.2}>
+            <div className="bg-white rounded-2xl border border-ice-100 shadow-sm p-5 h-full">
+              <h2 className="text-sm font-bold text-ice-900 flex items-center gap-2 mb-4">
+                <span className="text-lg">⚡</span> Live Activity
+              </h2>
+              <div className="space-y-2">
+                {MOCK_ACTIVITY.map((a, i) => {
+                  const cfg = activityConfig[a.type];
+                  return (
+                    <motion.div key={a.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.06, duration: 0.4 }}
+                      className="flex items-start gap-2.5 py-1.5"
+                    >
+                      <span className={`w-7 h-7 ${cfg.bg} rounded-full flex items-center justify-center text-xs flex-shrink-0`}>{cfg.icon}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-ice-700 leading-relaxed">
+                          <span className="font-semibold text-ice-900">{a.user}</span>{' '}{a.detail}
+                        </p>
+                        <p className="text-[10px] text-ice-400 mt-0.5">{a.time}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* Map Snapshot */}
+          <FadeIn className="lg:col-span-2" delay={0.25}>
+            <Link to="/map" className="block bg-white rounded-2xl border border-ice-100 shadow-sm overflow-hidden h-full group animate-aurora">
+              <div className="relative h-full min-h-[260px]">
+                {/* Static map image placeholder — replaced by live mini-map on interaction */}
+                <div className="absolute inset-0 bg-gradient-to-br from-arctic-900 via-arctic-800 to-ice-900">
+                  {/* Stylized dots representing arctic region */}
+                  <div className="absolute inset-0 opacity-30" style={{
+                    backgroundImage: 'radial-gradient(circle, rgba(88,166,255,0.3) 1px, transparent 1px)',
+                    backgroundSize: '20px 20px',
+                  }} />
+                  {/* Mission markers */}
+                  {[
+                    { top: '30%', left: '45%', label: 'Svalbard' },
+                    { top: '25%', left: '62%', label: 'Chukchi Sea' },
+                    { top: '45%', left: '25%', label: 'Hudson Bay' },
+                  ].map((pin, i) => (
+                    <div key={i} className="absolute flex flex-col items-center" style={{ top: pin.top, left: pin.left }}>
+                      <div className="w-3 h-3 bg-arctic-400 rounded-full border-2 border-white shadow-lg animate-pulse" />
+                      <span className="text-[9px] text-white/70 font-medium mt-0.5">{pin.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent" />
+                <div className="absolute bottom-4 left-5 z-10">
+                  <div className="text-white font-bold text-lg group-hover:text-arctic-300 transition-colors">Climate Map</div>
+                  <div className="text-white/60 text-xs">3 active missions • Real-time data</div>
+                </div>
+                <div className="absolute top-4 right-4 z-10 bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                  <span className="text-white text-xs font-semibold">Explore →</span>
+                </div>
+              </div>
+            </Link>
+          </FadeIn>
+
+          {/* Voting Status */}
+          <FadeIn className="lg:col-span-1" delay={0.3}>
+            <div className="bg-white rounded-2xl border border-ice-100 shadow-sm p-5 h-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-bold text-ice-900 flex items-center gap-2">
+                  <span className="text-lg">🗳️</span> Voting
+                </h2>
+                <Link to="/vote" className="text-xs text-arctic-600 font-semibold hover:text-arctic-700 transition-colors">All →</Link>
+              </div>
+              <div className="space-y-3">
+                {MOCK_PROPOSALS.map((p) => {
+                  const total = p.votesFor + p.votesAgainst;
+                  const forPct = total > 0 ? Math.round((p.votesFor / total) * 100) : 0;
+                  return (
+                    <Link key={p.id} to="/vote" className="block p-3 rounded-xl border border-ice-100 hover:border-arctic-200 hover:shadow-sm transition-all">
+                      <div className="text-xs font-semibold text-ice-900 mb-1.5 leading-snug">{p.title}</div>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <div className="flex-1 h-1.5 bg-ice-100 rounded-full overflow-hidden flex">
+                          <div className="h-full bg-green-400 rounded-l-full" style={{ width: `${forPct}%` }} />
+                          <div className="h-full bg-red-300 rounded-r-full" style={{ width: `${100 - forPct}%` }} />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-green-600 font-bold">{forPct}% for</span>
+                        <span className={`font-bold ${p.status === 'passed' ? 'text-green-600' : 'text-ice-400'}`}>
+                          {p.status === 'passed' ? '✓ Passed' : p.votingEnds}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+
+        {/* Row 3: Leaderboard (1 col) + Profile/Join CTA (1 col) — 2-col on desktop, centered */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          {/* Top Donors */}
+          <FadeIn className="lg:col-span-2" delay={0.35}>
+            <div className="bg-white rounded-2xl border border-ice-100 shadow-sm p-5 h-full">
+              <h2 className="text-sm font-bold text-ice-900 flex items-center gap-2 mb-4">
+                <span className="text-lg">🏆</span> Top Donors This Month
+              </h2>
+              <div className="space-y-2">
+                {MOCK_LEADERBOARD.map((d) => (
+                  <div key={d.rank} className="flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg hover:bg-ice-50 transition-colors">
+                    {d.rank <= 3 ? (
+                      <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${rankColors[d.rank]} flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0`}>{d.rank}</div>
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-ice-100 flex items-center justify-center text-ice-500 text-xs font-bold flex-shrink-0">{d.rank}</div>
+                    )}
+                    <div className="w-8 h-8 rounded-full bg-arctic-100 flex items-center justify-center text-arctic-700 text-xs font-bold flex-shrink-0">{d.initials}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-ice-900">{d.name}</div>
+                      <div className="text-xs text-ice-400">{d.donations} donations</div>
+                    </div>
+                    <div className="text-sm font-bold text-arctic-700 flex-shrink-0">{d.total}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* Join CTA / Profile Card */}
+          <FadeIn className="lg:col-span-2" delay={0.4}>
+            {isConnected ? (
+              /* Signed-in: Personalized card */
+              <div className="bg-gradient-to-br from-arctic-600 to-arctic-800 rounded-2xl shadow-sm p-6 h-full text-white">
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-2xl border-2 border-white/30">
+                    🐻‍❄️
+                  </div>
+                  <div>
+                    <div className="font-bold text-lg">{user?.username || 'Explorer'}</div>
+                    <div className="text-white/70 text-sm">Level {user?.level || 1} • {user?.xp || 0} XP</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3 mb-5">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
+                    <div className="text-lg font-bold">{user?.coins || 0}</div>
+                    <div className="text-[10px] text-white/60 uppercase tracking-wide">Coins</div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
+                    <div className="text-lg font-bold">{user?.donationStreak || 0}</div>
+                    <div className="text-[10px] text-white/60 uppercase tracking-wide">Streak</div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
+                    <div className="text-lg font-bold">🐻‍❄️</div>
+                    <div className="text-[10px] text-white/60 uppercase tracking-wide">Spirit</div>
+                  </div>
+                </div>
+                <Link to="/dashboard" className="block w-full text-center px-4 py-2.5 bg-white text-arctic-700 font-bold text-sm rounded-xl hover:bg-white/90 transition-all">
+                  View Dashboard
+                </Link>
+              </div>
+            ) : (
+              /* Signed-out: Join prompt */
+              <div className="bg-gradient-to-br from-arctic-50 via-white to-polar-50 rounded-2xl border border-arctic-100 shadow-sm p-6 h-full flex flex-col justify-between">
+                <div>
+                  <div className="text-3xl mb-3">🐻‍❄️</div>
+                  <h3 className="text-lg font-bold text-ice-900 mb-2">Join 8,000+ donors</h3>
+                  <p className="text-sm text-ice-500 leading-relaxed mb-4">
+                    Create an account to track your impact, vote on missions, earn XP & Donation Coins, and customize your dashboard.
+                  </p>
+                  <div className="space-y-2 mb-5">
+                    {['Track every donation on-chain', 'Vote on where funds go', 'Earn XP & climb the leaderboard', 'Choose your spirit animal'].map((item) => (
+                      <div key={item} className="flex items-center gap-2 text-xs text-ice-600">
+                        <svg className="w-3.5 h-3.5 text-arctic-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Link to="/donate" className="block w-full text-center px-4 py-3 bg-arctic-600 text-white font-bold text-sm rounded-xl hover:bg-arctic-700 transition-all shadow-sm">
+                  Get Started — It's Free
+                </Link>
+              </div>
+            )}
+          </FadeIn>
+        </div>
+
+      </div>
     </div>
   );
 };

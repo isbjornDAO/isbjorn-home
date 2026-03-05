@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BellIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
+import { BellIcon, UserGroupIcon, CheckBadgeIcon, ChatBubbleLeftRightIcon, ArrowTrendingUpIcon, HandThumbUpIcon, HandThumbDownIcon } from '@heroicons/react/24/outline';
+import { BellIcon as BellSolidIcon, CheckBadgeIcon as CheckBadgeSolidIcon } from '@heroicons/react/24/solid';
 import { API_URL } from '@/utils/apiUrl';
 import { useAuth } from '@/contexts/AuthContext';
 import polarBearMapBg from '@/assets/polar-bear-donate-bg.jpg';
@@ -433,8 +433,150 @@ const DonationForm: React.FC = () => {
   );
 };
 
+// ─── MOCK SOCIAL DATA ───
+
+const MOCK_OFFICIAL_POSTS = [
+  { id: 'o1', charityId: 'pbi', charityName: 'Polar Bears International', charityLogo: pbiLogo, author: 'Dr. Steven Amstrup', authorRole: 'Chief Scientist', title: 'Sea Ice Loss Accelerating in Western Hudson Bay', excerpt: 'New satellite data shows ice break-up occurring 3 weeks earlier than the 1980s average, directly impacting polar bear feeding seasons and cub survival rates.', date: '2 hours ago', type: 'article' as const, verified: true },
+  { id: 'o2', charityId: 'wwf-uk', charityName: 'WWF', charityLogo: wwfLogo, author: 'WWF Science Team', authorRole: 'Research Division', title: 'Proposal: Marine Protected Area Expansion in Svalbard', excerpt: 'We propose extending the Svalbard marine protected zone by 12,000 km2 to safeguard critical narwhal and beluga migration corridors from increasing shipping traffic.', date: '5 hours ago', type: 'proposal' as const, verified: true },
+  { id: 'o3', charityId: 'greenpeace', charityName: 'Greenpeace', charityLogo: greenpeaceLogo, author: 'Laura Meller', authorRole: 'Arctic Campaign Lead', title: 'Victory: Nordic Council Commits to Emissions Reduction', excerpt: 'After 18 months of sustained advocacy, the Nordic Council has committed to a 65% reduction in Arctic shipping emissions by 2030.', date: '1 day ago', type: 'update' as const, verified: true },
+  { id: 'o4', charityId: 'ocean-conservancy', charityName: 'Ocean Conservancy', charityLogo: oceanConservancyLogo, author: 'Dr. Ingrid Biedron', authorRole: 'Senior Scientist', title: 'Microplastics in Arctic Marine Food Chain: New Findings', excerpt: 'Our latest research reveals microplastic concentrations in Arctic zooplankton are 4x higher than 2019 levels, with significant implications for marine ecosystem health.', date: '2 days ago', type: 'article' as const, verified: true },
+  { id: 'o5', charityId: 'conservation-intl', charityName: 'Conservation International', charityLogo: conservationIntlLogo, author: 'Conservation Intl', authorRole: 'Climate Program', title: 'Greenland Ice Sheet Monitoring Report Q1 2026', excerpt: 'Quarterly monitoring shows continued acceleration of ice mass loss. Our deployed sensor network captured unprecedented melt patterns along the southeastern coast.', date: '3 days ago', type: 'article' as const, verified: true },
+];
+
+const MOCK_COMMUNITY_POSTS = [
+  { id: 'c1', author: 'arctic_whale', authorLevel: 12, title: 'Just watched a polar bear catch a seal on the Hudson Bay cam!', content: 'The live cam at 3:47 PM today caught an incredible moment. The bear waited by a seal breathing hole for over 20 minutes before striking. Nature is wild.', upvotes: 342, downvotes: 5, comments: 47, timeAgo: '45m ago', trending: true },
+  { id: 'c2', author: 'climate_data_nerd', authorLevel: 8, title: 'I made a chart comparing donation distribution across all charities', content: 'Tracked every on-chain transaction for the past 3 months. PBI gets the most consistent funding, but Ocean Conservancy has the fastest growth rate. Charts in thread.', upvotes: 218, downvotes: 12, comments: 32, timeAgo: '2h ago', trending: true },
+  { id: 'c3', author: 'northern_lights', authorLevel: 15, title: 'Why I think the Svalbard Marine proposal should pass', content: 'The science is solid. Narwhal populations have dropped 18% in the corridor they are proposing to protect. This is exactly what our governance system was built for.', upvotes: 156, downvotes: 23, comments: 41, timeAgo: '4h ago', trending: false },
+  { id: 'c4', author: 'ice_guardian', authorLevel: 6, title: 'First time donor here — blown away by the transparency', content: 'I donated $50 to Greenpeace through Isbjorn and within seconds I could see the transaction on-chain. Coming from traditional charity giving this is mind-blowing.', upvotes: 289, downvotes: 3, comments: 28, timeAgo: '6h ago', trending: true },
+  { id: 'c5', author: 'polar_dawn', authorLevel: 20, title: 'Proposal idea: Fund wildlife cameras in Chukchi Sea region', content: 'The Chukchi Sea has the highest density of polar bears but zero live camera coverage. With enough votes, we could fund installation through PBI\'s existing infrastructure.', upvotes: 178, downvotes: 8, comments: 53, timeAgo: '8h ago', trending: false },
+  { id: 'c6', author: 'tundra_fox', authorLevel: 3, title: 'Can someone explain how the voting rewards work?', content: 'I read that voters earn 20% of the treasury but I am not sure how that is calculated. Do you need to vote on every proposal? What if you abstain?', upvotes: 94, downvotes: 2, comments: 19, timeAgo: '12h ago', trending: false },
+];
+
+// ─── SOCIAL SECTION COMPONENT ───
+
+const SocialSection: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'official' | 'community'>('official');
+  const [sortBy, setSortBy] = useState<'trending' | 'new' | 'top'>('trending');
+
+  const typeConfig = {
+    article: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Article' },
+    proposal: { bg: 'bg-purple-50', text: 'text-purple-700', label: 'Proposal' },
+    update: { bg: 'bg-green-50', text: 'text-green-700', label: 'Update' },
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      {/* Tab Bar */}
+      <div className="flex items-center gap-6 border-b border-ice-200 mb-6">
+        <button
+          onClick={() => setActiveTab('official')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-semibold border-b-2 transition-all ${activeTab === 'official' ? 'border-arctic-600 text-arctic-700' : 'border-transparent text-ice-400 hover:text-ice-600'}`}
+        >
+          <CheckBadgeIcon className="w-4 h-4" />
+          Official
+        </button>
+        <button
+          onClick={() => setActiveTab('community')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-semibold border-b-2 transition-all ${activeTab === 'community' ? 'border-arctic-600 text-arctic-700' : 'border-transparent text-ice-400 hover:text-ice-600'}`}
+        >
+          <ChatBubbleLeftRightIcon className="w-4 h-4" />
+          Community
+        </button>
+
+        {activeTab === 'community' && (
+          <div className="ml-auto flex gap-1 pb-3">
+            {(['trending', 'new', 'top'] as const).map((s) => (
+              <button key={s} onClick={() => setSortBy(s)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${sortBy === s ? 'bg-arctic-100 text-arctic-700' : 'text-ice-400 hover:text-ice-600'}`}
+              >{s.charAt(0).toUpperCase() + s.slice(1)}</button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Official Tab */}
+      {activeTab === 'official' && (
+        <div className="space-y-4">
+          {MOCK_OFFICIAL_POSTS.map((post) => {
+            const cfg = typeConfig[post.type];
+            return (
+              <div key={post.id} className="bg-white rounded-xl border border-ice-100 p-5 hover:border-arctic-200 hover:shadow-sm transition-all">
+                <div className="flex items-start gap-3">
+                  <img src={post.charityLogo} alt={post.charityName} className="w-10 h-10 rounded-full object-cover border border-ice-100 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="font-bold text-sm text-ice-900">{post.author}</span>
+                      {post.verified && <CheckBadgeSolidIcon className="w-4 h-4 text-arctic-500 flex-shrink-0" />}
+                      <span className="text-xs text-ice-400">• {post.authorRole}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
+                    </div>
+                    <h3 className="font-bold text-ice-900 mb-1.5">{post.title}</h3>
+                    <p className="text-sm text-ice-600 leading-relaxed mb-2">{post.excerpt}</p>
+                    <div className="flex items-center gap-4 text-xs text-ice-400">
+                      <span>{post.date}</span>
+                      <span className="text-ice-300">•</span>
+                      <span className="text-arctic-600 font-medium">{post.charityName}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Community Tab */}
+      {activeTab === 'community' && (
+        <div className="space-y-3">
+          {MOCK_COMMUNITY_POSTS.map((post) => (
+            <div key={post.id} className="bg-white rounded-xl border border-ice-100 p-4 hover:border-arctic-200 hover:shadow-sm transition-all">
+              <div className="flex gap-3">
+                {/* Vote column */}
+                <div className="flex flex-col items-center gap-0.5 flex-shrink-0 pt-1">
+                  <button className="p-1 text-ice-300 hover:text-arctic-600 transition-colors"><HandThumbUpIcon className="w-4 h-4" /></button>
+                  <span className="text-xs font-bold text-ice-700">{post.upvotes - post.downvotes}</span>
+                  <button className="p-1 text-ice-300 hover:text-red-400 transition-colors"><HandThumbDownIcon className="w-4 h-4" /></button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="font-bold text-sm text-ice-900">{post.author}</span>
+                    <span className="text-[10px] font-semibold text-arctic-600 bg-arctic-50 px-1.5 py-0.5 rounded-full">Lv. {post.authorLevel}</span>
+                    <span className="text-xs text-ice-400">{post.timeAgo}</span>
+                    {post.trending && (
+                      <span className="flex items-center gap-0.5 text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-full">
+                        <ArrowTrendingUpIcon className="w-3 h-3" /> Trending
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-semibold text-sm text-ice-900 mb-1">{post.title}</h3>
+                  <p className="text-xs text-ice-500 leading-relaxed line-clamp-2">{post.content}</p>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-ice-400">
+                    <span className="flex items-center gap-1">
+                      <ChatBubbleLeftRightIcon className="w-3.5 h-3.5" />
+                      {post.comments} comments
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── DONATE PAGE ───
+
 const DonatePage: React.FC = () => {
-  return <DonationForm />;
+  return (
+    <>
+      <DonationForm />
+      <SocialSection />
+    </>
+  );
 };
 
 export default DonatePage;
