@@ -65,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isConnected = isAuthenticated || !!activeAccount;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-ice-50 to-white">
+    <div className="flex flex-col min-h-screen bg-white">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl shadow-sm">
         {/* Aurora shimmer border */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-arctic-400/40 to-transparent animate-nav-shimmer" style={{ backgroundSize: '200% 100%' }} />
