@@ -1,332 +1,2073 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, useMap } from 'react-leaflet';
-import { Icon, DivIcon, LatLngExpression } from 'leaflet';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, useMap, CircleMarker, useMapEvents, Polygon } from 'react-leaflet';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  FunnelIcon,
+  MagnifyingGlassIcon,
+  Squares2X2Icon,
+  ChartBarIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  MapIcon,
+  XMarkIcon,
+  SwatchIcon,
+  ArrowPathIcon,
+  BoltIcon,
+  SignalIcon,
+  GlobeAltIcon,
+  RectangleStackIcon,
+  CloudIcon
+} from '@heroicons/react/24/outline';
+import TransactionBoard from '@/components/TransactionBoard';
+import isbjornLogo from '@/assets/isbjorn-logo.png.jpg';
 import { getPolarBearData, type PolarBearData } from '@/services/polarBearService';
+import mapDataService from '@/services/mapDataService';
+import ArcticDataPanel from '@/components/map/ArcticDataPanel';
 
-// Charity logos
-import pbiLogo from '@/assets/logos/pbi.jpg';
-import wwfLogo from '@/assets/logos/wwf.jpg';
-import greenpeaceLogo from '@/assets/logos/greenpeace.jpg';
-import oceanConservancyLogo from '@/assets/logos/ocean-conservancy.jpg';
-import sierraClubLogo from '@/assets/logos/sierra-club.jpg';
-import conservationIntlLogo from '@/assets/logos/conservation-intl.jpg';
-
-// Fix default marker icons
+// Fix for default marker icons
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 // @ts-ignore
 delete Icon.Default.prototype._getIconUrl;
-Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, shadowUrl: markerShadow });
-
-// ─── MISSION PIN DATA ───
-// Each pin connects to a charity + proposal, linking Map ↔ Vote ↔ Donate
-
-interface MissionPin {
-  id: string;
-  lat: number;
-  lng: number;
-  charityId: string;
-  charityName: string;
-  charityLogo: string;
-  missionName: string;
-  description: string;
-  proposalId: string;
-  fundingGoal: number;
-  fundingReceived: number;
-  status: 'active' | 'voting' | 'funded' | 'planned';
-  votesFor?: number;
-  votesAgainst?: number;
-}
-
-const MISSION_PINS: MissionPin[] = [
-  {
-    id: 'mp1', lat: 58.7, lng: -94.2,
-    charityId: 'pbi', charityName: 'Polar Bears International', charityLogo: pbiLogo,
-    missionName: 'Hudson Bay Monitoring Station',
-    description: 'Year-round monitoring of polar bear populations on the western shore of Hudson Bay, tracking migration patterns and sea ice dependency.',
-    proposalId: 'p1', fundingGoal: 50000, fundingReceived: 34200, status: 'active',
-    votesFor: 450, votesAgainst: 120,
-  },
-  {
-    id: 'mp2', lat: 78.2, lng: 15.6,
-    charityId: 'wwf-uk', charityName: 'WWF', charityLogo: wwfLogo,
-    missionName: 'Svalbard Marine Conservation',
-    description: 'Protecting marine ecosystems around the Svalbard archipelago through research, advocacy, and community engagement with local fisheries.',
-    proposalId: 'p2', fundingGoal: 75000, fundingReceived: 52100, status: 'voting',
-    votesFor: 380, votesAgainst: 90,
-  },
-  {
-    id: 'mp3', lat: 67.5, lng: -170.0,
-    charityId: 'greenpeace', charityName: 'Greenpeace', charityLogo: greenpeaceLogo,
-    missionName: 'Chukchi Sea Ice Research',
-    description: 'Studying the rapid decline of sea ice in the Chukchi Sea and its impact on arctic marine ecosystems and indigenous communities.',
-    proposalId: 'p3', fundingGoal: 40000, fundingReceived: 40000, status: 'funded',
-  },
-  {
-    id: 'mp4', lat: 71.3, lng: -156.8,
-    charityId: 'ocean-conservancy', charityName: 'Ocean Conservancy', charityLogo: oceanConservancyLogo,
-    missionName: 'Beaufort Sea Cleanup',
-    description: 'Addressing microplastic pollution in the Beaufort Sea, one of the last pristine Arctic marine environments.',
-    proposalId: 'p4', fundingGoal: 35000, fundingReceived: 12800, status: 'active',
-    votesFor: 210, votesAgainst: 45,
-  },
-  {
-    id: 'mp5', lat: 64.2, lng: -51.7,
-    charityId: 'conservation-intl', charityName: 'Conservation Intl', charityLogo: conservationIntlLogo,
-    missionName: 'Greenland Glacier Study',
-    description: 'Monitoring glacier retreat rates in Greenland and assessing impact on global sea levels and local ecosystems.',
-    proposalId: 'p5', fundingGoal: 60000, fundingReceived: 28400, status: 'planned',
-  },
-  {
-    id: 'mp6', lat: 61.2, lng: -149.9,
-    charityId: 'sierra-club', charityName: 'Sierra Club', charityLogo: sierraClubLogo,
-    missionName: 'Alaska Wilderness Preservation',
-    description: 'Advocating for the protection of critical wilderness areas in Alaska from industrial development and resource extraction.',
-    proposalId: 'p6', fundingGoal: 45000, fundingReceived: 31000, status: 'voting',
-    votesFor: 320, votesAgainst: 110,
-  },
-];
-
-// ─── MISSION PIN ICON ───
-
-const createMissionIcon = (logo: string, status: string) => {
-  const borderColor = status === 'active' ? '#22c55e' : status === 'voting' ? '#0ea5e9' : status === 'funded' ? '#a855f7' : '#94a3b8';
-  return new DivIcon({
-    className: '',
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-    popupAnchor: [0, -22],
-    html: `<div style="width:36px;height:36px;border-radius:50%;border:3px solid ${borderColor};background:white;box-shadow:0 2px 8px rgba(0,0,0,0.2);overflow:hidden;display:flex;align-items:center;justify-content:center;">
-      <img src="${logo}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" />
-    </div>
-    <div style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:${borderColor};border-radius:50%;box-shadow:0 0 6px ${borderColor}80;"></div>`,
-  });
-};
-
-// ─── POLAR BEAR ICON ───
-
-const polarBearIcon = new DivIcon({
-  className: '',
-  iconSize: [24, 24],
-  iconAnchor: [12, 12],
-  popupAnchor: [0, -16],
-  html: `<div style="width:24px;height:24px;border-radius:50%;background:white;border:2px solid #60a5fa;box-shadow:0 1px 4px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;">🐻‍❄️</div>`,
+Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
 });
 
-// ─── MAP CONTROLLER (handles view) ───
+// DexScreener-inspired types
+type ColorMode = 'fixed' | 'property' | 'function' | 'measure';
+type StrokePattern = 'solid' | 'dashed' | 'dotted';
+type InterpolationMode = 'linear' | 'last-known-point';
+type DataStreamStatus = 'connected' | 'connecting' | 'disconnected';
 
-const MapController: React.FC = () => {
-  const map = useMap();
-  useEffect(() => {
-    map.setView([68, -40], 3);
-  }, [map]);
-  return null;
+interface CharityBase {
+  id: string;
+  name: string;
+  location: { lat: number; lng: number };
+  type: 'headquarters' | 'regional' | 'field';
+  activeProjects: number;
+  category: string;
+  fundingReceived: number;
+  lastActivity: Date;
+  impact: number;
+  properties: Record<string, any>;
+  pulseIntensity?: number;
+  recentActivity?: boolean;
+  // Climate data for this region
+  regionalClimateData: {
+    avgTemperature: number; // Current average in Celsius
+    temperatureTrend: number; // Change over last decade
+    airQualityIndex: number; // 0-500 scale
+    forestCoverage: number; // percentage
+    waterAvailability: number; // percentage
+    carbonFootprint: number; // tons CO2/year
+    renewableEnergy: number; // percentage of total energy
+  };
+}
+
+interface FlightPath {
+  id: string;
+  from: { lat: number; lng: number };
+  to: { lat: number; lng: number };
+  fromName: string;
+  toName: string;
+  amount: number;
+  type: 'funding' | 'data' | 'collaboration';
+  active: boolean;
+  timestamp: Date;
+  speed: number;
+  intensity?: number;
+}
+
+interface ClimateZone {
+  id: string;
+  location: { lat: number; lng: number };
+  name: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  type: 'drought' | 'flooding' | 'temperature' | 'deforestation' | 'pollution';
+  radius: number;
+  affectedPopulation: number;
+  trend: 'improving' | 'stable' | 'worsening';
+  changing?: boolean;
+  // Real climate metrics
+  temperatureChange: number; // in Celsius
+  co2Level: number; // ppm
+  seaLevelRise: number; // in mm
+  biodiversityLoss: number; // percentage
+  deforestationRate: number; // hectares per year
+  waterStress: number; // percentage
+  lastUpdated: Date;
+  // Polygon boundaries for region shape (optional, falls back to circle if not provided)
+  polygonBounds?: [number, number][];
+}
+
+interface MissionRegion {
+  id: string;
+  name: string;
+  description: string;
+  status: 'active' | 'planned' | 'completed';
+  fundingGoal: number;
+  fundingReceived: number;
+  startDate: Date;
+  polygonBounds: [number, number][];
+  projectCount: number;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+}
+
+interface PolarBearTracking {
+  id: string;
+  name: string;
+  sex: 'male' | 'female';
+  age: number;
+  currentLocation: { lat: number; lng: number };
+  lastUpdated: Date;
+  status: 'active' | 'inactive' | 'hibernating';
+  trackingHistory: Array<{
+    lat: number;
+    lng: number;
+    timestamp: Date;
+    speed?: number; // km/h
+  }>;
+  healthStatus: 'excellent' | 'good' | 'fair' | 'poor';
+  weight: number; // kg
+  tagId: string;
+  region: string;
+  seaIceCondition: 'stable' | 'declining' | 'critical';
+  huntingSuccess: number; // percentage
+  distanceTraveled: number; // km in last 30 days
+}
+
+interface LayerStyleConfig {
+  id: string;
+  name: string;
+  visible: boolean;
+  opacity: number;
+  activeOpacity: number;
+  inactiveOpacity: number;
+  color: string;
+  colorMode: ColorMode;
+  strokePattern: StrokePattern;
+  strokeWidth: number;
+  showArrows: boolean;
+  fillPolygons: boolean;
+  icon: any;
+  minZoom: number;
+  maxZoom: number;
+  showLegend: boolean;
+  showLabels: boolean;
+  showTooltips: boolean;
+}
+
+interface SavedStyle {
+  id: string;
+  name: string;
+  description: string;
+  layers: LayerStyleConfig[];
+}
+
+interface MapFilter {
+  category: string[];
+  type: string[];
+  severity: string[];
+  fundingRange: [number, number];
+  dateRange: [Date, Date] | null;
+  impactThreshold: number;
+}
+
+// Performance-optimized color interpolation with memoization
+const interpolateColor = (value: number, min: number, max: number, colorScale: string[]) => {
+  const normalized = Math.max(0, Math.min(1, (value - min) / (max - min)));
+  const index = Math.floor(normalized * (colorScale.length - 1));
+  return colorScale[index] || colorScale[colorScale.length - 1];
 };
 
-// ─── MAIN COMPONENT ───
+const getPropertyColor = (object: any, property: string, colorMap: Record<string, string>) => {
+  return colorMap[object[property]] || '#94a3b8';
+};
 
-const MapPage: React.FC = () => {
-  const [hoveredPin, setHoveredPin] = useState<string | null>(null);
-  const [polarBears, setPolarBears] = useState<PolarBearData[]>([]);
-  const [showBears, setShowBears] = useState(true);
+const computeFunctionColor = (object: any, computeFn: (obj: any) => string) => {
+  return computeFn(object);
+};
 
-  // Load real polar bear tracking data
+// Arc path with performance optimization
+const createArcPath = (
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number },
+  numPoints: number = 50,
+  arcHeight: number = 0.3
+): LatLngExpression[] => {
+  const points: LatLngExpression[] = [];
+  const latDiff = to.lat - from.lat;
+  const lngDiff = to.lng - from.lng;
+  const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+  const height = distance * arcHeight;
+
+  for (let i = 0; i <= numPoints; i++) {
+    const t = i / numPoints;
+    const lat = from.lat + latDiff * t + Math.sin(t * Math.PI) * height;
+    const lng = from.lng + lngDiff * t;
+    points.push([lat, lng]);
+  }
+  return points;
+};
+
+// Temporal opacity calculation
+const calculateTemporalOpacity = (
+  timestamp: Date,
+  currentTime: Date,
+  activeOpacity: number,
+  inactiveOpacity: number,
+  bufferPeriod: number = 3600000,
+  fadeDuration: number = 1800000
+): number => {
+  const timeDiff = currentTime.getTime() - timestamp.getTime();
+  if (timeDiff < bufferPeriod) return activeOpacity;
+  if (timeDiff > bufferPeriod + fadeDuration) return inactiveOpacity;
+  const fadeProgress = (timeDiff - bufferPeriod) / fadeDuration;
+  return activeOpacity + (inactiveOpacity - activeOpacity) * fadeProgress;
+};
+
+// Simple animated flight path - just blue lines with moving dot
+const AnimatedFlightPath: React.FC<{
+  path: FlightPath;
+  style: LayerStyleConfig;
+  currentTime: Date;
+  interpolation: InterpolationMode;
+}> = ({ path, style, currentTime, interpolation }) => {
+  const [animationProgress, setAnimationProgress] = useState(Math.random());
+
   useEffect(() => {
-    try {
-      const data = getPolarBearData();
-      setPolarBears(data.slice(0, 40));
-    } catch (e) {
-      console.error('Failed to load polar bear data:', e);
-    }
-  }, []);
+    if (!path.active) return;
+    const interval = setInterval(() => {
+      setAnimationProgress(prev => (prev >= 1 ? 0 : prev + 0.01));
+    }, 50);
+    return () => clearInterval(interval);
+  }, [path.active]);
 
-  const statusConfig = {
-    active: { label: 'Active', bg: 'bg-green-100', text: 'text-green-700', dot: 'bg-green-500' },
-    voting: { label: 'In Voting', bg: 'bg-arctic-100', text: 'text-arctic-700', dot: 'bg-arctic-500' },
-    funded: { label: 'Funded', bg: 'bg-purple-100', text: 'text-purple-700', dot: 'bg-purple-500' },
-    planned: { label: 'Planned', bg: 'bg-ice-100', text: 'text-ice-600', dot: 'bg-ice-400' },
-  };
+  const arcPoints = useMemo(() => createArcPath(path.from, path.to), [path.from, path.to]);
+  const pointIndex = Math.floor(animationProgress * (arcPoints.length - 1));
+  const animatedPoint = arcPoints[pointIndex] as [number, number];
+
+  // Always use blue color
+  const blueColor = 'rgb(3, 105, 161)';
 
   return (
-    <div className="relative h-[calc(100vh-4rem)] w-full overflow-hidden">
-
-      {/* Map */}
-      <MapContainer
-        center={[68, -40] as LatLngExpression}
-        zoom={3}
-        minZoom={2}
-        maxZoom={12}
-        style={{ height: '100%', width: '100%' }}
-        zoomControl={false}
-        maxBounds={[[-85, -180], [85, 180]]}
-        maxBoundsViscosity={1.0}
-      >
-        <MapController />
-
-        {/* Clean dark basemap */}
-        <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+    <>
+      <Polyline
+        positions={arcPoints}
+        pathOptions={{
+          color: blueColor,
+          weight: 2,
+          opacity: 0.6,
+        }}
+      />
+      {path.active && animatedPoint && (
+        <Circle
+          center={animatedPoint}
+          radius={25000}
+          pathOptions={{
+            color: '#ffffff',
+            fillColor: blueColor,
+            fillOpacity: 0.8,
+            weight: 2
+          }}
         />
+      )}
+    </>
+  );
+};
 
-        {/* Mission Pins */}
-        {MISSION_PINS.map((pin) => (
-          <Marker
-            key={pin.id}
-            position={[pin.lat, pin.lng] as LatLngExpression}
-            icon={createMissionIcon(pin.charityLogo, pin.status)}
-            eventHandlers={{
-              mouseover: () => setHoveredPin(pin.id),
-              mouseout: () => setHoveredPin(null),
-            }}
-          >
-            <Popup className="mission-popup" maxWidth={300} minWidth={260}>
-              <div className="p-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <img src={pin.charityLogo} alt={pin.charityName} className="w-8 h-8 rounded-full object-cover border border-gray-200" />
-                  <div>
-                    <div className="font-bold text-sm text-gray-900">{pin.missionName}</div>
-                    <div className="text-xs text-gray-500">{pin.charityName}</div>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-600 leading-relaxed mb-3">{pin.description}</p>
+// Get category icon SVG path (using blue color)
+const getCategoryIcon = (category: string): string => {
+  const iconColor = 'rgb(3, 105, 161)'; // Blue
+  switch (category) {
+    case 'Climate':
+      // Thermometer/climate icon
+      return `<path d="M12 2c-1.1 0-2 .9-2 2v8.5c-1.2.7-2 2-2 3.5 0 2.2 1.8 4 4 4s4-1.8 4-4c0-1.5-.8-2.8-2-3.5V4c0-1.1-.9-2-2-2zm0 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="${iconColor}"/>`;
+    case 'Conservation':
+      // Shield/protection icon
+      return `<path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4zm0 14l-4-4 1.4-1.4 2.6 2.6 4.6-4.6L18 10l-6 6z" fill="${iconColor}"/>`;
+    case 'Wildlife':
+      // Paw print icon
+      return `<path d="M8.5 6c-1.4 0-2.5 1.1-2.5 2.5S7.1 11 8.5 11 11 9.9 11 8.5 9.9 6 8.5 6zm7 0c-1.4 0-2.5 1.1-2.5 2.5S14.1 11 15.5 11 18 9.9 18 8.5 16.9 6 15.5 6zM6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 3c-2.2 0-4 1.8-4 4s1.8 3 4 3 4-1.8 4-4-1.8-3-4-3z" fill="${iconColor}"/>`;
+    case 'Water':
+      // Water droplet icon
+      return `<path d="M12 2c-3.9 3.9-7 7.5-7 11 0 3.9 3.1 7 7 7s7-3.1 7-7c0-3.5-3.1-7.1-7-11zm0 16c-2.2 0-4-1.8-4-4 0-1.5 1.5-3.5 4-6.4 2.5 2.9 4 4.9 4 6.4 0 2.2-1.8 4-4 4z" fill="${iconColor}"/>`;
+    case 'Forest':
+      // Tree icon
+      return `<path d="M16.5 11L19 8h-3V3h-4v5H9l2.5 3L9 14h3v7h4v-7h3z" fill="${iconColor}"/>`;
+    default:
+      // Default circle
+      return `<circle cx="12" cy="12" r="4" fill="${iconColor}"/>`;
+  }
+};
 
-                {/* Funding progress */}
-                <div className="mb-3">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-gray-500">Funding</span>
-                    <span className="font-bold text-gray-700">{Math.round((pin.fundingReceived / pin.fundingGoal) * 100)}%</span>
-                  </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style={{ width: `${Math.min(100, (pin.fundingReceived / pin.fundingGoal) * 100)}%` }} />
-                  </div>
-                  <div className="text-[10px] text-gray-400 mt-0.5">${(pin.fundingReceived / 1000).toFixed(1)}k / ${(pin.fundingGoal / 1000).toFixed(0)}k raised</div>
-                </div>
+// Simple blue marker - Home icons for headquarters, pins for missions
+const createPropertyBasedIcon = (
+  object: CharityBase,
+  colorMode: ColorMode,
+  baseColor: string,
+  propertyMap?: Record<string, string>,
+  pulse: boolean = false
+) => {
+  const isHeadquarters = object.type === 'headquarters';
+  const size = isHeadquarters ? 44 : 36;
+  const color = 'rgb(3, 105, 161)'; // Blue
 
-                {/* Vote status (if voting) */}
-                {pin.votesFor !== undefined && pin.status === 'voting' && (
-                  <div className="mb-3 p-2 bg-blue-50 rounded-lg">
-                    <div className="text-[10px] font-bold text-blue-700 mb-1">Active Vote</div>
-                    <div className="flex items-center gap-1 h-1.5">
-                      <div className="bg-green-400 rounded-full h-full" style={{ width: `${Math.round((pin.votesFor / (pin.votesFor + (pin.votesAgainst || 0))) * 100)}%` }} />
-                      <div className="bg-red-300 rounded-full h-full flex-1" />
-                    </div>
-                    <div className="flex justify-between text-[10px] mt-0.5">
-                      <span className="text-green-600">{pin.votesFor} for</span>
-                      <span className="text-red-500">{pin.votesAgainst} against</span>
-                    </div>
-                  </div>
-                )}
+  // Home icon for headquarters (where donations come from)
+  // Simple pin with circle for missions (where money goes to)
+  if (isHeadquarters) {
+    return new Icon({
+      iconUrl: `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
+          <circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="2.5"/>
+          <rect x="7" y="7" width="10" height="10" fill="white"/>
+          <rect x="8.5" y="8.5" width="2" height="2" fill="${color}"/>
+          <rect x="11.5" y="8.5" width="2" height="2" fill="${color}"/>
+          <rect x="14.5" y="8.5" width="2" height="2" fill="${color}"/>
+          <rect x="8.5" y="11.5" width="2" height="2" fill="${color}"/>
+          <rect x="11.5" y="11.5" width="2" height="2" fill="${color}"/>
+          <rect x="14.5" y="11.5" width="2" height="2" fill="${color}"/>
+          <rect x="11.5" y="14.5" width="2" height="2.5" fill="${color}"/>
+        </svg>
+      `)}`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2]
+    });
+  } else {
+    // Mission pin - simple pin shape with circle
+    return new Icon({
+      iconUrl: `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}">
+          <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2.5"/>
+          <circle cx="12" cy="12" r="4" fill="white"/>
+        </svg>
+      `)}`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2]
+    });
+  }
+};
 
-                {/* Status badge */}
-                <div className="flex items-center justify-between">
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${statusConfig[pin.status].bg} ${statusConfig[pin.status].text}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusConfig[pin.status].dot}`} />
-                    {statusConfig[pin.status].label}
-                  </span>
-                  <div className="flex gap-1.5">
-                    {pin.status === 'voting' && (
-                      <a href="/vote" className="text-[10px] font-bold text-blue-600 hover:text-blue-800 transition-colors">Vote →</a>
-                    )}
-                    <a href={`/charity/${pin.charityId}`} className="text-[10px] font-bold text-blue-600 hover:text-blue-800 transition-colors">Donate →</a>
-                  </div>
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-
-        {/* Polar Bear Markers (real USGS data) */}
-        {showBears && polarBears.map((bear) => (
-          <Marker
-            key={bear.id + bear.lastUpdated}
-            position={[bear.currentLocation.lat, bear.currentLocation.lng] as LatLngExpression}
-            icon={polarBearIcon}
-          >
-            <Popup maxWidth={200}>
-              <div className="p-1">
-                <div className="font-bold text-xs text-gray-900 mb-0.5">{bear.name || `Bear #${bear.id}`}</div>
-                <div className="text-[10px] text-gray-500">{bear.region}</div>
-                <div className="text-[10px] text-gray-400 mt-1">
-                  {new Date(bear.lastUpdated).toLocaleDateString()} • USGS Tracking
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-
-      {/* Overlay: Title + Legend */}
+// Clean live data indicator - just the pulse
+const LiveDataIndicator: React.FC<{ status: DataStreamStatus; updateCount: number }> = ({ status }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex items-center justify-center"
+      title={status === 'connected' ? 'Live' : status === 'connecting' ? 'Connecting' : 'Offline'}
+    >
       <motion.div
-        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5 }}
-        className="absolute top-4 left-4 z-[1000]"
-      >
-        <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-ice-100 px-4 py-3">
-          <h1 className="text-sm font-bold text-ice-900 mb-2">Climate Map</h1>
-          <div className="space-y-1.5">
-            {[
-              { color: 'bg-green-500', label: 'Active Mission' },
-              { color: 'bg-arctic-500', label: 'In Voting' },
-              { color: 'bg-purple-500', label: 'Funded' },
-              { color: 'bg-ice-400', label: 'Planned' },
-            ].map((l) => (
-              <div key={l.label} className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full ${l.color}`} />
-                <span className="text-[10px] text-ice-600">{l.label}</span>
-              </div>
-            ))}
-          </div>
-          {/* Bear toggle */}
-          <button
-            onClick={() => setShowBears(!showBears)}
-            className={`mt-2 flex items-center gap-1.5 text-[10px] font-semibold px-2 py-1 rounded-md transition-colors ${showBears ? 'bg-arctic-50 text-arctic-700' : 'bg-ice-100 text-ice-500'}`}
-          >
-            🐻‍❄️ {showBears ? 'Hide' : 'Show'} Bears ({polarBears.length})
-          </button>
-        </div>
-      </motion.div>
+        animate={{
+          scale: status === 'connected' ? [1, 1.3, 1] : 1,
+          opacity: status === 'connected' ? [1, 0.6, 1] : 0.5
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className={`w-2.5 h-2.5 rounded-full shadow-lg ${status === 'connected' ? 'bg-green-500 shadow-green-500/50' :
+          status === 'connecting' ? 'bg-yellow-500 shadow-yellow-500/50' :
+            'bg-red-500 shadow-red-500/50'
+          }`}
+      />
+    </motion.div>
+  );
+};
 
-      {/* Zoom Controls */}
-      <div className="absolute bottom-6 right-4 z-[1000] flex flex-col gap-1.5">
-        <button onClick={() => document.querySelector('.leaflet-container')?.dispatchEvent(new Event('zoomIn'))}
-          className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-ice-100 flex items-center justify-center text-ice-600 hover:text-ice-900 hover:bg-white transition-all text-lg font-light"
-          id="zoom-in"
-        >+</button>
-        <button onClick={() => document.querySelector('.leaflet-container')?.dispatchEvent(new Event('zoomOut'))}
-          className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-ice-100 flex items-center justify-center text-ice-600 hover:text-ice-900 hover:bg-white transition-all text-lg font-light"
-          id="zoom-out"
-        >−</button>
+// Mini-map navigator (DexScreener-style)
+const MiniMapNavigator: React.FC<{ bounds: any; onNavigate: (lat: number, lng: number) => void }> = ({ bounds, onNavigate }) => {
+  return (
+    <div className="absolute bottom-4 left-4 z-[1000] bg-gray-900/90 backdrop-blur-md border border-gray-700/50 rounded-lg p-2 w-32 h-24">
+      <div className="text-xs text-gray-400 mb-1 font-semibold">OVERVIEW</div>
+      <div className="w-full h-full bg-gray-800 rounded relative overflow-hidden cursor-pointer">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-blue-500/20"></div>
+        <div className="absolute top-1/2 left-1/2 w-4 h-4 border-2 border-teal-500 rounded-sm -translate-x-1/2 -translate-y-1/2"></div>
       </div>
+    </div>
+  );
+};
 
-      {/* Mission count badge */}
+// Keyboard shortcuts overlay
+const KeyboardShortcuts: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
+  if (!show) return null;
+
+  const shortcuts = [
+    { key: 'L', action: 'Toggle Layers Panel' },
+    { key: 'F', action: 'Toggle Filters Panel' },
+    { key: 'A', action: 'Toggle Analytics Panel' },
+    { key: 'S', action: 'Toggle Styles Panel' },
+    { key: 'R', action: 'Refresh Data' },
+    { key: 'ESC', action: 'Close Panels' },
+    { key: '←/→/↑/↓', action: 'Pan Map' },
+    { key: '+/-', action: 'Zoom In/Out' },
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]" onClick={onClose}>
       <motion.div
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }}
-        className="absolute bottom-6 left-4 z-[1000]"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-md"
+        onClick={e => e.stopPropagation()}
       >
-        <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-ice-100 px-4 py-2.5 flex items-center gap-3">
-          <div className="text-center">
-            <div className="text-lg font-black text-ice-900">{MISSION_PINS.filter(p => p.status === 'active' || p.status === 'voting').length}</div>
-            <div className="text-[9px] text-ice-400 uppercase tracking-wide">Active</div>
-          </div>
-          <div className="w-px h-8 bg-ice-200" />
-          <div className="text-center">
-            <div className="text-lg font-black text-ice-900">{MISSION_PINS.length}</div>
-            <div className="text-[9px] text-ice-400 uppercase tracking-wide">Missions</div>
-          </div>
-          <div className="w-px h-8 bg-ice-200" />
-          <div className="text-center">
-            <div className="text-lg font-black text-ice-900">{polarBears.length}</div>
-            <div className="text-[9px] text-ice-400 uppercase tracking-wide">Bears</div>
-          </div>
+        <h3 className="text-lg font-bold text-gray-100 mb-4">Keyboard Shortcuts</h3>
+        <div className="space-y-2">
+          {shortcuts.map(({ key, action }) => (
+            <div key={key} className="flex items-center justify-between">
+              <span className="text-sm text-gray-400">{action}</span>
+              <kbd className="px-2 py-1 bg-gray-800 text-gray-200 rounded text-xs font-mono border border-gray-700">
+                {key}
+              </kbd>
+            </div>
+          ))}
         </div>
       </motion.div>
     </div>
   );
 };
 
+// Arctic Circle Overlay - Clickable region that zooms to Arctic
+const ArcticCircleOverlay: React.FC<{ onArcticClick?: () => void }> = ({ onArcticClick }) => {
+  const map = useMap();
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Memoize Arctic bounds to avoid recalculating on every render
+  const arcticBounds = useMemo(() => {
+    const bounds: LatLngExpression[] = [];
+    // Arctic Circle is at 66.5°N latitude - create polygon covering Arctic region
+    for (let lng = -180; lng <= 180; lng += 10) {
+      bounds.push([66.5, lng]);
+    }
+    // Close the polygon at the north pole
+    for (let lng = 180; lng >= -180; lng -= 10) {
+      bounds.push([90, lng]);
+    }
+    return bounds;
+  }, []);
+
+  const handleClick = useCallback(() => {
+    // Zoom to Arctic center (Svalbard area)
+    map.setView([78, 10], 4, { animate: true, duration: 1.5 });
+    onArcticClick?.();
+  }, [map, onArcticClick]);
+
+  return (
+    <Polygon
+      positions={arcticBounds}
+      pathOptions={{
+        color: isHovered ? '#0ea5e9' : '#0369a1',
+        fillColor: isHovered ? '#0ea5e9' : '#7dd3fc',
+        fillOpacity: isHovered ? 0.3 : 0.15,
+        weight: isHovered ? 3 : 2,
+        dashArray: '10, 5',
+      }}
+      eventHandlers={{
+        mouseover: () => setIsHovered(true),
+        mouseout: () => setIsHovered(false),
+        click: handleClick,
+      }}
+    >
+      <Popup>
+        <div className="text-center p-2">
+          <div className="text-2xl mb-1">🐻‍❄️ 🧊</div>
+          <h3 className="font-bold text-gray-900">Arctic Research Zone</h3>
+          <p className="text-sm text-gray-600 mb-2">Click to explore Arctic climate data</p>
+          <button
+            onClick={handleClick}
+            className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Zoom to Arctic
+          </button>
+        </div>
+      </Popup>
+    </Polygon>
+  );
+};
+
+// Clean Zoom Controls with Arctic Focus
+const ZoomControls: React.FC = () => {
+  const map = useMap();
+
+  const zoomToArctic = () => {
+    map.setView([78, 10], 4, { animate: true, duration: 1.5 });
+  };
+
+  return (
+    <div className="absolute bottom-6 right-6 z-[1000] flex flex-col gap-2">
+      {/* Arctic Focus Button */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={zoomToArctic}
+        className="bg-gradient-to-br from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 border border-blue-300 rounded-lg p-2.5 shadow-md transition-all"
+        title="Focus on Arctic"
+      >
+        <span className="text-lg">🐻‍❄️</span>
+      </motion.button>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => map.zoomIn()}
+        className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
+      >
+        <span className="text-xl font-bold" style={{ color: 'rgb(3, 105, 161)' }}>+</span>
+      </motion.button>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => map.zoomOut()}
+        className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
+      >
+        <span className="text-xl font-bold" style={{ color: 'rgb(3, 105, 161)' }}>−</span>
+      </motion.button>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => map.setView([10, 170], 2)}
+        className="bg-white hover:bg-blue-50 border border-blue-200 rounded-lg p-2.5 shadow-md transition-all"
+      >
+        <GlobeAltIcon className="w-5 h-5" style={{ color: 'rgb(3, 105, 161)' }} />
+      </motion.button>
+    </div>
+  );
+};
+
+// Interactive Mission Region Component with hover/click effects
+const InteractiveMissionRegion: React.FC<{
+  region: MissionRegion;
+  onSelect: (region: MissionRegion) => void;
+}> = ({ region, onSelect }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return '#10b981'; // green
+      case 'planned': return 'rgb(3, 105, 161)'; // blue
+      case 'completed': return '#6b7280'; // gray
+      default: return 'rgb(3, 105, 161)';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return '#ef4444'; // red
+      case 'high': return '#f97316'; // orange
+      case 'medium': return '#eab308'; // yellow
+      case 'low': return 'rgb(3, 105, 161)'; // blue
+      default: return 'rgb(3, 105, 161)';
+    }
+  };
+
+  const defaultStyle = {
+    color: getStatusColor(region.status),
+    fillColor: getStatusColor(region.status),
+    fillOpacity: 0.2,
+    weight: 2,
+    opacity: 0.6,
+  };
+
+  const hoverStyle = {
+    color: getPriorityColor(region.priority),
+    fillColor: getPriorityColor(region.priority),
+    fillOpacity: 0.4,
+    weight: 4,
+    opacity: 1,
+  };
+
+  const fundingPercentage = (region.fundingReceived / region.fundingGoal) * 100;
+
+  return (
+    <Polygon
+      positions={region.polygonBounds}
+      pathOptions={isHovered ? hoverStyle : defaultStyle}
+      eventHandlers={{
+        mouseover: () => setIsHovered(true),
+        mouseout: () => setIsHovered(false),
+        click: () => onSelect(region),
+      }}
+    >
+      <Popup maxWidth={350}>
+        <div className="text-sm w-72 bg-white">
+          {/* Header */}
+          <div className={`-m-3 mb-3 p-4 rounded-t-lg ${region.status === 'active' ? 'bg-gradient-to-r from-green-600 to-teal-600' :
+            region.status === 'planned' ? 'bg-gradient-to-r from-blue-600 to-indigo-600' :
+              'bg-gradient-to-r from-gray-600 to-gray-700'
+            }`}>
+            <div className="flex items-center justify-between text-white">
+              <h3 className="text-base font-bold">{region.name}</h3>
+              <span className={`text-xs px-2 py-1 rounded-full font-bold ${region.status === 'active' ? 'bg-green-400 text-green-900' :
+                region.status === 'planned' ? 'bg-blue-400 text-blue-900' :
+                  'bg-gray-400 text-gray-900'
+                }`}>
+                {region.status.toUpperCase()}
+              </span>
+            </div>
+            <div className="text-white text-xs mt-1 opacity-90">
+              {region.description}
+            </div>
+          </div>
+
+          {/* Key Stats */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="bg-blue-50 rounded-lg p-2 text-center">
+              <div className="text-xs text-gray-500 mb-1">Projects</div>
+              <div className="text-lg font-bold text-blue-600">{region.projectCount}</div>
+            </div>
+            <div className="bg-purple-50 rounded-lg p-2 text-center">
+              <div className="text-xs text-gray-500 mb-1">Priority</div>
+              <div className={`text-sm font-bold ${region.priority === 'critical' ? 'text-red-600' :
+                region.priority === 'high' ? 'text-orange-600' :
+                  region.priority === 'medium' ? 'text-yellow-600' : 'text-blue-600'
+                }`}>
+                {region.priority.toUpperCase()}
+              </div>
+            </div>
+            <div className="bg-teal-50 rounded-lg p-2 text-center">
+              <div className="text-xs text-gray-500 mb-1">Started</div>
+              <div className="text-xs font-bold text-teal-600">
+                {region.startDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+              </div>
+            </div>
+          </div>
+
+          {/* Funding Progress */}
+          <div className="bg-gray-50 rounded-lg p-3 mb-3">
+            <div className="flex justify-between text-xs text-gray-600 mb-2">
+              <span>Funding Progress</span>
+              <span className="font-bold">{fundingPercentage.toFixed(0)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+              <div
+                className="bg-gradient-to-r from-green-500 to-teal-500 h-2 rounded-full transition-all"
+                style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-green-600 font-bold">${(region.fundingReceived / 1000).toFixed(0)}K</span>
+              <span className="text-gray-500">of ${(region.fundingGoal / 1000).toFixed(0)}K</span>
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <button
+            onClick={() => onSelect(region)}
+            className="w-full bg-gradient-to-r from-blue-600 to-teal-600 text-white py-2 px-4 rounded-lg font-semibold text-sm hover:shadow-lg transition-shadow"
+          >
+            Support This Mission
+          </button>
+        </div>
+      </Popup>
+    </Polygon>
+  );
+};
+
+// Map interaction handler
+const MapInteractionHandler: React.FC<{ onZoomChange: (zoom: number) => void }> = ({ onZoomChange }) => {
+  const map = useMapEvents({
+    zoomend: () => {
+      onZoomChange(map.getZoom());
+    },
+  });
+  return null;
+};
+
+// Component to center map based on URL parameters or state
+const MapCenterHandler: React.FC<{ lat?: number; lng?: number; zoom?: number; trigger?: number }> = ({ lat, lng, zoom = 6, trigger }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (lat && lng) {
+      map.setView([lat, lng], zoom, { animate: true, duration: 1.5 });
+    }
+  }, [lat, lng, zoom, map, trigger]);
+
+  return null;
+};
+
+
+const MapPage: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [charityBases, setCharityBases] = useState<CharityBase[]>([]);
+  const [flightPaths, setFlightPaths] = useState<FlightPath[]>([]);
+
+  // Get coordinates from URL params if present
+  const urlLat = searchParams.get('lat') ? parseFloat(searchParams.get('lat')!) : undefined;
+  const urlLng = searchParams.get('lng') ? parseFloat(searchParams.get('lng')!) : undefined;
+  const urlZoom = searchParams.get('zoom') ? parseFloat(searchParams.get('zoom')!) : undefined;
+
+  // State for programmatic map centering
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
+  const [centerTrigger, setCenterTrigger] = useState(0);
+
+  const [climateZones, setClimateZones] = useState<ClimateZone[]>([]);
+  const [missionRegions, setMissionRegions] = useState<MissionRegion[]>([]);
+  const [polarBears, setPolarBears] = useState<PolarBearTracking[]>([]);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedBase, setSelectedBase] = useState<CharityBase | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<MissionRegion | null>(null);
+  const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('24h');
+  const [showLayerPanel, setShowLayerPanel] = useState(true);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [showStylesPanel, setShowStylesPanel] = useState(false);
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [interpolationMode, setInterpolationMode] = useState<InterpolationMode>('linear');
+  const [currentZoom, setCurrentZoom] = useState(2);
+  const [dataStreamStatus, setDataStreamStatus] = useState<DataStreamStatus>('connected');
+  const [updateCount, setUpdateCount] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [viewMode, setViewMode] = useState<'map' | 'transactions'>('map');
+  const [showArcticPanel, setShowArcticPanel] = useState(false);
+
+  // News feed state - people from organizations
+  const [newsFeed, setNewsFeed] = useState([
+    {
+      id: 1,
+      ngo: 'Isbjorn',
+      ngoSlug: 'isbjorn',
+      authorName: 'Dr. Steven Amstrup',
+      authorRole: 'Chief Scientist',
+      authorPhoto: 'https://www.arcus.org/civicrm/contact/imagefile?photo=steve1_a8d04f7259d817fda6b86ea2ba0977b6.jpg',
+      title: 'Arctic Research Breakthrough',
+      content: 'New findings show accelerated ice melt in northern regions. Our team is deploying additional monitoring stations.',
+      timestamp: new Date(Date.now() - 3600000),
+      category: 'Climate',
+      upvotes: 142,
+      downvotes: 3,
+      userVote: null as 'up' | 'down' | null,
+    },
+    {
+      id: 2,
+      ngo: 'Amazon Station',
+      ngoSlug: 'amazon-station',
+      authorName: 'Marcus Silva',
+      authorRole: 'Forest Conservation Lead',
+      authorPhoto: 'https://i.pravatar.cc/150?img=12',
+      title: '1 Million Trees Planted',
+      content: 'Reached our milestone! Thanks to all supporters who made this reforestation initiative possible.',
+      timestamp: new Date(Date.now() - 7200000),
+      category: 'Forest',
+      upvotes: 289,
+      downvotes: 5,
+      userVote: null as 'up' | 'down' | null,
+    },
+    {
+      id: 3,
+      ngo: 'WWF UK',
+      ngoSlug: 'wwf-uk',
+      authorName: 'Emily Rodriguez',
+      authorRole: 'Marine Biologist',
+      authorPhoto: 'https://i.pravatar.cc/150?img=9',
+      title: 'Pacific Cleanup Update',
+      content: 'Removed 50 tons of plastic this month. Progress is steady with our new drone technology.',
+      timestamp: new Date(Date.now() - 14400000),
+      category: 'Conservation',
+      upvotes: 187,
+      downvotes: 8,
+      userVote: null as 'up' | 'down' | null,
+    },
+    {
+      id: 4,
+      ngo: 'WWF Japan',
+      ngoSlug: 'wwf-japan',
+      authorName: 'James Anderson',
+      authorRole: 'Wildlife Conservation Director',
+      authorPhoto: 'https://i.pravatar.cc/150?img=15',
+      title: 'Climate Resilience Program',
+      content: 'Protecting Arctic ecosystems threatened by climate change - temperature monitoring shows concerning trends.',
+      timestamp: new Date(Date.now() - 21600000),
+      category: 'Climate',
+      upvotes: 231,
+      downvotes: 12,
+      userVote: null as 'up' | 'down' | null,
+    },
+  ]);
+
+  // Handle voting on news items
+  const handleVote = (newsId: number, voteType: 'up' | 'down') => {
+    setNewsFeed(prev => prev.map(item => {
+      if (item.id !== newsId) return item;
+
+      const currentVote = item.userVote;
+      let newUpvotes = item.upvotes;
+      let newDownvotes = item.downvotes;
+      let newUserVote: 'up' | 'down' | null = voteType;
+
+      // Remove previous vote if exists
+      if (currentVote === 'up') newUpvotes--;
+      if (currentVote === 'down') newDownvotes--;
+
+      // Add new vote or cancel if same
+      if (currentVote === voteType) {
+        newUserVote = null; // Cancel vote
+      } else {
+        if (voteType === 'up') newUpvotes++;
+        if (voteType === 'down') newDownvotes++;
+      }
+
+      return {
+        ...item,
+        upvotes: newUpvotes,
+        downvotes: newDownvotes,
+        userVote: newUserVote,
+      };
+    }));
+  };
+
+  const [liveMissions, setLiveMissions] = useState([
+    { id: 1, name: 'Arctic Ice Monitoring', location: 'Iceland', votes: 521, funding: 48000, progress: 68, status: 'active' as const },
+    { id: 2, name: 'Amazon Protection', location: 'Brazil', votes: 498, funding: 55000, progress: 82, status: 'active' as const },
+    { id: 3, name: 'Ocean Cleanup', location: 'Pacific', votes: 456, funding: 42000, progress: 45, status: 'active' as const },
+  ]);
+
+  // Saved style presets
+  const [savedStyles] = useState<SavedStyle[]>([
+    {
+      id: 'default',
+      name: 'Default View',
+      description: 'Standard visualization with all layers',
+      layers: []
+    },
+    {
+      id: 'impact',
+      name: 'Impact Focus',
+      description: 'Highlights high-impact regions and projects',
+      layers: []
+    },
+    {
+      id: 'funding',
+      name: 'Funding Flows',
+      description: 'Emphasizes financial transactions and flows',
+      layers: []
+    },
+    {
+      id: 'climate',
+      name: 'Climate Crisis',
+      description: 'Shows critical climate zones and severity',
+      layers: []
+    }
+  ]);
+
+  const [activeStyleId, setActiveStyleId] = useState('default');
+
+  // Layer configurations
+  const [layers, setLayers] = useState<LayerStyleConfig[]>([
+    {
+      id: 'charities',
+      name: 'Charity Bases',
+      visible: true,
+      opacity: 1,
+      activeOpacity: 1,
+      inactiveOpacity: 0.4,
+      color: '#14b8a6',
+      colorMode: 'function',
+      strokePattern: 'solid',
+      strokeWidth: 2,
+      showArrows: false,
+      fillPolygons: true,
+      icon: Squares2X2Icon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: true,
+      showTooltips: true
+    },
+    {
+      id: 'funding',
+      name: 'Funding Flows',
+      visible: true,
+      opacity: 0.85,
+      activeOpacity: 0.95,
+      inactiveOpacity: 0.3,
+      color: '#22c55e',
+      colorMode: 'measure',
+      strokePattern: 'dashed',
+      strokeWidth: 3,
+      showArrows: true,
+      fillPolygons: false,
+      icon: ChartBarIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: false,
+      showTooltips: true
+    },
+    {
+      id: 'data',
+      name: 'Data Streams',
+      visible: true,
+      opacity: 0.8,
+      activeOpacity: 0.9,
+      inactiveOpacity: 0.25,
+      color: 'rgb(3, 105, 161)',
+      colorMode: 'fixed',
+      strokePattern: 'dotted',
+      strokeWidth: 2,
+      showArrows: true,
+      fillPolygons: false,
+      icon: SignalIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: false,
+      showTooltips: true
+    },
+    {
+      id: 'collaboration',
+      name: 'Collaborations',
+      visible: true,
+      opacity: 0.75,
+      activeOpacity: 0.85,
+      inactiveOpacity: 0.2,
+      color: '#a855f7',
+      colorMode: 'fixed',
+      strokePattern: 'solid',
+      strokeWidth: 2,
+      showArrows: false,
+      fillPolygons: false,
+      icon: ChartBarIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: false,
+      showTooltips: true
+    },
+    {
+      id: 'climate',
+      name: 'Climate Zones',
+      visible: false,
+      opacity: 1,
+      activeOpacity: 1,
+      inactiveOpacity: 0.6,
+      color: '#ef4444',
+      colorMode: 'property',
+      strokePattern: 'solid',
+      strokeWidth: 3,
+      showArrows: false,
+      fillPolygons: false,
+      icon: MapIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: true,
+      showTooltips: true
+    },
+    {
+      id: 'polarbears',
+      name: 'Polar Bear Tracking',
+      visible: true,
+      opacity: 1,
+      activeOpacity: 1,
+      inactiveOpacity: 0.5,
+      color: '#ffffff',
+      colorMode: 'fixed',
+      strokePattern: 'solid',
+      strokeWidth: 2,
+      showArrows: false,
+      fillPolygons: false,
+      icon: GlobeAltIcon,
+      minZoom: 0,
+      maxZoom: 22,
+      showLegend: true,
+      showLabels: true,
+      showTooltips: true
+    },
+  ]);
+
+  // Filters
+  const [filters, setFilters] = useState<MapFilter>({
+    category: [],
+    type: [],
+    severity: [],
+    fundingRange: [0, 100000],
+    dateRange: null,
+    impactThreshold: 0
+  });
+
+  // Property-based color mapping (Climate-focused categories)
+  const categoryColorMap = {
+    'Climate': '#06b6d4',
+    'Conservation': '#10b981',
+    'Water': 'rgb(3, 105, 161)',
+    'Forest': '#22c55e',
+    'Ocean': '#0ea5e9'
+  };
+
+  // Real-time data simulation (DexScreener-style)
+  useEffect(() => {
+    loadMockData();
+
+    // Simulate live data updates every 3-5 seconds
+    const dataUpdateInterval = setInterval(() => {
+      simulateDataUpdate();
+    }, 3000 + Math.random() * 2000);
+
+    // Update current time every minute
+    const timeInterval = setInterval(() => setCurrentTime(new Date()), 60000);
+
+    return () => {
+      clearInterval(dataUpdateInterval);
+      clearInterval(timeInterval);
+    };
+  }, []);
+
+  // Keyboard shortcuts (DexScreener-style)
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'l' || e.key === 'L') setShowLayerPanel(prev => !prev);
+      if (e.key === 'f' || e.key === 'F') setShowFilterPanel(prev => !prev);
+      if (e.key === 's' || e.key === 'S') setShowStylesPanel(prev => !prev);
+      if (e.key === 'r' || e.key === 'R') handleRefresh();
+      if (e.key === 'Escape') {
+        setShowLayerPanel(false);
+        setShowFilterPanel(false);
+        setShowStylesPanel(false);
+        setShowKeyboardShortcuts(false);
+      };
+      if (e.key === '?') setShowKeyboardShortcuts(prev => !prev);
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+
+  const simulateDataUpdate = () => {
+    setUpdateCount(prev => prev + 1);
+
+    // Randomly add pulse to some bases
+    setCharityBases(prev => prev.map(base => ({
+      ...base,
+      recentActivity: Math.random() > 0.7,
+      pulseIntensity: Math.random()
+    })));
+
+    // Update flight path intensities
+    setFlightPaths(prev => prev.map(path => ({
+      ...path,
+      intensity: Math.random()
+    })));
+
+    // Occasionally update climate zones
+    if (Math.random() > 0.8) {
+      setClimateZones(prev => prev.map(zone => ({
+        ...zone,
+        changing: Math.random() > 0.5
+      })));
+    }
+  };
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    setDataStreamStatus('connecting');
+
+    setTimeout(() => {
+      loadMockData();
+      setDataStreamStatus('connected');
+      setIsRefreshing(false);
+      setUpdateCount(0);
+    }, 1000);
+  }, []);
+
+  const loadMockData = async () => {
+    console.log('🔄 Loading Arctic map data...');
+    try {
+      // Load real Arctic data from API
+      const arcticData = await mapDataService.getAllMapData();
+      console.log('📡 Raw Arctic data received:', arcticData);
+
+      // Transform polar bears to map format
+      const polarBearData: PolarBearTracking[] = arcticData.polarBears.map(bear => ({
+        id: bear.id,
+        name: bear.name,
+        sex: bear.sex,
+        age: bear.age,
+        currentLocation: { lat: bear.currentLatitude, lng: bear.currentLongitude },
+        lastUpdated: new Date(bear.lastUpdated),
+        status: bear.status,
+        trackingHistory: bear.trackingHistory.map(h => ({
+          lat: h.lat,
+          lng: h.lng,
+          timestamp: new Date(h.timestamp),
+          speed: h.speed
+        })),
+        healthStatus: bear.healthStatus,
+        weight: bear.weight,
+        tagId: bear.tagId,
+        region: bear.region,
+        seaIceCondition: bear.seaIceCondition,
+        huntingSuccess: bear.huntingSuccess,
+        distanceTraveled: bear.distanceTraveled
+      }));
+
+      setPolarBears(polarBearData);
+      console.log(`✅ Loaded ${polarBearData.length} polar bears from Arctic API`);
+
+      // Transform research stations to charity base format
+      const arcticBases: CharityBase[] = arcticData.researchStations.map(station => ({
+        id: station.id,
+        name: station.name,
+        location: { lat: station.latitude, lng: station.longitude },
+        type: station.type,
+        activeProjects: station.activeProjects,
+        category: station.category,
+        fundingReceived: station.fundingReceived,
+        lastActivity: new Date(station.lastActivity),
+        impact: station.impact,
+        properties: station.properties,
+        pulseIntensity: station.pulseIntensity,
+        recentActivity: station.recentActivity,
+        regionalClimateData: {
+          avgTemperature: station.avgTemperature,
+          temperatureTrend: station.temperatureTrend,
+          airQualityIndex: station.airQualityIndex,
+          forestCoverage: station.forestCoverage,
+          waterAvailability: station.waterAvailability,
+          carbonFootprint: station.carbonFootprint,
+          renewableEnergy: station.renewableEnergy
+        }
+      }));
+
+      // Transform climate zones
+      const arcticZones: ClimateZone[] = arcticData.climateZones.map(zone => ({
+        id: zone.id,
+        location: { lat: zone.latitude, lng: zone.longitude },
+        name: zone.name,
+        severity: zone.severity,
+        type: zone.type as any,
+        radius: zone.radius,
+        affectedPopulation: zone.affectedPopulation,
+        trend: zone.trend,
+        temperatureChange: zone.temperatureChange,
+        co2Level: zone.co2Level,
+        seaLevelRise: zone.seaLevelRise,
+        biodiversityLoss: zone.biodiversityLoss,
+        deforestationRate: zone.deforestationRate,
+        waterStress: zone.waterStress,
+        lastUpdated: new Date(zone.lastUpdated),
+        polygonBounds: zone.polygonBounds
+      }));
+
+      setCharityBases(arcticBases);
+      setClimateZones(arcticZones);
+      console.log(`✅ Loaded ${arcticBases.length} research stations`, arcticBases);
+      console.log(`✅ Loaded ${arcticZones.length} climate zones`, arcticZones);
+      console.log(`🐻‍❄️ State updated - polarBears:`, polarBearData.length, 'charityBases:', arcticBases.length);
+
+    } catch (error) {
+      console.error('Failed to load Arctic data:', error);
+      // Fallback: keep empty arrays or use minimal mock data if needed
+    }
+
+    // NOTE: Mock data removed - now using real Arctic data from API
+    // All mock bases, paths, zones, and mission regions have been replaced with live Arctic data
+
+    // NOTE: Using real Arctic data from API instead of mock data
+    // Keeping mock data as fallback in the function but not setting it
+    // setCharityBases(mockBases);
+    // setFlightPaths(mockPaths);
+    // setClimateZones(mockZones);
+    // setMissionRegions(mockMissionRegions);
+  };
+
+  const toggleLayer = (layerId: string) => {
+    setLayers(prev => prev.map(l => l.id === layerId ? { ...l, visible: !l.visible } : l));
+  };
+
+  const updateLayerProperty = (layerId: string, property: string, value: any) => {
+    setLayers(prev => prev.map(l => l.id === layerId ? { ...l, [property]: value } : l));
+  };
+
+  const getLayerByType = (type: string) => layers.find(l => l.id === type);
+
+  const getSeverityColor = (severity: string) => {
+    const severityMap: Record<string, string> = {
+      critical: '#dc2626',
+      high: '#ea580c',
+      medium: '#d97706',
+      low: '#ca8a04'
+    };
+    return severityMap[severity] || '#6b7280';
+  };
+
+
+  const filteredBases = useMemo(() => {
+    return charityBases.filter(base => {
+      // Search filter
+      if (searchQuery && searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const matchesName = base.name.toLowerCase().includes(query);
+        const matchesCategory = base.category.toLowerCase().includes(query);
+        const matchesRegion = base.properties.region?.toLowerCase().includes(query);
+        if (!matchesName && !matchesCategory && !matchesRegion) return false;
+      }
+      if (filters.category.length > 0 && !filters.category.includes(base.category)) return false;
+      if (filters.type.length > 0 && !filters.type.includes(base.type)) return false;
+      if (base.impact < filters.impactThreshold) return false;
+      if (base.fundingReceived < filters.fundingRange[0] || base.fundingReceived > filters.fundingRange[1]) return false;
+      return true;
+    });
+  }, [charityBases, searchQuery, filters]);
+
+  const filteredPaths = useMemo(() => {
+    return flightPaths.filter(path => {
+      const layer = getLayerByType(path.type);
+      if (!layer?.visible) return false;
+      if (currentZoom < layer.minZoom || currentZoom > layer.maxZoom) return false;
+      return true;
+    });
+  }, [flightPaths, layers, currentZoom]);
+
+  const filteredZones = useMemo(() => {
+    return climateZones.filter(zone => {
+      if (filters.severity.length > 0 && !filters.severity.includes(zone.severity)) return false;
+      const layer = getLayerByType('climate');
+      if (currentZoom < (layer?.minZoom || 0) || currentZoom > (layer?.maxZoom || 22)) return false;
+      return true;
+    });
+  }, [climateZones, filters, currentZoom]);
+
+  return (
+    <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col overflow-hidden">
+      {/* Clean Header */}
+      <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-2 flex items-center justify-between z-10 shadow-sm flex-shrink-0">
+        <div className="flex items-center space-x-4 flex-1">
+          {/* Trending Non-Profits */}
+          <div className="flex items-center gap-4 flex-1 overflow-hidden">
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className="text-sm font-bold text-gray-700">Trending</span>
+              <BoltIcon className="w-4 h-4" style={{ color: 'rgb(3, 105, 161)' }} />
+            </div>
+            <div className="flex items-center gap-2 flex-1 overflow-hidden">
+              {[
+                { id: '1', name: 'Isbjorn', category: 'Climate', funding: 58000, projects: 45, region: 'Global', slug: 'isbjorn' },
+                { id: '2', name: 'NRDC', category: 'Climate', funding: 58000, projects: 45, region: 'Americas', slug: 'nrdc' },
+                { id: '3', name: 'WWF UK', category: 'Conservation', funding: 45000, projects: 38, region: 'Europe', slug: 'wwf-uk' },
+                { id: '4', name: 'WWF Japan', category: 'Climate', funding: 60000, projects: 52, region: 'Asia', slug: 'wwf-japan' },
+                { id: '5', name: 'African Regional', category: 'Water', funding: 32000, projects: 28, region: 'Africa', slug: 'african-regional' },
+                { id: '6', name: 'South America', category: 'Forest', funding: 38000, projects: 31, region: 'South America', slug: 'south-america' },
+                { id: '7', name: 'Middle East', category: 'Climate', funding: 28000, projects: 22, region: 'Middle East', slug: 'middle-east' },
+                { id: '8', name: 'Arctic Research', category: 'Climate', funding: 22000, projects: 8, region: 'Arctic', slug: 'arctic-research' },
+                { id: '9', name: 'Amazon Station', category: 'Forest', funding: 25000, projects: 12, region: 'Amazon', slug: 'amazon-station' }
+              ].map((charity, index) => (
+                <button
+                  key={charity.id}
+                  onClick={() => navigate(`/charity/${charity.slug}`)}
+                  className="group relative flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-gray-200 hover:border-blue-400 bg-white hover:bg-blue-50 transition-all cursor-pointer flex-shrink-0"
+                >
+                  <span className="text-xs font-bold text-gray-500">#{index + 1}</span>
+                  <span className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                    {charity.name}
+                  </span>
+
+                  {/* Hover tooltip */}
+                  <div className="absolute top-full left-0 mt-2 hidden group-hover:block z-50 w-64">
+                    <div className="bg-gray-900 text-white text-xs rounded-lg p-3 shadow-2xl">
+                      <div className="font-bold mb-2 text-sm">{charity.name}</div>
+                      <div className="space-y-1 text-gray-300">
+                        <div className="flex justify-between">
+                          <span>Category:</span>
+                          <span className="text-white font-semibold">{charity.category}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Funding:</span>
+                          <span className="text-green-400 font-semibold">${(charity.funding / 1000).toFixed(0)}K</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Projects:</span>
+                          <span className="text-blue-400 font-semibold">{charity.projects}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Region:</span>
+                          <span className="text-white font-semibold">{charity.region}</span>
+                        </div>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-gray-700 text-xs text-gray-400 italic">
+                        Click to donate
+                      </div>
+                      <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3">
+
+          <div className="h-6 w-px bg-blue-200"></div>
+
+          {/* View Mode Toggle */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            onClick={() => setViewMode(viewMode === 'map' ? 'transactions' : 'map')}
+            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${viewMode === 'transactions'
+              ? 'bg-gray-900 text-white shadow-lg'
+              : 'bg-white border border-blue-200 hover:bg-blue-50 text-gray-700'
+              }`}
+          >
+            {viewMode === 'map' ? <RectangleStackIcon className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
+            <span className="text-sm font-semibold">{viewMode === 'map' ? 'Transaction Board' : 'Map View'}</span>
+          </motion.button>
+
+          {/* Filter Button */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            onClick={() => setShowFilterPanel(!showFilterPanel)}
+            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${showFilterPanel
+              ? 'text-white shadow-lg'
+              : 'bg-white border border-blue-200 hover:bg-blue-50'
+              }`}
+            style={showFilterPanel ? { backgroundColor: 'rgb(3, 105, 161)' } : { color: 'rgb(3, 105, 161)' }}
+          >
+            <FunnelIcon className="w-5 h-5" />
+            <span className="text-sm font-semibold">Filter</span>
+          </motion.button>
+
+          {/* Refresh */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="p-2 rounded-lg bg-white border border-blue-200 hover:bg-blue-50 transition-all shadow-sm"
+            style={{ color: 'rgb(3, 105, 161)' }}
+            title="Refresh Data"
+          >
+            <ArrowPathIcon className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </motion.button>
+        </div>
+      </div>
+
+      <div className="flex relative px-4 pb-4 pt-4 gap-4 overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
+        {/* Conditional View: Map or Transaction Board */}
+        <div className="flex-1 relative rounded-2xl shadow-xl border border-blue-200 overflow-hidden min-w-0" style={{ backgroundColor: 'rgb(3, 105, 161)', height: '100%' }}>
+          {viewMode === 'transactions' ? (
+            <div className="h-full overflow-auto">
+              <TransactionBoard />
+            </div>
+          ) : (
+            <MapContainer
+              center={[72, -20]}
+              zoom={3}
+              minZoom={2}
+              maxZoom={18}
+              style={{ height: '100%', width: '100%' }}
+              zoomControl={false}
+              className="bg-blue-50"
+              maxBounds={[[-85, -180], [85, 180]]}
+              maxBoundsViscosity={1.0}
+            >
+              <TileLayer
+                attribution='&copy; OpenStreetMap'
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              />
+
+              <MapInteractionHandler onZoomChange={setCurrentZoom} />
+              <MapCenterHandler
+                lat={mapCenter?.lat || urlLat}
+                lng={mapCenter?.lng || urlLng}
+                zoom={mapCenter?.zoom || urlZoom}
+                trigger={centerTrigger}
+              />
+              <ZoomControls />
+
+              {/* Arctic Circle Overlay - Clickable region */}
+              <ArcticCircleOverlay onArcticClick={() => setShowArcticPanel(true)} />
+
+              {/* Blue Animated Lines - Donations from headquarters to missions */}
+              {filteredPaths.map(path => {
+                const layer = getLayerByType(path.type);
+                if (!layer) return null;
+                return (
+                  <AnimatedFlightPath
+                    key={path.id}
+                    path={path}
+                    style={layer}
+                    currentTime={currentTime}
+                    interpolation={interpolationMode}
+                  />
+                );
+              })}
+
+              {/* Charity Bases - simple blue pins */}
+              {getLayerByType('charities')?.visible && filteredBases.map(base => {
+                const layer = getLayerByType('charities')!;
+                return (
+                  <Marker
+                    key={base.id}
+                    position={[base.location.lat, base.location.lng]}
+                    icon={createPropertyBasedIcon(base, layer.colorMode, layer.color, categoryColorMap, false)}
+                    eventHandlers={{
+                      click: () => setSelectedBase(base)
+                    }}
+                  >
+                    {layer.showTooltips && (
+                      <Popup maxWidth={280} autoPan={true} autoPanPadding={[50, 50]} className="custom-popup">
+                        <div className="text-sm w-64 bg-white p-4 rounded-lg">
+                          {/* Header */}
+                          <div className="mb-3 pb-3 border-b border-blue-100">
+                            <div className="flex items-center justify-between mb-1">
+                              <h3 className="text-base font-bold text-gray-900">{base.name}</h3>
+                            </div>
+                            <div className="text-xs text-gray-500 flex items-center gap-2">
+                              <span className="capitalize">{base.type}</span>
+                              <span>•</span>
+                              <span>{base.category}</span>
+                            </div>
+                          </div>
+
+                          {/* Key Stats */}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="text-center">
+                              <div className="text-xs text-gray-500 mb-0.5">Projects</div>
+                              <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{base.activeProjects}</div>
+                            </div>
+                            <div className="text-center border-x border-blue-100">
+                              <div className="text-xs text-gray-500 mb-0.5">Funding</div>
+                              <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>
+                                ${base.fundingReceived >= 1000000
+                                  ? (base.fundingReceived / 1000000).toFixed(1) + 'M'
+                                  : (base.fundingReceived / 1000).toFixed(0) + 'K'}
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-xs text-gray-500 mb-0.5">Contributions</div>
+                              <div className="text-lg font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{base.impact}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </Popup>
+                    )}
+                  </Marker>
+                );
+              })}
+
+              {/* Polar Bear Tracking - REAL DATA from USGS + Churchill */}
+              {getLayerByType('polarbears')?.visible && polarBears.map((bear) => {
+                const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="36" height="36">
+                <defs>
+                  <filter id="shadow">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+                  </filter>
+                </defs>
+
+                <!-- Polar bear silhouette -->
+                <g filter="url(#shadow)">
+                  <!-- Back legs -->
+                  <ellipse cx="20" cy="48" rx="6" ry="9" fill="#ffffff"/>
+                  <ellipse cx="44" cy="48" rx="6" ry="9" fill="#ffffff"/>
+
+                  <!-- Body -->
+                  <ellipse cx="32" cy="38" rx="16" ry="18" fill="#ffffff"/>
+
+                  <!-- Head -->
+                  <ellipse cx="32" cy="20" rx="12" ry="13" fill="#ffffff"/>
+
+                  <!-- Snout -->
+                  <ellipse cx="32" cy="26" rx="7" ry="5" fill="#f8f8f8"/>
+
+                  <!-- Ears -->
+                  <ellipse cx="24" cy="12" rx="5" ry="6" fill="#ffffff"/>
+                  <ellipse cx="40" cy="12" rx="5" ry="6" fill="#ffffff"/>
+
+                  <!-- Front legs -->
+                  <ellipse cx="24" cy="52" rx="5" ry="8" fill="#ffffff"/>
+                  <ellipse cx="40" cy="52" rx="5" ry="8" fill="#ffffff"/>
+
+                  <!-- Eyes -->
+                  <circle cx="28" cy="18" r="2" fill="#1a1a1a"/>
+                  <circle cx="36" cy="18" r="2" fill="#1a1a1a"/>
+
+                  <!-- Nose -->
+                  <ellipse cx="32" cy="26" rx="2.5" ry="2" fill="#1a1a1a"/>
+                </g>
+
+                <!-- Blue tracking indicator -->
+                <circle cx="52" cy="12" r="8" fill="#0369a1" stroke="#ffffff" stroke-width="2"/>
+                <path d="M 52 8 L 52 16 M 48 12 L 56 12" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+              </svg>`;
+                const polarBearIcon = new Icon({
+                  iconUrl: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svgIcon),
+                  iconSize: [36, 36],
+                  iconAnchor: [18, 54],
+                  popupAnchor: [0, -54],
+                });
+
+                return (
+                  <React.Fragment key={bear.id}>
+                    {/* Polar bear current location */}
+                    <Marker
+                      position={[bear.currentLocation.lat, bear.currentLocation.lng]}
+                      icon={polarBearIcon}
+                    >
+                      <Popup maxWidth={280} className="custom-popup">
+                        <div className="bg-gradient-to-br from-blue-50 to-white p-5 rounded-xl">
+                          {/* Bear emoji header */}
+                          <div className="text-center mb-4">
+                            <div className="text-5xl mb-2">🐻‍❄️</div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-1">{bear.name}</h3>
+                            <div className="inline-block px-3 py-1 bg-blue-100 rounded-full">
+                              <span className="text-xs font-semibold text-blue-700">📍 {bear.region}</span>
+                            </div>
+                          </div>
+
+                          {/* Simple stats */}
+                          <div className="bg-white rounded-lg p-4 shadow-sm space-y-3 mb-3">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">📅</span>
+                              <div>
+                                <div className="text-xs text-gray-500">Last Seen</div>
+                                <div className="text-sm font-semibold text-gray-900">{new Date(bear.lastUpdated).toLocaleDateString()}</div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">🗺️</span>
+                              <div>
+                                <div className="text-xs text-gray-500">Tracked Locations</div>
+                                <div className="text-sm font-semibold" style={{ color: 'rgb(3, 105, 161)' }}>
+                                  {bear.trackingHistory.length} GPS points
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Friendly note */}
+                          <div className="text-center text-xs text-gray-600 bg-blue-50 rounded-lg p-2">
+                            <span className="font-semibold">🛰️ Real GPS Tracking Data</span>
+                            <div className="text-[10px] mt-1">USGS & Polar Bears International</div>
+                          </div>
+                        </div>
+                      </Popup>
+                    </Marker>
+
+                    {/* Tracking path - subtle */}
+                    {bear.trackingHistory.length > 1 && (
+                      <Polyline
+                        positions={bear.trackingHistory.map(point => [point.lat, point.lng])}
+                        pathOptions={{
+                          color: '#0369a1',
+                          weight: 1,
+                          opacity: 0.3,
+                          dashArray: '3, 3'
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </MapContainer>
+          )}
+
+          {/* Arctic Data Panel - Shows climate metrics when Arctic is focused */}
+          <ArcticDataPanel
+            isOpen={showArcticPanel}
+            onClose={() => setShowArcticPanel(false)}
+          />
+        </div>
+
+        {/* Impact Stats Panel - Charity Focused */}
+        <AnimatePresence>
+          {false && (
+            <motion.div
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="absolute left-6 top-6 w-80 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] max-h-[calc(100vh-160px)] overflow-hidden flex flex-col"
+            >
+              <div className="px-5 py-4 border-b border-blue-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-teal-50">
+                <div className="flex items-center space-x-2">
+                  <ChartBarIcon className="w-5 h-5" style={{ color: 'rgb(3, 105, 161)' }} />
+                  <h3 className="font-bold text-gray-800">Impact Overview</h3>
+                </div>
+                <button
+                  onClick={() => { }}
+                  className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                {/* Global Climate Overview */}
+                <div className="bg-gradient-to-br from-red-50 to-orange-50 border border-red-200 rounded-xl p-4">
+                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                    <span className="w-1 h-4 bg-red-600 rounded mr-2"></span>
+                    Global Climate Status
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-700">Avg Global Temp Rise:</span>
+                      <span className="font-bold text-red-700">+{(climateZones.reduce((sum, z) => sum + z.temperatureChange, 0) / climateZones.length).toFixed(1)}°C</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-700">Active Climate Crises:</span>
+                      <span className="font-bold text-orange-700">{climateZones.filter(z => z.severity === 'critical' || z.severity === 'high').length}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-700">People Affected:</span>
+                      <span className="font-bold text-red-700">{(climateZones.reduce((sum, z) => sum + z.affectedPopulation, 0) / 1000000).toFixed(1)}M</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-700">Charities Responding:</span>
+                      <span className="font-bold text-green-700">{filteredBases.length}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total Stats */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4">
+                    <div className="text-xs text-blue-600 font-semibold mb-1">Active Charities</div>
+                    <div className="text-2xl font-bold text-blue-700">{filteredBases.length}</div>
+                  </div>
+                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 border border-teal-200 rounded-xl p-4">
+                    <div className="text-xs text-teal-600 font-semibold mb-1">Projects</div>
+                    <div className="text-2xl font-bold text-teal-700">
+                      {filteredBases.reduce((sum, b) => sum + b.activeProjects, 0)}
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-4">
+                    <div className="text-xs text-green-600 font-semibold mb-1">Total Funding</div>
+                    <div className="text-2xl font-bold text-green-700">
+                      ${(filteredBases.reduce((sum, b) => sum + b.fundingReceived, 0) / 1000000).toFixed(1)}M
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4">
+                    <div className="text-xs text-purple-600 font-semibold mb-1">Avg Impact</div>
+                    <div className="text-2xl font-bold text-purple-700">
+                      {Math.round(filteredBases.reduce((sum, b) => sum + b.impact, 0) / filteredBases.length)}%
+                    </div>
+                  </div>
+                </div>
+
+                {/* Focus Areas */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                    <span className="w-1 h-4 bg-blue-600 rounded mr-2"></span>
+                    Focus Areas
+                  </h4>
+                  <div className="space-y-2">
+                    {Object.entries(
+                      filteredBases.reduce((acc, base) => {
+                        acc[base.category] = (acc[base.category] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([category, count]) => (
+                      <div key={category}>
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-700 font-medium">{category}</span>
+                          <span className="text-blue-600 font-semibold">{count} charities</span>
+                        </div>
+                        <div className="h-2 bg-blue-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-teal-500 rounded-full"
+                            style={{ width: `${(count / filteredBases.length) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Organization Types */}
+                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
+                  <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center">
+                    <span className="w-1 h-4 bg-teal-600 rounded mr-2"></span>
+                    Network Reach
+                  </h4>
+                  <div className="space-y-2">
+                    {Object.entries(
+                      filteredBases.reduce((acc, base) => {
+                        acc[base.type] = (acc[base.type] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([type, count]) => (
+                      <div key={type} className="flex items-center justify-between">
+                        <span className="text-xs text-gray-700 font-medium capitalize">{type}</span>
+                        <span className="text-xs text-teal-700 font-bold">
+                          {count} ({Math.round((count / filteredBases.length) * 100)}%)
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Charity Filter Panel */}
+        <AnimatePresence>
+          {showFilterPanel && (
+            <motion.div
+              initial={{ x: 320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 320, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="absolute right-6 top-6 w-96 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] max-h-[calc(100vh-160px)] overflow-hidden flex flex-col"
+            >
+              <div className="px-5 py-4 border-b border-blue-200 flex items-center justify-between bg-white">
+                <div className="flex items-center space-x-2">
+                  <FunnelIcon className="w-5 h-5" style={{ color: 'rgb(3, 105, 161)' }} />
+                  <h3 className="font-bold" style={{ color: 'rgb(3, 105, 161)' }}>Filter Charities</h3>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setFilters({
+                      category: [],
+                      type: [],
+                      severity: [],
+                      fundingRange: [0, 10000000],
+                      dateRange: null,
+                      impactThreshold: 0
+                    })}
+                    className="text-xs px-3 py-1.5 rounded-lg transition-all font-semibold"
+                    style={{ backgroundColor: '#e0f2fe', color: 'rgb(3, 105, 161)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#bae6fd'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#e0f2fe'}
+                  >
+                    Clear All
+                  </button>
+                  <button
+                    onClick={() => setShowFilterPanel(false)}
+                    className="p-1 rounded-lg hover:bg-blue-100 text-gray-600 hover:text-gray-800 transition-all"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                {/* Focus Area Filter */}
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-bold mb-3 block" style={{ color: 'rgb(3, 105, 161)' }}>
+                    Focus Areas
+                  </label>
+                  <div className="space-y-2">
+                    {['Climate', 'Conservation', 'Water', 'Forest', 'Ocean'].map(category => (
+                      <label key={category} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={filters.category.includes(category)}
+                          onChange={(e) => {
+                            setFilters(prev => ({
+                              ...prev,
+                              category: e.target.checked
+                                ? [...prev.category, category]
+                                : prev.category.filter(c => c !== category)
+                            }));
+                          }}
+                          className="w-4 h-4 rounded border-blue-300 bg-white focus:ring-offset-0"
+                          style={{ accentColor: 'rgb(3, 105, 161)' }}
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-gray-900 font-medium">{category}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Organization Type Filter */}
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-bold mb-3 block" style={{ color: 'rgb(3, 105, 161)' }}>
+                    Organization Type
+                  </label>
+                  <div className="space-y-2">
+                    {['headquarters', 'regional', 'field'].map(type => (
+                      <label key={type} className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-blue-50 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={filters.type.includes(type)}
+                          onChange={(e) => {
+                            setFilters(prev => ({
+                              ...prev,
+                              type: e.target.checked
+                                ? [...prev.type, type]
+                                : prev.type.filter(t => t !== type)
+                            }));
+                          }}
+                          className="w-4 h-4 rounded border-blue-300 bg-white focus:ring-offset-0"
+                          style={{ accentColor: 'rgb(3, 105, 161)' }}
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-gray-900 font-medium capitalize">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Impact Threshold */}
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-bold mb-3 block flex items-center justify-between">
+                    <span style={{ color: 'rgb(3, 105, 161)' }}>
+                      Minimum Impact Score
+                    </span>
+                    <span className="font-bold text-base" style={{ color: 'rgb(3, 105, 161)' }}>{filters.impactThreshold}%</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={filters.impactThreshold}
+                    onChange={(e) => setFilters(prev => ({ ...prev, impactThreshold: parseInt(e.target.value) }))}
+                    className="w-full h-2.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                    style={{ accentColor: 'rgb(3, 105, 161)' }}
+                  />
+                  <div className="flex justify-between text-xs font-medium mt-2" style={{ color: 'rgb(3, 105, 161)' }}>
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+
+                {/* Funding Range */}
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <label className="text-sm font-bold mb-3 block flex items-center justify-between">
+                    <span style={{ color: 'rgb(3, 105, 161)' }}>
+                      Funding Range
+                    </span>
+                    <span className="font-bold text-xs" style={{ color: 'rgb(3, 105, 161)' }}>
+                      ${(filters.fundingRange[0] / 1000).toFixed(0)}K - ${(filters.fundingRange[1] / 1000000).toFixed(1)}M
+                    </span>
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000000"
+                      step="100000"
+                      value={filters.fundingRange[1]}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        fundingRange: [prev.fundingRange[0], parseInt(e.target.value)]
+                      }))}
+                      className="w-full h-2.5 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                      style={{ accentColor: 'rgb(3, 105, 161)' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Results Summary */}
+                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-semibold mb-1" style={{ color: 'rgb(3, 105, 161)' }}>Showing Results</div>
+                      <div className="text-2xl font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{filteredBases.length}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs font-semibold mb-1" style={{ color: 'rgb(3, 105, 161)' }}>of Total</div>
+                      <div className="text-2xl font-bold" style={{ color: 'rgb(3, 105, 161)' }}>{charityBases.length}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Right Side Panel - Timeline */}
+        <div className="w-96 flex flex-col gap-3" style={{ height: '100%' }}>
+          {/* Top Mission Card */}
+          <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/charity/isbjorn')}>
+            <div className="flex items-start gap-2">
+              {/* Isbjorn Logo */}
+              <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+                <img src={isbjornLogo} alt="Isbjorn" className="w-full h-full object-cover" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-bold text-gray-900">Isbjorn Foundation</span>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'rgb(3, 105, 161)' }}>
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Conservation Team
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs font-semibold text-red-600">LIVE</span>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h4 className="font-bold text-sm text-gray-800 mb-1">
+                  Polar Bear Conservation in Svalbard
+                </h4>
+
+                {/* Content */}
+                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                  Real-time monitoring in Svalbard, Norway. Tracking ice coverage and wildlife patterns.
+                </p>
+
+                {/* Mini Map */}
+                <div
+                  className="relative w-full h-24 bg-gray-100 rounded-lg overflow-hidden mb-2 border border-gray-200 cursor-pointer hover:border-[rgb(3,105,161)] transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMapCenter({ lat: 78.22, lng: 15.65, zoom: 6 });
+                    setCenterTrigger(prev => prev + 1);
+                  }}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center bg-[rgb(3,105,161)]/10">
+                    <div className="text-center">
+                      <svg className="w-8 h-8 mx-auto mb-1 text-[rgb(3,105,161)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                      </svg>
+                      <p className="text-xs font-semibold text-[rgb(3,105,161)]">View on Map</p>
+                      <p className="text-xs text-gray-500">Svalbard, Norway</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category and Actions */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: 'rgb(3, 105, 161)' }}>
+                    Top Mission
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); navigate('/live'); }}
+                      className="flex items-center gap-0.5 px-2 py-1 rounded text-xs font-semibold transition-all bg-[rgb(3,105,161)] text-white hover:bg-[rgb(2,85,131)]"
+                    >
+                      Watch Live
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline */}
+          <div className="bg-white rounded-xl border border-blue-200 shadow-lg p-3 overflow-hidden flex flex-col" style={{ height: 'calc(100% - 230px)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-bold flex items-center space-x-2" style={{ color: 'rgb(3, 105, 161)' }}>
+                <SignalIcon className="w-5 h-5" />
+                <span>Timeline</span>
+              </h3>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {newsFeed.map((news, index) => (
+                <div
+                  key={news.id}
+                  className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-2 hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => navigate(`/charity/${news.ngoSlug}`)}
+                >
+                  <div className="flex items-start gap-2">
+                    {/* Author Profile Picture */}
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                      <img
+                        src={news.authorPhoto}
+                        alt={news.authorName}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(news.authorName)}&background=3b82f6&color=fff&size=128`;
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      {/* Header - Author info */}
+                      <div className="flex items-start justify-between mb-1">
+                        <div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm font-bold text-gray-900">{news.authorName}</span>
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'rgb(3, 105, 161)' }}>
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {news.authorRole} at {news.ngo}
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-500 flex-shrink-0">
+                          {Math.floor((Date.now() - news.timestamp.getTime()) / 3600000)}h ago
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h4 className="font-bold text-sm text-gray-800 mb-1 line-clamp-1">
+                        {news.title}
+                      </h4>
+
+                      {/* Content */}
+                      <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                        {news.content}
+                      </p>
+
+                      {/* Category badge and votes */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="inline-block text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: 'rgb(3, 105, 161)' }}>
+                          {news.category}
+                        </div>
+
+                        {/* Vote buttons */}
+                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handleVote(news.id, 'up')}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition-all ${news.userVote === 'up'
+                              ? 'bg-green-100 text-green-700'
+                              : 'hover:bg-gray-100 text-gray-500'
+                              }`}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                            </svg>
+                            <span className="text-xs font-semibold">{news.upvotes}</span>
+                          </button>
+                          <button
+                            onClick={() => handleVote(news.id, 'down')}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition-all ${news.userVote === 'down'
+                              ? 'bg-red-100 text-red-700'
+                              : 'hover:bg-gray-100 text-gray-500'
+                              }`}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                            </svg>
+                            <span className="text-xs font-semibold">{news.downvotes}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* View All Link */}
+            <div className="mt-2 pt-2 border-t border-blue-100 text-center">
+              <button
+                onClick={() => navigate('/donate')}
+                className="text-sm font-semibold hover:underline"
+                style={{ color: 'rgb(3, 105, 161)' }}
+              >
+                View all updates on Donate →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Remove Keyboard Shortcuts */}
+    </div>
+  );
+};
+
 export default MapPage;
+

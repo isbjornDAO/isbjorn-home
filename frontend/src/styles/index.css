@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mini climate map tooltip styling */
+.leaflet-tooltip-custom {
+  background: rgba(0, 0, 0, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  padding: 2px 8px !important;
+  font-size: 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(4px);
+}
+.leaflet-tooltip-custom::before {
+  border-top-color: rgba(0, 0, 0, 0.75) !important;
+}
+
 @layer base {
   :root {
     --arctic-primary: #58a6ff;
