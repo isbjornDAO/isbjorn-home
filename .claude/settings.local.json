@@ -15,7 +15,22 @@
       "Bash(ping:*)",
       "Bash(nul)",
       "WebFetch(domain:polarbearsinternational.org)",
-      "Bash(PORT=5001 npm run dev:*)"
+      "Bash(PORT=5001 npm run dev:*)",
+      "Bash(npx tsc --noEmit --pretty)",
+      "Bash(npx vite build)",
+      "Bash(git add frontend/src/pages/HomePage.tsx frontend/src/pages/MapPage.tsx frontend/src/styles/index.css frontend/src/components/map/ArcticDataPanel.tsx)",
+      "Bash(git commit:*)",
+      "Bash(git add frontend/src/pages/MapPage.tsx frontend/src/components/map/ArcticDataPanel.tsx)",
+      "Bash(git merge claude/wonderful-goldwasser --no-edit)",
+      "Bash(git push origin main)",
+      "Bash(git push origin claude/wonderful-goldwasser)",
+      "Bash(ls frontend/src/components/TransactionBoard*)",
+      "Bash(ls frontend/src/assets/isbjorn-logo*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(ls utils/xp*)",
+      "Bash(ls components/Layout*)",
+      "Bash(git add frontend/src/pages/HomePage.tsx frontend/src/components/Layout.tsx frontend/src/pages/MapPage.tsx)",
+      "Bash(git add .claude/settings.local.json)"
     ],
     "deny": [],
     "ask": []
