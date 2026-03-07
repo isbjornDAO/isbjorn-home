@@ -102,15 +102,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-3">
-              {/* Persistent Donate CTA */}
-              <Link
-                to="/donate"
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-arctic-600 text-white text-sm font-semibold rounded-lg hover:bg-arctic-700 transition-all duration-200 shadow-sm"
-              >
-                <HeartIcon className="w-4 h-4" />
-                Donate
-              </Link>
-
               {isConnected ? (
                 <div className="flex items-center space-x-1 sm:space-x-2">
                   {/* Profile link with XP badge */}
