@@ -236,6 +236,21 @@
     display: none;
   }
 
+  .homepage-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+  }
+  .homepage-scroll::-webkit-scrollbar {
+    width: 3px;
+  }
+  .homepage-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .homepage-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 3px;
+  }
+
   /* Mobile-specific utilities */
   .touch-manipulation {
     touch-action: manipulation;
