@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,170 +28,230 @@ const C = {
   blueBright: '#0ea5e9',
   blueDark: '#0369a1',
   green: '#22c55e',
-  greenDim: '#16a34a',
   red: '#ef4444',
-  redDim: '#dc2626',
   yellow: '#eab308',
   purple: '#a78bfa',
 };
 
-// ─── TOKEN DATA ───
-interface Token {
+// ─── DATA ───
+
+interface NewsStory {
+  id: string;
+  headline: string;
+  summary: string;
+  source: string;
+  time: string;
+  category: string;
+  tag: 'breaking' | 'trending' | 'update' | 'research' | 'alert';
+  image?: string;
+  tokenId?: string;
+  stats?: { label: string; value: string; change?: number }[];
+}
+
+interface TokenRow {
   id: string;
   ticker: string;
   name: string;
   logo: string;
-  category: string;
-  desc: string;
-  // DexScreener-style metrics
-  impactScore: number;       // like "price" — overall effectiveness score
-  impactChange24h: number;   // % change
-  impactChange7d: number;
-  volume24h: number;         // donation volume in $
-  volumeChange: number;      // % change in volume
-  totalRaised: number;       // like "market cap"
-  donors: number;            // like "holders"
-  donorsChange: number;
+  impactScore: number;
+  change24h: number;
+  volume24h: number;
   sparkline: number[];
-  // Weather-style conservation data
-  weather: {
-    metric: string;          // e.g. "Ice Coverage", "Species Count"
-    value: string;
-    trend: 'up' | 'down' | 'stable';
-    detail: string;
-    temp?: string;           // temperature if relevant
-    condition?: string;      // "Critical" | "Stable" | "Improving"
-  };
-  // News/updates
-  news: { text: string; time: string; type: 'alert' | 'update' | 'milestone' | 'donation' }[];
-  // Active missions
-  missions: { name: string; progress: number; status: string }[];
+  condition: string;
+  conditionStatus: 'critical' | 'stable' | 'improving';
 }
 
-const TOKENS: Token[] = [
+interface LiveStream {
+  id: string;
+  title: string;
+  location: string;
+  viewers: number;
+  embedUrl: string;
+  thumbnail?: string;
+}
+
+const TOKENS: TokenRow[] = [
+  { id: 'pbi', ticker: 'PBI', name: 'Polar Bears Intl', logo: pbiLogo, impactScore: 87.4, change24h: 3.2, volume24h: 24500, sparkline: [72,74,73,76,78,77,80,82,81,84,85,87], condition: 'Ice 62%', conditionStatus: 'critical' },
+  { id: 'wwf-uk', ticker: 'WWF', name: 'World Wildlife Fund', logo: wwfLogo, impactScore: 92.1, change24h: 1.8, volume24h: 31200, sparkline: [85,86,87,86,88,89,90,89,91,90,91,92], condition: '1,847 spp', conditionStatus: 'stable' },
+  { id: 'greenpeace', ticker: 'GPC', name: 'Greenpeace', logo: greenpeaceLogo, impactScore: 78.6, change24h: 5.4, volume24h: 18900, sparkline: [60,62,64,63,67,70,69,73,74,76,77,79], condition: '847K ha', conditionStatus: 'critical' },
+  { id: 'ocean-conservancy', ticker: 'OCN', name: 'Ocean Conservancy', logo: oceanConservancyLogo, impactScore: 71.2, change24h: 8.7, volume24h: 12800, sparkline: [45,48,50,52,55,54,58,62,64,67,69,71], condition: '+1.2C', conditionStatus: 'critical' },
+  { id: 'the-nature-conservancy', ticker: 'TNC', name: 'Nature Conservancy', logo: natureConservancyLogo, impactScore: 83.9, change24h: 0.6, volume24h: 9400, sparkline: [80,81,82,81,82,83,82,83,84,83,84,84], condition: '2.4M ha', conditionStatus: 'improving' },
+  { id: 'conservation-intl', ticker: 'CI', name: 'Conservation Intl', logo: conservationIntlLogo, impactScore: 76.3, change24h: 2.1, volume24h: 11200, sparkline: [62,64,65,64,67,69,68,71,72,74,75,76], condition: '48.2K t', conditionStatus: 'improving' },
+];
+
+const FEATURED: NewsStory = {
+  id: 'f1',
+  headline: 'Arctic Sea Ice Reaches Record Low for March — What It Means for Polar Bear Populations',
+  summary: 'New satellite data from the National Snow and Ice Data Center shows Arctic sea ice extent at its lowest March level since records began in 1979. Scientists warn this could disrupt critical spring hunting seasons for polar bears across the Beaufort and Chukchi seas.',
+  source: 'NSIDC',
+  time: '2h ago',
+  category: 'Arctic',
+  tag: 'breaking',
+  tokenId: 'pbi',
+  stats: [
+    { label: 'Ice Extent', value: '14.2M km²', change: -3.4 },
+    { label: 'vs 1981-2010 avg', value: '-1.1M km²' },
+    { label: 'Bear Pop. Affected', value: '~26,000' },
+  ],
+};
+
+const NEWS: NewsStory[] = [
   {
-    id: 'pbi', ticker: 'PBI', name: 'Polar Bears International', logo: pbiLogo, category: 'Arctic',
-    desc: 'Wild polar bears & sea ice conservation',
-    impactScore: 87.4, impactChange24h: 3.2, impactChange7d: 12.8,
-    volume24h: 24500, volumeChange: 31, totalRaised: 154200, donors: 2847, donorsChange: 5.1,
-    sparkline: [72,74,73,76,78,77,80,82,81,84,85,87],
-    weather: { metric: 'Ice Coverage', value: '62%', trend: 'down', detail: 'Svalbard region — 3.2% decline this month', temp: '-18C', condition: 'Critical' },
-    news: [
-      { text: 'Bear #4471 GPS collar transmitting from Hudson Bay', time: '2m', type: 'update' },
-      { text: 'Ice coverage dropped below 65% threshold in Svalbard', time: '18m', type: 'alert' },
-      { text: '$4,200 raised in last 24h — new monthly record', time: '1h', type: 'milestone' },
-    ],
-    missions: [{ name: 'Arctic Research Station', progress: 68, status: 'active' }, { name: 'Hudson Bay Monitoring', progress: 45, status: 'active' }],
+    id: 'n1',
+    headline: 'Amazon Deforestation Rate Slows 18% in Q1 — Satellite Data Confirms',
+    summary: 'Brazilian space agency INPE reports a significant slowdown, though environmentalists caution the dry season ahead could reverse gains.',
+    source: 'INPE / Reuters', time: '4h ago', category: 'Forest', tag: 'trending', tokenId: 'greenpeace',
+    stats: [{ label: 'Area Saved', value: '1,240 km²' }, { label: 'YoY Change', value: '-18%', change: -18 }],
   },
   {
-    id: 'wwf-uk', ticker: 'WWF', name: 'World Wildlife Fund', logo: wwfLogo, category: 'Global',
-    desc: 'People living in harmony with nature',
-    impactScore: 92.1, impactChange24h: 1.8, impactChange7d: 8.4,
-    volume24h: 31200, volumeChange: 12, totalRaised: 185400, donors: 4102, donorsChange: 3.2,
-    sparkline: [85,86,87,86,88,89,90,89,91,90,91,92],
-    weather: { metric: 'Species Index', value: '1,847', trend: 'up', detail: 'Monitored species across 40 countries', condition: 'Stable' },
-    news: [
-      { text: 'Svalbard marine reserve proposal reaches 70% vote', time: '8m', type: 'update' },
-      { text: 'New partnership with Norwegian Arctic Institute', time: '2h', type: 'milestone' },
-      { text: '$1,000 donation from snow_leopard', time: '3h', type: 'donation' },
-    ],
-    missions: [{ name: 'Svalbard Marine Reserve', progress: 69, status: 'voting' }, { name: 'Coral Reef Mapping', progress: 82, status: 'active' }],
+    id: 'n2',
+    headline: 'Chukchi Sea Surface Temperature Anomaly Hits +1.2C Above Average',
+    summary: 'NOAA ocean buoy network detecting sustained warming in key Arctic marine habitat. Walrus and seal populations showing behavioral shifts.',
+    source: 'NOAA', time: '6h ago', category: 'Ocean', tag: 'alert', tokenId: 'ocean-conservancy',
+    stats: [{ label: 'Temp Anomaly', value: '+1.2C' }, { label: 'Duration', value: '47 days' }],
   },
   {
-    id: 'greenpeace', ticker: 'GPC', name: 'Greenpeace', logo: greenpeaceLogo, category: 'Environment',
-    desc: 'Ending environmental destruction',
-    impactScore: 78.6, impactChange24h: 5.4, impactChange7d: 18.2,
-    volume24h: 18900, volumeChange: 42, totalRaised: 141800, donors: 3291, donorsChange: 7.8,
-    sparkline: [60,62,64,63,67,70,69,73,74,76,77,79],
-    weather: { metric: 'Forest Coverage', value: '847K ha', trend: 'down', detail: 'Amazon basin deforestation rate tracking', temp: '31C', condition: 'Critical' },
-    news: [
-      { text: 'Amazon reforestation milestone: 10,000 trees planted', time: '18m', type: 'milestone' },
-      { text: 'Deforestation rate increased 2.1% in sector 7', time: '4h', type: 'alert' },
-      { text: 'New satellite imagery partnership announced', time: '6h', type: 'update' },
-    ],
-    missions: [{ name: 'Rainforest Protection', progress: 100, status: 'funded' }, { name: 'Ocean Plastic Cleanup', progress: 34, status: 'active' }],
+    id: 'n3',
+    headline: 'WWF Svalbard Marine Reserve Proposal Reaches 70% Community Vote',
+    summary: 'The governance proposal to establish a new 12,000 km² marine protected area around western Svalbard is nearing the approval threshold.',
+    source: 'Isbjorn DAO', time: '8h ago', category: 'Governance', tag: 'update', tokenId: 'wwf-uk',
   },
   {
-    id: 'ocean-conservancy', ticker: 'OCN', name: 'Ocean Conservancy', logo: oceanConservancyLogo, category: 'Ocean',
-    desc: 'Protecting the ocean from today\'s greatest challenges',
-    impactScore: 71.2, impactChange24h: 8.7, impactChange7d: 31.4,
-    volume24h: 12800, volumeChange: 56, totalRaised: 98500, donors: 1856, donorsChange: 12.3,
-    sparkline: [45,48,50,52,55,54,58,62,64,67,69,71],
-    weather: { metric: 'Ocean Temp', value: '+1.2C', trend: 'up', detail: 'Chukchi Sea surface temperature anomaly', temp: '4.8C', condition: 'Critical' },
-    news: [
-      { text: 'Chukchi Sea patrol vessel deployed for spring survey', time: '30m', type: 'update' },
-      { text: 'Record donation volume — up 56% this week', time: '2h', type: 'milestone' },
-      { text: 'Microplastic concentration data released', time: '5h', type: 'alert' },
-    ],
-    missions: [{ name: 'Chukchi Sea Patrol', progress: 31, status: 'active' }, { name: 'Coral Monitoring', progress: 55, status: 'active' }],
+    id: 'n4',
+    headline: 'New Carbon Credit Methodology Peer-Reviewed for Blue Carbon Mangroves',
+    summary: 'Conservation International\'s mangrove restoration methodology has been independently validated, opening $12M in potential carbon credit revenue.',
+    source: 'Verra', time: '12h ago', category: 'Climate', tag: 'research', tokenId: 'conservation-intl',
+    stats: [{ label: 'Credit Value', value: '$12M' }, { label: 'CO2 Offset', value: '48.2K t/yr' }],
   },
   {
-    id: 'the-nature-conservancy', ticker: 'TNC', name: 'Nature Conservancy', logo: natureConservancyLogo, category: 'Land',
-    desc: 'Conserving the lands and waters on which all life depends',
-    impactScore: 83.9, impactChange24h: 0.6, impactChange7d: 4.2,
-    volume24h: 9400, volumeChange: -3, totalRaised: 85200, donors: 2134, donorsChange: 1.8,
-    sparkline: [80,81,82,81,82,83,82,83,84,83,84,84],
-    weather: { metric: 'Protected Land', value: '2.4M ha', trend: 'up', detail: 'Total protected hectares under management', condition: 'Improving' },
-    news: [
-      { text: 'New wetland reserve established in Minnesota', time: '1h', type: 'milestone' },
-      { text: 'Quarterly conservation report published', time: '4h', type: 'update' },
-    ],
-    missions: [{ name: 'Great Plains Restoration', progress: 71, status: 'active' }],
+    id: 'n5',
+    headline: 'Bear #4471 GPS Collar Transmitting New Data from Hudson Bay',
+    summary: 'Researchers confirm the adult female polar bear has moved 340 km north in the past week, tracking receding ice edge for seal hunting.',
+    source: 'PBI Research', time: '14h ago', category: 'Arctic', tag: 'update', tokenId: 'pbi',
   },
   {
-    id: 'conservation-intl', ticker: 'CI', name: 'Conservation International', logo: conservationIntlLogo, category: 'Climate',
-    desc: 'Spotlighting nature-based solutions to climate change',
-    impactScore: 76.3, impactChange24h: 2.1, impactChange7d: 15.1,
-    volume24h: 11200, volumeChange: 22, totalRaised: 115600, donors: 1678, donorsChange: 4.5,
-    sparkline: [62,64,65,64,67,69,68,71,72,74,75,76],
-    weather: { metric: 'Carbon Offset', value: '48.2K t', trend: 'up', detail: 'CO2 equivalent offset this quarter', condition: 'Improving' },
-    news: [
-      { text: 'Blue carbon mangrove project expansion approved', time: '45m', type: 'milestone' },
-      { text: 'Carbon credit methodology peer-reviewed', time: '3h', type: 'update' },
-      { text: '$500 donation from polar_dawn', time: '5h', type: 'donation' },
-    ],
-    missions: [{ name: 'Mangrove Restoration', progress: 58, status: 'active' }, { name: 'Carbon Credit Program', progress: 89, status: 'active' }],
+    id: 'n6',
+    headline: 'Nature Conservancy Establishes New 80,000-Hectare Wetland Reserve',
+    summary: 'The protected area in Minnesota will safeguard critical migratory bird habitat and serve as a carbon sink sequestering an estimated 15,000 tonnes CO2/year.',
+    source: 'TNC', time: '18h ago', category: 'Land', tag: 'trending', tokenId: 'the-nature-conservancy',
+  },
+  {
+    id: 'n7',
+    headline: 'Global Ocean Plastic Concentration Mapped at Unprecedented Resolution',
+    summary: 'New satellite-AI fusion technique reveals microplastic hotspots across 5 major gyres. Data will guide Greenpeace cleanup vessel routing.',
+    source: 'Nature Geoscience', time: '1d ago', category: 'Ocean', tag: 'research', tokenId: 'greenpeace',
   },
 ];
 
-type SortKey = 'impactScore' | 'impactChange24h' | 'volume24h' | 'totalRaised' | 'donors';
-type TimeFilter = '1h' | '24h' | '7d' | '30d';
+const STREAMS: LiveStream[] = [
+  { id: 's1', title: 'Polar Bear Cam', location: 'Hudson Bay, Canada', viewers: 1247, embedUrl: 'https://www.youtube.com/embed/U9_Fdcp73Pc?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0' },
+  { id: 's2', title: 'Northern Lights', location: 'Svalbard, Norway', viewers: 892, embedUrl: 'https://www.youtube.com/embed/cKrBqRkn4Bk?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0' },
+];
+
+const TOPICS = ['All', 'Arctic', 'Ocean', 'Forest', 'Climate', 'Land', 'Governance'];
+
+const TAG_STYLES: Record<string, { bg: string; color: string; label: string }> = {
+  breaking: { bg: `${C.red}18`, color: C.red, label: 'BREAKING' },
+  trending: { bg: `${C.blueBright}18`, color: C.blueBright, label: 'TRENDING' },
+  alert: { bg: `${C.yellow}18`, color: C.yellow, label: 'ALERT' },
+  update: { bg: `${C.green}18`, color: C.green, label: 'UPDATE' },
+  research: { bg: `${C.purple}18`, color: C.purple, label: 'RESEARCH' },
+};
 
 // ─── COMPONENTS ───
 
-const Sparkline: React.FC<{ data: number[]; color: string; w?: number; h?: number }> = ({ data, color, w = 100, h = 32 }) => {
+const Sparkline: React.FC<{ data: number[]; color: string; w?: number; h?: number }> = ({ data, color, w = 60, h = 20 }) => {
   const max = Math.max(...data), min = Math.min(...data), r = max - min || 1;
   const pts = data.map((v, i) => ({ x: (i / (data.length - 1)) * w, y: h - ((v - min) / r) * (h - 4) - 2 }));
   const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  const gId = `sp-${color.replace('#','')}`;
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <defs><linearGradient id={gId} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={0.12} /><stop offset="100%" stopColor={color} stopOpacity={0} /></linearGradient></defs>
-      <path d={`${d} L${w},${h} L0,${h} Z`} fill={`url(#${gId})`} />
+      <defs><linearGradient id={`sp${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={0.1} /><stop offset="100%" stopColor={color} stopOpacity={0} /></linearGradient></defs>
+      <path d={`${d} L${w},${h} L0,${h} Z`} fill={`url(#sp${color.replace('#','')})`} />
       <path d={d} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
     </svg>
   );
 };
 
-const PctBadge: React.FC<{ value: number; size?: 'sm' | 'md' }> = ({ value, size = 'sm' }) => {
-  const pos = value >= 0;
-  const color = pos ? C.green : C.red;
-  const fontSize = size === 'md' ? '12px' : '10px';
-  return (
-    <span className="font-bold tabular-nums" style={{ color, fontSize }}>
-      {pos ? '+' : ''}{value.toFixed(1)}%
-    </span>
-  );
-};
-
-const ConditionDot: React.FC<{ condition?: string }> = ({ condition }) => {
-  const color = condition === 'Critical' ? C.red : condition === 'Improving' ? C.green : C.yellow;
+const CondDot: React.FC<{ status: string }> = ({ status }) => {
+  const color = status === 'critical' ? C.red : status === 'improving' ? C.green : C.yellow;
   return <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />;
 };
 
 const fmtUsd = (n: number) => n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : n >= 1e3 ? `$${(n/1e3).toFixed(1)}K` : `$${n}`;
 
-// ─── MAIN PAGE ───
+const TagBadge: React.FC<{ tag: string }> = ({ tag }) => {
+  const s = TAG_STYLES[tag];
+  if (!s) return null;
+  return <span className="text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wider" style={{ background: s.bg, color: s.color }}>{s.label}</span>;
+};
+
+const StoryCard: React.FC<{ story: NewsStory; featured?: boolean }> = ({ story, featured }) => {
+  const token = TOKENS.find(t => t.id === story.tokenId);
+  return (
+    <Link to={token ? `/charity/${token.id}` : '/map'}
+      className="block rounded-lg transition-all group"
+      style={{ background: C.surface, border: `1px solid ${C.border}` }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = C.blueDark; e.currentTarget.style.background = C.surfaceHover; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.background = C.surface; }}>
+      <div className={featured ? 'p-5' : 'p-4'}>
+        {/* Top line: tag + source + time */}
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
+          <TagBadge tag={story.tag} />
+          <span className="text-[10px]" style={{ color: C.textMuted }}>{story.category}</span>
+          <span className="text-[10px]" style={{ color: C.textMuted }}>·</span>
+          <span className="text-[10px]" style={{ color: C.textMuted }}>{story.source}</span>
+          <span className="text-[10px] ml-auto flex-shrink-0" style={{ color: C.textMuted }}>{story.time}</span>
+        </div>
+
+        {/* Headline */}
+        <h3 className={`font-bold leading-snug mb-2 group-hover:text-[${C.blueBright}] transition-colors ${featured ? 'text-base sm:text-lg' : 'text-sm'}`}
+          style={{ color: C.text }}>
+          {story.headline}
+        </h3>
+
+        {/* Summary */}
+        <p className={`leading-relaxed mb-3 ${featured ? 'text-sm' : 'text-xs line-clamp-2'}`} style={{ color: C.textSecondary }}>
+          {story.summary}
+        </p>
+
+        {/* Stats row (if any) */}
+        {story.stats && (
+          <div className="flex flex-wrap gap-3 mb-3">
+            {story.stats.map(s => (
+              <div key={s.label} className="px-2.5 py-1.5 rounded" style={{ background: C.elevated }}>
+                <div className="text-[9px] uppercase tracking-wider" style={{ color: C.textMuted }}>{s.label}</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold tabular-nums" style={{ color: C.text }}>{s.value}</span>
+                  {s.change !== undefined && (
+                    <span className="text-[10px] font-bold tabular-nums" style={{ color: s.change >= 0 ? C.green : C.red }}>
+                      {s.change >= 0 ? '+' : ''}{s.change}%
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Token link */}
+        {token && (
+          <div className="flex items-center gap-2 pt-2" style={{ borderTop: `1px solid ${C.borderSubtle}` }}>
+            <img src={token.logo} alt={token.ticker} className="w-5 h-5 rounded-full object-cover" style={{ border: `1px solid ${C.border}` }} />
+            <span className="text-[11px] font-semibold" style={{ color: C.textSecondary }}>{token.ticker}</span>
+            <span className="text-[10px] font-bold tabular-nums" style={{ color: C.text }}>{token.impactScore.toFixed(1)}</span>
+            <span className="text-[10px] font-bold tabular-nums" style={{ color: token.change24h >= 0 ? C.green : C.red }}>
+              {token.change24h >= 0 ? '+' : ''}{token.change24h}%
+            </span>
+            <Sparkline data={token.sparkline} color={token.change24h >= 0 ? C.green : C.red} w={48} h={16} />
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+};
+
+// ─── MAIN ───
 
 const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -201,61 +261,33 @@ const HomePage: React.FC = () => {
   const userLevel = user?.level || calculateLevel(userXp);
   const xpProg = getXpProgress(userXp);
 
-  const [sortKey, setSortKey] = useState<SortKey>('impactScore');
-  const [sortAsc, setSortAsc] = useState(false);
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('24h');
-  const [selectedToken, setSelectedToken] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+  const [topic, setTopic] = useState('All');
+  const [activeStream, setActiveStream] = useState(0);
 
-  const categories = useMemo(() => ['All', ...Array.from(new Set(TOKENS.map(t => t.category)))], []);
-
-  const sortedTokens = useMemo(() => {
-    let list = [...TOKENS];
-    if (categoryFilter !== 'All') list = list.filter(t => t.category === categoryFilter);
-    list.sort((a, b) => {
-      const av = a[sortKey] as number, bv = b[sortKey] as number;
-      return sortAsc ? av - bv : bv - av;
-    });
-    return list;
-  }, [sortKey, sortAsc, categoryFilter]);
-
-  const handleSort = (key: SortKey) => {
-    if (sortKey === key) setSortAsc(!sortAsc);
-    else { setSortKey(key); setSortAsc(false); }
-  };
-
-  const selected = selectedToken ? TOKENS.find(t => t.id === selectedToken) : null;
-
-  // Simulated live tick
-  const [tick, setTick] = useState(0);
+  // Live viewer count simulation
+  const [viewerOffset, setViewerOffset] = useState(0);
   useEffect(() => {
-    const iv = setInterval(() => setTick(t => t + 1), 5000);
+    const iv = setInterval(() => setViewerOffset(Math.floor(Math.random() * 30) - 15), 4000);
     return () => clearInterval(iv);
   }, []);
 
-  const SortHeader: React.FC<{ label: string; k: SortKey; align?: string }> = ({ label, k, align = 'text-right' }) => (
-    <button onClick={() => handleSort(k)}
-      className={`${align} text-[9px] uppercase tracking-widest font-semibold transition-colors w-full`}
-      style={{ color: sortKey === k ? C.blueBright : C.textMuted }}>
-      {label}{sortKey === k ? (sortAsc ? ' ▲' : ' ▼') : ''}
-    </button>
-  );
+  const filteredNews = topic === 'All' ? NEWS : NEWS.filter(n => n.category === topic);
 
   return (
     <div className="min-h-screen" style={{ background: C.bg }}>
 
-      {/* ─── TOP BAR: XP / Sign in ─── */}
+      {/* ─── TOP BAR ─── */}
       <div style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-5 py-2 flex items-center justify-between gap-3">
+        <div className="max-w-[1600px] mx-auto px-3 sm:px-5 py-2 flex items-center gap-3">
           {isConnected ? (
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
               <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
                 style={{ background: `linear-gradient(135deg, ${C.blueDark}, ${C.blueBright})`, color: '#fff' }}>
                 {(user?.username || 'E')[0].toUpperCase()}
               </div>
               <span className="text-xs font-semibold truncate" style={{ color: C.text }}>{user?.username || 'Explorer'}</span>
               <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: C.elevated, color: C.blueBright }}>Lv {userLevel}</span>
-              <div className="hidden sm:flex items-center gap-2 flex-1 max-w-[200px]">
+              <div className="hidden sm:flex items-center gap-2 max-w-[180px]">
                 <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: C.elevated }}>
                   <div className="h-full rounded-full" style={{ width: `${Math.min(100, xpProg.percentage)}%`, background: C.blueBright }} />
                 </div>
@@ -263,278 +295,193 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 flex-1">
-              <span className="text-xs" style={{ color: C.textSecondary }}>Sign in to track impact and earn XP</span>
-            </div>
+            <span className="text-xs flex-1" style={{ color: C.textSecondary }}>Sign in to track impact and earn XP</span>
           )}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded" style={{ background: C.elevated }}>
+            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded" style={{ background: C.elevated }}>
               <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: C.green }} />
               <span className="text-[10px] tabular-nums" style={{ color: C.textSecondary }}>
-                {fmtUsd(TOKENS.reduce((s, t) => s + t.volume24h, 0))} 24h vol
+                {fmtUsd(TOKENS.reduce((s, t) => s + t.volume24h, 0))} 24h
               </span>
             </div>
-            <Link to="/map" className="text-[10px] font-semibold px-2 py-1 rounded" style={{ background: C.elevated, color: C.blueBright }}>
+            <Link to="/map" className="text-[10px] font-semibold px-2 py-1 rounded transition-colors"
+              style={{ background: C.elevated, color: C.blueBright }}>
               Map
             </Link>
           </div>
         </div>
       </div>
 
-      {/* ─── FILTER BAR ─── */}
+      {/* ─── TOPIC FILTER ─── */}
       <div style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-5 py-1.5 flex items-center gap-3 overflow-x-auto scrollbar-hide">
-          {/* Category pills */}
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {categories.map(cat => (
-              <button key={cat} onClick={() => setCategoryFilter(cat)}
-                className="px-2.5 py-1 rounded text-[10px] font-semibold transition-all whitespace-nowrap"
-                style={categoryFilter === cat
-                  ? { background: `${C.blueDark}30`, color: C.blueBright, border: `1px solid ${C.blueDark}` }
-                  : { background: 'transparent', color: C.textMuted, border: `1px solid transparent` }
-                }>
-                {cat}
-              </button>
-            ))}
-          </div>
-          <div className="w-px h-4 flex-shrink-0" style={{ background: C.border }} />
-          {/* Time filter */}
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {(['1h','24h','7d','30d'] as TimeFilter[]).map(t => (
-              <button key={t} onClick={() => setTimeFilter(t)}
-                className="px-2 py-0.5 rounded text-[10px] font-semibold transition-all"
-                style={timeFilter === t
-                  ? { background: C.elevated, color: C.text }
-                  : { color: C.textMuted }
-                }>
-                {t}
-              </button>
-            ))}
-          </div>
+        <div className="max-w-[1600px] mx-auto px-3 sm:px-5 py-1.5 flex items-center gap-1 overflow-x-auto scrollbar-hide">
+          {TOPICS.map(t => (
+            <button key={t} onClick={() => setTopic(t)}
+              className="px-3 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap"
+              style={topic === t
+                ? { background: `${C.blueDark}30`, color: C.blueBright, border: `1px solid ${C.blueDark}` }
+                : { background: 'transparent', color: C.textMuted, border: '1px solid transparent' }
+              }>
+              {t}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* ─── MAIN GRID ─── */}
-      <div className="max-w-[1600px] mx-auto flex" style={{ height: 'calc(100vh - 140px)' }}>
+      {/* ─── MAIN CONTENT ─── */}
+      <div className="max-w-[1600px] mx-auto flex gap-0" style={{ height: 'calc(100vh - 98px)' }}>
 
-        {/* ─── TOKEN TABLE (left) ─── */}
-        <div className="flex-1 min-w-0 flex flex-col overflow-hidden" style={{ borderRight: `1px solid ${C.borderSubtle}` }}>
-          {/* Table header */}
-          <div className="flex items-center gap-0 px-3 py-1.5 flex-shrink-0" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
-            <div className="w-8 text-[9px] uppercase tracking-widest font-semibold" style={{ color: C.textMuted }}>#</div>
-            <div className="flex-1 min-w-[160px] text-[9px] uppercase tracking-widest font-semibold text-left" style={{ color: C.textMuted }}>Token</div>
-            <div className="w-[100px] hidden lg:block"><SortHeader label="Impact" k="impactScore" /></div>
-            <div className="w-[65px]"><SortHeader label={timeFilter} k="impactChange24h" /></div>
-            <div className="w-[80px] hidden md:block"><SortHeader label="Volume" k="volume24h" /></div>
-            <div className="w-[80px] hidden md:block"><SortHeader label="Total" k="totalRaised" /></div>
-            <div className="w-[65px] hidden lg:block"><SortHeader label="Donors" k="donors" /></div>
-            <div className="w-[110px] hidden lg:block text-right text-[9px] uppercase tracking-widest font-semibold" style={{ color: C.textMuted }}>Chart</div>
-            <div className="w-[140px] hidden xl:block text-[9px] uppercase tracking-widest font-semibold text-left pl-3" style={{ color: C.textMuted }}>Conditions</div>
-          </div>
+        {/* ════ LEFT: NEWS FEED ════ */}
+        <div className="flex-1 min-w-0 overflow-y-auto px-3 sm:px-5 py-4" style={{ borderRight: `1px solid ${C.borderSubtle}` }}>
+          <div className="max-w-[800px] space-y-4">
 
-          {/* Scrollable rows */}
-          <div className="flex-1 overflow-y-auto">
-            {sortedTokens.map((t, i) => {
-              const changeColor = t.impactChange24h >= 0 ? C.green : C.red;
-              const isSelected = selectedToken === t.id;
-              return (
-                <div key={t.id}
-                  className="flex items-center gap-0 px-3 py-2.5 cursor-pointer transition-colors"
-                  style={{
-                    borderBottom: `1px solid ${C.borderSubtle}`,
-                    background: isSelected ? C.surfaceHover : 'transparent',
-                    borderLeft: isSelected ? `2px solid ${C.blueBright}` : '2px solid transparent',
-                  }}
-                  onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = C.surfaceHover; }}
-                  onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
-                  onClick={() => setSelectedToken(isSelected ? null : t.id)}>
+            {/* Featured story */}
+            {(topic === 'All' || FEATURED.category === topic) && (
+              <StoryCard story={FEATURED} featured />
+            )}
 
-                  <div className="w-8 text-xs font-bold tabular-nums" style={{ color: C.textMuted }}>{i + 1}</div>
-
-                  {/* Token name */}
-                  <div className="flex-1 min-w-[160px] flex items-center gap-2.5">
-                    <img src={t.logo} alt={t.name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" style={{ border: `1px solid ${C.border}` }} />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold" style={{ color: C.text }}>{t.ticker}</span>
-                        <span className="text-[9px] px-1 py-px rounded" style={{ background: C.elevated, color: C.textMuted }}>{t.category}</span>
-                      </div>
-                      <div className="text-[10px] truncate" style={{ color: C.textMuted }}>{t.name}</div>
-                    </div>
-                  </div>
-
-                  {/* Impact score */}
-                  <div className="w-[100px] hidden lg:block text-right">
-                    <span className="text-sm font-bold tabular-nums" style={{ color: C.text }}>{t.impactScore.toFixed(1)}</span>
-                  </div>
-
-                  {/* Change */}
-                  <div className="w-[65px] text-right">
-                    <PctBadge value={t.impactChange24h} size="sm" />
-                  </div>
-
-                  {/* Volume */}
-                  <div className="w-[80px] hidden md:block text-right">
-                    <div className="text-[11px] font-semibold tabular-nums" style={{ color: C.text }}>{fmtUsd(t.volume24h)}</div>
-                    <PctBadge value={t.volumeChange} />
-                  </div>
-
-                  {/* Total raised */}
-                  <div className="w-[80px] hidden md:block text-right">
-                    <span className="text-[11px] font-semibold tabular-nums" style={{ color: C.text }}>{fmtUsd(t.totalRaised)}</span>
-                  </div>
-
-                  {/* Donors */}
-                  <div className="w-[65px] hidden lg:block text-right">
-                    <div className="text-[11px] tabular-nums" style={{ color: C.textSecondary }}>{t.donors.toLocaleString()}</div>
-                  </div>
-
-                  {/* Sparkline */}
-                  <div className="w-[110px] hidden lg:flex justify-end">
-                    <Sparkline data={t.sparkline} color={changeColor} w={90} h={28} />
-                  </div>
-
-                  {/* Weather/conditions */}
-                  <div className="w-[140px] hidden xl:flex items-center gap-1.5 pl-3">
-                    <ConditionDot condition={t.weather.condition} />
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-semibold truncate" style={{ color: C.text }}>{t.weather.value}</div>
-                      <div className="text-[9px] truncate" style={{ color: C.textMuted }}>{t.weather.metric}</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {/* News grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {filteredNews.map(story => (
+                <StoryCard key={story.id} story={story} />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* ─── DETAIL PANEL (right) ─── */}
-        <div className="hidden md:flex flex-col w-[340px] lg:w-[380px] xl:w-[420px] overflow-hidden flex-shrink-0">
-          <AnimatePresence mode="wait">
-            {selected ? (
-              <motion.div key={selected.id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 12 }} transition={{ duration: 0.15 }}
-                className="flex flex-col h-full overflow-y-auto">
+        {/* ════ RIGHT SIDEBAR ════ */}
+        <div className="hidden lg:flex flex-col w-[320px] xl:w-[360px] overflow-y-auto flex-shrink-0">
 
-                {/* Header */}
-                <div className="px-4 py-3 flex items-center gap-3 flex-shrink-0" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
-                  <img src={selected.logo} alt={selected.name} className="w-10 h-10 rounded-full object-cover" style={{ border: `1px solid ${C.border}` }} />
+          {/* Live Stream */}
+          <div className="flex-shrink-0" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
+            <div className="px-4 py-2.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-xs font-semibold" style={{ color: C.text }}>Live</span>
+              </div>
+              <Link to="/live" className="text-[10px] font-semibold" style={{ color: C.blueBright }}>All streams</Link>
+            </div>
+            {/* Stream embed */}
+            <div className="relative" style={{ paddingTop: '56.25%' }}>
+              <iframe
+                src={STREAMS[activeStream].embedUrl}
+                title={STREAMS[activeStream].title}
+                className="absolute inset-0 w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; encrypted-media"
+              />
+            </div>
+            {/* Stream info + switcher */}
+            <div className="px-4 py-2.5">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <div className="text-xs font-semibold" style={{ color: C.text }}>{STREAMS[activeStream].title}</div>
+                  <div className="text-[10px]" style={{ color: C.textMuted }}>{STREAMS[activeStream].location}</div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: C.green }} />
+                  <span className="text-[10px] tabular-nums" style={{ color: C.textSecondary }}>
+                    {(STREAMS[activeStream].viewers + viewerOffset).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              {/* Stream tabs */}
+              <div className="flex gap-1">
+                {STREAMS.map((s, i) => (
+                  <button key={s.id} onClick={() => setActiveStream(i)}
+                    className="flex-1 py-1 rounded text-[10px] font-semibold transition-all"
+                    style={activeStream === i
+                      ? { background: C.elevated, color: C.text, border: `1px solid ${C.border}` }
+                      : { color: C.textMuted, border: '1px solid transparent' }
+                    }>
+                    {s.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Token Watchlist */}
+          <div className="flex-shrink-0" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
+            <div className="px-4 py-2.5 flex items-center justify-between">
+              <span className="text-xs font-semibold" style={{ color: C.text }}>Watchlist</span>
+              <Link to="/donate" className="text-[10px] font-semibold" style={{ color: C.blueBright }}>All tokens</Link>
+            </div>
+            <div>
+              {TOKENS.map((t, i) => (
+                <Link key={t.id} to={`/charity/${t.id}`}
+                  className="flex items-center gap-2.5 px-4 py-2 transition-colors"
+                  style={{ borderBottom: i < TOKENS.length - 1 ? `1px solid ${C.borderSubtle}` : 'none' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = C.surfaceHover)}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  <img src={t.logo} alt={t.ticker} className="w-7 h-7 rounded-full object-cover flex-shrink-0" style={{ border: `1px solid ${C.border}` }} />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold" style={{ color: C.text }}>{selected.ticker}</span>
-                      <PctBadge value={selected.impactChange24h} size="md" />
-                    </div>
-                    <div className="text-xs truncate" style={{ color: C.textSecondary }}>{selected.name}</div>
-                  </div>
-                  <Link to={`/charity/${selected.id}`} className="text-[10px] font-semibold px-2 py-1 rounded flex-shrink-0"
-                    style={{ background: C.blueDark, color: '#fff', border: `1px solid ${C.blue}` }}>
-                    Donate
-                  </Link>
-                </div>
-
-                {/* Impact chart area */}
-                <div className="px-4 py-3 flex-shrink-0" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
-                  <div className="flex items-end gap-2 mb-2">
-                    <span className="text-2xl font-black tabular-nums" style={{ color: C.text }}>{selected.impactScore.toFixed(1)}</span>
-                    <span className="text-xs mb-1" style={{ color: C.textMuted }}>Impact Score</span>
-                  </div>
-                  <Sparkline data={selected.sparkline} color={selected.impactChange24h >= 0 ? C.green : C.red} w={360} h={60} />
-                </div>
-
-                {/* Metrics grid */}
-                <div className="grid grid-cols-3 gap-0 flex-shrink-0" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
-                  {[
-                    { label: '24h Volume', val: fmtUsd(selected.volume24h), change: selected.volumeChange },
-                    { label: 'Total Raised', val: fmtUsd(selected.totalRaised) },
-                    { label: 'Donors', val: selected.donors.toLocaleString(), change: selected.donorsChange },
-                  ].map((m, i) => (
-                    <div key={m.label} className="px-3 py-2.5 text-center" style={{ borderRight: i < 2 ? `1px solid ${C.borderSubtle}` : 'none' }}>
-                      <div className="text-[9px] uppercase tracking-wider mb-0.5" style={{ color: C.textMuted }}>{m.label}</div>
-                      <div className="text-xs font-bold tabular-nums" style={{ color: C.text }}>{m.val}</div>
-                      {m.change !== undefined && <PctBadge value={m.change} />}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Weather / conditions */}
-                <div className="px-4 py-3 flex-shrink-0" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
-                  <div className="text-[9px] uppercase tracking-wider mb-2 font-semibold" style={{ color: C.textMuted }}>Conservation Conditions</div>
-                  <div className="rounded-lg p-3" style={{ background: C.elevated }}>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <ConditionDot condition={selected.weather.condition} />
-                        <span className="text-xs font-bold" style={{ color: C.text }}>{selected.weather.metric}</span>
-                      </div>
-                      <span className="text-sm font-black tabular-nums" style={{ color: C.text }}>{selected.weather.value}</span>
-                    </div>
-                    {selected.weather.temp && (
-                      <div className="text-[10px] mb-1" style={{ color: C.textSecondary }}>Temperature: {selected.weather.temp}</div>
-                    )}
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
-                        style={{
-                          background: selected.weather.condition === 'Critical' ? `${C.red}15` : selected.weather.condition === 'Improving' ? `${C.green}15` : `${C.yellow}15`,
-                          color: selected.weather.condition === 'Critical' ? C.red : selected.weather.condition === 'Improving' ? C.green : C.yellow,
-                        }}>
-                        {selected.weather.condition}
-                      </span>
-                      <span className="text-[10px]" style={{ color: C.textMuted }}>{selected.weather.detail}</span>
+                      <span className="text-[11px] font-bold" style={{ color: C.text }}>{t.ticker}</span>
+                      <span className="text-[10px] font-bold tabular-nums" style={{ color: C.textSecondary }}>{t.impactScore.toFixed(1)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CondDot status={t.conditionStatus} />
+                      <span className="text-[9px]" style={{ color: C.textMuted }}>{t.condition}</span>
                     </div>
                   </div>
-                </div>
-
-                {/* Missions */}
-                <div className="px-4 py-3 flex-shrink-0" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
-                  <div className="text-[9px] uppercase tracking-wider mb-2 font-semibold" style={{ color: C.textMuted }}>Active Missions</div>
-                  <div className="space-y-2">
-                    {selected.missions.map(m => (
-                      <div key={m.name}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[11px] font-semibold truncate" style={{ color: C.text }}>{m.name}</span>
-                          <span className="text-[10px] font-bold tabular-nums" style={{ color: C.textSecondary }}>{m.progress}%</span>
-                        </div>
-                        <div className="h-1 rounded-full overflow-hidden" style={{ background: C.elevated }}>
-                          <div className="h-full rounded-full" style={{
-                            width: `${m.progress}%`,
-                            background: m.status === 'funded' ? C.purple : m.status === 'voting' ? C.blueBright : C.green,
-                          }} />
-                        </div>
-                      </div>
-                    ))}
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-[10px] font-bold tabular-nums" style={{ color: t.change24h >= 0 ? C.green : C.red }}>
+                      {t.change24h >= 0 ? '+' : ''}{t.change24h}%
+                    </div>
+                    <Sparkline data={t.sparkline} color={t.change24h >= 0 ? C.green : C.red} w={44} h={14} />
                   </div>
-                </div>
+                </Link>
+              ))}
+            </div>
+          </div>
 
-                {/* News feed */}
-                <div className="px-4 py-3 flex-1">
-                  <div className="text-[9px] uppercase tracking-wider mb-2 font-semibold" style={{ color: C.textMuted }}>Trending News</div>
-                  <div className="space-y-0">
-                    {selected.news.map((n, i) => (
-                      <div key={i} className="flex items-start gap-2 py-2" style={{ borderBottom: i < selected.news.length - 1 ? `1px solid ${C.borderSubtle}` : 'none' }}>
-                        <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{
-                          background: n.type === 'alert' ? C.red : n.type === 'milestone' ? C.green : n.type === 'donation' ? C.blueBright : C.textMuted,
-                        }} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] leading-relaxed" style={{ color: C.textSecondary }}>{n.text}</p>
-                          <span className="text-[9px] tabular-nums" style={{ color: C.textMuted }}>{n.time} ago</span>
-                        </div>
-                      </div>
-                    ))}
+          {/* Climate Conditions Summary */}
+          <div className="flex-shrink-0 px-4 py-3" style={{ borderBottom: `1px solid ${C.borderSubtle}` }}>
+            <div className="text-[9px] uppercase tracking-wider font-semibold mb-2.5" style={{ color: C.textMuted }}>Global Conditions</div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: 'Arctic Ice', value: '14.2M km²', status: 'critical' as const, delta: '-3.4%' },
+                { label: 'CO2 Level', value: '423 ppm', status: 'critical' as const, delta: '+0.6%' },
+                { label: 'Ocean Temp', value: '+1.18C', status: 'critical' as const, delta: '+0.04' },
+                { label: 'Forest Loss', value: '-4.1M ha/yr', status: 'improving' as const, delta: '-18%' },
+              ].map(c => (
+                <div key={c.label} className="rounded-md p-2.5" style={{ background: C.elevated }}>
+                  <div className="flex items-center gap-1 mb-1">
+                    <CondDot status={c.status} />
+                    <span className="text-[9px] uppercase tracking-wider" style={{ color: C.textMuted }}>{c.label}</span>
                   </div>
+                  <div className="text-xs font-bold tabular-nums" style={{ color: C.text }}>{c.value}</div>
+                  <div className="text-[10px] font-semibold tabular-nums" style={{ color: c.status === 'improving' ? C.green : C.red }}>{c.delta}</div>
                 </div>
-              </motion.div>
-            ) : (
-              <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center h-full px-6 text-center">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ background: C.elevated }}>
-                  <svg className="w-6 h-6" fill="none" stroke={C.textMuted} viewBox="0 0 24 24" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5" />
+              ))}
+            </div>
+          </div>
+
+          {/* Quick links */}
+          <div className="px-4 py-3 flex-shrink-0">
+            <div className="space-y-1.5">
+              {[
+                { label: 'Explore the Map', to: '/map', desc: 'See all active missions worldwide' },
+                { label: 'Governance', to: '/vote', desc: 'Vote on conservation proposals' },
+                { label: 'Live Cams', to: '/live', desc: 'Watch wildlife streams' },
+              ].map(link => (
+                <Link key={link.to} to={link.to}
+                  className="flex items-center justify-between px-3 py-2 rounded-md transition-colors"
+                  style={{ background: 'transparent' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = C.elevated)}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  <div>
+                    <div className="text-[11px] font-semibold" style={{ color: C.text }}>{link.label}</div>
+                    <div className="text-[10px]" style={{ color: C.textMuted }}>{link.desc}</div>
+                  </div>
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke={C.textMuted} viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                   </svg>
-                </div>
-                <p className="text-sm font-semibold mb-1" style={{ color: C.text }}>Select a token</p>
-                <p className="text-xs leading-relaxed" style={{ color: C.textMuted }}>
-                  Click any conservation token to view detailed impact metrics, weather conditions, and trending news.
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
