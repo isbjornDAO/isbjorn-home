@@ -169,16 +169,16 @@ const VotePage: React.FC = () => {
         </div>
 
         {/* Governance Flow Illustration */}
-        <div className="w-full max-w-2xl mx-auto mb-10 overflow-hidden rounded-xl border border-ice-200 shadow-lg">
+        <div className="w-full max-w-2xl mx-auto mb-6 sm:mb-10 overflow-hidden rounded-xl border border-ice-200 shadow-lg">
           <img
             src={image0}
             alt="Governance flow: Discussion, Proposals, Voting, Execution, Review"
-            className="w-full h-auto object-cover"
+            className="w-full h-auto object-cover max-h-48 sm:max-h-none"
           />
         </div>
 
         {/* Node Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {/* Validator Nodes */}
           <div className="bg-white rounded-lg shadow-sm border border-ice-100 p-5">
             <div className="flex items-center gap-3 mb-3">
@@ -255,8 +255,8 @@ const VotePage: React.FC = () => {
                 <h2 className="text-lg font-bold text-ice-900">Non-Profit DAOs</h2>
               </div>
 
-              {/* Table Header */}
-              <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-ice-100 text-xs font-semibold text-ice-600">
+              {/* Table Header — hidden on mobile */}
+              <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-3 border-b border-ice-100 text-xs font-semibold text-ice-600">
                 <div className="col-span-6">Name</div>
                 <div className="col-span-2 text-center">Active</div>
                 <div className="col-span-2 text-center">Proposals</div>
@@ -269,26 +269,53 @@ const VotePage: React.FC = () => {
                   <div
                     key={dao.id}
                     onClick={() => setSelectedDAO(dao.id)}
-                    className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-ice-50 hover:bg-ice-50 cursor-pointer transition-colors"
+                    className="cursor-pointer hover:bg-ice-50 transition-colors border-b border-ice-50 last:border-b-0"
                   >
-                    <div className="col-span-6 flex items-center gap-3">
-                      {dao.logoUrl ? (
-                        <img src={dao.logoUrl} alt={dao.name} className="w-8 h-8 rounded-full object-contain bg-white border border-ice-200" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-arctic-100 flex items-center justify-center">
-                          <span className="text-xs font-bold text-arctic-600">{dao.name.charAt(0)}</span>
+                    {/* Mobile card layout */}
+                    <div className="flex items-center justify-between px-4 py-3 sm:hidden gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {dao.logoUrl ? (
+                          <img src={dao.logoUrl} alt={dao.name} className="w-9 h-9 rounded-full object-contain bg-white border border-ice-200 flex-shrink-0" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-arctic-100 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-arctic-600">{dao.name.charAt(0)}</span>
+                          </div>
+                        )}
+                        <span className="font-semibold text-ice-900 text-sm truncate">{dao.name}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs flex-shrink-0">
+                        <div className="text-center">
+                          <div className="font-bold text-ice-900">{dao.activeProposals}</div>
+                          <div className="text-ice-500">active</div>
                         </div>
-                      )}
-                      <span className="font-semibold text-ice-900">{dao.name}</span>
+                        <div className="text-center">
+                          <div className="text-ice-600">{formatNumber(dao.followers)}</div>
+                          <div className="text-ice-500">followers</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="col-span-2 text-center flex items-center justify-center">
-                      <span className="text-sm font-bold text-ice-900">{dao.activeProposals}</span>
-                    </div>
-                    <div className="col-span-2 text-center flex items-center justify-center">
-                      <span className="text-sm text-ice-600">{dao.totalProposals}</span>
-                    </div>
-                    <div className="col-span-2 text-center flex items-center justify-center">
-                      <span className="text-sm text-ice-600">{formatNumber(dao.followers)}</span>
+
+                    {/* Desktop row layout */}
+                    <div className="hidden sm:grid grid-cols-12 gap-4 px-4 py-3">
+                      <div className="col-span-6 flex items-center gap-3">
+                        {dao.logoUrl ? (
+                          <img src={dao.logoUrl} alt={dao.name} className="w-8 h-8 rounded-full object-contain bg-white border border-ice-200" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-arctic-100 flex items-center justify-center">
+                            <span className="text-xs font-bold text-arctic-600">{dao.name.charAt(0)}</span>
+                          </div>
+                        )}
+                        <span className="font-semibold text-ice-900">{dao.name}</span>
+                      </div>
+                      <div className="col-span-2 text-center flex items-center justify-center">
+                        <span className="text-sm font-bold text-ice-900">{dao.activeProposals}</span>
+                      </div>
+                      <div className="col-span-2 text-center flex items-center justify-center">
+                        <span className="text-sm text-ice-600">{dao.totalProposals}</span>
+                      </div>
+                      <div className="col-span-2 text-center flex items-center justify-center">
+                        <span className="text-sm text-ice-600">{formatNumber(dao.followers)}</span>
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -655,6 +655,7 @@ const MapPage: React.FC = () => {
   const [updateCount, setUpdateCount] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<'map' | 'transactions'>('map');
+  const [showMobileTimeline, setShowMobileTimeline] = useState(false);
 
   // News feed state - people from organizations
   const [newsFeed, setNewsFeed] = useState([
@@ -1277,15 +1278,15 @@ const MapPage: React.FC = () => {
   return (
     <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col overflow-hidden">
       {/* Clean Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-6 py-2 flex items-center justify-between z-10 shadow-sm flex-shrink-0">
-        <div className="flex items-center space-x-4 flex-1">
+      <div className="bg-white/80 backdrop-blur-lg border-b border-blue-100 px-3 sm:px-6 py-2 flex items-center justify-between z-10 shadow-sm flex-shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
           {/* Trending Non-Profits */}
-          <div className="flex items-center gap-4 flex-1 overflow-hidden">
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              <span className="text-sm font-bold text-gray-700">Trending</span>
+          <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0 overflow-hidden">
+            <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap flex-shrink-0">
+              <span className="text-xs sm:text-sm font-bold text-gray-700 hidden sm:inline">Trending</span>
               <BoltIcon className="w-4 h-4" style={{ color: 'rgb(3, 105, 161)' }} />
             </div>
-            <div className="flex items-center gap-2 flex-1 overflow-hidden">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none' }}>
               {[
                 { id: '1', name: 'Isbjorn', category: 'Climate', funding: 58000, projects: 45, region: 'Global', slug: 'isbjorn' },
                 { id: '2', name: 'NRDC', category: 'Climate', funding: 58000, projects: 45, region: 'Americas', slug: 'nrdc' },
@@ -1341,29 +1342,29 @@ const MapPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
 
-          <div className="h-6 w-px bg-blue-200"></div>
+          <div className="h-6 w-px bg-blue-200 hidden sm:block"></div>
 
           {/* View Mode Toggle */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             onClick={() => setViewMode(viewMode === 'map' ? 'transactions' : 'map')}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
+            className={`p-2 sm:px-4 sm:py-2 rounded-lg transition-all flex items-center sm:space-x-2 shadow-sm ${
               viewMode === 'transactions'
                 ? 'bg-gray-900 text-white shadow-lg'
                 : 'bg-white border border-blue-200 hover:bg-blue-50 text-gray-700'
             }`}
           >
             {viewMode === 'map' ? <RectangleStackIcon className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
-            <span className="text-sm font-semibold">{viewMode === 'map' ? 'Transaction Board' : 'Map View'}</span>
+            <span className="hidden sm:inline text-sm font-semibold">{viewMode === 'map' ? 'Transaction Board' : 'Map View'}</span>
           </motion.button>
 
           {/* Filter Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             onClick={() => setShowFilterPanel(!showFilterPanel)}
-            className={`px-4 py-2 rounded-lg transition-all flex items-center space-x-2 shadow-sm ${
+            className={`p-2 sm:px-4 sm:py-2 rounded-lg transition-all flex items-center sm:space-x-2 shadow-sm ${
               showFilterPanel
                 ? 'text-white shadow-lg'
                 : 'bg-white border border-blue-200 hover:bg-blue-50'
@@ -1371,7 +1372,7 @@ const MapPage: React.FC = () => {
             style={showFilterPanel ? { backgroundColor: 'rgb(3, 105, 161)' } : { color: 'rgb(3, 105, 161)' }}
           >
             <FunnelIcon className="w-5 h-5" />
-            <span className="text-sm font-semibold">Filter</span>
+            <span className="hidden sm:inline text-sm font-semibold">Filter</span>
           </motion.button>
 
           {/* Refresh */}
@@ -1389,9 +1390,9 @@ const MapPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex relative px-4 pb-4 pt-4 gap-4 overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
+      <div className="flex flex-col md:flex-row relative px-2 sm:px-4 pb-2 sm:pb-4 pt-2 sm:pt-4 gap-2 sm:gap-4 overflow-hidden" style={{ height: 'calc(100vh - 52px)' }}>
         {/* Conditional View: Map or Transaction Board */}
-        <div className="flex-1 relative rounded-2xl shadow-xl border border-blue-200 overflow-hidden min-w-0" style={{ backgroundColor: 'rgb(3, 105, 161)', height: '100%' }}>
+        <div className="flex-1 relative rounded-xl sm:rounded-2xl shadow-xl border border-blue-200 overflow-hidden min-w-0" style={{ backgroundColor: 'rgb(3, 105, 161)', height: '100%' }}>
           {viewMode === 'transactions' ? (
             <div className="h-full overflow-auto">
               <TransactionBoard />
@@ -1747,7 +1748,7 @@ const MapPage: React.FC = () => {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 320, opacity: 0 }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute right-6 top-6 w-96 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] max-h-[calc(100vh-160px)] overflow-hidden flex flex-col"
+              className="absolute inset-x-2 sm:inset-x-auto sm:right-6 top-2 sm:top-6 sm:w-96 bg-white backdrop-blur-xl border border-blue-200 rounded-2xl shadow-2xl z-[1000] max-h-[calc(100vh-120px)] overflow-hidden flex flex-col"
             >
               <div className="px-5 py-4 border-b border-blue-200 flex items-center justify-between bg-white">
                 <div className="flex items-center space-x-2">
@@ -1907,8 +1908,100 @@ const MapPage: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Right Side Panel - Timeline */}
-        <div className="w-96 flex flex-col gap-3" style={{ height: '100%' }}>
+        {/* Mobile Timeline FAB */}
+        <button
+          onClick={() => setShowMobileTimeline(true)}
+          className="md:hidden fixed bottom-5 right-4 z-[1200] flex items-center gap-2 bg-[rgb(3,105,161)] text-white px-4 py-3 rounded-full shadow-2xl font-semibold text-sm"
+        >
+          <SignalIcon className="w-5 h-5" />
+          Timeline
+        </button>
+
+        {/* Mobile Timeline Bottom Sheet */}
+        <AnimatePresence>
+          {showMobileTimeline && (
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="md:hidden fixed inset-x-0 bottom-0 z-[1300] bg-white rounded-t-2xl shadow-2xl border-t border-blue-200"
+              style={{ maxHeight: '75vh' }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-blue-100">
+                <h3 className="font-bold text-[rgb(3,105,161)] flex items-center gap-2">
+                  <SignalIcon className="w-5 h-5" /> Timeline
+                </h3>
+                <button onClick={() => setShowMobileTimeline(false)} className="p-1 rounded-lg hover:bg-blue-50">
+                  <XMarkIcon className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              <div className="overflow-y-auto p-3 space-y-2" style={{ maxHeight: 'calc(75vh - 56px)' }}>
+                {/* Isbjorn top mission card */}
+                <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm" onClick={() => navigate('/charity/isbjorn')}>
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-9 h-9 rounded-full overflow-hidden border border-gray-200">
+                      <img src={isbjornLogo} alt="Isbjorn" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <span className="text-sm font-bold text-gray-900">Isbjorn Foundation</span>
+                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse ml-1"></div>
+                        <span className="text-xs font-semibold text-red-600">LIVE</span>
+                      </div>
+                      <h4 className="font-bold text-sm text-gray-800 mb-1">Polar Bear Conservation in Svalbard</h4>
+                      <p className="text-xs text-gray-500 line-clamp-2">Real-time monitoring in Svalbard, Norway.</p>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate('/live'); }}
+                        className="mt-2 text-xs bg-[rgb(3,105,161)] text-white px-3 py-1 rounded font-semibold"
+                      >
+                        Watch Live
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                {/* News feed */}
+                {newsFeed.map((news) => (
+                  <div
+                    key={news.id}
+                    className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-lg p-3"
+                    onClick={() => { navigate(`/charity/${news.ngoSlug}`); setShowMobileTimeline(false); }}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 w-9 h-9 rounded-full overflow-hidden bg-gray-200">
+                        <img src={news.authorPhoto} alt={news.authorName} className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(news.authorName)}&background=3b82f6&color=fff&size=128`; }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between mb-0.5">
+                          <span className="text-sm font-bold text-gray-900 truncate">{news.authorName}</span>
+                          <span className="text-xs text-gray-400 flex-shrink-0 ml-1">{Math.floor((Date.now() - news.timestamp.getTime()) / 3600000)}h</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mb-1">{news.authorRole} · {news.ngo}</div>
+                        <h4 className="font-bold text-xs text-gray-800 mb-1 line-clamp-1">{news.title}</h4>
+                        <p className="text-xs text-gray-600 line-clamp-2">{news.content}</p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: '#eff6ff', color: 'rgb(3, 105, 161)' }}>{news.category}</span>
+                          <div className="flex items-center gap-2 text-xs text-gray-500" onClick={(e) => e.stopPropagation()}>
+                            <button onClick={() => handleVote(news.id, 'up')} className={`flex items-center gap-0.5 ${news.userVote === 'up' ? 'text-green-600' : ''}`}>
+                              ▲ {news.upvotes}
+                            </button>
+                            <button onClick={() => handleVote(news.id, 'down')} className={`flex items-center gap-0.5 ${news.userVote === 'down' ? 'text-red-600' : ''}`}>
+                              ▼ {news.downvotes}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Right Side Panel - Timeline (desktop only) */}
+        <div className="hidden md:flex w-96 flex-col gap-3" style={{ height: '100%' }}>
           {/* Top Mission Card */}
           <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-all cursor-pointer" onClick={() => navigate('/charity/isbjorn')}>
             <div className="flex items-start gap-2">
